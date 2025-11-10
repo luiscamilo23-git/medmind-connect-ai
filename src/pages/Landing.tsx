@@ -168,68 +168,77 @@ const Landing = () => {
   return (
     <div className="min-h-screen overflow-hidden">
       {/* Hero Section */}
-      <section className="relative bg-gradient-hero py-32 px-4 overflow-hidden">
+      <section className="relative bg-background py-40 px-4 overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: "1s" }} />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
+          <div className="absolute top-40 left-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
+          <div className="absolute bottom-40 right-20 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
         </div>
 
         <div className="container mx-auto max-w-7xl relative z-10">
-          <div className="text-center space-y-8">
-            {/* Badge with animation */}
-            <div className="animate-fade-in-down opacity-0" style={{ animationDelay: "0.2s" }}>
-              <span className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 bg-white/10 backdrop-blur-md rounded-full text-white border border-white/20 shadow-lg hover:scale-105 transition-transform">
-                <Sparkles className="h-4 w-4 animate-pulse-slow" />
-                La Plataforma Médica Más Avanzada
-              </span>
+          <div className="text-center space-y-12">
+            {/* Main Title - Estilo bold y grande */}
+            <div className="space-y-6 animate-fade-in-up opacity-0" style={{ animationDelay: "0.2s" }}>
+              <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-foreground leading-[0.9] tracking-tight">
+                Tan rápido que<br />
+                <span className="bg-gradient-to-r from-primary via-primary-glow to-secondary bg-clip-text text-transparent">
+                  parece magia
+                </span>
+              </h1>
             </div>
-
-            {/* Main Title */}
-            <h1 className="text-7xl lg:text-9xl font-bold text-white animate-fade-in-up opacity-0" style={{ animationDelay: "0.4s" }}>
-              <span className="inline-block hover:scale-110 transition-transform duration-300">M</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300" style={{ animationDelay: "0.05s" }}>E</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300" style={{ animationDelay: "0.1s" }}>D</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300" style={{ animationDelay: "0.15s" }}>M</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300" style={{ animationDelay: "0.2s" }}>I</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300" style={{ animationDelay: "0.25s" }}>N</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300" style={{ animationDelay: "0.3s" }}>D</span>
-            </h1>
 
             {/* Subtitle */}
-            <div className="space-y-4 animate-fade-in opacity-0" style={{ animationDelay: "0.6s" }}>
-              <p className="text-3xl lg:text-4xl text-white/95 max-w-4xl mx-auto font-bold">
-                Automatiza tu Práctica Médica con Inteligencia Artificial
-              </p>
-              <p className="text-xl lg:text-2xl text-white/80 max-w-3xl mx-auto">
-                Reduce <span className="font-bold text-white px-2 py-1 bg-white/20 rounded">85%</span> de tareas administrativas y aumenta <span className="font-bold text-white px-2 py-1 bg-white/20 rounded">40%</span> tu productividad. 
-                Enfócate en lo que realmente importa: <span className="font-bold text-white">tus pacientes</span>.
+            <div className="space-y-4 animate-fade-in opacity-0" style={{ animationDelay: "0.4s" }}>
+              <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-4xl mx-auto font-light">
+                30 segundos parecen poco... Hasta que<br />
+                tienes hambre y te toca <span className="text-foreground font-semibold">descargar un PDF</span>.
               </p>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8 animate-fade-in-up opacity-0" style={{ animationDelay: "0.8s" }}>
-              <Link to="/auth">
-                <Button size="lg" className="text-lg px-12 py-7 bg-white text-primary hover:bg-white/90 shadow-2xl hover:shadow-white/50 hover:scale-105 transition-all duration-300 group">
-                  Comenzar Gratis
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+            {/* CTA Button - Con efecto glow */}
+            <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8 animate-fade-in-up opacity-0" style={{ animationDelay: "0.6s" }}>
               <Link to="/dashboard">
-                <Button size="lg" variant="outline" className="text-lg px-12 py-7 border-2 border-white bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm shadow-xl hover:scale-105 transition-all duration-300">
-                  Ver Demo en Vivo
+                <Button 
+                  size="lg" 
+                  className="relative text-lg px-12 py-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_40px_rgba(var(--primary-glow),0.5)] hover:shadow-[0_0_60px_rgba(var(--primary-glow),0.8)] hover:scale-105 transition-all duration-500 group font-semibold rounded-xl overflow-hidden"
+                >
+                  <span className="relative z-10 flex items-center gap-3">
+                    Probar Demo
+                    <Play className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary-glow to-primary opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
                 </Button>
               </Link>
             </div>
 
-            {/* Stats Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto pt-12 animate-fade-in opacity-0" style={{ animationDelay: "1s" }}>
+            {/* Secondary CTA */}
+            <div className="animate-fade-in opacity-0" style={{ animationDelay: "0.8s" }}>
+              <Link to="/auth">
+                <Button 
+                  size="lg" 
+                  variant="ghost"
+                  className="text-base px-8 py-6 text-foreground hover:text-primary hover:bg-muted/50 transition-all duration-300 group font-medium"
+                >
+                  Comenzar Gratis
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Stats Row - Minimalista */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto pt-20 animate-fade-in opacity-0" style={{ animationDelay: "1s" }}>
               {stats.map((stat, index) => (
-                <div key={index} className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-                  <stat.icon className="h-8 w-8 text-white/80 mx-auto mb-3" />
-                  <div className="text-4xl font-bold text-white mb-2">{stat.value}</div>
-                  <div className="text-sm text-white/80">{stat.label}</div>
+                <div 
+                  key={index} 
+                  className="group relative p-8 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 hover:bg-card/50 transition-all duration-500 hover:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+                  <div className="relative space-y-3">
+                    <stat.icon className="h-6 w-6 text-primary/60 group-hover:text-primary transition-colors" />
+                    <div className="text-5xl font-black text-foreground tracking-tight">{stat.value}</div>
+                    <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -239,30 +248,32 @@ const Landing = () => {
 
       {/* Why MEDMIND Section */}
       <section 
-        className="py-20 px-4 bg-muted/30"
+        className="py-32 px-4 bg-background relative overflow-hidden"
         id="why-section"
         ref={(el) => (observerRefs.current["why-section"] = el)}
       >
-        <div className="container mx-auto max-w-6xl">
-          <div className={`text-center mb-12 transition-all duration-1000 ${isVisible["why-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              ¿Por Qué MEDMIND es la Mejor Opción?
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(var(--primary-glow),0.03),transparent_70%)]" />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <div className={`text-center mb-20 space-y-6 transition-all duration-1000 ${isVisible["why-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+            <h2 className="text-5xl lg:text-7xl font-black mb-6 text-foreground">
+              ¿Por Qué <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">MEDMIND</span>?
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              No somos solo otro software médico. Somos la solución completa diseñada por médicos, para médicos.
+            <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
+              No somos solo otro software médico.<br/>
+              Somos la <span className="text-foreground font-semibold">solución completa</span> diseñada por médicos, para médicos.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-4 max-w-5xl mx-auto">
             {whyUs.map((reason, index) => (
               <div 
                 key={index} 
-                className={`flex items-start gap-3 bg-card p-6 rounded-lg border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${
+                className={`group flex items-start gap-4 bg-card/50 backdrop-blur-sm p-8 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-card/70 hover:shadow-[0_0_30px_rgba(var(--primary-glow),0.1)] transition-all duration-500 ${
                   isVisible["why-section"] ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
                 }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                <p className="text-lg">{reason}</p>
+                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-1 group-hover:scale-110 transition-transform" />
+                <p className="text-base text-foreground/90 font-medium">{reason}</p>
               </div>
             ))}
           </div>
@@ -271,30 +282,34 @@ const Landing = () => {
 
       {/* Video Demo Section */}
       <section 
-        className="py-20 px-4 bg-background"
+        className="py-32 px-4 bg-muted/20"
         id="video-section"
         ref={(el) => (observerRefs.current["video-section"] = el)}
       >
         <div className="container mx-auto max-w-6xl">
-          <div className={`text-center mb-12 space-y-4 transition-all duration-1000 ${isVisible["video-section"] ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}>
-            <h2 className="text-4xl lg:text-5xl font-bold">
-              Mira MEDMIND en Acción
+          <div className={`text-center mb-16 space-y-6 transition-all duration-1000 ${isVisible["video-section"] ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}>
+            <h2 className="text-5xl lg:text-7xl font-black text-foreground">
+              Mira <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">MEDMIND</span> en Acción
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Descubre cómo MEDMIND transforma tu práctica médica en solo 2 minutos
+            <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
+              Descubre cómo transformamos tu práctica médica en <span className="text-foreground font-semibold">solo 2 minutos</span>
             </p>
           </div>
 
-          <div className={`max-w-4xl mx-auto transition-all duration-1000 ${isVisible["video-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`} style={{ transitionDelay: "200ms" }}>
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/20 hover:border-primary/40 transition-colors group">
-              <div className="aspect-video bg-gradient-hero flex items-center justify-center cursor-pointer">
-                <div className="text-center space-y-4 p-8">
-                  <div className="w-20 h-20 mx-auto bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/40 group-hover:scale-110 transition-transform">
-                    <Play className="w-10 h-10 text-white ml-1" />
+          <div className={`max-w-5xl mx-auto transition-all duration-1000 ${isVisible["video-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`} style={{ transitionDelay: "200ms" }}>
+            <div className="relative rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(var(--primary-glow),0.2)] border border-primary/20 hover:border-primary/40 hover:shadow-[0_0_120px_rgba(var(--primary-glow),0.3)] transition-all duration-500 group">
+              <div className="aspect-video bg-gradient-to-br from-card to-background flex items-center justify-center cursor-pointer relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 group-hover:opacity-80 transition-opacity" />
+                <div className="text-center space-y-6 p-12 relative z-10">
+                  <div className="relative w-24 h-24 mx-auto">
+                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:blur-2xl transition-all" />
+                    <div className="relative w-24 h-24 bg-primary rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(var(--primary-glow),0.6)] group-hover:shadow-[0_0_50px_rgba(var(--primary-glow),0.9)] group-hover:scale-110 transition-all duration-500">
+                      <Play className="w-12 h-12 text-primary-foreground ml-1" />
+                    </div>
                   </div>
-                  <div className="text-white space-y-2">
-                    <h3 className="text-2xl font-bold">Demo Interactiva de MEDMIND</h3>
-                    <p className="text-white/80">Ver cómo funciona en tiempo real</p>
+                  <div className="space-y-3">
+                    <h3 className="text-3xl font-bold text-foreground">Demo Interactiva de MEDMIND</h3>
+                    <p className="text-lg text-muted-foreground">Ver cómo funciona en tiempo real</p>
                   </div>
                 </div>
               </div>
@@ -325,21 +340,23 @@ const Landing = () => {
 
       {/* Features Section */}
       <section 
-        className="py-24 px-4 bg-muted/30"
+        className="py-32 px-4 bg-background relative overflow-hidden"
         id="features-section"
         ref={(el) => (observerRefs.current["features-section"] = el)}
       >
-        <div className="container mx-auto max-w-7xl">
-          <div className={`text-center mb-20 space-y-6 transition-all duration-1000 ${isVisible["features-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            <h2 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Cómo Funcionan Nuestras Herramientas
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(var(--secondary),0.05),transparent_60%)]" />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className={`text-center mb-24 space-y-6 transition-all duration-1000 ${isVisible["features-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+            <h2 className="text-5xl lg:text-7xl font-black text-foreground">
+              Herramientas <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Poderosas</span>
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Todo lo que necesitas para gestionar tu práctica médica en un solo lugar
+            <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
+              Todo lo que necesitas para gestionar tu práctica médica<br/>
+              en <span className="text-foreground font-semibold">un solo lugar</span>
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <div
                 key={index}
@@ -350,30 +367,30 @@ const Landing = () => {
                 }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <Card className="group h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border-2 hover:border-primary/50 bg-gradient-to-br from-card to-card/50 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ backgroundImage: `linear-gradient(135deg, var(--primary), var(--secondary))` }} />
+                <Card className="group h-full hover:shadow-[0_0_40px_rgba(var(--primary-glow),0.15)] transition-all duration-500 hover:-translate-y-1 border border-border/50 hover:border-primary/30 bg-card/50 backdrop-blur-sm overflow-hidden relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
                   <CardHeader className="relative">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg`}>
-                      <feature.icon className="w-8 h-8 text-white" />
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-6 group-hover:scale-105 transition-all duration-500">
+                      <feature.icon className="w-6 h-6 text-primary" />
                     </div>
-                    <CardTitle className="text-2xl mb-3 group-hover:text-primary transition-colors">{feature.title}</CardTitle>
-                    <CardDescription className="text-base leading-relaxed">
+                    <CardTitle className="text-xl mb-3 font-bold group-hover:text-primary transition-colors">{feature.title}</CardTitle>
+                    <CardDescription className="text-sm leading-relaxed text-muted-foreground">
                       {feature.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4 relative">
-                    <div className="bg-muted/50 p-5 rounded-xl group-hover:bg-muted transition-colors">
-                      <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider text-primary flex items-center gap-2">
-                        <Zap className="h-4 w-4" />
+                  <CardContent className="space-y-3 relative">
+                    <div className="bg-muted/30 p-4 rounded-lg group-hover:bg-muted/50 transition-colors">
+                      <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-primary/80 flex items-center gap-2">
+                        <Zap className="h-3 w-3" />
                         Cómo Funciona
                       </h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{feature.howItWorks}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{feature.howItWorks}</p>
                     </div>
-                    <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-5 rounded-xl border border-primary/20 group-hover:border-primary/40 transition-colors">
-                      <div className="flex items-start gap-3">
-                        <TrendingDown className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <p className="text-sm font-semibold text-primary">{feature.savings}</p>
+                    <div className="bg-gradient-to-r from-primary/5 to-transparent p-4 rounded-lg border border-primary/10 group-hover:border-primary/20 transition-colors">
+                      <div className="flex items-start gap-2">
+                        <TrendingDown className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <p className="text-xs font-semibold text-primary">{feature.savings}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -386,23 +403,24 @@ const Landing = () => {
 
       {/* Benefits Section */}
       <section 
-        className="py-24 px-4 bg-background relative overflow-hidden"
+        className="py-32 px-4 bg-muted/20 relative overflow-hidden"
         id="benefits-section"
         ref={(el) => (observerRefs.current["benefits-section"] = el)}
       >
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(var(--primary-glow),0.08),transparent_50%)]" />
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className={`text-center mb-20 transition-all duration-1000 ${isVisible["benefits-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            <h2 className="text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-              Ventajas Competitivas
+            <h2 className="text-5xl lg:text-7xl font-black mb-6 text-foreground">
+              Ventajas <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">Competitivas</span>
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Invierte en MEDMIND y recupera tu inversión en el primer mes
+            <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
+              Invierte en MEDMIND y recupera tu inversión<br/>
+              en <span className="text-foreground font-semibold">el primer mes</span>
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-6">
             {benefits.map((benefit, index) => (
               <div
                 key={index}
@@ -413,31 +431,26 @@ const Landing = () => {
                 }`}
                 style={{ transitionDelay: `${index * 150}ms` }}
               >
-                <Card className="h-full border-2 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl group bg-card/80 backdrop-blur-sm">
+                <Card className="h-full border border-border/50 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(var(--primary-glow),0.15)] transition-all duration-500 group bg-card/50 backdrop-blur-sm">
                   <CardHeader>
                     <div className="flex items-start gap-4">
-                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${
-                        benefit.icon === DollarSign ? "from-green-500 to-emerald-600" : 
-                        benefit.icon === Clock ? "from-blue-500 to-cyan-600" : 
-                        benefit.icon === Shield ? "from-purple-500 to-pink-600" : 
-                        "from-orange-500 to-red-600"
-                      } flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg`}>
-                        <benefit.icon className="w-7 h-7 text-white" />
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <benefit.icon className="w-6 h-6 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <CardTitle className="text-2xl mb-3 group-hover:text-primary transition-colors">{benefit.title}</CardTitle>
-                        <CardDescription className="text-base font-semibold text-primary">
+                        <CardTitle className="text-2xl mb-2 font-bold group-hover:text-primary transition-colors">{benefit.title}</CardTitle>
+                        <CardDescription className="text-sm font-semibold text-primary/80">
                           {benefit.description}
                         </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <ul className="space-y-4">
+                    <ul className="space-y-3">
                       {benefit.items.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-3 group/item hover:translate-x-2 transition-transform">
-                          <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5 group-hover/item:scale-125 transition-transform" />
-                          <span className="text-muted-foreground group-hover/item:text-foreground transition-colors">{item}</span>
+                        <li key={idx} className="flex items-start gap-3 group/item hover:translate-x-1 transition-transform">
+                          <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform" />
+                          <span className="text-sm text-muted-foreground group-hover/item:text-foreground transition-colors">{item}</span>
                         </li>
                       ))}
                     </ul>
