@@ -203,8 +203,11 @@ const Dashboard = () => {
             <CardDescription>Funciones de uso frecuente</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-3">
-            <Button>Nueva Consulta</Button>
-            <Button variant="secondary">Gestionar Inventario</Button>
+            <Button onClick={() => navigate("/voicenotes")}>Nueva Consulta</Button>
+            <Button variant="secondary" onClick={() => navigate("/patients")}>
+              <Users className="w-4 h-4 mr-2" />
+              Gestionar Pacientes
+            </Button>
             <Button variant="outline">Ver Agenda</Button>
             <Button variant="outline">Publicar en Red Social</Button>
           </CardContent>
