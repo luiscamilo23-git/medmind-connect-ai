@@ -8,29 +8,29 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Blanco humo - Fondo principal */
-    --background: 210 20% 98%;
-    --foreground: 0 0% 18%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 18%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 18%;
+    /* Modo oscuro futurista - Fondo principal */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 11%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 95%;
     
-    /* Primary - Azul médico */
-    --primary: 217 81% 51%;
+    /* Primary - Azul médico brillante */
+    --primary: 217 81% 56%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 81% 61%;
+    --primary-glow: 217 81% 66%;
     
     /* Secondary - Verde menta suave */
-    --secondary: 172 100% 38%;
+    --secondary: 172 100% 43%;
     --secondary-foreground: 0 0% 100%;
     
     /* Muted */
-    --muted: 210 20% 95%;
-    --muted-foreground: 0 0% 35%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 65%;
     
-    /* Accent - Azul acero */
-    --accent: 209 100% 30%;
+    /* Accent - Azul acero brillante */
+    --accent: 209 100% 38%;
     --accent-foreground: 0 0% 100%;
     
     /* Destructive */
@@ -38,9 +38,9 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
     
     /* Borders & Inputs */
-    --border: 214 20% 88%;
-    --input: 214 20% 90%;
-    --ring: 210 70% 50%;
+    --border: 0 0% 20%;
+    --input: 0 0% 18%;
+    --ring: 217 81% 56%;
     
     /* Success Green */
     --success: 142 76% 36%;
@@ -55,39 +55,39 @@ All colors MUST be HSL.
     --info-foreground: 0 0% 100%;
     
     /* Charts */
-    --chart-1: 217 81% 51%;
-    --chart-2: 172 100% 38%;
-    --chart-3: 209 100% 30%;
-    --chart-4: 199 89% 48%;
-    --chart-5: 280 65% 60%;
+    --chart-1: 217 81% 56%;
+    --chart-2: 172 100% 43%;
+    --chart-3: 209 100% 38%;
+    --chart-4: 199 89% 53%;
+    --chart-5: 280 65% 65%;
     
     --radius: 0.75rem;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 81% 51%), hsl(217 81% 61%));
-    --gradient-secondary: linear-gradient(135deg, hsl(172 100% 38%), hsl(172 100% 48%));
-    --gradient-hero: linear-gradient(135deg, hsl(217 81% 51%) 0%, hsl(172 100% 38%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 20% 98%));
+    --gradient-primary: linear-gradient(135deg, hsl(217 81% 56%), hsl(217 81% 66%));
+    --gradient-secondary: linear-gradient(135deg, hsl(172 100% 43%), hsl(172 100% 53%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 81% 56%) 0%, hsl(172 100% 43%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 11%), hsl(0 0% 8%));
     
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(217 81% 51% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(217 81% 51% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(217 81% 51% / 0.15);
-    --shadow-xl: 0 20px 25px -5px hsl(217 81% 51% / 0.2);
-    --shadow-glow: 0 0 20px hsl(217 81% 61% / 0.3);
+    --shadow-sm: 0 1px 2px 0 hsl(217 81% 56% / 0.2);
+    --shadow-md: 0 4px 6px -1px hsl(217 81% 56% / 0.3);
+    --shadow-lg: 0 10px 15px -3px hsl(217 81% 56% / 0.4);
+    --shadow-xl: 0 20px 25px -5px hsl(217 81% 56% / 0.5);
+    --shadow-glow: 0 0 30px hsl(217 81% 66% / 0.5);
     
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 217 81% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 217 81% 56%;
   }
   
   .dark {
