@@ -167,6 +167,71 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Video Demo Section */}
+      <section className="py-20 px-4 bg-muted/30">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12 space-y-4">
+            <h2 className="text-4xl lg:text-5xl font-bold">
+              Mira MEDMIND en Acción
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Descubre cómo MEDMIND transforma tu práctica médica en solo 2 minutos
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/20">
+              <div className="aspect-video bg-gradient-hero flex items-center justify-center">
+                {/* Placeholder for video - Replace with actual YouTube/Vimeo embed */}
+                <div className="text-center space-y-4 p-8">
+                  <div className="w-20 h-20 mx-auto bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/40">
+                    <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  </div>
+                  <div className="text-white space-y-2">
+                    <h3 className="text-2xl font-bold">Demo Interactiva de MEDMIND</h3>
+                    <p className="text-white/80">Ver cómo funciona en tiempo real</p>
+                  </div>
+                  {/* Example YouTube embed - replace VIDEO_ID with actual video */}
+                  {/* <iframe 
+                    className="absolute inset-0 w-full h-full"
+                    src="https://www.youtube.com/embed/VIDEO_ID" 
+                    title="MEDMIND Demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                  /> */}
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6 mt-12">
+              <Card className="text-center p-6">
+                <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-primary" />
+                </div>
+                <h4 className="font-semibold mb-2">VoiceNotes MD</h4>
+                <p className="text-sm text-muted-foreground">Transcripción automática de consultas</p>
+              </Card>
+              <Card className="text-center p-6">
+                <div className="w-12 h-12 mx-auto mb-4 bg-secondary/10 rounded-full flex items-center justify-center">
+                  <Package className="w-6 h-6 text-secondary" />
+                </div>
+                <h4 className="font-semibold mb-2">SupplyLens</h4>
+                <p className="text-sm text-muted-foreground">Gestión inteligente de inventario</p>
+              </Card>
+              <Card className="text-center p-6">
+                <div className="w-12 h-12 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-accent" />
+                </div>
+                <h4 className="font-semibold mb-2">SmartScheduler</h4>
+                <p className="text-sm text-muted-foreground">Agenda optimizada con IA</p>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
       <section className="py-20 px-4 bg-background">
         <div className="container mx-auto max-w-6xl">
