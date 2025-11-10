@@ -28,8 +28,7 @@ const VoiceNotes = () => {
   const [isSaving, setIsSaving] = useState(false);
   
   // Medical record fields
-  const [patients, setPatients] = useState<any[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState("");
+  const [patientName, setPatientName] = useState("");
   const [recordType, setRecordType] = useState("consultation");
   const [title, setTitle] = useState("");
   const [chiefComplaint, setChiefComplaint] = useState("");
@@ -44,27 +43,6 @@ const VoiceNotes = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadPatients();
-  }, []);
-
-  const loadPatients = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('patients')
-      .select('*')
-      .eq('doctor_id', user.id)
-      .order('full_name');
-
-    if (error) {
-      console.error('Error loading patients:', error);
-      return;
-    }
-
-    setPatients(data || []);
-  };
 
   const startRecording = async () => {
     try {
@@ -211,10 +189,10 @@ const VoiceNotes = () => {
   };
 
   const saveMedicalRecord = async () => {
-    if (!selectedPatient) {
+    if (!patientName.trim()) {
       toast({
         title: "Paciente requerido",
-        description: "Selecciona un paciente antes de guardar",
+        description: "Ingresa el nombre del paciente antes de guardar",
         variant: "destructive",
       });
       return;
@@ -235,9 +213,48 @@ const VoiceNotes = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Search for existing patient by name
+      const { data: existingPatients, error: searchError } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('doctor_id', user.id)
+        .ilike('full_name', patientName.trim())
+        .limit(1);
+
+      if (searchError) throw searchError;
+
+      let patientId: string;
+
+      if (existingPatients && existingPatients.length > 0) {
+        // Use existing patient
+        patientId = existingPatients[0].id;
+      } else {
+        // Create new patient
+        const { data: newPatient, error: createError } = await supabase
+          .from('patients')
+          .insert([{
+            doctor_id: user.id,
+            full_name: patientName.trim(),
+            phone: 'Sin especificar',
+          }])
+          .select('id')
+          .single();
+
+        if (createError) throw createError;
+        if (!newPatient) throw new Error('Failed to create patient');
+        
+        patientId = newPatient.id;
+        
+        toast({
+          title: "Paciente creado",
+          description: `Se ha creado el paciente: ${patientName}`,
+        });
+      }
+
+      // Save medical record
       const { error } = await supabase.from('medical_records').insert([{
         doctor_id: user.id,
-        patient_id: selectedPatient,
+        patient_id: patientId,
         record_type: recordType as "consultation" | "procedure" | "diagnosis" | "prescription" | "lab_result" | "imaging",
         title,
         chief_complaint: chiefComplaint,
@@ -265,7 +282,7 @@ const VoiceNotes = () => {
       setTreatmentPlan("");
       setMedications([]);
       setNotes("");
-      setSelectedPatient("");
+      setPatientName("");
     } catch (error: any) {
       console.error('Error saving medical record:', error);
       toast({
@@ -405,19 +422,15 @@ const VoiceNotes = () => {
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Paciente *</Label>
-                  <Select value={selectedPatient} onValueChange={setSelectedPatient}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un paciente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {patients.map((patient) => (
-                        <SelectItem key={patient.id} value={patient.id}>
-                          {patient.full_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label>Nombre del Paciente *</Label>
+                  <Input
+                    value={patientName}
+                    onChange={(e) => setPatientName(e.target.value)}
+                    placeholder="Ej: Cristian López"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Se creará automáticamente si no existe
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -505,7 +518,7 @@ const VoiceNotes = () => {
 
               <Button
                 onClick={saveMedicalRecord}
-                disabled={isSaving || !selectedPatient || !title}
+                disabled={isSaving || !patientName.trim() || !title}
                 className="w-full gap-2"
                 size="lg"
               >
