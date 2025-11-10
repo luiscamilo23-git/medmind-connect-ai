@@ -49,7 +49,7 @@ const Auth = () => {
     try {
       const redirectPath = userRole === "patient" ? "/patient/dashboard" : "/dashboard";
       
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -61,16 +61,6 @@ const Auth = () => {
       });
 
       if (error) throw error;
-
-      // Insert role for the new user
-      if (data.user) {
-        const { error: roleError } = await supabase.from("user_roles").insert({
-          user_id: data.user.id,
-          role: userRole,
-        });
-
-        if (roleError) console.error("Error inserting role:", roleError);
-      }
 
       toast({
         title: "Registro exitoso",
