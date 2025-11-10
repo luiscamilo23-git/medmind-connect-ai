@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import VoiceNotes from "./pages/VoiceNotes";
 import Patients from "./pages/Patients";
+import SmartScheduler from "./pages/SmartScheduler";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/voicenotes" element={<VoiceNotes />} />
           <Route path="/patients" element={<Patients />} />
+          <Route path="/scheduler" element={<SmartScheduler />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -166,3 +166,62 @@ All colors MUST be HSL.
     @apply text-2xl lg:text-3xl;
   }
 }
+
+/* React Big Calendar custom styles */
+.appointment-calendar .rbc-calendar {
+  font-family: inherit;
+}
+
+.appointment-calendar .rbc-header {
+  padding: 10px 3px;
+  font-weight: 600;
+  border-bottom: 2px solid hsl(var(--border));
+  background: hsl(var(--muted));
+}
+
+.appointment-calendar .rbc-today {
+  background-color: hsl(var(--primary) / 0.05);
+}
+
+.appointment-calendar .rbc-event {
+  padding: 2px 5px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.appointment-calendar .rbc-event:hover {
+  opacity: 0.8;
+}
+
+.appointment-calendar .rbc-toolbar button {
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.appointment-calendar .rbc-toolbar button:hover {
+  background: hsl(var(--muted));
+}
+
+.appointment-calendar .rbc-toolbar button.rbc-active {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+}
+
+.appointment-calendar .rbc-month-view {
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.appointment-calendar .rbc-day-bg {
+  border-left: 1px solid hsl(var(--border));
+}
+
+.appointment-calendar .rbc-month-row {
+  border-top: 1px solid hsl(var(--border));
+}

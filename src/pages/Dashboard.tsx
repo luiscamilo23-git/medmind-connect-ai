@@ -98,7 +98,7 @@ const Dashboard = () => {
       icon: Calendar,
       color: "bg-accent",
       path: "/scheduler",
-      enabled: false
+      enabled: true
     },
     {
       title: "Inteligencia Operativa",
@@ -208,7 +208,10 @@ const Dashboard = () => {
               <Users className="w-4 h-4 mr-2" />
               Gestionar Pacientes
             </Button>
-            <Button variant="outline">Ver Agenda</Button>
+            <Button variant="outline" onClick={() => navigate("/scheduler")}>
+              <Calendar className="w-4 h-4 mr-2" />
+              Ver Agenda
+            </Button>
             <Button variant="outline">Publicar en Red Social</Button>
           </CardContent>
         </Card>
