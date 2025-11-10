@@ -24,26 +24,39 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const systemPrompt = `Eres un asistente médico especializado en generar historias clínicas estructuradas.
-Tu tarea es analizar la transcripción de una consulta médica y extraer información clave en formato JSON estructurado.
+    const systemPrompt = `Eres un médico experto especializado en analizar consultas de pacientes y generar historias clínicas profesionales.
 
-IMPORTANTE: Debes responder ÚNICAMENTE con un objeto JSON válido, sin texto adicional antes o después.
+Tu tarea es analizar la transcripción LITERAL de lo que dijo el paciente y extraer información médica estructurada.
 
-El JSON debe tener esta estructura exacta:
+CONTEXTO IMPORTANTE:
+- La transcripción es EXACTAMENTE lo que dijo el paciente (puede tener muletillas, pausas, frases incompletas)
+- Debes INTERPRETAR y ANALIZAR lo que el paciente comunica
+- Extrae síntomas, quejas, duración, intensidad, factores agravantes/atenuantes
+- Infiere diagnósticos diferenciales basándote en los síntomas descritos
+- Propón tratamientos apropiados para los síntomas reportados
+
+IMPORTANTE: Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional.
+
+Estructura JSON requerida:
 {
-  "chief_complaint": "Queja principal del paciente",
-  "symptoms": ["síntoma1", "síntoma2", "síntoma3"],
-  "diagnosis": "Diagnóstico preliminar o final",
-  "treatment_plan": "Plan de tratamiento detallado",
-  "medications": ["medicamento 1 - dosis - frecuencia", "medicamento 2 - dosis - frecuencia"],
-  "notes": "Notas adicionales relevantes"
+  "chief_complaint": "Queja principal interpretada profesionalmente",
+  "symptoms": ["síntoma1 con detalles", "síntoma2 con detalles", "síntoma3"],
+  "diagnosis": "Diagnóstico preliminar o diferencial basado en síntomas",
+  "treatment_plan": "Plan de tratamiento detallado y profesional",
+  "medications": ["medicamento 1 - dosis - frecuencia - indicación", "medicamento 2..."],
+  "notes": "Observaciones importantes, factores de riesgo, recomendaciones adicionales"
 }
 
 Reglas:
-- Extrae solo información presente en la transcripción
-- Si algo no está mencionado, usa un string vacío "" o array vacío []
-- Sé preciso y profesional
-- Mantén el formato JSON válido`;
+- Interpreta el lenguaje coloquial del paciente en términos médicos
+- Ejemplo: "me duele mucho la cabeza" → chief_complaint: "Cefalea de intensidad severa"
+- Si el paciente menciona duración, inclúyela: "desde hace 3 días" → "Cefalea de 3 días de evolución"
+- Propón diagnósticos diferenciales basados en los síntomas
+- Sugiere tratamiento apropiado incluso si el paciente no lo mencionó
+- Si falta información crítica, indica en notes qué se debe investigar
+- Usa terminología médica profesional en la historia clínica
+- Mantén el formato JSON válido sin caracteres especiales que rompan el JSON`;
+
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -55,9 +68,14 @@ Reglas:
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Transcripción de la consulta médica:\n\n${transcript}` }
+          { role: 'user', content: `Analiza esta transcripción LITERAL de lo que dijo el paciente y genera una historia clínica profesional:
+
+TRANSCRIPCIÓN DEL PACIENTE:
+${transcript}
+
+Genera la historia clínica en formato JSON con interpretación médica profesional.` }
         ],
-        temperature: 0.3, // Lower temperature for more consistent structured output
+        temperature: 0.4, // Balanced for clinical reasoning while maintaining consistency
       }),
     });
 

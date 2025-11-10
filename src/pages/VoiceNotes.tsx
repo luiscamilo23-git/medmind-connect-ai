@@ -346,7 +346,7 @@ const VoiceNotes = () => {
               Grabación de Audio
             </CardTitle>
             <CardDescription>
-              Graba la consulta médica con alta calidad de audio
+              Transcripción literal de lo que dijo el paciente
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -419,12 +419,12 @@ const VoiceNotes = () => {
                 {isGenerating ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Generando con IA...
+                    Analizando y generando con IA...
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    Generar Historia Clínica con IA
+                    Analizar y Generar Historia Clínica con IA
                   </>
                 )}
               </Button>

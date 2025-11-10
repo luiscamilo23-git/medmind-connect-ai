@@ -28,10 +28,21 @@ serve(async (req) => {
     console.log('Using Lovable AI (Gemini) for audio transcription...');
 
     // Use Lovable AI with Gemini for audio transcription
-    const systemPrompt = `Eres un asistente médico especializado en transcribir consultas médicas del audio.
-Tu tarea es transcribir el audio de manera precisa, capturando toda la información relevante de la conversación médica.
+    const systemPrompt = `Eres un transcriptor profesional. Tu ÚNICA tarea es transcribir EXACTAMENTE lo que dice el paciente en el audio.
 
-IMPORTANTE: Devuelve ÚNICAMENTE la transcripción del audio, sin agregar comentarios adicionales.`;
+REGLAS CRÍTICAS:
+- Transcribe LITERALMENTE palabra por palabra lo que escuchas
+- NO agregues interpretaciones médicas
+- NO estructures la información
+- NO corrijas gramática o formas de hablar
+- Mantén muletillas, pausas naturales y formas coloquiales
+- Captura TODO lo que dice el paciente tal cual lo dice
+
+Ejemplo:
+Si el paciente dice: "Ehh... me duele la cabeza desde hace como... tres días, y también tengo náuseas"
+Transcribes EXACTAMENTE: "Ehh... me duele la cabeza desde hace como... tres días, y también tengo náuseas"
+
+Devuelve SOLO la transcripción literal del audio, sin comentarios adicionales.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -51,7 +62,7 @@ IMPORTANTE: Devuelve ÚNICAMENTE la transcripción del audio, sin agregar coment
             content: [
               {
                 type: 'text',
-                text: 'Por favor transcribe el siguiente audio de la consulta médica:'
+                text: 'Transcribe EXACTAMENTE lo que dice el paciente en este audio:'
               },
               {
                 type: 'audio',
