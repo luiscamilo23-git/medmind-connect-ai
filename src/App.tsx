@@ -14,6 +14,12 @@ import SupplyLens from "./pages/SupplyLens";
 import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
 import SocialNetwork from "./pages/SocialNetwork";
+import PatientDashboard from "./pages/patient/PatientDashboard";
+import DoctorExplorer from "./pages/patient/DoctorExplorer";
+import PatientWellness from "./pages/patient/PatientWellness";
+import PatientFeed from "./pages/patient/PatientFeed";
+import PatientChat from "./pages/patient/PatientChat";
+import PatientAppointments from "./pages/patient/PatientAppointments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +41,12 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/social" element={<SocialNetwork />} />
+          <Route path="/patient/dashboard" element={<PatientDashboard />} />
+          <Route path="/patient/explore" element={<DoctorExplorer />} />
+          <Route path="/patient/wellness" element={<PatientWellness />} />
+          <Route path="/patient/feed" element={<PatientFeed />} />
+          <Route path="/patient/chat" element={<PatientChat />} />
+          <Route path="/patient/appointments" element={<PatientAppointments />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

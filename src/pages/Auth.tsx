@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Activity } from "lucide-react";
 
@@ -14,15 +15,28 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
+  const [userRole, setUserRole] = useState<"doctor" | "patient">("patient");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if user is already logged in
+    // Check if user is already logged in and redirect based on role
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/dashboard");
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id);
+
+        if (roles && roles.length > 0) {
+          const role = roles[0].role;
+          if (role === "patient") {
+            navigate("/patient/dashboard");
+          } else {
+            navigate("/dashboard");
+          }
+        }
       }
     };
     checkUser();
@@ -33,19 +47,34 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const redirectPath = userRole === "patient" ? "/patient/dashboard" : "/dashboard";
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`
-        }
+          emailRedirectTo: `${window.location.origin}${redirectPath}`,
+          data: {
+            role: userRole,
+          },
+        },
       });
 
       if (error) throw error;
 
+      // Insert role for the new user
+      if (data.user) {
+        const { error: roleError } = await supabase.from("user_roles").insert({
+          user_id: data.user.id,
+          role: userRole,
+        });
+
+        if (roleError) console.error("Error inserting role:", roleError);
+      }
+
       toast({
         title: "Registro exitoso",
-        description: "Revisa tu email para confirmar tu cuenta.",
+        description: "Tu cuenta ha sido creada. Puedes iniciar sesión ahora.",
       });
     } catch (error: any) {
       toast({
@@ -63,18 +92,34 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
+      // Check user role and redirect accordingly
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id);
+
       toast({
         title: "¡Bienvenido!",
         description: "Inicio de sesión exitoso.",
       });
-      navigate("/dashboard");
+
+      if (roles && roles.length > 0) {
+        const role = roles[0].role;
+        if (role === "patient") {
+          navigate("/patient/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       toast({
         title: "Error de inicio de sesión",
@@ -186,6 +231,25 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                </div>
+                <div className="space-y-3">
+                  <Label>Tipo de cuenta</Label>
+                  <RadioGroup value={userRole} onValueChange={(value: "doctor" | "patient") => setUserRole(value)}>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-secondary/50 cursor-pointer">
+                      <RadioGroupItem value="patient" id="patient" />
+                      <Label htmlFor="patient" className="cursor-pointer flex-1">
+                        <div className="font-semibold">Paciente</div>
+                        <div className="text-sm text-muted-foreground">Busco atención médica</div>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-secondary/50 cursor-pointer">
+                      <RadioGroupItem value="doctor" id="doctor" />
+                      <Label htmlFor="doctor" className="cursor-pointer flex-1">
+                        <div className="font-semibold">Médico</div>
+                        <div className="text-sm text-muted-foreground">Soy profesional de salud</div>
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Cargando..." : "Crear Cuenta"}

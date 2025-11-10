@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_wellness_tips: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          patient_id: string
+          priority: string
+          tip_type: string
+          title: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          patient_id: string
+          priority?: string
+          tip_type: string
+          title: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          patient_id?: string
+          priority?: string
+          tip_type?: string
+          title?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           appointment_date: string
@@ -69,6 +102,98 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      chat_messages: {
+        Row: {
+          chat_room_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          chat_room_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          sender_id: string
+        }
+        Update: {
+          chat_room_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_chat_room_id_fkey"
+            columns: ["chat_room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rooms: {
+        Row: {
+          created_at: string
+          doctor_id: string
+          id: string
+          last_message_at: string | null
+          patient_id: string
+        }
+        Insert: {
+          created_at?: string
+          doctor_id: string
+          id?: string
+          last_message_at?: string | null
+          patient_id: string
+        }
+        Update: {
+          created_at?: string
+          doctor_id?: string
+          id?: string
+          last_message_at?: string | null
+          patient_id?: string
+        }
+        Relationships: []
+      }
+      doctor_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          doctor_id: string
+          id: string
+          patient_id: string
+          photos: string[] | null
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          doctor_id: string
+          id?: string
+          patient_id: string
+          photos?: string[] | null
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          doctor_id?: string
+          id?: string
+          patient_id?: string
+          photos?: string[] | null
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       inventory: {
         Row: {
@@ -411,35 +536,53 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          certifications: string[] | null
+          city: string | null
+          clinic_name: string | null
+          consultation_fee: number | null
           created_at: string
           full_name: string
           id: string
+          is_accepting_patients: boolean | null
           license_number: string | null
           phone: string | null
           specialty: string | null
           updated_at: string
+          years_experience: number | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          certifications?: string[] | null
+          city?: string | null
+          clinic_name?: string | null
+          consultation_fee?: number | null
           created_at?: string
           full_name: string
           id: string
+          is_accepting_patients?: boolean | null
           license_number?: string | null
           phone?: string | null
           specialty?: string | null
           updated_at?: string
+          years_experience?: number | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          certifications?: string[] | null
+          city?: string | null
+          clinic_name?: string | null
+          consultation_fee?: number | null
           created_at?: string
           full_name?: string
           id?: string
+          is_accepting_patients?: boolean | null
           license_number?: string | null
           phone?: string | null
           specialty?: string | null
           updated_at?: string
+          years_experience?: number | null
         }
         Relationships: []
       }
