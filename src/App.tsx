@@ -21,6 +21,10 @@ import PatientWellness from "./pages/patient/PatientWellness";
 import PatientFeed from "./pages/patient/PatientFeed";
 import PatientChat from "./pages/patient/PatientChat";
 import PatientAppointments from "./pages/patient/PatientAppointments";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy";
+import LegalNotice from "./pages/LegalNotice";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +53,10 @@ const App = () => (
           <Route path="/patient/feed" element={<PatientFeed />} />
           <Route path="/patient/chat" element={<PatientChat />} />
           <Route path="/patient/appointments" element={<PatientAppointments />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/legal-notice" element={<LegalNotice />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

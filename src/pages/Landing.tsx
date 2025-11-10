@@ -636,16 +636,16 @@ const Landing = () => {
             La plataforma médica más avanzada de Latinoamérica
           </p>
           <div className="flex flex-wrap justify-center gap-6 mb-6 text-sm">
-            <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
               Política de Privacidad
             </Link>
-            <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors">
               Términos de Servicio
             </Link>
-            <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/cookie-policy" className="text-muted-foreground hover:text-primary transition-colors">
               Política de Cookies
             </Link>
-            <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/legal-notice" className="text-muted-foreground hover:text-primary transition-colors">
               Aviso Legal
             </Link>
           </div>
