@@ -15,7 +15,9 @@ import {
   TrendingUp,
   Clock,
   DollarSign,
-  Star
+  Star,
+  User as UserIcon,
+  Share2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -108,6 +110,14 @@ const Dashboard = () => {
       path: "/analytics",
       enabled: true
     },
+    {
+      title: "Red Social Médica",
+      description: "Comparte casos y contenido educativo con la comunidad",
+      icon: Share2,
+      color: "bg-success",
+      path: "/social",
+      enabled: true
+    },
   ];
 
   return (
@@ -124,10 +134,15 @@ const Dashboard = () => {
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Cerrar Sesión
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil">
+              <UserIcon className="w-5 h-5" />
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Cerrar Sesión
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -212,7 +227,10 @@ const Dashboard = () => {
               <Calendar className="w-4 h-4 mr-2" />
               Ver Agenda
             </Button>
-            <Button variant="outline">Publicar en Red Social</Button>
+            <Button variant="outline" onClick={() => navigate("/social")}>
+              <Share2 className="w-4 h-4 mr-2" />
+              Publicar en Red Social
+            </Button>
           </CardContent>
         </Card>
       </main>

@@ -11,6 +11,8 @@ import Patients from "./pages/Patients";
 import SmartScheduler from "./pages/SmartScheduler";
 import SupplyLens from "./pages/SupplyLens";
 import Analytics from "./pages/Analytics";
+import Profile from "./pages/Profile";
+import SocialNetwork from "./pages/SocialNetwork";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/scheduler" element={<SmartScheduler />} />
           <Route path="/supplylens" element={<SupplyLens />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/social" element={<SocialNetwork />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
