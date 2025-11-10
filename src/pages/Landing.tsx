@@ -181,18 +181,18 @@ const Landing = () => {
             {/* Main Title - Estilo bold y grande */}
             <div className="space-y-6 animate-fade-in-up opacity-0" style={{ animationDelay: "0.2s" }}>
               <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-foreground leading-[0.9] tracking-tight">
-                Tan rápido que<br />
-                <span className="bg-gradient-to-r from-primary via-primary-glow to-secondary bg-clip-text text-transparent">
-                  parece magia
-                </span>
+                MEDMIND
               </h1>
             </div>
 
             {/* Subtitle */}
             <div className="space-y-4 animate-fade-in opacity-0" style={{ animationDelay: "0.4s" }}>
-              <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-4xl mx-auto font-light">
-                30 segundos parecen poco... Hasta que<br />
-                tienes hambre y te toca <span className="text-foreground font-semibold">descargar un PDF</span>.
+              <p className="text-3xl md:text-4xl lg:text-5xl text-foreground max-w-5xl mx-auto font-bold leading-tight">
+                Automatiza tu Práctica Médica con Inteligencia Artificial
+              </p>
+              <p className="text-xl md:text-2xl lg:text-2xl text-muted-foreground max-w-4xl mx-auto font-light">
+                Reduce <span className="font-bold text-primary px-2 py-1 bg-primary/10 rounded">85%</span> de tareas administrativas y aumenta <span className="font-bold text-primary px-2 py-1 bg-primary/10 rounded">40%</span> tu productividad. 
+                Enfócate en lo que realmente importa: <span className="font-bold text-foreground">tus pacientes</span>.
               </p>
             </div>
 
