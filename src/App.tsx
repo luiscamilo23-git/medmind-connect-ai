@@ -14,6 +14,7 @@ import SupplyLens from "./pages/SupplyLens";
 import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
 import SocialNetwork from "./pages/SocialNetwork";
+import PredictiveAnalysis from "./pages/PredictiveAnalysis";
 import PatientDashboard from "./pages/patient/PatientDashboard";
 import DoctorExplorer from "./pages/patient/DoctorExplorer";
 import PatientWellness from "./pages/patient/PatientWellness";
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/scheduler" element={<SmartScheduler />} />
           <Route path="/supplylens" element={<SupplyLens />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/predictive" element={<PredictiveAnalysis />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/social" element={<SocialNetwork />} />
           <Route path="/patient/dashboard" element={<PatientDashboard />} />

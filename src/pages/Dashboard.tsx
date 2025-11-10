@@ -103,6 +103,14 @@ const Dashboard = () => {
       enabled: true
     },
     {
+      title: "Análisis Predictivo",
+      description: "Predice demanda según temporada, clima y tendencias de salud",
+      icon: TrendingUp,
+      color: "bg-warning",
+      path: "/predictive",
+      enabled: true
+    },
+    {
       title: "Inteligencia Operativa",
       description: "Analytics y recomendaciones personalizadas",
       icon: LineChart,
