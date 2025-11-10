@@ -81,28 +81,32 @@ const Dashboard = () => {
       description: "Transcribe consultas y genera historias clínicas automáticamente",
       icon: Brain,
       color: "bg-primary",
-      path: "/voicenotes"
+      path: "/voicenotes",
+      enabled: true
     },
     {
       title: "SupplyLens",
       description: "Gestión inteligente de inventario y control de costos",
       icon: Package,
       color: "bg-secondary",
-      path: "/supplylens"
+      path: "/supplylens",
+      enabled: false
     },
     {
       title: "SmartScheduler",
       description: "Agenda predictiva con optimización automática",
       icon: Calendar,
       color: "bg-accent",
-      path: "/scheduler"
+      path: "/scheduler",
+      enabled: false
     },
     {
       title: "Inteligencia Operativa",
       description: "Analytics y recomendaciones personalizadas",
       icon: LineChart,
       color: "bg-info",
-      path: "/analytics"
+      path: "/analytics",
+      enabled: false
     },
   ];
 
@@ -178,8 +182,13 @@ const Dashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Button className="w-full" variant="outline">
-                    Acceder al Módulo
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => module.enabled && navigate(module.path)}
+                    disabled={!module.enabled}
+                  >
+                    {module.enabled ? 'Acceder al Módulo' : 'Próximamente'}
                   </Button>
                 </CardContent>
               </Card>
