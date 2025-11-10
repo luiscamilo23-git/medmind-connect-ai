@@ -253,16 +253,15 @@ const InventoryUsageDialog = ({
                 <FormItem>
                   <FormLabel>Paciente (Opcional)</FormLabel>
                   <Select 
-                    onValueChange={handlePatientChange} 
-                    value={field.value}
+                    onValueChange={(value) => handlePatientChange(value || "")} 
+                    value={field.value || undefined}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un paciente" />
+                        <SelectValue placeholder="Selecciona un paciente (opcional)" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Sin vincular</SelectItem>
                       {patients.map((patient) => (
                         <SelectItem key={patient.id} value={patient.id}>
                           {patient.full_name}
@@ -282,18 +281,20 @@ const InventoryUsageDialog = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Historia Clínica (Opcional)</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value || undefined}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder={
                             loadingRecords 
                               ? "Cargando..." 
-                              : "Selecciona una historia"
+                              : "Selecciona una historia (opcional)"
                           } />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Sin vincular</SelectItem>
                         {medicalRecords.map((record) => (
                           <SelectItem key={record.id} value={record.id}>
                             {record.title} - {new Date(record.created_at).toLocaleDateString()}
