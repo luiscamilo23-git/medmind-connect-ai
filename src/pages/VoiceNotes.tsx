@@ -19,6 +19,8 @@ import {
   Sparkles
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import QuickPatientForm from "@/components/QuickPatientForm";
 
 const VoiceNotes = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -46,8 +48,27 @@ const VoiceNotes = () => {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      // Request high-quality audio with specific constraints
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          channelCount: 1,
+        }
+      });
+      
+      // Use higher quality codec if available
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : 'audio/webm';
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType,
+        audioBitsPerSecond: 128000,
+      });
+      
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -58,19 +79,20 @@ const VoiceNotes = () => {
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         await transcribeAudio(audioBlob);
         
         // Stop all tracks
         stream.getTracks().forEach(track => track.stop());
       };
 
-      mediaRecorder.start();
+      // Record in chunks every 1 second for better quality
+      mediaRecorder.start(1000);
       setIsRecording(true);
       
       toast({
         title: "Grabación iniciada",
-        description: "Habla claramente sobre la consulta médica",
+        description: "Hablando con alta calidad. Habla cerca del micrófono.",
       });
     } catch (error) {
       console.error('Error starting recording:', error);
@@ -324,7 +346,7 @@ const VoiceNotes = () => {
               Grabación de Audio
             </CardTitle>
             <CardDescription>
-              Graba la consulta médica y transcribe automáticamente
+              Graba la consulta médica con alta calidad de audio
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -353,10 +375,13 @@ const VoiceNotes = () => {
             </div>
 
             {isRecording && (
-              <div className="text-center">
+              <div className="text-center space-y-2">
                 <Badge variant="destructive" className="animate-pulse">
                   ● Grabando...
                 </Badge>
+                <p className="text-xs text-muted-foreground">
+                  🎤 Habla cerca del micrófono para mejor calidad
+                </p>
               </div>
             )}
 
@@ -537,6 +562,18 @@ const VoiceNotes = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Quick Patient Form */}
+        <div className="pt-8">
+          <div className="flex items-center gap-4 mb-6">
+            <Separator className="flex-1" />
+            <span className="text-sm text-muted-foreground font-medium">
+              O agrega un paciente manualmente
+            </span>
+            <Separator className="flex-1" />
+          </div>
+          <QuickPatientForm />
+        </div>
       </main>
     </div>
   );
