@@ -5,3 +5,9 @@ verify_jwt = true
 
 [functions.generate-medical-record]
 verify_jwt = true
+
+[functions.send-appointment-reminders]
+verify_jwt = false
+
+[functions.analyze-inventory-usage]
+verify_jwt = true

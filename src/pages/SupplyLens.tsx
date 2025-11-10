@@ -12,6 +12,7 @@ import InventoryAlerts from "@/components/InventoryAlerts";
 import InventoryAnalytics from "@/components/InventoryAnalytics";
 import InventoryUsageDialog from "@/components/InventoryUsageDialog";
 import InventoryUsageHistory from "@/components/InventoryUsageHistory";
+import AIInventorySuggestions from "@/components/AIInventorySuggestions";
 
 export interface InventoryItem {
   id: string;
@@ -257,6 +258,7 @@ const SupplyLens = () => {
           </TabsContent>
 
           <TabsContent value="usage" className="space-y-4">
+            <AIInventorySuggestions onApplied={loadInventory} />
             <InventoryUsageHistory loading={loading} />
           </TabsContent>
 
