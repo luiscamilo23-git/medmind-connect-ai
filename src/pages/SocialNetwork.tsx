@@ -14,13 +14,31 @@ import {
   Heart, 
   MessageCircle,
   Send,
-  Sparkles
+  Sparkles,
+  Trash2,
+  MoreVertical
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const SocialNetwork = () => {
   const [user, setUser] = useState<any>(null);
@@ -38,6 +56,8 @@ const SocialNetwork = () => {
   const [newComment, setNewComment] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [commentsDialogOpen, setCommentsDialogOpen] = useState(false);
+  const [deletePostId, setDeletePostId] = useState<string | null>(null);
+  const [deleteCommentId, setDeleteCommentId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -208,6 +228,61 @@ const SocialNetwork = () => {
     setCommentsDialogOpen(true);
   };
 
+  const handleDeletePost = async (postId: string) => {
+    try {
+      const { error } = await supabase
+        .from("posts")
+        .delete()
+        .eq("id", postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Publicación eliminada",
+        description: "Tu publicación ha sido eliminada exitosamente",
+      });
+
+      setDeletePostId(null);
+      await loadPosts();
+    } catch (error: any) {
+      console.error("Error deleting post:", error);
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo eliminar la publicación",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      const { error } = await supabase
+        .from("post_comments")
+        .delete()
+        .eq("id", commentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Comentario eliminado",
+        description: "El comentario ha sido eliminado exitosamente",
+      });
+
+      setDeleteCommentId(null);
+      if (selectedPost) {
+        await loadComments(selectedPost.id);
+        await loadPosts();
+      }
+    } catch (error: any) {
+      console.error("Error deleting comment:", error);
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo eliminar el comentario",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getPostTypeLabel = (type: string) => {
     const types: Record<string, string> = {
       educational: "Educativo",
@@ -369,9 +444,29 @@ const SocialNetwork = () => {
                           </p>
                         </div>
                       </div>
-                      <Badge className={getPostTypeColor(post.post_type)}>
-                        {getPostTypeLabel(post.post_type)}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge className={getPostTypeColor(post.post_type)}>
+                          {getPostTypeLabel(post.post_type)}
+                        </Badge>
+                        {user?.id === post.doctor_id && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem 
+                                onClick={() => setDeletePostId(post.id)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Eliminar publicación
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
                     </div>
                     <CardTitle className="mt-4">{post.title}</CardTitle>
                   </CardHeader>
@@ -426,7 +521,7 @@ const SocialNetwork = () => {
               {comments.map((comment) => {
                 const commenter = profiles[comment.user_id];
                 return (
-                  <div key={comment.id} className="flex gap-3">
+                  <div key={comment.id} className="flex gap-3 group">
                     <Avatar className="w-8 h-8">
                       <AvatarImage src={commenter?.avatar_url} />
                       <AvatarFallback className="text-xs">
@@ -435,8 +530,22 @@ const SocialNetwork = () => {
                     </Avatar>
                     <div className="flex-1">
                       <div className="bg-muted rounded-lg p-3">
-                        <p className="font-semibold text-sm">{commenter?.full_name || "Usuario"}</p>
-                        <p className="text-sm mt-1">{comment.content}</p>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm">{commenter?.full_name || "Usuario"}</p>
+                            <p className="text-sm mt-1">{comment.content}</p>
+                          </div>
+                          {user?.id === comment.user_id && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => setDeleteCommentId(comment.id)}
+                            >
+                              <Trash2 className="h-3 w-3 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 ml-3">
                         {new Date(comment.created_at).toLocaleString("es-ES")}
@@ -466,6 +575,48 @@ const SocialNetwork = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Post Confirmation */}
+        <AlertDialog open={deletePostId !== null} onOpenChange={() => setDeletePostId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Eliminar publicación?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. La publicación será eliminada permanentemente junto con todos sus comentarios y likes.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deletePostId && handleDeletePost(deletePostId)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Comment Confirmation */}
+        <AlertDialog open={deleteCommentId !== null} onOpenChange={() => setDeleteCommentId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Eliminar comentario?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. El comentario será eliminado permanentemente.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteCommentId && handleDeleteComment(deleteCommentId)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );
