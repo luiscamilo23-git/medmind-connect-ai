@@ -24,6 +24,12 @@ import { useToast } from "@/hooks/use-toast";
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalPatients: 0,
+    satisfactionRate: 0,
+    estimatedRevenue: 0,
+    averageTime: 0
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -32,6 +38,7 @@ const Dashboard = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUser(session.user);
+        await loadStats(session.user.id);
       } else {
         navigate("/auth");
       }
@@ -44,11 +51,66 @@ const Dashboard = () => {
       setUser(session?.user ?? null);
       if (!session?.user) {
         navigate("/auth");
+      } else {
+        loadStats(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const loadStats = async (doctorId: string) => {
+    try {
+      // Total de pacientes
+      const { count: patientsCount } = await supabase
+        .from('patients')
+        .select('*', { count: 'exact', head: true })
+        .eq('doctor_id', doctorId);
+
+      // Calcular tasa de satisfacción desde reviews
+      const { data: reviews } = await supabase
+        .from('doctor_reviews')
+        .select('rating')
+        .eq('doctor_id', doctorId);
+
+      const satisfactionRate = reviews && reviews.length > 0
+        ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length / 5) * 100)
+        : 0;
+
+      // Calcular ingresos estimados desde citas completadas
+      const { data: appointments } = await supabase
+        .from('appointments')
+        .select('duration_minutes')
+        .eq('doctor_id', doctorId)
+        .eq('status', 'completed');
+
+      // Obtener la tarifa de consulta del perfil
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('consultation_fee')
+        .eq('id', doctorId)
+        .maybeSingle();
+
+      const consultationFee = profile?.consultation_fee || 50;
+      const estimatedRevenue = appointments 
+        ? appointments.length * consultationFee 
+        : 0;
+
+      // Calcular tiempo promedio de citas
+      const averageTime = appointments && appointments.length > 0
+        ? Math.round(appointments.reduce((sum, a) => sum + a.duration_minutes, 0) / appointments.length)
+        : 0;
+
+      setStats({
+        totalPatients: patientsCount || 0,
+        satisfactionRate,
+        estimatedRevenue,
+        averageTime
+      });
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -70,11 +132,31 @@ const Dashboard = () => {
     );
   }
 
-  const stats = [
-    { label: "Pacientes Tratados", value: "342", icon: Users, color: "text-primary" },
-    { label: "Tasa de Satisfacción", value: "96%", icon: Star, color: "text-success" },
-    { label: "Ingresos Estimados", value: "$45,320", icon: DollarSign, color: "text-accent" },
-    { label: "Tiempo Promedio", value: "28 min", icon: Clock, color: "text-info" },
+  const statsDisplay = [
+    { 
+      label: "Pacientes Tratados", 
+      value: stats.totalPatients.toString(), 
+      icon: Users, 
+      color: "text-primary" 
+    },
+    { 
+      label: "Tasa de Satisfacción", 
+      value: stats.satisfactionRate > 0 ? `${stats.satisfactionRate}%` : "N/A", 
+      icon: Star, 
+      color: "text-success" 
+    },
+    { 
+      label: "Ingresos Estimados", 
+      value: `$${stats.estimatedRevenue.toLocaleString()}`, 
+      icon: DollarSign, 
+      color: "text-accent" 
+    },
+    { 
+      label: "Tiempo Promedio", 
+      value: stats.averageTime > 0 ? `${stats.averageTime} min` : "N/A", 
+      icon: Clock, 
+      color: "text-info" 
+    },
   ];
 
   const modules = [
@@ -166,7 +248,7 @@ const Dashboard = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
+          {statsDisplay.map((stat, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardDescription className="text-sm font-medium">
@@ -176,10 +258,12 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{stat.value}</div>
-                <div className="flex items-center text-sm text-success mt-2">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  <span>+12% vs mes anterior</span>
-                </div>
+                {stat.value !== "N/A" && (
+                  <div className="flex items-center text-sm text-muted-foreground mt-2">
+                    <Activity className="w-4 h-4 mr-1" />
+                    <span>Actualizado en tiempo real</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
