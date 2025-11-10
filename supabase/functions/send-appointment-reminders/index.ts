@@ -7,6 +7,53 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+// Twilio configuration - will be enabled when credentials are added
+const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID");
+const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN");
+const TWILIO_PHONE_NUMBER = Deno.env.get("TWILIO_PHONE_NUMBER");
+const TWILIO_ENABLED = TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER;
+
+async function sendTwilioMessage(to: string, message: string) {
+  if (!TWILIO_ENABLED) {
+    console.log(`Twilio not configured. Would send to ${to}: ${message}`);
+    return { success: false, reason: "Twilio not configured" };
+  }
+
+  try {
+    const auth = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+    const body = new URLSearchParams({
+      To: `whatsapp:${to}`,
+      From: `whatsapp:${TWILIO_PHONE_NUMBER}`,
+      Body: message,
+    });
+
+    const response = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Basic ${auth}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: body.toString(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error(`Twilio error: ${error}`);
+      return { success: false, reason: error };
+    }
+
+    const data = await response.json();
+    console.log(`Message sent successfully: ${data.sid}`);
+    return { success: true, sid: data.sid };
+  } catch (error) {
+    console.error(`Error sending Twilio message:`, error);
+    return { success: false, reason: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
 interface Appointment {
   id: string;
   title: string;
@@ -81,6 +128,9 @@ serve(async (req) => {
 
       console.log(`Reminder for ${apt.patients.full_name}: ${message}`);
 
+      // Send WhatsApp/SMS via Twilio
+      const twilioResult = await sendTwilioMessage(apt.patients.phone, message);
+
       // Mark reminder as sent
       const { error: updateError } = await supabase
         .from("appointments")
@@ -97,6 +147,8 @@ serve(async (req) => {
         phone: apt.patients.phone,
         message: message,
         sent: !updateError,
+        twilioSent: twilioResult.success,
+        twilioStatus: twilioResult.success ? "sent" : twilioResult.reason,
       });
     }
 
