@@ -120,7 +120,7 @@ const Dashboard = () => {
               <Activity className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">MedLink AI</h1>
+              <h1 className="text-2xl font-bold">MEDMIND</h1>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>

@@ -92,7 +92,7 @@ const Auth = () => {
           <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow">
             <Activity className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-3xl font-bold">MedLink AI</CardTitle>
+          <CardTitle className="text-3xl font-bold">MEDMIND</CardTitle>
           <CardDescription className="text-base">
             Plataforma inteligente para profesionales de la salud
           </CardDescription>
