@@ -13,9 +13,11 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { FileText, Calendar, Pill, Activity, Download } from "lucide-react";
+import { FileText, Calendar, Pill, Activity, Download, Package } from "lucide-react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import InventoryUsageDialog from "./InventoryUsageDialog";
+import { InventoryItem } from "@/pages/SupplyLens";
 
 interface Patient {
   id: string;
@@ -45,11 +47,15 @@ interface PatientMedicalHistoryProps {
 export const PatientMedicalHistory = ({ open, onOpenChange, patient }: PatientMedicalHistoryProps) => {
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [usageDialogOpen, setUsageDialogOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     if (open && patient) {
       loadMedicalRecords();
+      loadInventoryItems();
     }
   }, [open, patient]);
 
@@ -75,6 +81,29 @@ export const PatientMedicalHistory = ({ open, onOpenChange, patient }: PatientMe
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadInventoryItems = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("inventory")
+        .select("*")
+        .eq("doctor_id", user.id)
+        .order("name", { ascending: true });
+
+      if (error) throw error;
+      setInventoryItems(data || []);
+    } catch (error) {
+      console.error("Error loading inventory:", error);
+    }
+  };
+
+  const handleRegisterUsage = (record: MedicalRecord) => {
+    setSelectedRecord(record);
+    setUsageDialogOpen(true);
   };
 
   const getRecordTypeColor = (type: string) => {
@@ -357,12 +386,22 @@ export const PatientMedicalHistory = ({ open, onOpenChange, patient }: PatientMe
                           {formatDate(record.created_at)}
                         </div>
                       </div>
-                      <Badge className={getRecordTypeColor(record.record_type)}>
-                        {record.record_type === "consultation" && "Consulta"}
-                        {record.record_type === "followup" && "Seguimiento"}
-                        {record.record_type === "procedure" && "Procedimiento"}
-                        {record.record_type === "emergency" && "Emergencia"}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRegisterUsage(record)}
+                        >
+                          <Package className="w-4 h-4 mr-2" />
+                          Registrar Uso
+                        </Button>
+                        <Badge className={getRecordTypeColor(record.record_type)}>
+                          {record.record_type === "consultation" && "Consulta"}
+                          {record.record_type === "followup" && "Seguimiento"}
+                          {record.record_type === "procedure" && "Procedimiento"}
+                          {record.record_type === "emergency" && "Emergencia"}
+                        </Badge>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -441,6 +480,16 @@ export const PatientMedicalHistory = ({ open, onOpenChange, patient }: PatientMe
             </div>
           )}
         </ScrollArea>
+
+        {patient && (
+          <InventoryUsageDialog
+            open={usageDialogOpen}
+            onOpenChange={setUsageDialogOpen}
+            inventoryItems={inventoryItems}
+            preselectedPatientId={patient.id}
+            preselectedRecordId={selectedRecord?.id}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

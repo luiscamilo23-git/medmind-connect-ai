@@ -4,12 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, AlertTriangle, TrendingUp, Plus, ArrowLeft } from "lucide-react";
+import { Package, AlertTriangle, TrendingUp, Plus, ArrowLeft, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import InventoryList from "@/components/InventoryList";
 import InventoryDialog from "@/components/InventoryDialog";
 import InventoryAlerts from "@/components/InventoryAlerts";
 import InventoryAnalytics from "@/components/InventoryAnalytics";
+import InventoryUsageDialog from "@/components/InventoryUsageDialog";
+import InventoryUsageHistory from "@/components/InventoryUsageHistory";
 
 export interface InventoryItem {
   id: string;
@@ -36,6 +38,7 @@ const SupplyLens = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [usageDialogOpen, setUsageDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
   useEffect(() => {
@@ -101,6 +104,10 @@ const SupplyLens = () => {
     setDialogOpen(true);
   };
 
+  const handleRegisterUsage = () => {
+    setUsageDialogOpen(true);
+  };
+
   const handleEditItem = (item: InventoryItem) => {
     setSelectedItem(item);
     setDialogOpen(true);
@@ -163,10 +170,16 @@ const SupplyLens = () => {
               </p>
             </div>
           </div>
-          <Button onClick={handleAddItem} size="lg">
-            <Plus className="h-4 w-4 mr-2" />
-            Agregar Item
-          </Button>
+          <div className="flex gap-3">
+            <Button onClick={handleRegisterUsage} variant="outline" size="lg">
+              <ClipboardList className="h-4 w-4 mr-2" />
+              Registrar Uso
+            </Button>
+            <Button onClick={handleAddItem} size="lg">
+              <Plus className="h-4 w-4 mr-2" />
+              Agregar Item
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -219,6 +232,7 @@ const SupplyLens = () => {
         <Tabs defaultValue="inventory" className="space-y-4">
           <TabsList>
             <TabsTrigger value="inventory">Inventario</TabsTrigger>
+            <TabsTrigger value="usage">Uso</TabsTrigger>
             <TabsTrigger value="alerts">Alertas</TabsTrigger>
             <TabsTrigger value="analytics">Análisis</TabsTrigger>
           </TabsList>
@@ -242,6 +256,10 @@ const SupplyLens = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="usage" className="space-y-4">
+            <InventoryUsageHistory loading={loading} />
+          </TabsContent>
+
           <TabsContent value="alerts" className="space-y-4">
             <InventoryAlerts items={lowStockItems} loading={loading} />
           </TabsContent>
@@ -251,11 +269,17 @@ const SupplyLens = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Dialog */}
+        {/* Dialogs */}
         <InventoryDialog
           open={dialogOpen}
           onOpenChange={handleDialogClose}
           item={selectedItem}
+        />
+        
+        <InventoryUsageDialog
+          open={usageDialogOpen}
+          onOpenChange={setUsageDialogOpen}
+          inventoryItems={inventory}
         />
       </div>
     </div>
