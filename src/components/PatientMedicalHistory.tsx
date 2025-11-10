@@ -12,7 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Calendar, Pill, Activity } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileText, Calendar, Pill, Activity, Download } from "lucide-react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Patient {
   id: string;
@@ -94,17 +97,241 @@ export const PatientMedicalHistory = ({ open, onOpenChange, patient }: PatientMe
     });
   };
 
+  const exportToPDF = async () => {
+    if (!patient) return;
+
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      let yPosition = 20;
+
+      // Header
+      doc.setFillColor(33, 150, 243);
+      doc.rect(0, 0, pageWidth, 40, "F");
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.text("Historial Médico", pageWidth / 2, 20, { align: "center" });
+      
+      doc.setFontSize(14);
+      doc.text(patient.full_name, pageWidth / 2, 32, { align: "center" });
+      
+      yPosition = 50;
+      doc.setTextColor(0, 0, 0);
+
+      // Patient info section
+      doc.setFontSize(12);
+      doc.setFont(undefined, "bold");
+      doc.text("Información del Paciente", 14, yPosition);
+      yPosition += 7;
+
+      doc.setFont(undefined, "normal");
+      doc.setFontSize(10);
+      doc.text(`Fecha de Generación: ${new Date().toLocaleDateString("es-ES")}`, 14, yPosition);
+      yPosition += 7;
+      doc.text(`Total de Registros: ${records.length}`, 14, yPosition);
+      yPosition += 15;
+
+      // Medical records
+      if (records.length === 0) {
+        doc.text("No hay registros médicos disponibles", 14, yPosition);
+      } else {
+        records.forEach((record, index) => {
+          // Check if we need a new page
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20;
+          }
+
+          // Record header with colored background
+          const recordColors: Record<string, [number, number, number]> = {
+            consultation: [33, 150, 243],
+            followup: [76, 175, 80],
+            procedure: [255, 152, 0],
+            emergency: [244, 67, 54],
+          };
+          const color = recordColors[record.record_type] || [158, 158, 158];
+          
+          doc.setFillColor(...color);
+          doc.roundedRect(14, yPosition - 5, pageWidth - 28, 12, 2, 2, "F");
+          
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(12);
+          doc.setFont(undefined, "bold");
+          doc.text(record.title, 18, yPosition + 2);
+          
+          const typeLabels: Record<string, string> = {
+            consultation: "Consulta",
+            followup: "Seguimiento",
+            procedure: "Procedimiento",
+            emergency: "Emergencia",
+          };
+          const typeText = typeLabels[record.record_type] || record.record_type;
+          doc.setFontSize(9);
+          doc.text(typeText, pageWidth - 18, yPosition + 2, { align: "right" });
+          
+          yPosition += 12;
+          doc.setTextColor(0, 0, 0);
+
+          // Date
+          doc.setFont(undefined, "normal");
+          doc.setFontSize(9);
+          doc.setTextColor(100, 100, 100);
+          doc.text(`Fecha: ${formatDate(record.created_at)}`, 18, yPosition);
+          yPosition += 8;
+
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(10);
+
+          // Content sections
+          if (record.chief_complaint) {
+            if (yPosition > 250) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.setFont(undefined, "bold");
+            doc.text("Motivo de Consulta:", 18, yPosition);
+            yPosition += 5;
+            doc.setFont(undefined, "normal");
+            const lines = doc.splitTextToSize(record.chief_complaint, pageWidth - 36);
+            doc.text(lines, 18, yPosition);
+            yPosition += lines.length * 5 + 3;
+          }
+
+          if (record.symptoms && record.symptoms.length > 0) {
+            if (yPosition > 250) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.setFont(undefined, "bold");
+            doc.text("Síntomas:", 18, yPosition);
+            yPosition += 5;
+            doc.setFont(undefined, "normal");
+            doc.text(record.symptoms.join(", "), 18, yPosition);
+            yPosition += 8;
+          }
+
+          if (record.diagnosis) {
+            if (yPosition > 250) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.setFont(undefined, "bold");
+            doc.text("Diagnóstico:", 18, yPosition);
+            yPosition += 5;
+            doc.setFont(undefined, "normal");
+            const lines = doc.splitTextToSize(record.diagnosis, pageWidth - 36);
+            doc.text(lines, 18, yPosition);
+            yPosition += lines.length * 5 + 3;
+          }
+
+          if (record.medications && record.medications.length > 0) {
+            if (yPosition > 250) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.setFont(undefined, "bold");
+            doc.text("Medicamentos:", 18, yPosition);
+            yPosition += 5;
+            doc.setFont(undefined, "normal");
+            record.medications.forEach((med) => {
+              const lines = doc.splitTextToSize(`• ${med}`, pageWidth - 40);
+              doc.text(lines, 22, yPosition);
+              yPosition += lines.length * 5;
+            });
+            yPosition += 3;
+          }
+
+          if (record.treatment_plan) {
+            if (yPosition > 250) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.setFont(undefined, "bold");
+            doc.text("Plan de Tratamiento:", 18, yPosition);
+            yPosition += 5;
+            doc.setFont(undefined, "normal");
+            const lines = doc.splitTextToSize(record.treatment_plan, pageWidth - 36);
+            doc.text(lines, 18, yPosition);
+            yPosition += lines.length * 5 + 3;
+          }
+
+          if (record.notes) {
+            if (yPosition > 250) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.setFont(undefined, "bold");
+            doc.text("Notas:", 18, yPosition);
+            yPosition += 5;
+            doc.setFont(undefined, "normal");
+            const lines = doc.splitTextToSize(record.notes, pageWidth - 36);
+            doc.text(lines, 18, yPosition);
+            yPosition += lines.length * 5 + 3;
+          }
+
+          // Separator line
+          yPosition += 5;
+          if (index < records.length - 1) {
+            doc.setDrawColor(200, 200, 200);
+            doc.line(14, yPosition, pageWidth - 14, yPosition);
+            yPosition += 10;
+          }
+        });
+      }
+
+      // Footer on last page
+      const totalPages = doc.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `Página ${i} de ${totalPages} - Generado por MedLink AI`,
+          pageWidth / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: "center" }
+        );
+      }
+
+      // Save PDF
+      const fileName = `Historial_${patient.full_name.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`;
+      doc.save(fileName);
+
+      toast({
+        title: "PDF generado",
+        description: "El historial médico se ha exportado exitosamente.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "No se pudo generar el PDF: " + error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Historial Médico - {patient?.full_name}
-          </DialogTitle>
-          <DialogDescription>
-            Registro completo de consultas y tratamientos
-          </DialogDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Historial Médico - {patient?.full_name}
+              </DialogTitle>
+              <DialogDescription>
+                Registro completo de consultas y tratamientos
+              </DialogDescription>
+            </div>
+            {records.length > 0 && (
+              <Button onClick={exportToPDF} variant="outline">
+                <Download className="w-4 h-4 mr-2" />
+                Exportar PDF
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
         <ScrollArea className="h-[600px] pr-4">
