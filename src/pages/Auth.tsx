@@ -9,6 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Activity, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import MFASetup from "@/components/auth/MFASetup";
+import MFAVerification from "@/components/auth/MFAVerification";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -18,6 +21,9 @@ const Auth = () => {
   const [userRole, setUserRole] = useState<"doctor" | "patient">("patient");
   const [showPassword, setShowPassword] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showMFASetup, setShowMFASetup] = useState(false);
+  const [showMFAVerification, setShowMFAVerification] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -51,7 +57,7 @@ const Auth = () => {
     try {
       const redirectPath = userRole === "patient" ? "/patient/dashboard" : "/dashboard";
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -66,8 +72,13 @@ const Auth = () => {
 
       toast({
         title: "Registro exitoso",
-        description: "Tu cuenta ha sido creada. Puedes iniciar sesión ahora.",
+        description: "Ahora configuraremos la seguridad de tu cuenta.",
       });
+
+      // Show MFA setup after successful signup
+      if (data.user) {
+        setShowMFASetup(true);
+      }
     } catch (error: any) {
       toast({
         title: "Error en registro",
@@ -91,11 +102,35 @@ const Auth = () => {
 
       if (error) throw error;
 
-      // Check user role and redirect accordingly
+      // Check if MFA is required
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      if (factors && factors.totp && factors.totp.length > 0) {
+        // MFA is enabled, show verification
+        setMfaFactorId(factors.totp[0].id);
+        setShowMFAVerification(true);
+        setLoading(false);
+        return;
+      }
+
+      // No MFA, proceed with role check and redirect
+      await completeSignIn(data.user.id);
+    } catch (error: any) {
+      toast({
+        title: "Error de inicio de sesión",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const completeSignIn = async (userId: string) => {
+    try {
       const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", data.user.id);
+        .eq("user_id", userId);
 
       toast({
         title: "¡Bienvenido!",
@@ -114,12 +149,33 @@ const Auth = () => {
       }
     } catch (error: any) {
       toast({
-        title: "Error de inicio de sesión",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Error con Google",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -149,6 +205,45 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Show MFA Setup if needed
+  if (showMFASetup) {
+    return (
+      <MFASetup
+        onComplete={async () => {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await completeSignIn(user.id);
+          }
+        }}
+        onSkip={async () => {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await completeSignIn(user.id);
+          }
+        }}
+      />
+    );
+  }
+
+  // Show MFA Verification if needed
+  if (showMFAVerification && mfaFactorId) {
+    return (
+      <MFAVerification
+        factorId={mfaFactorId}
+        onSuccess={async () => {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await completeSignIn(user.id);
+          }
+        }}
+        onBack={() => {
+          setShowMFAVerification(false);
+          setMfaFactorId("");
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4 relative">
@@ -222,6 +317,40 @@ const Auth = () => {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Cargando..." : "Iniciar Sesión"}
                 </Button>
+
+                <div className="relative my-6">
+                  <Separator />
+                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-sm text-muted-foreground">
+                    o continúa con
+                  </span>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGoogleSignIn}
+                >
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                    <path
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      fill="#4285F4"
+                    />
+                    <path
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      fill="#34A853"
+                    />
+                    <path
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      fill="#FBBC05"
+                    />
+                    <path
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      fill="#EA4335"
+                    />
+                  </svg>
+                  Continuar con Google
+                </Button>
               </form>
             </TabsContent>
             
@@ -284,6 +413,40 @@ const Auth = () => {
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Cargando..." : "Crear Cuenta"}
+                </Button>
+
+                <div className="relative my-6">
+                  <Separator />
+                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-sm text-muted-foreground">
+                    o regístrate con
+                  </span>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGoogleSignIn}
+                >
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                    <path
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      fill="#4285F4"
+                    />
+                    <path
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      fill="#34A853"
+                    />
+                    <path
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      fill="#FBBC05"
+                    />
+                    <path
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      fill="#EA4335"
+                    />
+                  </svg>
+                  Continuar con Google
                 </Button>
               </form>
             </TabsContent>

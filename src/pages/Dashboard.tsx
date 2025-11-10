@@ -20,6 +20,8 @@ import {
   Share2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useReVerification } from "@/hooks/useReVerification";
+import ReVerification from "@/components/auth/ReVerification";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -32,6 +34,7 @@ const Dashboard = () => {
   });
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { needsVerification, checking, markAsVerified } = useReVerification();
 
   useEffect(() => {
     const getUser = async () => {
@@ -121,7 +124,7 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  if (loading) {
+  if (loading || checking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -212,6 +215,12 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Re-verification Dialog */}
+      <ReVerification
+        isOpen={needsVerification}
+        onVerified={markAsVerified}
+      />
+
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">

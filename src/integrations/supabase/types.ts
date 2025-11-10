@@ -162,6 +162,30 @@ export type Database = {
         }
         Relationships: []
       }
+      device_verifications: {
+        Row: {
+          created_at: string
+          device_fingerprint: string
+          id: string
+          last_verified_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_fingerprint: string
+          id?: string
+          last_verified_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_fingerprint?: string
+          id?: string
+          last_verified_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       doctor_reviews: {
         Row: {
           comment: string | null
