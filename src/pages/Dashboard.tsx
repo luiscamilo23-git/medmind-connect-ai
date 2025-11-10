@@ -106,7 +106,7 @@ const Dashboard = () => {
       icon: LineChart,
       color: "bg-info",
       path: "/analytics",
-      enabled: false
+      enabled: true
     },
   ];
 
