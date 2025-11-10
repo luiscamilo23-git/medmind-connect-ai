@@ -14,16 +14,383 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          appointment_date: string
+          created_at: string
+          description: string | null
+          doctor_id: string
+          duration_minutes: number
+          id: string
+          location: string | null
+          notes: string | null
+          patient_id: string
+          reminder_sent: boolean | null
+          status: Database["public"]["Enums"]["appointment_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_date: string
+          created_at?: string
+          description?: string | null
+          doctor_id: string
+          duration_minutes?: number
+          id?: string
+          location?: string | null
+          notes?: string | null
+          patient_id: string
+          reminder_sent?: boolean | null
+          status?: Database["public"]["Enums"]["appointment_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_date?: string
+          created_at?: string
+          description?: string | null
+          doctor_id?: string
+          duration_minutes?: number
+          id?: string
+          location?: string | null
+          notes?: string | null
+          patient_id?: string
+          reminder_sent?: boolean | null
+          status?: Database["public"]["Enums"]["appointment_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory: {
+        Row: {
+          category: Database["public"]["Enums"]["inventory_category"]
+          created_at: string
+          current_stock: number
+          description: string | null
+          doctor_id: string
+          expiration_date: string | null
+          id: string
+          last_restock_date: string | null
+          location: string | null
+          minimum_stock: number
+          name: string
+          notes: string | null
+          sku: string | null
+          supplier: string | null
+          unit_cost: number | null
+          unit_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["inventory_category"]
+          created_at?: string
+          current_stock?: number
+          description?: string | null
+          doctor_id: string
+          expiration_date?: string | null
+          id?: string
+          last_restock_date?: string | null
+          location?: string | null
+          minimum_stock?: number
+          name: string
+          notes?: string | null
+          sku?: string | null
+          supplier?: string | null
+          unit_cost?: number | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["inventory_category"]
+          created_at?: string
+          current_stock?: number
+          description?: string | null
+          doctor_id?: string
+          expiration_date?: string | null
+          id?: string
+          last_restock_date?: string | null
+          location?: string | null
+          minimum_stock?: number
+          name?: string
+          notes?: string | null
+          sku?: string | null
+          supplier?: string | null
+          unit_cost?: number | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_usage: {
+        Row: {
+          created_at: string
+          id: string
+          inventory_id: string
+          medical_record_id: string | null
+          notes: string | null
+          quantity_used: number
+          used_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inventory_id: string
+          medical_record_id?: string | null
+          notes?: string | null
+          quantity_used: number
+          used_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inventory_id?: string
+          medical_record_id?: string | null
+          notes?: string | null
+          quantity_used?: number
+          used_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_usage_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_usage_medical_record_id_fkey"
+            columns: ["medical_record_id"]
+            isOneToOne: false
+            referencedRelation: "medical_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_records: {
+        Row: {
+          appointment_id: string | null
+          attachments: string[] | null
+          chief_complaint: string | null
+          created_at: string
+          diagnosis: string | null
+          doctor_id: string
+          id: string
+          medications: string[] | null
+          notes: string | null
+          patient_id: string
+          record_type: Database["public"]["Enums"]["record_type"]
+          symptoms: string[] | null
+          title: string
+          treatment_plan: string | null
+          updated_at: string
+          voice_transcript: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          attachments?: string[] | null
+          chief_complaint?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          doctor_id: string
+          id?: string
+          medications?: string[] | null
+          notes?: string | null
+          patient_id: string
+          record_type: Database["public"]["Enums"]["record_type"]
+          symptoms?: string[] | null
+          title: string
+          treatment_plan?: string | null
+          updated_at?: string
+          voice_transcript?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          attachments?: string[] | null
+          chief_complaint?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          doctor_id?: string
+          id?: string
+          medications?: string[] | null
+          notes?: string | null
+          patient_id?: string
+          record_type?: Database["public"]["Enums"]["record_type"]
+          symptoms?: string[] | null
+          title?: string
+          treatment_plan?: string | null
+          updated_at?: string
+          voice_transcript?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_records_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          address: string | null
+          allergies: string[] | null
+          blood_type: string | null
+          created_at: string
+          date_of_birth: string | null
+          doctor_id: string
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          allergies?: string[] | null
+          blood_type?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          doctor_id: string
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          allergies?: string[] | null
+          blood_type?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          doctor_id?: string
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          full_name: string
+          id: string
+          license_number: string | null
+          phone: string | null
+          specialty: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name: string
+          id: string
+          license_number?: string | null
+          phone?: string | null
+          specialty?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          license_number?: string | null
+          phone?: string | null
+          specialty?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "doctor" | "staff" | "patient"
+      appointment_status:
+        | "scheduled"
+        | "confirmed"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+        | "no_show"
+      inventory_category:
+        | "medication"
+        | "surgical"
+        | "diagnostic"
+        | "disposable"
+        | "equipment"
+        | "other"
+      record_type:
+        | "consultation"
+        | "procedure"
+        | "diagnosis"
+        | "prescription"
+        | "lab_result"
+        | "imaging"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +517,32 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "doctor", "staff", "patient"],
+      appointment_status: [
+        "scheduled",
+        "confirmed",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "no_show",
+      ],
+      inventory_category: [
+        "medication",
+        "surgical",
+        "diagnostic",
+        "disposable",
+        "equipment",
+        "other",
+      ],
+      record_type: [
+        "consultation",
+        "procedure",
+        "diagnosis",
+        "prescription",
+        "lab_result",
+        "imaging",
+      ],
+    },
   },
 } as const
