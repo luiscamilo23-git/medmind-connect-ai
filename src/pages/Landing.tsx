@@ -217,7 +217,7 @@ const Landing = () => {
                 </Button>
               </Link>
               <Link to="/dashboard">
-                <Button size="lg" variant="outline" className="text-lg px-12 py-7 border-2 border-white text-white hover:bg-white/10 backdrop-blur-sm shadow-xl hover:scale-105 transition-all duration-300">
+                <Button size="lg" variant="outline" className="text-lg px-12 py-7 border-2 border-white bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm shadow-xl hover:scale-105 transition-all duration-300">
                   Ver Demo en Vivo
                 </Button>
               </Link>
@@ -635,6 +635,20 @@ const Landing = () => {
           <p className="text-muted-foreground mb-4">
             La plataforma médica más avanzada de Latinoamérica
           </p>
+          <div className="flex flex-wrap justify-center gap-6 mb-6 text-sm">
+            <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+              Política de Privacidad
+            </Link>
+            <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+              Términos de Servicio
+            </Link>
+            <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+              Política de Cookies
+            </Link>
+            <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+              Aviso Legal
+            </Link>
+          </div>
           <p className="text-sm text-muted-foreground">
             © 2025 MEDMIND. Todos los derechos reservados.
           </p>
