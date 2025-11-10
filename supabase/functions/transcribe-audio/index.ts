@@ -20,73 +20,71 @@ serve(async (req) => {
 
     console.log('Received audio data, length:', audio.length);
 
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    // Process audio in chunks to prevent memory issues
-    function processBase64Chunks(base64String: string, chunkSize = 32768) {
-      const chunks: Uint8Array[] = [];
-      let position = 0;
-      
-      while (position < base64String.length) {
-        const chunk = base64String.slice(position, position + chunkSize);
-        const binaryChunk = atob(chunk);
-        const bytes = new Uint8Array(binaryChunk.length);
-        
-        for (let i = 0; i < binaryChunk.length; i++) {
-          bytes[i] = binaryChunk.charCodeAt(i);
-        }
-        
-        chunks.push(bytes);
-        position += chunkSize;
-      }
+    console.log('Using Lovable AI (Gemini) for audio transcription...');
 
-      const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-      const result = new Uint8Array(totalLength);
-      let offset = 0;
+    // Use Lovable AI with Gemini for audio transcription
+    const systemPrompt = `Eres un asistente médico especializado en transcribir consultas médicas del audio.
+Tu tarea es transcribir el audio de manera precisa, capturando toda la información relevante de la conversación médica.
 
-      for (const chunk of chunks) {
-        result.set(chunk, offset);
-        offset += chunk.length;
-      }
+IMPORTANTE: Devuelve ÚNICAMENTE la transcripción del audio, sin agregar comentarios adicionales.`;
 
-      return result;
-    }
-
-    const binaryAudio = processBase64Chunks(audio);
-    console.log('Processed binary audio, length:', binaryAudio.length);
-    
-    // Prepare form data
-    const formData = new FormData();
-    const blob = new Blob([binaryAudio], { type: 'audio/webm' });
-    formData.append('file', blob, 'audio.webm');
-    formData.append('model', 'whisper-1');
-    formData.append('language', 'es'); // Spanish for medical consultations
-
-    console.log('Sending to OpenAI Whisper API...');
-
-    // Send to OpenAI Whisper
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
       },
-      body: formData,
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Por favor transcribe el siguiente audio de la consulta médica:'
+              },
+              {
+                type: 'audio',
+                audio: audio, // Send base64 audio directly
+                format: 'webm'
+              }
+            ]
+          }
+        ],
+        temperature: 0.1, // Low temperature for accurate transcription
+      }),
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error('Límite de uso excedido. Por favor intenta más tarde.');
+      }
+      if (response.status === 402) {
+        throw new Error('Créditos agotados. Por favor agrega fondos en Settings.');
+      }
+      
       const errorText = await response.text();
-      console.error('OpenAI API error:', response.status, errorText);
-      throw new Error(`OpenAI API error: ${errorText}`);
+      console.error('Lovable AI error:', response.status, errorText);
+      throw new Error(`AI gateway error: ${errorText}`);
     }
 
     const result = await response.json();
-    console.log('Transcription successful:', result.text);
+    const transcribedText = result.choices[0].message.content;
+    
+    console.log('Transcription successful with Gemini:', transcribedText);
 
     return new Response(
-      JSON.stringify({ text: result.text }),
+      JSON.stringify({ text: transcribedText }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
