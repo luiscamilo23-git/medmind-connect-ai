@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import VoiceNotes from "./pages/VoiceNotes";
 import Patients from "./pages/Patients";
 import SmartScheduler from "./pages/SmartScheduler";
+import SupplyLens from "./pages/SupplyLens";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/voicenotes" element={<VoiceNotes />} />
           <Route path="/patients" element={<Patients />} />
           <Route path="/scheduler" element={<SmartScheduler />} />
+          <Route path="/supplylens" element={<SupplyLens />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

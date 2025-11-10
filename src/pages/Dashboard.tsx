@@ -90,7 +90,7 @@ const Dashboard = () => {
       icon: Package,
       color: "bg-secondary",
       path: "/supplylens",
-      enabled: false
+      enabled: true
     },
     {
       title: "SmartScheduler",
