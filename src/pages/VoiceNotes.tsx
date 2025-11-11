@@ -148,8 +148,8 @@ const VoiceNotes = () => {
         setTranscript(data.text);
         
         toast({
-          title: "✓ Transcripción literal completada (Whisper)",
-          description: "Audio transcrito palabra por palabra. Revisa antes de continuar.",
+          title: "✓ Transcripción literal completada",
+          description: "Audio transcrito palabra por palabra. Verifica antes de continuar.",
         });
       };
     } catch (error: any) {

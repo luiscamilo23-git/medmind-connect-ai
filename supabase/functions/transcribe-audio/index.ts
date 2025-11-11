@@ -20,56 +20,95 @@ serve(async (req) => {
 
     console.log('Received audio data, length:', audio.length);
 
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Using OpenAI Whisper for medical-grade literal transcription...');
+    console.log('Using Lovable AI (Gemini) for LITERAL word-by-word transcription...');
 
-    // Convert base64 to binary for Whisper API
-    const binaryString = atob(audio);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
+    // Ultra-strict prompt for LITERAL transcription only
+    const systemPrompt = `Eres una máquina de transcripción de audio LITERAL.
 
-    // Create FormData with audio file
-    const formData = new FormData();
-    const audioBlob = new Blob([bytes], { type: 'audio/webm' });
-    formData.append('file', audioBlob, 'audio.webm');
-    formData.append('model', 'whisper-1');
-    formData.append('language', 'es'); // Spanish
-    formData.append('response_format', 'verbose_json'); // Get detailed response
-    // NO prompt - Whisper transcribe literally without interpretation
-    formData.append('temperature', '0'); // Maximum precision
+REGLA ABSOLUTA: Transcribe EXACTAMENTE cada sonido y palabra que escuches, SIN CAMBIAR NADA.
 
-    console.log('Sending audio to OpenAI Whisper...');
+LO QUE DEBES HACER:
+✓ Transcribir cada palabra EXACTAMENTE como suena
+✓ Incluir TODAS las muletillas: "eh", "este", "pues", "mmm", "ah"
+✓ Incluir pausas largas: "..."
+✓ Incluir repeticiones si el paciente repite
+✓ Transcribir incluso si hay errores gramaticales
+✓ Mantener el orden EXACTO de las palabras
 
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+LO QUE NO DEBES HACER:
+✗ NO parafrasear ni cambiar palabras
+✗ NO corregir gramática
+✗ NO eliminar muletillas
+✗ NO ordenar ni organizar la información
+✗ NO agregar palabras que no se dijeron
+✗ NO cambiar el orden de las frases
+✗ NO interpretar lo que "quiso decir"
+✗ NO usar lenguaje médico profesional
+
+EJEMPLO CORRECTO:
+Audio: "Eh... doctor pues es que me duele... me duele mucho la cabeza desde ayer"
+Transcripción: "Eh... doctor pues es que me duele... me duele mucho la cabeza desde ayer"
+
+EJEMPLO INCORRECTO:
+Audio: "Eh... doctor pues es que me duele... me duele mucho la cabeza desde ayer"
+Transcripción: "Doctor, tengo dolor de cabeza desde ayer" ❌ (esto está PROHIBIDO)
+
+Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambiar NADA.`;
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
       },
-      body: formData,
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash', // Flash is better for literal transcription
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Transcribe este audio PALABRA POR PALABRA sin cambiar nada:'
+              },
+              {
+                type: 'audio',
+                audio: audio,
+                format: 'webm'
+              }
+            ]
+          }
+        ],
+        temperature: 0.0, // Zero temperature for consistency
+      }),
     });
 
     if (!response.ok) {
       if (response.status === 429) {
-        throw new Error('Límite de uso de OpenAI excedido. Por favor intenta más tarde.');
+        throw new Error('Límite de uso excedido. Por favor intenta más tarde.');
+      }
+      if (response.status === 402) {
+        throw new Error('Créditos agotados. Por favor agrega fondos en Settings.');
       }
       
       const errorText = await response.text();
-      console.error('OpenAI Whisper error:', response.status, errorText);
-      throw new Error(`OpenAI API error: ${errorText}`);
+      console.error('Lovable AI error:', response.status, errorText);
+      throw new Error(`AI gateway error: ${errorText}`);
     }
 
     const result = await response.json();
-    const transcribedText = result.text;
+    const transcribedText = result.choices[0].message.content;
     
-    console.log('Whisper transcription successful:', transcribedText);
-    console.log('Transcription language detected:', result.language);
-    console.log('Transcription duration:', result.duration);
+    console.log('Literal transcription successful:', transcribedText);
 
     return new Response(
       JSON.stringify({ text: transcribedText }),
