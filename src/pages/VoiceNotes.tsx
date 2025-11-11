@@ -30,6 +30,9 @@ const VoiceNotes = () => {
   
   // Speech Recognition
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingStartTimeRef = useRef<number>(0);
   
   // Medical record fields
   const [patientName, setPatientName] = useState("");
@@ -82,13 +85,6 @@ const VoiceNotes = () => {
           });
         }
       };
-
-      recognitionRef.current.onend = () => {
-        if (isRecording) {
-          // Restart if still recording
-          recognitionRef.current.start();
-        }
-      };
     } else {
       toast({
         title: "Navegador no compatible",
@@ -101,11 +97,14 @@ const VoiceNotes = () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
     };
-  }, [isRecording]);
+  }, []);
 
 
-  const startRecording = () => {
+  const startRecording = async () => {
     if (!recognitionRef.current) {
       toast({
         title: "Error",
@@ -116,6 +115,23 @@ const VoiceNotes = () => {
     }
 
     try {
+      // Get audio stream
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Initialize MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+      recordingStartTimeRef.current = Date.now();
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      // Start recording
+      mediaRecorder.start();
       setTranscript(""); // Clear previous transcript
       recognitionRef.current.start();
       setIsRecording(true);
@@ -128,22 +144,33 @@ const VoiceNotes = () => {
       console.error('Error starting recording:', error);
       toast({
         title: "Error",
-        description: "No se pudo iniciar la grabación",
+        description: "No se pudo iniciar la grabación. Verifica los permisos del micrófono.",
         variant: "destructive",
       });
+      setIsRecording(false);
     }
   };
 
   const stopRecording = () => {
     if (recognitionRef.current && isRecording) {
       recognitionRef.current.stop();
-      setIsRecording(false);
-      
-      toast({
-        title: "✓ Grabación detenida",
-        description: "Transcripción completada. Ahora puedes organizarla con IA.",
-      });
     }
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+      
+      // Stop all audio tracks
+      if (mediaRecorderRef.current.stream) {
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      }
+    }
+
+    setIsRecording(false);
+    
+    toast({
+      title: "✓ Grabación detenida",
+      description: "Transcripción completada. Ahora puedes organizarla con IA.",
+    });
   };
 
 
@@ -263,6 +290,39 @@ const VoiceNotes = () => {
         });
       }
 
+      // Save audio recording if available
+      let audioUrl: string | null = null;
+      let durationSeconds: number | null = null;
+
+      if (audioChunksRef.current.length > 0) {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const fileName = `${user.id}/${Date.now()}_recording.webm`;
+        
+        durationSeconds = Math.floor((Date.now() - recordingStartTimeRef.current) / 1000);
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('voice-recordings')
+          .upload(fileName, audioBlob);
+
+        if (uploadError) {
+          console.error('Error uploading audio:', uploadError);
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('voice-recordings')
+            .getPublicUrl(fileName);
+          audioUrl = publicUrl;
+
+          // Save voice recording reference
+          await supabase.from('voice_recordings').insert({
+            doctor_id: user.id,
+            patient_id: patientId,
+            audio_url: audioUrl,
+            transcript: transcript,
+            duration_seconds: durationSeconds,
+          });
+        }
+      }
+
       // Save medical record
       const { error } = await supabase.from('medical_records').insert([{
         doctor_id: user.id,
@@ -281,8 +341,8 @@ const VoiceNotes = () => {
       if (error) throw error;
 
       toast({
-        title: "Historia clínica guardada",
-        description: "Se ha guardado exitosamente en la base de datos",
+        title: "✅ Historial guardado",
+        description: "El historial médico y la grabación se guardaron exitosamente",
       });
 
       // Reset form
@@ -295,6 +355,7 @@ const VoiceNotes = () => {
       setMedications([]);
       setNotes("");
       setPatientName("");
+      audioChunksRef.current = [];
     } catch (error: any) {
       console.error('Error saving medical record:', error);
       toast({

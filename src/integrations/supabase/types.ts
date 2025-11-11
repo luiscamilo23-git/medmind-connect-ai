@@ -631,6 +631,44 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_recordings: {
+        Row: {
+          audio_url: string
+          created_at: string
+          doctor_id: string
+          duration_seconds: number | null
+          id: string
+          patient_id: string | null
+          transcript: string | null
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          doctor_id: string
+          duration_seconds?: number | null
+          id?: string
+          patient_id?: string | null
+          transcript?: string | null
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          doctor_id?: string
+          duration_seconds?: number | null
+          id?: string
+          patient_id?: string | null
+          transcript?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_recordings_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -18,6 +18,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import InventoryUsageDialog from "./InventoryUsageDialog";
 import { InventoryItem } from "@/pages/SupplyLens";
+import { PatientVoiceRecordings } from "./PatientVoiceRecordings";
 
 interface Patient {
   id: string;
@@ -480,6 +481,12 @@ export const PatientMedicalHistory = ({ open, onOpenChange, patient }: PatientMe
             </div>
           )}
         </ScrollArea>
+
+        {patient && (
+          <div className="mt-4">
+            <PatientVoiceRecordings patientId={patient.id} />
+          </div>
+        )}
 
         {patient && (
           <InventoryUsageDialog
