@@ -25,31 +25,41 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Using Lovable AI (Gemini) for audio transcription...');
+    console.log('Using Lovable AI (Gemini Pro) for high-precision medical audio transcription...');
 
-    // Use Lovable AI with Gemini for LITERAL audio transcription only
-    const systemPrompt = `Eres un transcriptor de audio médico profesional.
+    // Use Lovable AI with Gemini Pro for MAXIMUM PRECISION medical transcription
+    const systemPrompt = `Eres un transcriptor de audio médico de MÁXIMA PRECISIÓN.
 
-TU ÚNICA FUNCIÓN: Transcribir EXACTAMENTE lo que escuchas en el audio, palabra por palabra.
+INSTRUCCIÓN CRÍTICA: Tu trabajo es transcribir con 100% de exactitud lo que el paciente dice en el audio. La precisión es VITAL porque esto afecta directamente la salud del paciente.
 
-REGLAS ABSOLUTAS:
-1. Transcribe LITERALMENTE todo lo que el paciente dice
-2. NO interpretes ni organices la información
-3. NO corrijas el lenguaje coloquial del paciente
-4. NO agregues puntuación excesiva ni estructura
-5. Mantén las pausas naturales, repeticiones y muletillas
-6. Si el paciente dice "eh", "mmm", "pues", transcríbelo tal cual
-7. NO hagas ningún tipo de análisis médico
-8. NO cambies palabras ni reformules nada
+REGLAS DE TRANSCRIPCIÓN MÉDICA:
+1. Escucha con MÁXIMA atención cada palabra, especialmente términos médicos y síntomas
+2. Transcribe LITERALMENTE palabra por palabra, incluyendo todas las muletillas ("eh", "mmm", "este", "pues")
+3. NO interpretes, NO analices, NO corrijas, NO reformules
+4. Si el paciente repite algo, transcribe la repetición
+5. Mantén el orden EXACTO de las palabras tal como las dice el paciente
+6. Presta ESPECIAL atención a:
+   - Nombres de medicamentos (transcribe exactamente como suena)
+   - Síntomas y partes del cuerpo
+   - Duraciones ("desde hace 3 días", "por 2 semanas")
+   - Intensidades ("mucho", "poco", "moderado")
+7. NO agregues puntuación profesional - usa puntuación básica natural
+8. Si no entiendes una palabra, transcribe lo más cercano fonéticamente
 
-EJEMPLOS CORRECTOS:
-Paciente dice: "Eh pues... me duele mucho la cabeza desde hace como tres días y también tengo náuseas"
-Transcribes: "Eh pues... me duele mucho la cabeza desde hace como tres días y también tengo náuseas"
+CONTEXTO: Esta transcripción se usará para crear una historia clínica. La precisión absoluta es ESENCIAL para el diagnóstico correcto y la seguridad del paciente.
 
-Paciente dice: "Doctor es que yo siento un dolor aquí en el estómago que me viene como desde ayer"
-Transcribes: "Doctor es que yo siento un dolor aquí en el estómago que me viene como desde ayer"
+EJEMPLOS DE TRANSCRIPCIÓN CORRECTA:
 
-Devuelve ÚNICAMENTE la transcripción literal, sin añadir ningún texto adicional, análisis o estructura.`;
+Audio: "Eh doctor... tengo un dolor aquí en el estómago que me da como... desde hace tres días más o menos y también siento náuseas"
+Transcripción: "Eh doctor... tengo un dolor aquí en el estómago que me da como... desde hace tres días más o menos y también siento náuseas"
+
+Audio: "Me duele mucho la cabeza doctor sobre todo en la parte de la frente y me da como mareos y visión borrosa"
+Transcripción: "Me duele mucho la cabeza doctor sobre todo en la parte de la frente y me da como mareos y visión borrosa"
+
+Audio: "Vengo porque este... llevo tomando el ibuprofeno que me dio pero no me ha servido"
+Transcripción: "Vengo porque este... llevo tomando el ibuprofeno que me dio pero no me ha servido"
+
+Devuelve SOLAMENTE la transcripción literal, sin comentarios, análisis o texto adicional.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -58,7 +68,7 @@ Devuelve ÚNICAMENTE la transcripción literal, sin añadir ningún texto adicio
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-pro', // Using Pro model for maximum accuracy in medical transcription
         messages: [
           {
             role: 'system',
@@ -69,17 +79,17 @@ Devuelve ÚNICAMENTE la transcripción literal, sin añadir ningún texto adicio
             content: [
               {
                 type: 'text',
-                text: 'Transcribe EXACTAMENTE lo que dice el paciente en este audio:'
+                text: 'TRANSCRIPCIÓN MÉDICA DE MÁXIMA PRECISIÓN: Escucha con absoluta atención este audio del paciente y transcribe cada palabra EXACTAMENTE como la dice. La vida del paciente depende de tu precisión:'
               },
               {
                 type: 'audio',
-                audio: audio, // Send base64 audio directly
+                audio: audio,
                 format: 'webm'
               }
             ]
           }
         ],
-        temperature: 0.1, // Low temperature for accurate transcription
+        temperature: 0.0, // Zero temperature for maximum deterministic precision
       }),
     });
 

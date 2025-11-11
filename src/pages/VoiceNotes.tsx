@@ -48,14 +48,21 @@ const VoiceNotes = () => {
 
   const startRecording = async () => {
     try {
-      // Request high-quality audio with specific constraints
+      // Request MAXIMUM quality audio for medical transcription
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-          sampleRate: 48000,
+          sampleRate: 48000, // High sample rate for clarity
+          sampleSize: 16, // 16-bit audio
           channelCount: 1,
+          // Advanced constraints for medical-grade audio
+          advanced: [
+            { echoCancellation: true },
+            { noiseSuppression: true },
+            { autoGainControl: true }
+          ]
         }
       });
       
@@ -91,8 +98,8 @@ const VoiceNotes = () => {
       setIsRecording(true);
       
       toast({
-        title: "Grabación iniciada",
-        description: "Hablando con alta calidad. Habla cerca del micrófono.",
+        title: "Grabación médica iniciada",
+        description: "🎤 Para máxima precisión: Habla claro y cerca del micrófono. Evita ruidos de fondo.",
       });
     } catch (error) {
       console.error('Error starting recording:', error);
@@ -141,8 +148,8 @@ const VoiceNotes = () => {
         setTranscript(data.text);
         
         toast({
-          title: "Transcripción completada",
-          description: "Revisa la transcripción literal antes de generar la historia clínica",
+          title: "Transcripción de alta precisión completada",
+          description: "✓ Revisa que la transcripción sea exacta antes de procesarla con IA",
         });
       };
     } catch (error: any) {
@@ -375,13 +382,21 @@ const VoiceNotes = () => {
             </div>
 
             {isRecording && (
-              <div className="text-center space-y-2">
-                <Badge variant="destructive" className="animate-pulse">
-                  ● Grabando...
+              <div className="text-center space-y-3">
+                <Badge variant="destructive" className="animate-pulse text-base py-2 px-4">
+                  ● GRABANDO AUDIO MÉDICO
                 </Badge>
-                <p className="text-xs text-muted-foreground">
-                  🎤 Habla cerca del micrófono para mejor calidad
-                </p>
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 space-y-2">
+                  <p className="text-sm font-medium text-foreground">
+                    ⚕️ Consejos para máxima precisión:
+                  </p>
+                  <ul className="text-xs text-muted-foreground space-y-1 text-left max-w-md mx-auto">
+                    <li>• Habla claro y a ritmo normal</li>
+                    <li>• Mantén el micrófono cerca (15-30cm)</li>
+                    <li>• Minimiza ruidos de fondo</li>
+                    <li>• Pronuncia bien términos médicos</li>
+                  </ul>
+                </div>
               </div>
             )}
 
