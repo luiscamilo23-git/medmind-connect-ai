@@ -27,22 +27,29 @@ serve(async (req) => {
 
     console.log('Using Lovable AI (Gemini) for audio transcription...');
 
-    // Use Lovable AI with Gemini for audio transcription
-    const systemPrompt = `Eres un transcriptor profesional. Tu ÚNICA tarea es transcribir EXACTAMENTE lo que dice el paciente en el audio.
+    // Use Lovable AI with Gemini for LITERAL audio transcription only
+    const systemPrompt = `Eres un transcriptor de audio médico profesional.
 
-REGLAS CRÍTICAS:
-- Transcribe LITERALMENTE palabra por palabra lo que escuchas
-- NO agregues interpretaciones médicas
-- NO estructures la información
-- NO corrijas gramática o formas de hablar
-- Mantén muletillas, pausas naturales y formas coloquiales
-- Captura TODO lo que dice el paciente tal cual lo dice
+TU ÚNICA FUNCIÓN: Transcribir EXACTAMENTE lo que escuchas en el audio, palabra por palabra.
 
-Ejemplo:
-Si el paciente dice: "Ehh... me duele la cabeza desde hace como... tres días, y también tengo náuseas"
-Transcribes EXACTAMENTE: "Ehh... me duele la cabeza desde hace como... tres días, y también tengo náuseas"
+REGLAS ABSOLUTAS:
+1. Transcribe LITERALMENTE todo lo que el paciente dice
+2. NO interpretes ni organices la información
+3. NO corrijas el lenguaje coloquial del paciente
+4. NO agregues puntuación excesiva ni estructura
+5. Mantén las pausas naturales, repeticiones y muletillas
+6. Si el paciente dice "eh", "mmm", "pues", transcríbelo tal cual
+7. NO hagas ningún tipo de análisis médico
+8. NO cambies palabras ni reformules nada
 
-Devuelve SOLO la transcripción literal del audio, sin comentarios adicionales.`;
+EJEMPLOS CORRECTOS:
+Paciente dice: "Eh pues... me duele mucho la cabeza desde hace como tres días y también tengo náuseas"
+Transcribes: "Eh pues... me duele mucho la cabeza desde hace como tres días y también tengo náuseas"
+
+Paciente dice: "Doctor es que yo siento un dolor aquí en el estómago que me viene como desde ayer"
+Transcribes: "Doctor es que yo siento un dolor aquí en el estómago que me viene como desde ayer"
+
+Devuelve ÚNICAMENTE la transcripción literal, sin añadir ningún texto adicional, análisis o estructura.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

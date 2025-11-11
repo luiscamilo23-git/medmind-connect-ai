@@ -142,7 +142,7 @@ const VoiceNotes = () => {
         
         toast({
           title: "Transcripción completada",
-          description: "El audio ha sido transcrito exitosamente",
+          description: "Revisa la transcripción literal antes de generar la historia clínica",
         });
       };
     } catch (error: any) {
@@ -196,7 +196,7 @@ const VoiceNotes = () => {
 
       toast({
         title: "Historia clínica generada",
-        description: "Revisa y edita los campos antes de guardar",
+        description: "La IA ha organizado la transcripción. Revisa y edita antes de guardar.",
       });
     } catch (error: any) {
       console.error('Error generating medical record:', error);
@@ -346,7 +346,7 @@ const VoiceNotes = () => {
               Grabación de Audio
             </CardTitle>
             <CardDescription>
-              Transcripción literal de lo que dijo el paciente
+              Paso 1: Graba y transcribe exactamente lo que dice el paciente
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -400,8 +400,11 @@ const VoiceNotes = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-secondary" />
-                Transcripción
+                Transcripción Literal
               </CardTitle>
+              <CardDescription>
+                Paso 2: Revisa que la transcripción sea correcta, luego usa IA para organizarla
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Textarea
@@ -438,10 +441,10 @@ const VoiceNotes = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-accent" />
-                Historia Clínica Generada
+                Historia Clínica Organizada por IA
               </CardTitle>
               <CardDescription>
-                Revisa y edita los campos antes de guardar
+                Paso 3: Revisa, edita los campos y guarda en la base de datos
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
