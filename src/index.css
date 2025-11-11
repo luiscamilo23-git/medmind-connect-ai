@@ -21,8 +21,8 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --primary-glow: 217 81% 61%;
     
-    /* Secondary - Verde menta suave */
-    --secondary: 172 100% 38%;
+    /* Secondary - Rosado vibrante */
+    --secondary: 340 82% 60%;
     --secondary-foreground: 0 0% 100%;
     
     /* Muted */
@@ -56,7 +56,7 @@ All colors MUST be HSL.
     
     /* Charts */
     --chart-1: 217 81% 51%;
-    --chart-2: 172 100% 38%;
+    --chart-2: 340 82% 60%;
     --chart-3: 209 100% 30%;
     --chart-4: 199 89% 48%;
     --chart-5: 280 65% 60%;
@@ -65,8 +65,8 @@ All colors MUST be HSL.
     
     /* Gradients suaves */
     --gradient-primary: linear-gradient(135deg, hsl(217 81% 51%), hsl(217 81% 61%));
-    --gradient-secondary: linear-gradient(135deg, hsl(172 100% 38%), hsl(172 100% 48%));
-    --gradient-hero: linear-gradient(135deg, hsl(217 81% 51%) 0%, hsl(172 100% 38%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(340 82% 60%), hsl(340 82% 70%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 81% 51%) 0%, hsl(340 82% 60%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 6%), hsl(0 0% 3%));
     
     /* Shadows suaves y profesionales */
@@ -102,7 +102,7 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --primary-glow: 217 81% 66%;
     
-    --secondary: 172 100% 43%;
+    --secondary: 340 82% 65%;
     --secondary-foreground: 0 0% 100%;
     
     --muted: 0 0% 12%;
@@ -123,7 +123,7 @@ All colors MUST be HSL.
     --info: 199 89% 53%;
     
     --chart-1: 217 81% 56%;
-    --chart-2: 172 100% 43%;
+    --chart-2: 340 82% 65%;
     --chart-3: 209 100% 35%;
     --chart-4: 199 89% 53%;
     --chart-5: 280 65% 65%;
