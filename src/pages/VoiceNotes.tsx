@@ -25,9 +25,11 @@ import QuickPatientForm from "@/components/QuickPatientForm";
 const VoiceNotes = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [isTranscribing, setIsTranscribing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Speech Recognition
+  const recognitionRef = useRef<any>(null);
   
   // Medical record fields
   const [patientName, setPatientName] = useState("");
@@ -40,129 +42,110 @@ const VoiceNotes = () => {
   const [medications, setMedications] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Initialize Speech Recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'es-ES';
 
-  const startRecording = async () => {
+      recognitionRef.current.onresult = (event: any) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcriptPiece = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcriptPiece + ' ';
+          } else {
+            interimTranscript += transcriptPiece;
+          }
+        }
+
+        if (finalTranscript) {
+          setTranscript(prev => prev + finalTranscript);
+        }
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        if (event.error === 'no-speech') {
+          toast({
+            title: "No se detectó voz",
+            description: "Por favor habla más cerca del micrófono",
+            variant: "destructive",
+          });
+        }
+      };
+
+      recognitionRef.current.onend = () => {
+        if (isRecording) {
+          // Restart if still recording
+          recognitionRef.current.start();
+        }
+      };
+    } else {
+      toast({
+        title: "Navegador no compatible",
+        description: "Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.",
+        variant: "destructive",
+      });
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [isRecording]);
+
+
+  const startRecording = () => {
+    if (!recognitionRef.current) {
+      toast({
+        title: "Error",
+        description: "Reconocimiento de voz no disponible",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // Request MAXIMUM quality audio for medical transcription
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 48000, // High sample rate for clarity
-          sampleSize: 16, // 16-bit audio
-          channelCount: 1,
-          // Advanced constraints for medical-grade audio
-          advanced: [
-            { echoCancellation: true },
-            { noiseSuppression: true },
-            { autoGainControl: true }
-          ]
-        }
-      });
-      
-      // Use higher quality codec if available
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : 'audio/webm';
-      
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType,
-        audioBitsPerSecond: 128000,
-      });
-      
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-        await transcribeAudio(audioBlob);
-        
-        // Stop all tracks
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      // Record in chunks every 1 second for better quality
-      mediaRecorder.start(1000);
+      setTranscript(""); // Clear previous transcript
+      recognitionRef.current.start();
       setIsRecording(true);
       
       toast({
-        title: "Grabación médica iniciada",
-        description: "🎤 Para máxima precisión: Habla claro y cerca del micrófono. Evita ruidos de fondo.",
+        title: "🎤 Grabación iniciada",
+        description: "Transcripción en tiempo real activada. Habla claramente.",
       });
     } catch (error) {
       console.error('Error starting recording:', error);
       toast({
-        title: "Error de micrófono",
-        description: "No se pudo acceder al micrófono. Verifica los permisos.",
+        title: "Error",
+        description: "No se pudo iniciar la grabación",
         variant: "destructive",
       });
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
       setIsRecording(false);
-    }
-  };
-
-  const transcribeAudio = async (audioBlob: Blob) => {
-    setIsTranscribing(true);
-    
-    try {
-      // Convert blob to base64
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
       
-      reader.onloadend = async () => {
-        const base64Audio = reader.result?.toString().split(',')[1];
-        
-        if (!base64Audio) {
-          throw new Error('Failed to convert audio to base64');
-        }
-
-        console.log('Sending audio to transcription service...');
-
-        const { data, error } = await supabase.functions.invoke('transcribe-audio', {
-          body: { audio: base64Audio }
-        });
-
-        if (error) {
-          console.error('Transcription error:', error);
-          throw error;
-        }
-
-        console.log('Transcription successful:', data);
-        setTranscript(data.text);
-        
-        toast({
-          title: "✓ Transcripción literal completada",
-          description: "Audio transcrito palabra por palabra. Verifica antes de continuar.",
-        });
-      };
-    } catch (error: any) {
-      console.error('Error transcribing audio:', error);
       toast({
-        title: "Error de transcripción",
-        description: error.message || "No se pudo transcribir el audio",
-        variant: "destructive",
+        title: "✓ Grabación detenida",
+        description: "Transcripción completada. Ahora puedes organizarla con IA.",
       });
-    } finally {
-      setIsTranscribing(false);
     }
   };
+
 
   const generateMedicalRecord = async () => {
     if (!transcript) {
@@ -353,7 +336,7 @@ const VoiceNotes = () => {
               Grabación de Audio
             </CardTitle>
             <CardDescription>
-              Paso 1: Graba y transcribe exactamente lo que dice el paciente
+              Paso 1: Transcripción automática en tiempo real (sin IA)
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -362,7 +345,6 @@ const VoiceNotes = () => {
                 <Button
                   size="lg"
                   onClick={startRecording}
-                  disabled={isTranscribing}
                   className="gap-2"
                 >
                   <Mic className="w-5 h-5" />
@@ -384,26 +366,16 @@ const VoiceNotes = () => {
             {isRecording && (
               <div className="text-center space-y-3">
                 <Badge variant="destructive" className="animate-pulse text-base py-2 px-4">
-                  ● GRABANDO AUDIO MÉDICO
+                  ● GRABANDO EN TIEMPO REAL
                 </Badge>
-                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 space-y-2">
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 space-y-2">
                   <p className="text-sm font-medium text-foreground">
-                    ⚕️ Consejos para máxima precisión:
+                    🎤 Transcripción automática activada
                   </p>
-                  <ul className="text-xs text-muted-foreground space-y-1 text-left max-w-md mx-auto">
-                    <li>• Habla claro y a ritmo normal</li>
-                    <li>• Mantén el micrófono cerca (15-30cm)</li>
-                    <li>• Minimiza ruidos de fondo</li>
-                    <li>• Pronuncia bien términos médicos</li>
-                  </ul>
+                  <p className="text-xs text-muted-foreground">
+                    La conversación se está transcribiendo en tiempo real
+                  </p>
                 </div>
-              </div>
-            )}
-
-            {isTranscribing && (
-              <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Transcribiendo audio...</span>
               </div>
             )}
           </CardContent>
@@ -417,9 +389,9 @@ const VoiceNotes = () => {
                 <FileText className="w-5 h-5 text-secondary" />
                 Transcripción Literal
               </CardTitle>
-              <CardDescription>
-                Paso 2: Revisa que la transcripción sea correcta, luego usa IA para organizarla
-              </CardDescription>
+            <CardDescription>
+              Paso 2: Revisa la transcripción de la consulta (médico + paciente)
+            </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Textarea
@@ -459,7 +431,7 @@ const VoiceNotes = () => {
                 Historia Clínica Organizada por IA
               </CardTitle>
               <CardDescription>
-                Paso 3: Revisa, edita los campos y guarda en la base de datos
+                Paso 3: IA organiza e identifica médico vs paciente automáticamente
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

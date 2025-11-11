@@ -24,39 +24,40 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const systemPrompt = `Eres un médico experto especializado en analizar consultas de pacientes y generar historias clínicas profesionales.
+    const systemPrompt = `Eres un asistente médico especializado en organizar consultas médicas transcritas.
 
-Tu tarea es analizar la transcripción LITERAL de lo que dijo el paciente y extraer información médica estructurada.
+TAREA: Analiza esta transcripción LITERAL de una consulta médica y organízala en una historia clínica profesional.
 
-CONTEXTO IMPORTANTE:
-- La transcripción es EXACTAMENTE lo que dijo el paciente (puede tener muletillas, pausas, frases incompletas)
-- Debes INTERPRETAR y ANALIZAR lo que el paciente comunica
-- Extrae síntomas, quejas, duración, intensidad, factores agravantes/atenuantes
-- Infiere diagnósticos diferenciales basándote en los síntomas descritos
-- Propón tratamientos apropiados para los síntomas reportados
+CONTEXTO CRÍTICO:
+- La transcripción contiene diálogo entre MÉDICO y PACIENTE
+- Puede incluir preguntas del médico y respuestas del paciente
+- Tu trabajo es identificar quién habla (médico vs paciente) y extraer la información médica relevante
 
-IMPORTANTE: Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional.
+IDENTIFICACIÓN DE INTERLOCUTORES:
+- El MÉDICO hace preguntas, guía la consulta: "¿Desde cuándo?", "¿Dónde le duele?", "¿Ha tomado algo?"
+- El PACIENTE describe síntomas, responde: "Me duele...", "Desde hace...", "Siento que..."
+- Si no está claro quién habla, infiere por el contexto
 
-Estructura JSON requerida:
+EXTRACCIÓN DE INFORMACIÓN:
+- Síntomas: TODO lo que el paciente describe que siente/padece
+- Motivo de consulta: La razón principal por la que vino
+- Antecedentes: Cualquier mención de medicamentos previos, condiciones, alergias
+- Evolución: Duración, progresión, factores agravantes/atenuantes
+
+IMPORTANTE: 
+- NO inventes información que no esté en la transcripción
+- Si el médico preguntó algo pero el paciente no respondió claramente, anótalo en "notes"
+- Usa terminología médica profesional pero mantén la fidelidad a lo dicho
+
+RESPONDE CON ESTE JSON:
 {
-  "chief_complaint": "Queja principal interpretada profesionalmente",
-  "symptoms": ["síntoma1 con detalles", "síntoma2 con detalles", "síntoma3"],
-  "diagnosis": "Diagnóstico preliminar o diferencial basado en síntomas",
-  "treatment_plan": "Plan de tratamiento detallado y profesional",
-  "medications": ["medicamento 1 - dosis - frecuencia - indicación", "medicamento 2..."],
-  "notes": "Observaciones importantes, factores de riesgo, recomendaciones adicionales"
-}
-
-Reglas:
-- Interpreta el lenguaje coloquial del paciente en términos médicos
-- Ejemplo: "me duele mucho la cabeza" → chief_complaint: "Cefalea de intensidad severa"
-- Si el paciente menciona duración, inclúyela: "desde hace 3 días" → "Cefalea de 3 días de evolución"
-- Propón diagnósticos diferenciales basados en los síntomas
-- Sugiere tratamiento apropiado incluso si el paciente no lo mencionó
-- Si falta información crítica, indica en notes qué se debe investigar
-- Usa terminología médica profesional en la historia clínica
-- Mantén el formato JSON válido sin caracteres especiales que rompan el JSON`;
-
+  "chief_complaint": "Motivo principal de consulta en términos médicos",
+  "symptoms": ["síntoma 1 con detalles", "síntoma 2", "síntoma 3"],
+  "diagnosis": "Impresión diagnóstica basada en síntomas (o 'Pendiente de evaluación')",
+  "treatment_plan": "Plan terapéutico sugerido o implementado",
+  "medications": ["medicamento - dosis - vía - frecuencia"],
+  "notes": "Información adicional: preguntas sin respuesta clara, observaciones del médico, antecedentes mencionados, seguimiento requerido"
+}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -68,14 +69,14 @@ Reglas:
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Analiza esta transcripción LITERAL de lo que dijo el paciente y genera una historia clínica profesional:
+          { role: 'user', content: `Analiza y organiza esta transcripción literal de consulta médica:
 
-TRANSCRIPCIÓN DEL PACIENTE:
+TRANSCRIPCIÓN COMPLETA:
 ${transcript}
 
-Genera la historia clínica en formato JSON con interpretación médica profesional.` }
+Genera la historia clínica en formato JSON identificando claramente quién dice qué (médico vs paciente) y extrayendo la información médica relevante.` }
         ],
-        temperature: 0.4, // Balanced for clinical reasoning while maintaining consistency
+        temperature: 0.3, // Balance entre precisión y comprensión contextual
       }),
     });
 
