@@ -396,6 +396,36 @@ export type Database = {
           },
         ]
       }
+      patient_audit_logs: {
+        Row: {
+          accessed_by: string
+          action: string
+          created_at: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          patient_id: string
+        }
+        Insert: {
+          accessed_by: string
+          action: string
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          patient_id: string
+        }
+        Update: {
+          accessed_by?: string
+          action?: string
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          patient_id?: string
+        }
+        Relationships: []
+      }
       patients: {
         Row: {
           address: string | null
