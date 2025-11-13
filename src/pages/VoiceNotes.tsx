@@ -22,11 +22,19 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import QuickPatientForm from "@/components/QuickPatientForm";
 
+interface Suggestion {
+  question: string;
+  reason: string;
+  priority: 'high' | 'medium' | 'low';
+}
+
 const VoiceNotes = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   // Speech Recognition
   const recognitionRef = useRef<any>(null);
@@ -47,6 +55,40 @@ const VoiceNotes = () => {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Analyze transcript in real-time for suggestions
+  useEffect(() => {
+    if (!isRecording || transcript.length < 100) return;
+
+    const analyzeTranscript = async () => {
+      setIsAnalyzing(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('analyze-clinical-transcript', {
+          body: { transcript }
+        });
+
+        if (error) throw error;
+        
+        if (data?.suggestions && data.suggestions.length > 0) {
+          setSuggestions(data.suggestions);
+        }
+      } catch (error) {
+        console.error('Error analyzing transcript:', error);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    };
+
+    // Analyze every 10 seconds while recording
+    const interval = setInterval(analyzeTranscript, 10000);
+    
+    // Also analyze immediately if we have enough text
+    if (transcript.length > 100) {
+      analyzeTranscript();
+    }
+
+    return () => clearInterval(interval);
+  }, [isRecording, transcript]);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -441,6 +483,61 @@ const VoiceNotes = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* AI Suggestions Panel - Only visible while recording */}
+        {isRecording && suggestions.length > 0 && (
+          <Card className="shadow-lg border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-secondary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                Sugerencias de la IA
+                {isAnalyzing && (
+                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                )}
+              </CardTitle>
+              <CardDescription>
+                Preguntas sugeridas para completar la historia clínica
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {suggestions.map((suggestion, index) => (
+                <div 
+                  key={index}
+                  className={`p-4 rounded-lg border-l-4 ${
+                    suggestion.priority === 'high' 
+                      ? 'bg-destructive/10 border-destructive' 
+                      : suggestion.priority === 'medium'
+                      ? 'bg-yellow-500/10 border-yellow-500'
+                      : 'bg-blue-500/10 border-blue-500'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1 space-y-1">
+                      <p className="font-medium text-foreground">
+                        💡 {suggestion.question}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {suggestion.reason}
+                      </p>
+                    </div>
+                    <Badge 
+                      variant={suggestion.priority === 'high' ? 'destructive' : 'secondary'}
+                      className="shrink-0"
+                    >
+                      {suggestion.priority === 'high' ? '🔴 Alta' : suggestion.priority === 'medium' ? '🟡 Media' : '🔵 Baja'}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+              
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground text-center">
+                  ℹ️ Estas son solo sugerencias. La transcripción literal no se modifica.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Transcript Card */}
         {transcript && (
