@@ -608,6 +608,130 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Referral Program Section */}
+      <section
+        id="referral-section"
+        ref={(el) => (observerRefs.current["referral-section"] = el)}
+        className={`py-20 px-4 bg-gradient-to-br from-primary/5 via-secondary/5 to-transparent transition-all duration-700 ${
+          isVisible["referral-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+                <Users className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Programa de Referidos</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold">
+                Comparte MEDMIND,
+                <br />
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  Ahorra hasta 100%
+                </span>
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Por cada médico que refieras, <span className="text-primary font-semibold">ambos reciben 25% de descuento permanente</span>. 
+                Con 4 referidos activos, <span className="text-secondary font-semibold">tu suscripción es completamente GRATIS</span>.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold mb-1">Descuento permanente del 25%</h3>
+                    <p className="text-sm text-muted-foreground">Para ti y cada médico que se registre con tu enlace</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold mb-1">Descuentos acumulativos</h3>
+                    <p className="text-sm text-muted-foreground">4 referidos activos = Suscripción 100% GRATIS</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold mb-1">Beneficios exclusivos</h3>
+                    <p className="text-sm text-muted-foreground">Acceso anticipado a nuevas funciones y soporte prioritario</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/referrals">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Ver programa completo
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                    Crear cuenta gratis
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <Card className="bg-gradient-to-br from-card to-card/50 border-primary/30 shadow-xl shadow-primary/10">
+              <CardHeader>
+                <CardTitle className="text-2xl">Médicos que ya refieren</CardTitle>
+                <CardDescription>Historias reales de ahorro</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-3 gap-4 pb-6 border-b border-border/40">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1">
+                      2,500+
+                    </div>
+                    <div className="text-xs text-muted-foreground">Médicos refieren</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1">
+                      15K+
+                    </div>
+                    <div className="text-xs text-muted-foreground">Referidos activos</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1">
+                      $450K
+                    </div>
+                    <div className="text-xs text-muted-foreground">Ahorrados total</div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold text-sm">
+                        CM
+                      </div>
+                      <div>
+                        <div className="font-semibold text-sm">Dr. Carlos Mendoza</div>
+                        <div className="text-xs text-muted-foreground">12 referidos • Cardiología</div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground italic">"Mi suscripción es gratis desde hace 8 meses"</p>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-secondary/10 border border-secondary/20">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold text-sm">
+                        AT
+                      </div>
+                      <div>
+                        <div className="font-semibold text-sm">Dra. Ana Torres</div>
+                        <div className="text-xs text-muted-foreground">8 referidos • Pediatría</div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground italic">"Ahorro $150 USD mensuales"</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Final Section */}
       <section className="py-32 px-4 bg-gradient-hero relative overflow-hidden">
         <div className="absolute inset-0">
