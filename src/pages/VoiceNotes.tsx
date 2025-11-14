@@ -58,16 +58,30 @@ const VoiceNotes = () => {
 
   // Analyze transcript in real-time for suggestions
   useEffect(() => {
-    if (!isRecording || transcript.length < 100) return;
+    if (!isRecording || transcript.length < 100) {
+      setSuggestions([]);
+      return;
+    }
 
     const analyzeTranscript = async () => {
       setIsAnalyzing(true);
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
         const { data, error } = await supabase.functions.invoke('analyze-clinical-transcript', {
-          body: { transcript }
+          body: { 
+            transcript,
+            specialty: null // Podrías obtener la especialidad del perfil del doctor
+          },
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`
+          }
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error analyzing transcript:', error);
+          return;
+        }
         
         if (data?.suggestions && data.suggestions.length > 0) {
           setSuggestions(data.suggestions);
@@ -79,8 +93,8 @@ const VoiceNotes = () => {
       }
     };
 
-    // Analyze every 10 seconds while recording
-    const interval = setInterval(analyzeTranscript, 10000);
+    // Analyze every 15 seconds while recording
+    const interval = setInterval(analyzeTranscript, 15000);
     
     // Also analyze immediately if we have enough text
     if (transcript.length > 100) {

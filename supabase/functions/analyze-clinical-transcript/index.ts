@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,10 +13,24 @@ serve(async (req) => {
   }
 
   try {
-    const { transcript } = await req.json();
+    const { transcript, specialty } = await req.json();
+    
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Get user from token
+    const authHeader = req.headers.get('Authorization');
+    let doctorId = null;
+    
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabase.auth.getUser(token);
+      doctorId = user?.id;
+    }
     
     if (!transcript || transcript.trim().length < 50) {
-      // No hay suficiente texto para analizar
       return new Response(
         JSON.stringify({ suggestions: [] }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -29,7 +44,34 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    // System prompt para analizar y sugerir preguntas
+    // Obtener historial de sugerencias del doctor para aprender patrones
+    let historicalContext = '';
+    if (doctorId) {
+      const { data: history } = await supabase
+        .from('suggestion_history')
+        .select('question, suggested_count, used_count')
+        .eq('doctor_id', doctorId)
+        .order('suggested_count', { ascending: false })
+        .limit(10);
+
+      const { data: doctorQuestions } = await supabase
+        .from('doctor_questions')
+        .select('question_text, frequency')
+        .eq('doctor_id', doctorId)
+        .order('frequency', { ascending: false })
+        .limit(10);
+
+      if (history && history.length > 0) {
+        historicalContext = '\n\nCONTEXTO DE APRENDIZAJE - Preguntas más sugeridas históricamente a este doctor:\n' +
+          history.map(h => `- "${h.question}" (sugerida ${h.suggested_count} veces, usada ${h.used_count} veces)`).join('\n');
+      }
+
+      if (doctorQuestions && doctorQuestions.length > 0) {
+        historicalContext += '\n\nPreguntas que este doctor hace frecuentemente:\n' +
+          doctorQuestions.map(q => `- "${q.question_text}" (usada ${q.frequency} veces)`).join('\n');
+      }
+    }
+
     const systemPrompt = `Eres un asistente médico especializado en ayudar a completar historias clínicas.
 
 Tu ÚNICA tarea es ANALIZAR la transcripción literal de una consulta médica y SUGERIR preguntas que el doctor podría hacer para completar la información.
@@ -40,6 +82,7 @@ IMPORTANTE:
 - Sugiere preguntas específicas y relevantes
 - Máximo 3-4 sugerencias por análisis
 - Prioriza información médica crítica
+- APRENDE de los patrones históricos del doctor si están disponibles
 
 INFORMACIÓN ESENCIAL que debe tener una historia clínica completa:
 1. Motivo de consulta / Síntoma principal
@@ -52,7 +95,9 @@ INFORMACIÓN ESENCIAL que debe tener una historia clínica completa:
 8. Alergias conocidas
 9. Signos vitales (si es consulta física)
 
-FORMATO DE RESPUESTA (JSON):
+${historicalContext}
+
+FORMATO DE RESPUESTA (SOLO JSON, sin bloques markdown):
 {
   "suggestions": [
     {
@@ -66,7 +111,9 @@ FORMATO DE RESPUESTA (JSON):
 PRIORIDADES:
 - high: Información crítica para diagnóstico
 - medium: Información importante pero no urgente
-- low: Información complementaria`;
+- low: Información complementaria
+
+CRÍTICO: Responde SOLO con el objeto JSON, sin bloques de código markdown, sin texto adicional.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -83,7 +130,7 @@ PRIORIDADES:
           },
           {
             role: 'user',
-            content: `Analiza esta transcripción literal de consulta médica y sugiere preguntas para completar la historia clínica:\n\n"${transcript}"\n\nResponde en JSON con el formato especificado.`
+            content: 'Analiza esta transcripción literal de consulta médica y sugiere preguntas para completar la historia clínica:\n\n' + transcript + '\n\nResponde SOLO con el objeto JSON, sin bloques markdown.'
           }
         ],
         temperature: 0.3,
@@ -105,7 +152,10 @@ PRIORIDADES:
     }
 
     const result = await response.json();
-    const content = result.choices[0].message.content;
+    let content = result.choices[0].message.content;
+    
+    // Limpiar bloques de código markdown si existen
+    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     
     // Parse JSON response
     let parsed;
@@ -117,6 +167,42 @@ PRIORIDADES:
     }
     
     console.log('Analysis complete, suggestions:', parsed.suggestions?.length || 0);
+
+    // Guardar sugerencias en el historial para aprendizaje
+    if (doctorId && parsed.suggestions && parsed.suggestions.length > 0) {
+      for (const suggestion of parsed.suggestions) {
+        // Buscar si la sugerencia ya existe
+        const { data: existing } = await supabase
+          .from('suggestion_history')
+          .select('id, suggested_count')
+          .eq('doctor_id', doctorId)
+          .eq('question', suggestion.question)
+          .single();
+
+        if (existing) {
+          // Actualizar contador
+          await supabase
+            .from('suggestion_history')
+            .update({
+              suggested_count: existing.suggested_count + 1,
+              last_suggested_at: new Date().toISOString()
+            })
+            .eq('id', existing.id);
+        } else {
+          // Crear nueva entrada
+          await supabase
+            .from('suggestion_history')
+            .insert({
+              doctor_id: doctorId,
+              specialty: specialty || null,
+              question: suggestion.question,
+              reason: suggestion.reason,
+              priority: suggestion.priority,
+              transcript_context: transcript.substring(0, 500)
+            });
+        }
+      }
+    }
 
     return new Response(
       JSON.stringify(parsed),

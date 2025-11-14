@@ -186,6 +186,36 @@ export type Database = {
         }
         Relationships: []
       }
+      doctor_questions: {
+        Row: {
+          created_at: string
+          doctor_id: string
+          frequency: number
+          id: string
+          last_used_at: string
+          question_text: string
+          specialty: string | null
+        }
+        Insert: {
+          created_at?: string
+          doctor_id: string
+          frequency?: number
+          id?: string
+          last_used_at?: string
+          question_text: string
+          specialty?: string | null
+        }
+        Update: {
+          created_at?: string
+          doctor_id?: string
+          frequency?: number
+          id?: string
+          last_used_at?: string
+          question_text?: string
+          specialty?: string | null
+        }
+        Relationships: []
+      }
       doctor_reviews: {
         Row: {
           comment: string | null
@@ -637,6 +667,48 @@ export type Database = {
           specialty?: string | null
           updated_at?: string
           years_experience?: number | null
+        }
+        Relationships: []
+      }
+      suggestion_history: {
+        Row: {
+          created_at: string
+          doctor_id: string
+          id: string
+          last_suggested_at: string
+          priority: string
+          question: string
+          reason: string
+          specialty: string | null
+          suggested_count: number
+          transcript_context: string | null
+          used_count: number
+        }
+        Insert: {
+          created_at?: string
+          doctor_id: string
+          id?: string
+          last_suggested_at?: string
+          priority: string
+          question: string
+          reason: string
+          specialty?: string | null
+          suggested_count?: number
+          transcript_context?: string | null
+          used_count?: number
+        }
+        Update: {
+          created_at?: string
+          doctor_id?: string
+          id?: string
+          last_suggested_at?: string
+          priority?: string
+          question?: string
+          reason?: string
+          specialty?: string | null
+          suggested_count?: number
+          transcript_context?: string | null
+          used_count?: number
         }
         Relationships: []
       }
