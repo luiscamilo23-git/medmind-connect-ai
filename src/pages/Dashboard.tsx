@@ -174,14 +174,6 @@ const Dashboard = () => {
       enabled: true
     },
     {
-      title: "Notas Inteligentes",
-      description: "IA que extrae tareas, ideas y recordatorios de tus notas",
-      icon: BrainCircuit,
-      color: "bg-blue-500",
-      path: "/smart-notes",
-      enabled: true
-    },
-    {
       title: "SupplyLens",
       description: "Gestión inteligente de inventario y control de costos",
       icon: Package,
@@ -331,6 +323,10 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="flex flex-wrap gap-3">
             <Button onClick={() => navigate("/voicenotes")}>Nueva Consulta</Button>
+            <Button variant="secondary" onClick={() => navigate("/smart-notes")}>
+              <BrainCircuit className="w-4 h-4 mr-2" />
+              Notas Inteligentes
+            </Button>
             <Button variant="secondary" onClick={() => navigate("/patients")}>
               <Users className="w-4 h-4 mr-2" />
               Gestionar Pacientes
