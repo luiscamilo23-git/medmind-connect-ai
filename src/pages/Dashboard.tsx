@@ -8,22 +8,22 @@ import {
   Activity, 
   Brain, 
   Calendar, 
-  LineChart, 
   LogOut, 
   Package, 
   Users,
-  TrendingUp,
   Clock,
   DollarSign,
   Star,
   User as UserIcon,
-  Share2,
-  BrainCircuit
+  BrainCircuit,
+  Zap
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReVerification } from "@/hooks/useReVerification";
 import ReVerification from "@/components/auth/ReVerification";
 import { NotificationBell } from "@/components/NotificationBell";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -66,13 +66,11 @@ const Dashboard = () => {
 
   const loadStats = async (doctorId: string) => {
     try {
-      // Total de pacientes
       const { count: patientsCount } = await supabase
         .from('patients')
         .select('*', { count: 'exact', head: true })
         .eq('doctor_id', doctorId);
 
-      // Calcular tasa de satisfacción desde reviews
       const { data: reviews } = await supabase
         .from('doctor_reviews')
         .select('rating')
@@ -82,14 +80,12 @@ const Dashboard = () => {
         ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length / 5) * 100)
         : 0;
 
-      // Calcular ingresos estimados desde citas completadas
       const { data: appointments } = await supabase
         .from('appointments')
         .select('duration_minutes')
         .eq('doctor_id', doctorId)
         .eq('status', 'completed');
 
-      // Obtener la tarifa de consulta del perfil
       const { data: profile } = await supabase
         .from('profiles')
         .select('consultation_fee')
@@ -101,7 +97,6 @@ const Dashboard = () => {
         ? appointments.length * consultationFee 
         : 0;
 
-      // Calcular tiempo promedio de citas
       const averageTime = appointments && appointments.length > 0
         ? Math.round(appointments.reduce((sum, a) => sum + a.duration_minutes, 0) / appointments.length)
         : 0;
@@ -126,7 +121,7 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  if (loading || checking) {
+  if (checking || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -164,185 +159,160 @@ const Dashboard = () => {
     },
   ];
 
-  const modules = [
+  const quickActions = [
     {
-      title: "VoiceNotes MD",
-      description: "Transcribe consultas y genera historias clínicas automáticamente",
+      title: "Nueva Consulta",
+      description: "Inicia una consulta con transcripción automática",
       icon: Brain,
       color: "bg-primary",
-      path: "/voicenotes",
-      enabled: true
+      path: "/voicenotes"
     },
     {
-      title: "SupplyLens",
-      description: "Gestión inteligente de inventario y control de costos",
-      icon: Package,
+      title: "Notas Inteligentes",
+      description: "Analiza notas y extrae tareas e ideas",
+      icon: BrainCircuit,
+      color: "bg-blue-500",
+      path: "/smart-notes"
+    },
+    {
+      title: "Gestionar Pacientes",
+      description: "Ver y editar historiales médicos",
+      icon: Users,
       color: "bg-secondary",
-      path: "/supplylens",
-      enabled: true
+      path: "/patients"
     },
     {
-      title: "SmartScheduler",
-      description: "Agenda predictiva con optimización automática",
+      title: "Ver Agenda",
+      description: "Consultar y gestionar citas",
       icon: Calendar,
       color: "bg-accent",
-      path: "/scheduler",
-      enabled: true
+      path: "/scheduler"
     },
     {
-      title: "Análisis Predictivo",
-      description: "Predice demanda según temporada, clima y tendencias de salud",
-      icon: TrendingUp,
-      color: "bg-warning",
-      path: "/predictive",
-      enabled: true
+      title: "Inventario",
+      description: "Control de suministros médicos",
+      icon: Package,
+      color: "bg-emerald-500",
+      path: "/supplylens"
     },
     {
-      title: "Inteligencia Operativa",
-      description: "Analytics y recomendaciones personalizadas",
-      icon: LineChart,
-      color: "bg-info",
-      path: "/analytics",
-      enabled: true
-    },
-    {
-      title: "Red Social Médica",
-      description: "Comparte casos y contenido educativo con la comunidad",
-      icon: Share2,
-      color: "bg-success",
-      path: "/social",
-      enabled: true
-    },
+      title: "Analytics",
+      description: "Métricas e insights de tu práctica",
+      icon: Activity,
+      color: "bg-orange-500",
+      path: "/analytics"
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Re-verification Dialog */}
-      <ReVerification
-        isOpen={needsVerification}
-        onVerified={markAsVerified}
-      />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <ReVerification
+          isOpen={needsVerification}
+          onVerified={markAsVerified}
+        />
 
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-md">
-              <Activity className="w-6 h-6 text-white" />
+        <AppSidebar />
+
+        <div className="flex-1 flex flex-col min-h-screen">
+          <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+            <div className="flex h-16 items-center gap-4 px-6">
+              <SidebarTrigger className="-ml-2" />
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-9 h-9 bg-gradient-primary rounded-lg flex items-center justify-center shadow-md">
+                  <Activity className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold">MEDMIND</h1>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil">
+                  <UserIcon className="w-5 h-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleLogout} title="Cerrar Sesión">
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold">MEDMIND</h1>
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <NotificationBell />
-            <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil">
-              <UserIcon className="w-5 h-5" />
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Cerrar Sesión
-            </Button>
-          </div>
-        </div>
-      </header>
+          </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* Welcome Section */}
-        <div className="bg-gradient-hero rounded-2xl p-8 text-white">
-          <h2 className="text-3xl font-bold mb-2">¡Bienvenido de vuelta! 👋</h2>
-          <p className="text-white/90 text-lg">
-            Aquí está un resumen de tu actividad y productividad
-          </p>
-        </div>
+          <main className="flex-1 overflow-auto">
+            <div className="container mx-auto px-6 py-8 space-y-8 max-w-7xl">
+              <div className="bg-gradient-hero rounded-2xl p-6 md:p-8 text-white">
+                <h2 className="text-2xl md:text-3xl font-bold mb-2">
+                  ¡Bienvenido de vuelta, {user?.email?.split('@')[0]}! 👋
+                </h2>
+                <p className="text-white/90">
+                  Resumen de tu actividad y productividad
+                </p>
+              </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {statsDisplay.map((stat, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardDescription className="text-sm font-medium">
-                  {stat.label}
-                </CardDescription>
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stat.value}</div>
-                {stat.value !== "N/A" && (
-                  <div className="flex items-center text-sm text-muted-foreground mt-2">
-                    <Activity className="w-4 h-4 mr-1" />
-                    <span>Actualizado en tiempo real</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Modules Grid */}
-        <div>
-          <h2 className="text-2xl font-bold mb-6">Módulos de Automatización</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {modules.map((module, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-3 flex-1">
-                      <div className={`w-12 h-12 rounded-lg ${module.color} flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}>
-                        <module.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <CardTitle className="text-xl">{module.title}</CardTitle>
-                      <CardDescription className="text-base">
-                        {module.description}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {statsDisplay.map((stat, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-all hover:scale-105 duration-300">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                      <CardDescription className="text-xs md:text-sm font-medium">
+                        {stat.label}
                       </CardDescription>
-                    </div>
-                  </div>
+                      <stat.icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl md:text-3xl font-bold">{stat.value}</div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-6">
+                  <Zap className="w-6 h-6 text-primary" />
+                  <h2 className="text-2xl font-bold">Acciones Rápidas</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {quickActions.map((action, index) => (
+                    <Card 
+                      key={index} 
+                      className="group cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                      onClick={() => navigate(action.path)}
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}>
+                            <action.icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <CardTitle className="text-base mb-1">{action.title}</CardTitle>
+                            <CardDescription className="text-sm">
+                              {action.description}
+                            </CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-primary" />
+                    Tip del Día
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Button 
-                    className="w-full" 
-                    variant="outline"
-                    onClick={() => module.enabled && navigate(module.path)}
-                    disabled={!module.enabled}
-                  >
-                    {module.enabled ? 'Acceder al Módulo' : 'Próximamente'}
-                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    💡 Usa <strong>Notas Inteligentes</strong> para transcribir tus consultas por voz y extraer automáticamente tareas, ideas y recordatorios.
+                  </p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            </div>
+          </main>
         </div>
-
-        {/* Quick Actions */}
-        <Card className="bg-gradient-card">
-          <CardHeader>
-            <CardTitle>Acciones Rápidas</CardTitle>
-            <CardDescription>Funciones de uso frecuente</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <Button onClick={() => navigate("/voicenotes")}>Nueva Consulta</Button>
-            <Button variant="secondary" onClick={() => navigate("/smart-notes")}>
-              <BrainCircuit className="w-4 h-4 mr-2" />
-              Notas Inteligentes
-            </Button>
-            <Button variant="secondary" onClick={() => navigate("/patients")}>
-              <Users className="w-4 h-4 mr-2" />
-              Gestionar Pacientes
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/scheduler")}>
-              <Calendar className="w-4 h-4 mr-2" />
-              Ver Agenda
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/social")}>
-              <Share2 className="w-4 h-4 mr-2" />
-              Publicar en Red Social
-            </Button>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
