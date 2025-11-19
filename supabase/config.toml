@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.analyze-clinical-transcript]
 verify_jwt = true
+
+[functions.analyze-notes]
+verify_jwt = true
