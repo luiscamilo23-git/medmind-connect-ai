@@ -17,7 +17,8 @@ import {
   DollarSign,
   Star,
   User as UserIcon,
-  Share2
+  Share2,
+  BrainCircuit
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReVerification } from "@/hooks/useReVerification";
@@ -169,6 +170,14 @@ const Dashboard = () => {
       icon: Brain,
       color: "bg-primary",
       path: "/voicenotes",
+      enabled: true
+    },
+    {
+      title: "Notas Inteligentes",
+      description: "IA que extrae tareas, ideas y recordatorios de tus notas",
+      icon: BrainCircuit,
+      color: "bg-blue-500",
+      path: "/smart-notes",
       enabled: true
     },
     {
