@@ -381,12 +381,12 @@ const Landing = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3 relative">
-                    <div className="bg-muted/30 p-4 rounded-lg group-hover:bg-muted/50 transition-colors">
-                      <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-primary/80 flex items-center gap-2">
+                    <div className="bg-muted/50 p-4 rounded-lg group-hover:bg-muted/70 transition-colors border border-border/50">
+                      <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-primary flex items-center gap-2">
                         <Zap className="h-3 w-3" />
                         Cómo Funciona
                       </h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{feature.howItWorks}</p>
+                      <p className="text-sm text-foreground leading-relaxed">{feature.howItWorks}</p>
                     </div>
                     <div className="bg-gradient-to-r from-primary/5 to-transparent p-4 rounded-lg border border-primary/10 group-hover:border-primary/20 transition-colors">
                       <div className="flex items-start gap-2">

@@ -426,6 +426,42 @@ export type Database = {
           },
         ]
       }
+      notes_analysis: {
+        Row: {
+          created_at: string
+          doctor_id: string
+          id: string
+          is_voice_recording: boolean | null
+          main_ideas: string[] | null
+          original_text: string
+          reminders: string[] | null
+          tasks: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          doctor_id: string
+          id?: string
+          is_voice_recording?: boolean | null
+          main_ideas?: string[] | null
+          original_text: string
+          reminders?: string[] | null
+          tasks?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          doctor_id?: string
+          id?: string
+          is_voice_recording?: boolean | null
+          main_ideas?: string[] | null
+          original_text?: string
+          reminders?: string[] | null
+          tasks?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       patient_audit_logs: {
         Row: {
           accessed_by: string
