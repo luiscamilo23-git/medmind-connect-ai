@@ -631,7 +631,7 @@ const Landing = () => {
                   acciones concretas
                 </span>
               </h2>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg text-foreground/80">
                 La IA analiza tus notas clínicas (escritas o por voz) y extrae automáticamente <span className="text-blue-600 dark:text-blue-400 font-semibold">tareas pendientes</span>, 
                 <span className="text-blue-600 dark:text-blue-400 font-semibold"> ideas principales</span> y <span className="text-blue-600 dark:text-blue-400 font-semibold">recordatorios importantes</span>.
               </p>
@@ -639,22 +639,22 @@ const Landing = () => {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-1">Extracción automática de tareas</h3>
-                    <p className="text-sm text-muted-foreground">Identifica acciones pendientes como estudios, seguimientos o referencias</p>
+                    <h3 className="font-semibold text-foreground mb-1">Extracción automática de tareas</h3>
+                    <p className="text-sm text-foreground/70">Identifica acciones pendientes como estudios, seguimientos o referencias</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-1">Ideas principales destacadas</h3>
-                    <p className="text-sm text-muted-foreground">Resume los puntos clave de cada consulta automáticamente</p>
+                    <h3 className="font-semibold text-foreground mb-1">Ideas principales destacadas</h3>
+                    <p className="text-sm text-foreground/70">Resume los puntos clave de cada consulta automáticamente</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-1">Recordatorios inteligentes</h3>
-                    <p className="text-sm text-muted-foreground">Alertas sobre alergias, medicaciones y fechas de seguimiento</p>
+                    <h3 className="font-semibold text-foreground mb-1">Recordatorios inteligentes</h3>
+                    <p className="text-sm text-foreground/70">Alertas sobre alergias, medicaciones y fechas de seguimiento</p>
                   </div>
                 </div>
               </div>
@@ -680,25 +680,25 @@ const Landing = () => {
                   <CardTitle className="text-lg">Análisis de Nota Clínica</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900">
-                    <p className="text-sm text-muted-foreground mb-3">Nota original:</p>
-                    <p className="text-xs leading-relaxed">
+                  <div className="p-4 rounded-lg bg-muted/50 border border-border">
+                    <p className="text-sm font-medium text-foreground mb-3">Nota original:</p>
+                    <p className="text-xs leading-relaxed text-foreground/80">
                       "Paciente con dolor torácico. Solicitar ECG urgente y troponinas. 
                       Revisar historial de hipertensión. Programar seguimiento en 48h..."
                     </p>
                   </div>
                   <div className="space-y-3">
-                    <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900">
+                    <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
                       <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">✓ Tareas</p>
-                      <p className="text-xs">• Solicitar ECG urgente<br/>• Solicitar troponinas</p>
+                      <p className="text-xs text-foreground">• Solicitar ECG urgente<br/>• Solicitar troponinas</p>
                     </div>
-                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
+                    <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
                       <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">💡 Ideas</p>
-                      <p className="text-xs">• Dolor torácico agudo<br/>• Descartar isquemia</p>
+                      <p className="text-xs text-foreground">• Dolor torácico agudo<br/>• Descartar isquemia</p>
                     </div>
-                    <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900">
+                    <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
                       <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 mb-1">🔔 Recordatorios</p>
-                      <p className="text-xs">• Seguimiento en 48 horas</p>
+                      <p className="text-xs text-foreground">• Seguimiento en 48 horas</p>
                     </div>
                   </div>
                 </CardContent>
