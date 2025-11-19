@@ -14,7 +14,8 @@ import {
   Loader2,
   BrainCircuit,
   Mic,
-  Square
+  Square,
+  X
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -109,6 +110,87 @@ const SmartNotes = () => {
       title: "Grabación finalizada",
       description: "Tu transcripción está lista. Presiona 'Analizar' para continuar.",
     });
+  };
+
+  const deleteTask = async (indexToDelete: number) => {
+    if (!analysis) return;
+    
+    const updatedTasks = analysis.tasks.filter((_, index) => index !== indexToDelete);
+    setAnalysis({ ...analysis, tasks: updatedTasks });
+    
+    // Actualizar en la base de datos
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase
+        .from('notes_analysis')
+        .update({ tasks: updatedTasks })
+        .eq('doctor_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      toast({
+        title: "Tarea eliminada",
+        description: "La tarea se eliminó correctamente",
+      });
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
+  const deleteIdea = async (indexToDelete: number) => {
+    if (!analysis) return;
+    
+    const updatedIdeas = analysis.mainIdeas.filter((_, index) => index !== indexToDelete);
+    setAnalysis({ ...analysis, mainIdeas: updatedIdeas });
+    
+    // Actualizar en la base de datos
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase
+        .from('notes_analysis')
+        .update({ main_ideas: updatedIdeas })
+        .eq('doctor_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      toast({
+        title: "Idea eliminada",
+        description: "La idea se eliminó correctamente",
+      });
+    } catch (error) {
+      console.error('Error deleting idea:', error);
+    }
+  };
+
+  const deleteReminder = async (indexToDelete: number) => {
+    if (!analysis || !analysis.reminders) return;
+    
+    const updatedReminders = analysis.reminders.filter((_, index) => index !== indexToDelete);
+    setAnalysis({ ...analysis, reminders: updatedReminders });
+    
+    // Actualizar en la base de datos
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase
+        .from('notes_analysis')
+        .update({ reminders: updatedReminders })
+        .eq('doctor_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      toast({
+        title: "Recordatorio eliminado",
+        description: "El recordatorio se eliminó correctamente",
+      });
+    } catch (error) {
+      console.error('Error deleting reminder:', error);
+    }
   };
 
   const analyzeNotes = async () => {
@@ -438,9 +520,16 @@ const SmartNotes = () => {
                 {analysis.tasks.length > 0 ? (
                   <ul className="space-y-3">
                     {analysis.tasks.map((task, index) => (
-                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/30 group">
                         <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm font-medium text-foreground">{task}</span>
+                        <span className="text-sm font-medium text-foreground flex-1">{task}</span>
+                        <button
+                          onClick={() => deleteTask(index)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/20 rounded"
+                          aria-label="Eliminar tarea"
+                        >
+                          <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -465,9 +554,16 @@ const SmartNotes = () => {
                 {analysis.mainIdeas.length > 0 ? (
                   <ul className="space-y-3">
                     {analysis.mainIdeas.map((idea, index) => (
-                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/30 group">
                         <Lightbulb className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm font-medium text-foreground">{idea}</span>
+                        <span className="text-sm font-medium text-foreground flex-1">{idea}</span>
+                        <button
+                          onClick={() => deleteIdea(index)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/20 rounded"
+                          aria-label="Eliminar idea"
+                        >
+                          <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -493,9 +589,16 @@ const SmartNotes = () => {
                   {analysis.reminders.length > 0 ? (
                     <ul className="space-y-3">
                       {analysis.reminders.map((reminder, index) => (
-                        <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
+                        <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/30 group">
                           <Bell className="h-4 w-4 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm font-medium text-foreground">{reminder}</span>
+                          <span className="text-sm font-medium text-foreground flex-1">{reminder}</span>
+                          <button
+                            onClick={() => deleteReminder(index)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/20 rounded"
+                            aria-label="Eliminar recordatorio"
+                          >
+                            <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+                          </button>
                         </li>
                       ))}
                     </ul>
