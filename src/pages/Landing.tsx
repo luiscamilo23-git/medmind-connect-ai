@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Landing = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
   const observerRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -604,6 +605,105 @@ const Landing = () => {
                 </Card>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Smart Notes Section */}
+      <section
+        id="smart-notes-section"
+        ref={(el) => (observerRefs.current["smart-notes-section"] = el)}
+        className={`py-20 px-4 bg-gradient-to-br from-blue-50 to-background dark:from-blue-950/20 dark:to-background transition-all duration-700 ${
+          isVisible["smart-notes-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-950 border border-blue-200 dark:border-blue-900">
+                <Brain className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Notas Inteligentes</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold">
+                Transforma tus notas en
+                <br />
+                <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                  acciones concretas
+                </span>
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                La IA analiza tus notas clínicas (escritas o por voz) y extrae automáticamente <span className="text-blue-600 dark:text-blue-400 font-semibold">tareas pendientes</span>, 
+                <span className="text-blue-600 dark:text-blue-400 font-semibold"> ideas principales</span> y <span className="text-blue-600 dark:text-blue-400 font-semibold">recordatorios importantes</span>.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold mb-1">Extracción automática de tareas</h3>
+                    <p className="text-sm text-muted-foreground">Identifica acciones pendientes como estudios, seguimientos o referencias</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold mb-1">Ideas principales destacadas</h3>
+                    <p className="text-sm text-muted-foreground">Resume los puntos clave de cada consulta automáticamente</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold mb-1">Recordatorios inteligentes</h3>
+                    <p className="text-sm text-muted-foreground">Alertas sobre alergias, medicaciones y fechas de seguimiento</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <Button size="lg" onClick={() => navigate("/smart-notes")} className="bg-blue-600 hover:bg-blue-700">
+                  Probar ahora
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button size="lg" variant="outline" onClick={() => navigate("/smart-notes")}>
+                  Ver funcionalidad completa
+                </Button>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-3xl blur-3xl opacity-20"></div>
+              <Card className="relative border-2 border-blue-200 dark:border-blue-900 shadow-2xl">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  </div>
+                  <CardTitle className="text-lg">Análisis de Nota Clínica</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900">
+                    <p className="text-sm text-muted-foreground mb-3">Nota original:</p>
+                    <p className="text-xs leading-relaxed">
+                      "Paciente con dolor torácico. Solicitar ECG urgente y troponinas. 
+                      Revisar historial de hipertensión. Programar seguimiento en 48h..."
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900">
+                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">✓ Tareas</p>
+                      <p className="text-xs">• Solicitar ECG urgente<br/>• Solicitar troponinas</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
+                      <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">💡 Ideas</p>
+                      <p className="text-xs">• Dolor torácico agudo<br/>• Descartar isquemia</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900">
+                      <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 mb-1">🔔 Recordatorios</p>
+                      <p className="text-xs">• Seguimiento en 48 horas</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>

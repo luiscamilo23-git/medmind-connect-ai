@@ -15,6 +15,7 @@ import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
 import SocialNetwork from "./pages/SocialNetwork";
 import PredictiveAnalysis from "./pages/PredictiveAnalysis";
+import SmartNotes from "./pages/SmartNotes";
 import PatientDashboard from "./pages/patient/PatientDashboard";
 import DoctorExplorer from "./pages/patient/DoctorExplorer";
 import PatientWellness from "./pages/patient/PatientWellness";
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/voicenotes" element={<VoiceNotes />} />
+          <Route path="/smart-notes" element={<SmartNotes />} />
           <Route path="/patients" element={<Patients />} />
           <Route path="/scheduler" element={<SmartScheduler />} />
           <Route path="/supplylens" element={<SupplyLens />} />
