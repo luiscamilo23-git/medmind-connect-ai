@@ -23,6 +23,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useReVerification } from "@/hooks/useReVerification";
 import ReVerification from "@/components/auth/ReVerification";
+import { NotificationBell } from "@/components/NotificationBell";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -243,6 +244,7 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil">
               <UserIcon className="w-5 h-5" />
             </Button>
