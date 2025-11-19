@@ -424,11 +424,11 @@ const SmartNotes = () => {
         {analysis && (
           <div className="grid md:grid-cols-3 gap-6 mt-8">
             {/* Tasks */}
-            <Card className="border-green-200 dark:border-green-900">
+            <Card className="border-green-500/30 bg-card">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  <CardTitle>Tareas Pendientes</CardTitle>
+                  <CardTitle className="text-foreground">Tareas Pendientes</CardTitle>
                 </div>
                 <CardDescription>
                   Acciones que debes realizar
@@ -438,7 +438,7 @@ const SmartNotes = () => {
                 {analysis.tasks.length > 0 ? (
                   <ul className="space-y-3">
                     {analysis.tasks.map((task, index) => (
-                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-green-100 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50">
+                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
                         <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
                         <span className="text-sm font-medium text-foreground">{task}</span>
                       </li>
@@ -451,11 +451,11 @@ const SmartNotes = () => {
             </Card>
 
             {/* Main Ideas */}
-            <Card className="border-blue-200 dark:border-blue-900">
+            <Card className="border-blue-500/30 bg-card">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Lightbulb className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  <CardTitle>Ideas Principales</CardTitle>
+                  <CardTitle className="text-foreground">Ideas Principales</CardTitle>
                 </div>
                 <CardDescription>
                   Puntos clave de la consulta
@@ -465,7 +465,7 @@ const SmartNotes = () => {
                 {analysis.mainIdeas.length > 0 ? (
                   <ul className="space-y-3">
                     {analysis.mainIdeas.map((idea, index) => (
-                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-blue-100 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
+                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
                         <Lightbulb className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                         <span className="text-sm font-medium text-foreground">{idea}</span>
                       </li>
@@ -479,11 +479,11 @@ const SmartNotes = () => {
 
             {/* Reminders */}
             {includeReminders && analysis.reminders && (
-              <Card className="border-orange-200 dark:border-orange-900 bg-orange-50/50 dark:bg-orange-950/10">
+              <Card className="border-orange-500/30 bg-card">
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Bell className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                    <CardTitle>Recordatorios</CardTitle>
+                    <CardTitle className="text-foreground">Recordatorios</CardTitle>
                   </div>
                   <CardDescription>
                     Alertas importantes
@@ -493,7 +493,7 @@ const SmartNotes = () => {
                   {analysis.reminders.length > 0 ? (
                     <ul className="space-y-3">
                       {analysis.reminders.map((reminder, index) => (
-                        <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-orange-100 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900/50">
+                        <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
                           <Bell className="h-4 w-4 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
                           <span className="text-sm font-medium text-foreground">{reminder}</span>
                         </li>
