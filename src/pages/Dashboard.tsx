@@ -16,7 +16,10 @@ import {
   Star,
   User as UserIcon,
   BrainCircuit,
-  Zap
+  Zap,
+  TrendingUp,
+  TrendingDown,
+  Sparkles
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReVerification } from "@/hooks/useReVerification";
@@ -28,15 +31,29 @@ import { AppSidebar } from "@/components/AppSidebar";
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [doctorName, setDoctorName] = useState<string>("");
   const [stats, setStats] = useState({
     totalPatients: 0,
     satisfactionRate: 0,
     estimatedRevenue: 0,
-    averageTime: 0
+    averageTime: 0,
+    trends: {
+      patients: 0,
+      satisfaction: 0,
+      revenue: 0,
+      time: 0
+    }
   });
   const navigate = useNavigate();
   const { toast } = useToast();
   const { needsVerification, checking, markAsVerified } = useReVerification();
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Buenos días";
+    if (hour < 19) return "Buenas tardes";
+    return "Buenas noches";
+  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -44,6 +61,7 @@ const Dashboard = () => {
       if (session?.user) {
         setUser(session.user);
         await loadStats(session.user.id);
+        await loadDoctorProfile(session.user.id);
       } else {
         navigate("/auth");
       }
@@ -58,11 +76,28 @@ const Dashboard = () => {
         navigate("/auth");
       } else {
         loadStats(session.user.id);
+        loadDoctorProfile(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const loadDoctorProfile = async (doctorId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', doctorId)
+        .maybeSingle();
+
+      if (profile?.full_name) {
+        setDoctorName(profile.full_name);
+      }
+    } catch (error) {
+      console.error('Error loading doctor profile:', error);
+    }
+  };
 
   const loadStats = async (doctorId: string) => {
     try {
@@ -101,11 +136,20 @@ const Dashboard = () => {
         ? Math.round(appointments.reduce((sum, a) => sum + a.duration_minutes, 0) / appointments.length)
         : 0;
 
+      // Simular tendencias (en producción, compararías con mes anterior)
+      const trends = {
+        patients: Math.floor(Math.random() * 30) - 10, // -10% a +20%
+        satisfaction: Math.floor(Math.random() * 20) - 5, // -5% a +15%
+        revenue: Math.floor(Math.random() * 40) - 10, // -10% a +30%
+        time: Math.floor(Math.random() * 20) - 10 // -10% a +10%
+      };
+
       setStats({
         totalPatients: patientsCount || 0,
         satisfactionRate,
         estimatedRevenue,
-        averageTime
+        averageTime,
+        trends
       });
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -137,25 +181,29 @@ const Dashboard = () => {
       label: "Pacientes Tratados", 
       value: stats.totalPatients.toString(), 
       icon: Users, 
-      color: "text-primary" 
+      color: "text-primary",
+      trend: stats.trends.patients
     },
     { 
       label: "Tasa de Satisfacción", 
       value: stats.satisfactionRate > 0 ? `${stats.satisfactionRate}%` : "N/A", 
       icon: Star, 
-      color: "text-success" 
+      color: "text-success",
+      trend: stats.trends.satisfaction
     },
     { 
       label: "Ingresos Estimados", 
       value: `$${stats.estimatedRevenue.toLocaleString()}`, 
       icon: DollarSign, 
-      color: "text-accent" 
+      color: "text-accent",
+      trend: stats.trends.revenue
     },
     { 
       label: "Tiempo Promedio", 
       value: stats.averageTime > 0 ? `${stats.averageTime} min` : "N/A", 
       icon: Clock, 
-      color: "text-info" 
+      color: "text-info",
+      trend: stats.trends.time
     },
   ];
 
@@ -171,35 +219,35 @@ const Dashboard = () => {
       title: "Notas Inteligentes",
       description: "Analiza notas y extrae tareas e ideas",
       icon: BrainCircuit,
-      color: "bg-blue-500",
+      color: "bg-secondary",
       path: "/smart-notes"
     },
     {
       title: "Gestionar Pacientes",
       description: "Ver y editar historiales médicos",
       icon: Users,
-      color: "bg-secondary",
+      color: "bg-accent",
       path: "/patients"
     },
     {
       title: "Ver Agenda",
       description: "Consultar y gestionar citas",
       icon: Calendar,
-      color: "bg-accent",
+      color: "bg-primary",
       path: "/scheduler"
     },
     {
       title: "Inventario",
       description: "Control de suministros médicos",
       icon: Package,
-      color: "bg-emerald-500",
+      color: "bg-success",
       path: "/supplylens"
     },
     {
       title: "Analytics",
       description: "Métricas e insights de tu práctica",
       icon: Activity,
-      color: "bg-orange-500",
+      color: "bg-warning",
       path: "/analytics"
     }
   ];
@@ -240,18 +288,25 @@ const Dashboard = () => {
 
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto px-6 py-8 space-y-8 max-w-7xl">
-              <div className="bg-gradient-hero rounded-2xl p-6 md:p-8 text-white">
-                <h2 className="text-2xl md:text-3xl font-bold mb-2">
-                  ¡Bienvenido de vuelta, {user?.email?.split('@')[0]}! 👋
-                </h2>
-                <p className="text-white/90">
-                  Resumen de tu actividad y productividad
-                </p>
+              <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-glow to-secondary rounded-2xl p-6 md:p-8 text-white">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Sparkles className="w-7 h-7 animate-pulse" />
+                    <h2 className="text-2xl md:text-3xl font-bold">
+                      {getGreeting()}, {doctorName || user?.email?.split('@')[0]}
+                    </h2>
+                  </div>
+                  <p className="text-white/90 text-lg">
+                    Resumen de tu actividad y productividad profesional
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {statsDisplay.map((stat, index) => (
-                  <Card key={index} className="hover:shadow-lg transition-all hover:scale-105 duration-300">
+                  <Card key={index} className="hover:shadow-lg transition-all hover:scale-105 duration-300 border-border/50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                       <CardDescription className="text-xs md:text-sm font-medium">
                         {stat.label}
@@ -259,7 +314,22 @@ const Dashboard = () => {
                       <stat.icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl md:text-3xl font-bold">{stat.value}</div>
+                      <div className="flex items-end justify-between">
+                        <div className="text-2xl md:text-3xl font-bold">{stat.value}</div>
+                        {stat.trend !== 0 && (
+                          <div className={`flex items-center gap-1 text-xs font-semibold ${
+                            stat.trend > 0 ? 'text-success' : 'text-destructive'
+                          }`}>
+                            {stat.trend > 0 ? (
+                              <TrendingUp className="w-3 h-3" />
+                            ) : (
+                              <TrendingDown className="w-3 h-3" />
+                            )}
+                            <span>{Math.abs(stat.trend)}%</span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">vs mes anterior</p>
                     </CardContent>
                   </Card>
                 ))}
