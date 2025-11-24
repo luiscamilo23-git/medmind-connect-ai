@@ -214,7 +214,7 @@ const Landing = () => {
             </div>
 
             {/* Secondary CTA */}
-            <div className="animate-fade-in opacity-0" style={{ animationDelay: "0.8s" }}>
+            <div className="flex flex-wrap gap-4 justify-center animate-fade-in opacity-0" style={{ animationDelay: "0.8s" }}>
               <Link to="/auth">
                 <Button 
                   size="lg" 
@@ -223,6 +223,16 @@ const Landing = () => {
                 >
                   Comenzar Gratis
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link to="/comparison">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="text-base px-8 py-6 border-primary/30 text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 group font-medium"
+                >
+                  Ver Comparativa
+                  <Sparkles className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
                 </Button>
               </Link>
             </div>
