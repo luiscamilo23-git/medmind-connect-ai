@@ -41,6 +41,7 @@ const VoiceNotes = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTimeRef = useRef<number>(0);
+  const [interimTranscript, setInterimTranscript] = useState("");
   
   // Medical record fields
   const [patientName, setPatientName] = useState("");
@@ -114,21 +115,25 @@ const VoiceNotes = () => {
       recognitionRef.current.lang = 'es-ES';
 
       recognitionRef.current.onresult = (event: any) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
+        let interim = '';
+        let final = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcriptPiece = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += transcriptPiece + ' ';
+            final += transcriptPiece + ' ';
           } else {
-            interimTranscript += transcriptPiece;
+            interim += transcriptPiece;
           }
         }
 
-        if (finalTranscript) {
-          setTranscript(prev => prev + finalTranscript);
+        // Update final transcript
+        if (final) {
+          setTranscript(prev => prev + final);
         }
+        
+        // Update interim transcript to show real-time words
+        setInterimTranscript(interim);
       };
 
       recognitionRef.current.onerror = (event: any) => {
@@ -189,6 +194,7 @@ const VoiceNotes = () => {
       // Start recording
       mediaRecorder.start();
       setTranscript(""); // Clear previous transcript
+      setInterimTranscript(""); // Clear interim transcript
       recognitionRef.current.start();
       setIsRecording(true);
       
@@ -567,11 +573,17 @@ const VoiceNotes = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <Textarea
-                value={transcript}
+                value={transcript + interimTranscript}
                 onChange={(e) => setTranscript(e.target.value)}
                 placeholder="La transcripción aparecerá aquí..."
                 className="min-h-[150px] font-mono text-sm"
               />
+              
+              {interimTranscript && isRecording && (
+                <p className="text-xs text-muted-foreground italic">
+                  ✨ Transcribiendo en tiempo real: "{interimTranscript}"
+                </p>
+              )}
               
               <Button
                 onClick={generateMedicalRecord}
