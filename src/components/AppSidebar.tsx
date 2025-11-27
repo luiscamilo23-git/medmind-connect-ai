@@ -10,7 +10,8 @@ import {
   Home,
   UserCircle,
   FileText,
-  Receipt
+  Receipt,
+  Send
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -95,6 +96,11 @@ const billingItems = [
     title: "Pagos", 
     url: "/billing/payments", 
     icon: Receipt 
+  },
+  { 
+    title: "Emisión DIAN", 
+    url: "/billing/dian", 
+    icon: Send 
   },
 ];
 
