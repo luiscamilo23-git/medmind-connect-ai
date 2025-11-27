@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText } from "lucide-react";
+import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText, Webhook } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { DIANEmissionLogsDialog } from "@/components/billing/DIANEmissionLogsDialog";
+import { DIANWebhookEventsDialog } from "@/components/billing/DIANWebhookEventsDialog";
 
 type Invoice = {
   id: string;
@@ -43,6 +44,7 @@ export default function BillingInvoices() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [emittingInvoice, setEmittingInvoice] = useState<string | null>(null);
   const [logsDialogOpen, setLogsDialogOpen] = useState(false);
+  const [webhooksDialogOpen, setWebhooksDialogOpen] = useState(false);
   const [selectedInvoiceForLogs, setSelectedInvoiceForLogs] = useState<string | null>(null);
 
   const { data: invoices, isLoading } = useQuery({
@@ -148,6 +150,11 @@ export default function BillingInvoices() {
   const handleViewLogs = (invoiceId: string) => {
     setSelectedInvoiceForLogs(invoiceId);
     setLogsDialogOpen(true);
+  };
+
+  const handleViewWebhooks = (invoiceId: string) => {
+    setSelectedInvoiceForLogs(invoiceId);
+    setWebhooksDialogOpen(true);
   };
 
   const filteredInvoices = invoices?.filter((inv) => 
@@ -344,22 +351,40 @@ export default function BillingInvoices() {
                                   </TooltipProvider>
                                 )}
                                 {(invoice.estado === "EMITIDA" || invoice.cufe) && (
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={() => handleViewLogs(invoice.id)}
-                                        >
-                                          <FileText className="h-4 w-4" />
-                                        </Button>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Ver logs de emisión DIAN</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
+                                  <>
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleViewLogs(invoice.id)}
+                                          >
+                                            <FileText className="h-4 w-4" />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Ver logs de emisión DIAN</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleViewWebhooks(invoice.id)}
+                                          >
+                                            <Webhook className="h-4 w-4" />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Ver eventos webhook</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  </>
                                 )}
                                 <Button variant="ghost" size="icon">
                                   <Eye className="h-4 w-4" />
@@ -391,11 +416,18 @@ export default function BillingInvoices() {
       </div>
 
       {selectedInvoiceForLogs && (
-        <DIANEmissionLogsDialog
-          open={logsDialogOpen}
-          onOpenChange={setLogsDialogOpen}
-          invoiceId={selectedInvoiceForLogs}
-        />
+        <>
+          <DIANEmissionLogsDialog
+            open={logsDialogOpen}
+            onOpenChange={setLogsDialogOpen}
+            invoiceId={selectedInvoiceForLogs}
+          />
+          <DIANWebhookEventsDialog
+            open={webhooksDialogOpen}
+            onOpenChange={setWebhooksDialogOpen}
+            invoiceId={selectedInvoiceForLogs}
+          />
+        </>
       )}
     </SidebarProvider>
   );

@@ -275,6 +275,50 @@ export type Database = {
           },
         ]
       }
+      dian_webhook_events: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          invoice_id: string | null
+          payload: Json
+          processed: boolean | null
+          processed_at: string | null
+          provider: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          invoice_id?: string | null
+          payload: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          provider: string
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          invoice_id?: string | null
+          payload?: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          provider?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dian_webhook_events_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       doctor_questions: {
         Row: {
           created_at: string

@@ -29,3 +29,12 @@ verify_jwt = true
 
 [functions.emit-invoice-dian]
 verify_jwt = true
+
+[functions.webhook-alegra]
+verify_jwt = false
+
+[functions.webhook-siigo]
+verify_jwt = false
+
+[functions.webhook-alanube]
+verify_jwt = false

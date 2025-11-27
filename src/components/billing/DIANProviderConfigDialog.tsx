@@ -36,6 +36,16 @@ export function DIANProviderConfigDialog({
     isActive: false,
   });
 
+  const getWebhookUrl = (providerId: string) => {
+    const baseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://oidpsdohfbfvqfyyovzy.supabase.co';
+    const providerMap: Record<string, string> = {
+      'ALEGRA': 'webhook-alegra',
+      'SIIGO': 'webhook-siigo',
+      'ALANUBE': 'webhook-alanube',
+    };
+    return `${baseUrl}/functions/v1/${providerMap[providerId]}`;
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -96,6 +106,19 @@ export function DIANProviderConfigDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="webhookUrl">URL de Webhook</Label>
+            <Input
+              id="webhookUrl"
+              value={getWebhookUrl(provider.id)}
+              readOnly
+              className="font-mono text-xs"
+            />
+            <p className="text-xs text-muted-foreground">
+              Configura esta URL en {provider.name} para recibir notificaciones
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="apiKey">API Key *</Label>
             <Input
