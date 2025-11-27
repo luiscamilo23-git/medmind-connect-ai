@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 import { SignaturePad } from "@/components/SignaturePad";
+import { MedicalDocumentGenerator } from "@/components/MedicalDocumentGenerator";
 
 interface Suggestion {
   question: string;
@@ -79,9 +80,29 @@ const VoiceNotes = () => {
   const [doctorSignature, setDoctorSignature] = useState<string | null>(null);
   const [evolutionNotes, setEvolutionNotes] = useState("");
   const [notes, setNotes] = useState("");
+  
+  // For document generation
+  const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
+  const [doctorProfile, setDoctorProfile] = useState<any>(null);
 
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Load doctor profile
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        if (data) setDoctorProfile(data);
+      }
+    };
+    loadProfile();
+  }, []);
 
   // Analyze transcript in real-time for suggestions
   useEffect(() => {
@@ -449,37 +470,45 @@ const VoiceNotes = () => {
       }
 
       // Save complete medical record
-      const { error } = await supabase.from('medical_records').insert([{
-        doctor_id: user.id,
-        patient_id: patientId,
-        record_type: recordType as "consultation" | "procedure" | "diagnosis" | "prescription" | "lab_result" | "imaging",
-        title,
-        patient_identification: patientIdentification,
-        chief_complaint: chiefComplaint,
-        current_illness: currentIllness,
-        ros: ros,
-        medical_history: medicalHistory,
-        vital_signs: vitalSigns,
-        physical_exam: physicalExam,
-        diagnostic_aids: diagnosticAids,
-        diagnosis: diagnosis,
-        cie10_code: cie10Code,
-        treatment: treatment,
-        education: education,
-        followup: followup,
-        medications: medications,
-        consent: consent,
-        doctor_signature: doctorSignature,
-        evolution_notes: evolutionNotes,
-        notes: notes,
-        voice_transcript: transcript,
-      }]);
+      const { data: savedRecord, error } = await supabase.from('medical_records')
+        .insert([{
+          doctor_id: user.id,
+          patient_id: patientId,
+          record_type: recordType as "consultation" | "procedure" | "diagnosis" | "prescription" | "lab_result" | "imaging",
+          title,
+          patient_identification: patientIdentification,
+          chief_complaint: chiefComplaint,
+          current_illness: currentIllness,
+          ros: ros,
+          medical_history: medicalHistory,
+          vital_signs: vitalSigns,
+          physical_exam: physicalExam,
+          diagnostic_aids: diagnosticAids,
+          diagnosis: diagnosis,
+          cie10_code: cie10Code,
+          treatment: treatment,
+          education: education,
+          followup: followup,
+          medications: medications,
+          consent: consent,
+          doctor_signature: doctorSignature,
+          evolution_notes: evolutionNotes,
+          notes: notes,
+          voice_transcript: transcript,
+        }])
+        .select('id')
+        .single();
 
       if (error) throw error;
+      
+      // Save record ID for document generation
+      if (savedRecord) {
+        setSavedRecordId(savedRecord.id);
+      }
 
       toast({
         title: "✅ Historia clínica guardada",
-        description: "Historia clínica completa guardada exitosamente",
+        description: "Historia clínica completa guardada exitosamente. Ahora puedes generar documentos.",
       });
 
       // Reset form
@@ -526,6 +555,7 @@ const VoiceNotes = () => {
     setEvolutionNotes("");
     setNotes("");
     setPatientName("");
+    setSavedRecordId(null);
     audioChunksRef.current = [];
   };
 
@@ -602,6 +632,16 @@ const VoiceNotes = () => {
               <p className="text-sm text-muted-foreground">Cumple con normativa colombiana (Resolución 1995/1999)</p>
             </div>
           </div>
+          
+          {savedRecordId && patientName && (
+            <MedicalDocumentGenerator
+              medicalRecordId={savedRecordId}
+              patientName={patientName}
+              doctorName={doctorProfile?.full_name || 'Doctor'}
+              doctorLicense={doctorProfile?.license_number || undefined}
+              doctorSignature={doctorSignature || undefined}
+            />
+          )}
         </div>
       </header>
 
