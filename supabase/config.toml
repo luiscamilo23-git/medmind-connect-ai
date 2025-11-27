@@ -38,3 +38,5 @@ verify_jwt = false
 
 [functions.webhook-alanube]
 verify_jwt = false
+
+[functions.generate-invoice-documents]
