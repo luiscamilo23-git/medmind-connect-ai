@@ -636,54 +636,96 @@ export type Database = {
           appointment_id: string | null
           attachments: string[] | null
           chief_complaint: string | null
+          cie10_code: string | null
+          consent: string | null
           created_at: string
+          current_illness: string | null
           diagnosis: string | null
+          diagnostic_aids: string | null
           doctor_id: string
+          doctor_signature: string | null
+          education: string | null
+          evolution_notes: string | null
+          followup: string | null
           id: string
+          medical_history: string | null
           medications: string[] | null
           notes: string | null
           patient_id: string
+          patient_identification: string | null
+          physical_exam: string | null
           record_type: Database["public"]["Enums"]["record_type"]
+          ros: string | null
           symptoms: string[] | null
           title: string
+          treatment: string | null
           treatment_plan: string | null
           updated_at: string
+          vital_signs: Json | null
           voice_transcript: string | null
         }
         Insert: {
           appointment_id?: string | null
           attachments?: string[] | null
           chief_complaint?: string | null
+          cie10_code?: string | null
+          consent?: string | null
           created_at?: string
+          current_illness?: string | null
           diagnosis?: string | null
+          diagnostic_aids?: string | null
           doctor_id: string
+          doctor_signature?: string | null
+          education?: string | null
+          evolution_notes?: string | null
+          followup?: string | null
           id?: string
+          medical_history?: string | null
           medications?: string[] | null
           notes?: string | null
           patient_id: string
+          patient_identification?: string | null
+          physical_exam?: string | null
           record_type: Database["public"]["Enums"]["record_type"]
+          ros?: string | null
           symptoms?: string[] | null
           title: string
+          treatment?: string | null
           treatment_plan?: string | null
           updated_at?: string
+          vital_signs?: Json | null
           voice_transcript?: string | null
         }
         Update: {
           appointment_id?: string | null
           attachments?: string[] | null
           chief_complaint?: string | null
+          cie10_code?: string | null
+          consent?: string | null
           created_at?: string
+          current_illness?: string | null
           diagnosis?: string | null
+          diagnostic_aids?: string | null
           doctor_id?: string
+          doctor_signature?: string | null
+          education?: string | null
+          evolution_notes?: string | null
+          followup?: string | null
           id?: string
+          medical_history?: string | null
           medications?: string[] | null
           notes?: string | null
           patient_id?: string
+          patient_identification?: string | null
+          physical_exam?: string | null
           record_type?: Database["public"]["Enums"]["record_type"]
+          ros?: string | null
           symptoms?: string[] | null
           title?: string
+          treatment?: string | null
           treatment_plan?: string | null
           updated_at?: string
+          vital_signs?: Json | null
           voice_transcript?: string | null
         }
         Relationships: [

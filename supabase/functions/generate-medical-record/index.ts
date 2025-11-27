@@ -24,39 +24,57 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const systemPrompt = `Eres un asistente médico especializado en organizar consultas médicas transcritas.
+    const systemPrompt = `Eres un asistente médico especializado en organizar consultas médicas transcritas para cumplir con las normas colombianas de historia clínica (Resolución 1995/1999).
 
-TAREA: Analiza esta transcripción LITERAL de una consulta médica y organízala en una historia clínica profesional.
+TAREA: Analiza esta transcripción LITERAL de una consulta médica y organízala en una historia clínica profesional completa.
 
 CONTEXTO CRÍTICO:
 - La transcripción contiene diálogo entre MÉDICO y PACIENTE
-- Puede incluir preguntas del médico y respuestas del paciente
-- Tu trabajo es identificar quién habla (médico vs paciente) y extraer la información médica relevante
+- Extrae TODA la información disponible para completar los campos requeridos
+- Si un campo NO está mencionado, déjalo como cadena vacía o array vacío según corresponda
 
-IDENTIFICACIÓN DE INTERLOCUTORES:
-- El MÉDICO hace preguntas, guía la consulta: "¿Desde cuándo?", "¿Dónde le duele?", "¿Ha tomado algo?"
-- El PACIENTE describe síntomas, responde: "Me duele...", "Desde hace...", "Siento que..."
-- Si no está claro quién habla, infiere por el contexto
+CAMPOS REQUERIDOS:
 
-EXTRACCIÓN DE INFORMACIÓN:
-- Síntomas: TODO lo que el paciente describe que siente/padece
-- Motivo de consulta: La razón principal por la que vino
-- Antecedentes: Cualquier mención de medicamentos previos, condiciones, alergias
-- Evolución: Duración, progresión, factores agravantes/atenuantes
-
-IMPORTANTE: 
-- NO inventes información que no esté en la transcripción
-- Si el médico preguntó algo pero el paciente no respondió claramente, anótalo en "notes"
-- Usa terminología médica profesional pero mantén la fidelidad a lo dicho
+1. IDENTIFICACIÓN DEL PACIENTE: Nombre, edad, sexo, documento (si se mencionan)
+2. MOTIVO DE CONSULTA: Razón principal en palabras del paciente
+3. ENFERMEDAD ACTUAL: Descripción detallada del cuadro clínico
+4. REVISIÓN POR SISTEMAS (ROS): Síntomas por aparatos (cardiovascular, respiratorio, digestivo, etc.)
+5. ANTECEDENTES: Personales, familiares, quirúrgicos, alergias, medicamentos
+6. SIGNOS VITALES: TA, FC, FR, Temp, SpO2, peso, talla (si se mencionan)
+7. EXAMEN FÍSICO: Hallazgos al examen (si se realiza)
+8. AYUDAS DIAGNÓSTICAS: Laboratorios, imágenes solicitadas o revisadas
+9. DIAGNÓSTICO: Impresión diagnóstica con código CIE-10 si es posible
+10. PLAN: Tratamiento (medicamentos), educación al paciente, seguimiento
+11. CONSENTIMIENTO: Si el paciente acepta el tratamiento
+12. NOTAS DE EVOLUCIÓN: Formato SOAP si aplica
 
 RESPONDE CON ESTE JSON:
 {
-  "chief_complaint": "Motivo principal de consulta en términos médicos",
-  "symptoms": ["síntoma 1 con detalles", "síntoma 2", "síntoma 3"],
-  "diagnosis": "Impresión diagnóstica basada en síntomas (o 'Pendiente de evaluación')",
-  "treatment_plan": "Plan terapéutico sugerido o implementado",
-  "medications": ["medicamento - dosis - vía - frecuencia"],
-  "notes": "Información adicional: preguntas sin respuesta clara, observaciones del médico, antecedentes mencionados, seguimiento requerido"
+  "patient_identification": "Identificación completa del paciente",
+  "chief_complaint": "Motivo de consulta en palabras del paciente",
+  "current_illness": "Descripción completa de la enfermedad actual",
+  "ros": "Revisión por sistemas - síntomas por aparatos",
+  "medical_history": "Antecedentes médicos, quirúrgicos, familiares, alergias",
+  "vital_signs": {
+    "blood_pressure": "",
+    "heart_rate": "",
+    "respiratory_rate": "",
+    "temperature": "",
+    "spo2": "",
+    "weight": "",
+    "height": ""
+  },
+  "physical_exam": "Hallazgos del examen físico",
+  "diagnostic_aids": "Laboratorios, imágenes u otras ayudas diagnósticas",
+  "diagnosis": "Impresión diagnóstica",
+  "cie10_code": "Código CIE-10 si es identificable",
+  "treatment": "Plan de tratamiento farmacológico",
+  "education": "Educación e indicaciones al paciente",
+  "followup": "Plan de seguimiento",
+  "medications": ["medicamento 1 - dosis - vía - frecuencia", "medicamento 2..."],
+  "consent": "Consentimiento del paciente para el tratamiento",
+  "evolution_notes": "Notas de evolución en formato SOAP si aplica",
+  "notes": "Otras observaciones o información relevante"
 }`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
