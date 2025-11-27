@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText, Webhook } from "lucide-react";
+import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText, Webhook, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { DIANEmissionLogsDialog } from "@/components/billing/DIANEmissionLogsDialog";
 import { DIANWebhookEventsDialog } from "@/components/billing/DIANWebhookEventsDialog";
+import { generateInvoicePDF } from "@/utils/pdfGenerator";
 
 type Invoice = {
   id: string;
@@ -46,6 +47,7 @@ export default function BillingInvoices() {
   const [logsDialogOpen, setLogsDialogOpen] = useState(false);
   const [webhooksDialogOpen, setWebhooksDialogOpen] = useState(false);
   const [selectedInvoiceForLogs, setSelectedInvoiceForLogs] = useState<string | null>(null);
+  const [downloadingFormat, setDownloadingFormat] = useState<{ id: string; format: 'pdf' | 'xml' } | null>(null);
 
   const { data: invoices, isLoading } = useQuery({
     queryKey: ["invoices"],
@@ -155,6 +157,69 @@ export default function BillingInvoices() {
   const handleViewWebhooks = (invoiceId: string) => {
     setSelectedInvoiceForLogs(invoiceId);
     setWebhooksDialogOpen(true);
+  };
+
+  const handleDownloadDocument = async (invoiceId: string, format: 'pdf' | 'xml') => {
+    try {
+      setDownloadingFormat({ id: invoiceId, format });
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "No estás autenticado",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const response = await supabase.functions.invoke('generate-invoice-documents', {
+        body: { invoiceId, format },
+      });
+
+      if (response.error) throw response.error;
+
+      const invoice = invoices?.find(inv => inv.id === invoiceId);
+      const filename = `factura-${invoice?.numero_factura_dian || invoiceId}`;
+
+      if (format === 'xml') {
+        const blob = new Blob([response.data], { type: 'application/xml' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.xml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        toast({
+          title: "¡XML descargado!",
+          description: "Documento XML generado según estándares DIAN",
+        });
+      } else {
+        const pdfData = JSON.parse(atob(response.data.pdf));
+        const doc = generateInvoicePDF(
+          pdfData.invoice,
+          pdfData.items,
+          pdfData.patient,
+          pdfData.doctor
+        );
+        doc.save(`${filename}.pdf`);
+        toast({
+          title: "¡PDF generado!",
+          description: "Factura PDF descargada exitosamente",
+        });
+      }
+    } catch (error: any) {
+      console.error(`Error downloading ${format.toUpperCase()}:`, error);
+      toast({
+        title: "Error",
+        description: error.message || `Error al descargar ${format.toUpperCase()}`,
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingFormat(null);
+    }
   };
 
   const filteredInvoices = invoices?.filter((inv) => 
@@ -350,8 +415,44 @@ export default function BillingInvoices() {
                                     </Tooltip>
                                   </TooltipProvider>
                                 )}
-                                {(invoice.estado === "EMITIDA" || invoice.cufe) && (
+                                {(invoice.estado === "EMITIDA" || invoice.estado === "VALIDADA" || invoice.cufe) && (
                                   <>
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleDownloadDocument(invoice.id, 'pdf')}
+                                            disabled={downloadingFormat?.id === invoice.id && downloadingFormat?.format === 'pdf'}
+                                          >
+                                            <Download className="h-4 w-4 mr-2" />
+                                            PDF
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Descargar factura en PDF</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleDownloadDocument(invoice.id, 'xml')}
+                                            disabled={downloadingFormat?.id === invoice.id && downloadingFormat?.format === 'xml'}
+                                          >
+                                            <FileText className="h-4 w-4 mr-2" />
+                                            XML
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Descargar XML DIAN</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
                                     <TooltipProvider>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
