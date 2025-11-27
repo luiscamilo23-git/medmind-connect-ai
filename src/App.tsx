@@ -31,6 +31,8 @@ import Comparison from "./pages/Comparison";
 import BillingServices from "./pages/billing/BillingServices";
 import BillingInvoices from "./pages/billing/BillingInvoices";
 import BillingRIPS from "./pages/billing/BillingRIPS";
+import BillingPayments from "./pages/billing/BillingPayments";
+import BillingSettings from "./pages/billing/BillingSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +71,8 @@ const App = () => (
           <Route path="/billing/services" element={<BillingServices />} />
           <Route path="/billing/invoices" element={<BillingInvoices />} />
           <Route path="/billing/rips" element={<BillingRIPS />} />
+          <Route path="/billing/payments" element={<BillingPayments />} />
+          <Route path="/billing/settings" element={<BillingSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

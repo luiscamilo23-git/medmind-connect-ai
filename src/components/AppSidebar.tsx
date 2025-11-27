@@ -91,6 +91,11 @@ const billingItems = [
     url: "/billing/rips", 
     icon: FileText 
   },
+  { 
+    title: "Pagos", 
+    url: "/billing/payments", 
+    icon: Receipt 
+  },
 ];
 
 const socialItems = [
