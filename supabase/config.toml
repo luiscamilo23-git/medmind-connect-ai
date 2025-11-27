@@ -42,3 +42,5 @@ verify_jwt = false
 [functions.generate-invoice-documents]
 
 [functions.analyze-invoice-errors]
+
+[functions.send-invoice-email]
