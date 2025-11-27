@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText, Webhook, Download } from "lucide-react";
+import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText, Webhook, Download, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { DIANEmissionLogsDialog } from "@/components/billing/DIANEmissionLogsDialog";
 import { DIANWebhookEventsDialog } from "@/components/billing/DIANWebhookEventsDialog";
+import { InvoiceReemissionDialog } from "@/components/billing/InvoiceReemissionDialog";
 import { generateInvoicePDF } from "@/utils/pdfGenerator";
 
 type Invoice = {
@@ -48,6 +49,8 @@ export default function BillingInvoices() {
   const [webhooksDialogOpen, setWebhooksDialogOpen] = useState(false);
   const [selectedInvoiceForLogs, setSelectedInvoiceForLogs] = useState<string | null>(null);
   const [downloadingFormat, setDownloadingFormat] = useState<{ id: string; format: 'pdf' | 'xml' } | null>(null);
+  const [reemissionDialogOpen, setReemissionDialogOpen] = useState(false);
+  const [selectedInvoiceForReemission, setSelectedInvoiceForReemission] = useState<string | null>(null);
 
   const { data: invoices, isLoading } = useQuery({
     queryKey: ["invoices"],
@@ -222,6 +225,15 @@ export default function BillingInvoices() {
     }
   };
 
+  const handleReemit = (invoiceId: string) => {
+    setSelectedInvoiceForReemission(invoiceId);
+    setReemissionDialogOpen(true);
+  };
+
+  const handleReemissionSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["invoices"] });
+  };
+
   const filteredInvoices = invoices?.filter((inv) => 
     statusFilter === "all" || inv.estado === statusFilter
   );
@@ -316,6 +328,7 @@ export default function BillingInvoices() {
                   <TabsTrigger value="DRAFT">Borradores</TabsTrigger>
                   <TabsTrigger value="EMITIDA">Emitidas</TabsTrigger>
                   <TabsTrigger value="VALIDADA">Validadas</TabsTrigger>
+                  <TabsTrigger value="RECHAZADA">Rechazadas</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value={statusFilter} className="mt-6">
@@ -411,6 +424,25 @@ export default function BillingInvoices() {
                                       </TooltipTrigger>
                                       <TooltipContent>
                                         <p>Emitir factura electrónica a DIAN</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                                {invoice.estado === "RECHAZADA" && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          variant="destructive"
+                                          size="sm"
+                                          onClick={() => handleReemit(invoice.id)}
+                                        >
+                                          <RefreshCw className="h-4 w-4 mr-2" />
+                                          Reemitir
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Analizar errores y reemitir factura</p>
                                       </TooltipContent>
                                     </Tooltip>
                                   </TooltipProvider>
@@ -529,6 +561,15 @@ export default function BillingInvoices() {
             invoiceId={selectedInvoiceForLogs}
           />
         </>
+      )}
+
+      {selectedInvoiceForReemission && (
+        <InvoiceReemissionDialog
+          invoiceId={selectedInvoiceForReemission}
+          open={reemissionDialogOpen}
+          onOpenChange={setReemissionDialogOpen}
+          onSuccess={handleReemissionSuccess}
+        />
       )}
     </SidebarProvider>
   );
