@@ -8,7 +8,9 @@ import {
   Share2,
   BrainCircuit,
   Home,
-  UserCircle
+  UserCircle,
+  FileText,
+  Receipt
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -70,6 +72,19 @@ const analyticsItems = [
     title: "Inteligencia Operativa", 
     url: "/analytics", 
     icon: LineChart 
+  },
+];
+
+const billingItems = [
+  { 
+    title: "Servicios", 
+    url: "/billing/services", 
+    icon: Receipt 
+  },
+  { 
+    title: "Facturas", 
+    url: "/billing/invoices", 
+    icon: FileText 
   },
 ];
 
@@ -146,6 +161,29 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {analyticsItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url}
+                      className="flex items-center gap-2 hover:bg-accent"
+                      activeClassName="bg-accent text-accent-foreground font-medium"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {!isCollapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Facturación */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Facturación</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {billingItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink 

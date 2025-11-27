@@ -28,6 +28,8 @@ import CookiePolicy from "./pages/CookiePolicy";
 import LegalNotice from "./pages/LegalNotice";
 import Referrals from "./pages/Referrals";
 import Comparison from "./pages/Comparison";
+import BillingServices from "./pages/billing/BillingServices";
+import BillingInvoices from "./pages/billing/BillingInvoices";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +65,8 @@ const App = () => (
           <Route path="/legal-notice" element={<LegalNotice />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/comparison" element={<Comparison />} />
+          <Route path="/billing/services" element={<BillingServices />} />
+          <Route path="/billing/invoices" element={<BillingInvoices />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
