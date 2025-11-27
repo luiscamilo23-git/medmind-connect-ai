@@ -726,6 +726,175 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_gateway_configs: {
+        Row: {
+          api_key: string | null
+          config_data: Json | null
+          created_at: string | null
+          doctor_id: string
+          gateway_provider: Database["public"]["Enums"]["payment_gateway_provider"]
+          id: string
+          is_active: boolean | null
+          is_sandbox: boolean | null
+          merchant_id: string | null
+          private_key: string | null
+          public_key: string | null
+          updated_at: string | null
+          webhook_secret: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          config_data?: Json | null
+          created_at?: string | null
+          doctor_id: string
+          gateway_provider: Database["public"]["Enums"]["payment_gateway_provider"]
+          id?: string
+          is_active?: boolean | null
+          is_sandbox?: boolean | null
+          merchant_id?: string | null
+          private_key?: string | null
+          public_key?: string | null
+          updated_at?: string | null
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          config_data?: Json | null
+          created_at?: string | null
+          doctor_id?: string
+          gateway_provider?: Database["public"]["Enums"]["payment_gateway_provider"]
+          id?: string
+          is_active?: boolean | null
+          is_sandbox?: boolean | null
+          merchant_id?: string | null
+          private_key?: string | null
+          public_key?: string | null
+          updated_at?: string | null
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      payment_webhooks: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          event_type: string
+          gateway_provider: Database["public"]["Enums"]["payment_gateway_provider"]
+          id: string
+          payload: Json
+          payment_id: string | null
+          processed: boolean | null
+          processed_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type: string
+          gateway_provider: Database["public"]["Enums"]["payment_gateway_provider"]
+          id?: string
+          payload: Json
+          payment_id?: string | null
+          processed?: boolean | null
+          processed_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          gateway_provider?: Database["public"]["Enums"]["payment_gateway_provider"]
+          id?: string
+          payload?: Json
+          payment_id?: string | null
+          processed?: boolean | null
+          processed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_webhooks_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          comprobante_url: string | null
+          created_at: string | null
+          doctor_id: string
+          error_message: string | null
+          estado: Database["public"]["Enums"]["payment_transaction_status"]
+          fecha_aprobacion: string | null
+          fecha_pago: string | null
+          gateway_provider:
+            | Database["public"]["Enums"]["payment_gateway_provider"]
+            | null
+          gateway_response: Json | null
+          id: string
+          invoice_id: string
+          metodo_pago: Database["public"]["Enums"]["payment_method"]
+          monto: number
+          notas: string | null
+          transaction_id: string | null
+          transaction_ref: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          comprobante_url?: string | null
+          created_at?: string | null
+          doctor_id: string
+          error_message?: string | null
+          estado?: Database["public"]["Enums"]["payment_transaction_status"]
+          fecha_aprobacion?: string | null
+          fecha_pago?: string | null
+          gateway_provider?:
+            | Database["public"]["Enums"]["payment_gateway_provider"]
+            | null
+          gateway_response?: Json | null
+          id?: string
+          invoice_id: string
+          metodo_pago: Database["public"]["Enums"]["payment_method"]
+          monto: number
+          notas?: string | null
+          transaction_id?: string | null
+          transaction_ref?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          comprobante_url?: string | null
+          created_at?: string | null
+          doctor_id?: string
+          error_message?: string | null
+          estado?: Database["public"]["Enums"]["payment_transaction_status"]
+          fecha_aprobacion?: string | null
+          fecha_pago?: string | null
+          gateway_provider?:
+            | Database["public"]["Enums"]["payment_gateway_provider"]
+            | null
+          gateway_response?: Json | null
+          id?: string
+          invoice_id?: string
+          metodo_pago?: Database["public"]["Enums"]["payment_method"]
+          monto?: number
+          notas?: string | null
+          transaction_id?: string | null
+          transaction_ref?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_comments: {
         Row: {
           content: string
@@ -1235,6 +1404,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_active_payment_gateway: {
+        Args: { doctor_uuid: string }
+        Returns: {
+          gateway_provider: Database["public"]["Enums"]["payment_gateway_provider"]
+          is_sandbox: boolean
+          public_key: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1261,7 +1438,24 @@ export type Database = {
         | "equipment"
         | "other"
       invoice_status: "DRAFT" | "EMITIDA" | "VALIDADA" | "RECHAZADA" | "ANULADA"
+      payment_gateway_provider: "WOMPI" | "PAYU" | "EPAYCO" | "MANUAL"
+      payment_method:
+        | "EFECTIVO"
+        | "TARJETA_CREDITO"
+        | "TARJETA_DEBITO"
+        | "TRANSFERENCIA"
+        | "PSE"
+        | "NEQUI"
+        | "DAVIPLATA"
+        | "OTRO"
       payment_status: "PENDIENTE" | "PAGADA" | "PARCIAL" | "VENCIDA"
+      payment_transaction_status:
+        | "PENDIENTE"
+        | "PROCESANDO"
+        | "APROBADO"
+        | "RECHAZADO"
+        | "CANCELADO"
+        | "REEMBOLSADO"
       record_type:
         | "consultation"
         | "procedure"
@@ -1425,7 +1619,26 @@ export const Constants = {
         "other",
       ],
       invoice_status: ["DRAFT", "EMITIDA", "VALIDADA", "RECHAZADA", "ANULADA"],
+      payment_gateway_provider: ["WOMPI", "PAYU", "EPAYCO", "MANUAL"],
+      payment_method: [
+        "EFECTIVO",
+        "TARJETA_CREDITO",
+        "TARJETA_DEBITO",
+        "TRANSFERENCIA",
+        "PSE",
+        "NEQUI",
+        "DAVIPLATA",
+        "OTRO",
+      ],
       payment_status: ["PENDIENTE", "PAGADA", "PARCIAL", "VENCIDA"],
+      payment_transaction_status: [
+        "PENDIENTE",
+        "PROCESANDO",
+        "APROBADO",
+        "RECHAZADO",
+        "CANCELADO",
+        "REEMBOLSADO",
+      ],
       record_type: [
         "consultation",
         "procedure",
