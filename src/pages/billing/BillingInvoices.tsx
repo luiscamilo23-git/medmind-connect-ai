@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText, Webhook, Download, RefreshCw } from "lucide-react";
+import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText, Webhook, Download, RefreshCw, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -268,10 +268,16 @@ export default function BillingInvoices() {
                     Gestiona tus facturas electrónicas - Cumplimiento normativo colombiano
                   </p>
                 </div>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nueva Factura
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => navigate('/billing/monitoring')}>
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Monitoreo DIAN
+                  </Button>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nueva Factura
+                  </Button>
+                </div>
               </div>
 
               {/* Statistics Cards */}

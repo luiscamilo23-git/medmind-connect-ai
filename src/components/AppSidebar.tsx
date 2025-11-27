@@ -11,7 +11,8 @@ import {
   UserCircle,
   FileText,
   Receipt,
-  Send
+  Send,
+  BarChart3
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -101,6 +102,11 @@ const billingItems = [
     title: "Emisión DIAN", 
     url: "/billing/dian", 
     icon: Send 
+  },
+  { 
+    title: "Monitoreo DIAN", 
+    url: "/billing/monitoring", 
+    icon: BarChart3 
   },
 ];
 
