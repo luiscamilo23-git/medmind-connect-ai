@@ -5,14 +5,23 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, LogOut, Bell, User, Filter } from "lucide-react";
+import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { DIANEmissionLogsDialog } from "@/components/billing/DIANEmissionLogsDialog";
 
 type Invoice = {
   id: string;
   numero_factura_dian: string | null;
+  cufe: string | null;
   patient_id: string;
   fecha_emision: string;
   fecha_vencimiento: string;
@@ -21,6 +30,7 @@ type Invoice = {
   total: number;
   estado: string;
   payment_status: string;
+  proveedor_dian: string | null;
   patients: {
     full_name: string;
   };
@@ -28,7 +38,12 @@ type Invoice = {
 
 export default function BillingInvoices() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [emittingInvoice, setEmittingInvoice] = useState<string | null>(null);
+  const [logsDialogOpen, setLogsDialogOpen] = useState(false);
+  const [selectedInvoiceForLogs, setSelectedInvoiceForLogs] = useState<string | null>(null);
 
   const { data: invoices, isLoading } = useQuery({
     queryKey: ["invoices"],
@@ -82,6 +97,57 @@ export default function BillingInvoices() {
       VENCIDA: "destructive",
     };
     return <Badge variant={variants[status] || "secondary"}>{status}</Badge>;
+  };
+
+  const handleEmitToDIAN = async (invoiceId: string) => {
+    setEmittingInvoice(invoiceId);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "No autenticado",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const response = await supabase.functions.invoke("emit-invoice-dian", {
+        body: { invoiceId },
+      });
+
+      if (response.error) {
+        console.error("Emission error:", response.error);
+        toast({
+          title: "Error al emitir",
+          description: response.error.message || "Error desconocido",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "¡Factura emitida exitosamente!",
+        description: `CUFE: ${response.data.cufe?.substring(0, 20)}...`,
+      });
+
+      // Refresh invoices
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+    } catch (error: any) {
+      console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Error al emitir factura",
+        variant: "destructive",
+      });
+    } finally {
+      setEmittingInvoice(null);
+    }
+  };
+
+  const handleViewLogs = (invoiceId: string) => {
+    setSelectedInvoiceForLogs(invoiceId);
+    setLogsDialogOpen(true);
   };
 
   const filteredInvoices = invoices?.filter((inv) => 
@@ -196,7 +262,7 @@ export default function BillingInvoices() {
                     </div>
                   ) : filteredInvoices && filteredInvoices.length > 0 ? (
                     <div className="space-y-4">
-                      {filteredInvoices.map((invoice) => (
+                       {filteredInvoices.map((invoice) => (
                         <Card key={invoice.id} className="hover:bg-accent/50 transition-colors">
                           <CardContent className="p-6">
                             <div className="flex items-center justify-between">
@@ -207,6 +273,26 @@ export default function BillingInvoices() {
                                   </h3>
                                   {getStatusBadge(invoice.estado)}
                                   {getPaymentBadge(invoice.payment_status)}
+                                  {invoice.cufe && (
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Badge variant="outline" className="gap-1">
+                                            <CheckCircle2 className="h-3 w-3" />
+                                            CUFE
+                                          </Badge>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p className="text-xs max-w-xs break-all">{invoice.cufe}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  )}
+                                  {invoice.proveedor_dian && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      {invoice.proveedor_dian}
+                                    </Badge>
+                                  )}
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                   <div>
@@ -227,9 +313,58 @@ export default function BillingInvoices() {
                                   </div>
                                 </div>
                               </div>
-                              <Button variant="ghost" size="icon">
-                                <Eye className="h-4 w-4" />
-                              </Button>
+                              <div className="flex items-center gap-2">
+                                {invoice.estado === "DRAFT" && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => handleEmitToDIAN(invoice.id)}
+                                          disabled={emittingInvoice === invoice.id}
+                                        >
+                                          {emittingInvoice === invoice.id ? (
+                                            <>
+                                              <span className="animate-spin mr-2">⏳</span>
+                                              Emitiendo...
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Send className="h-4 w-4 mr-2" />
+                                              Emitir DIAN
+                                            </>
+                                          )}
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Emitir factura electrónica a DIAN</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                                {(invoice.estado === "EMITIDA" || invoice.cufe) && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => handleViewLogs(invoice.id)}
+                                        >
+                                          <FileText className="h-4 w-4" />
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Ver logs de emisión DIAN</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                                <Button variant="ghost" size="icon">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -254,6 +389,14 @@ export default function BillingInvoices() {
           </main>
         </div>
       </div>
+
+      {selectedInvoiceForLogs && (
+        <DIANEmissionLogsDialog
+          open={logsDialogOpen}
+          onOpenChange={setLogsDialogOpen}
+          invoiceId={selectedInvoiceForLogs}
+        />
+      )}
     </SidebarProvider>
   );
 }

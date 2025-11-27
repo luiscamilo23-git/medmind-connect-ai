@@ -20,3 +20,12 @@ verify_jwt = true
 
 [functions.analyze-notes]
 verify_jwt = true
+
+[functions.generate-rips]
+verify_jwt = true
+
+[functions.validate-rips]
+verify_jwt = true
+
+[functions.emit-invoice-dian]
+verify_jwt = true
