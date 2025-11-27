@@ -47,6 +47,45 @@ export type Database = {
         }
         Relationships: []
       }
+      api_configurations: {
+        Row: {
+          api_url: string | null
+          config_data: Json | null
+          created_at: string | null
+          doctor_id: string
+          id: string
+          is_active: boolean | null
+          is_sandbox: boolean | null
+          provider_name: string
+          provider_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          api_url?: string | null
+          config_data?: Json | null
+          created_at?: string | null
+          doctor_id: string
+          id?: string
+          is_active?: boolean | null
+          is_sandbox?: boolean | null
+          provider_name: string
+          provider_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          api_url?: string | null
+          config_data?: Json | null
+          created_at?: string | null
+          doctor_id?: string
+          id?: string
+          is_active?: boolean | null
+          is_sandbox?: boolean | null
+          provider_name?: string
+          provider_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           appointment_date: string
@@ -350,6 +389,150 @@ export type Database = {
             columns: ["medical_record_id"]
             isOneToOne: false
             referencedRelation: "medical_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_items: {
+        Row: {
+          cantidad: number
+          codigo_cups: string | null
+          created_at: string | null
+          descripcion: string
+          id: string
+          impuestos_linea: number
+          invoice_id: string
+          precio_unitario: number
+          service_id: string | null
+          subtotal_linea: number
+          total_linea: number
+        }
+        Insert: {
+          cantidad?: number
+          codigo_cups?: string | null
+          created_at?: string | null
+          descripcion: string
+          id?: string
+          impuestos_linea?: number
+          invoice_id: string
+          precio_unitario: number
+          service_id?: string | null
+          subtotal_linea: number
+          total_linea: number
+        }
+        Update: {
+          cantidad?: number
+          codigo_cups?: string | null
+          created_at?: string | null
+          descripcion?: string
+          id?: string
+          impuestos_linea?: number
+          invoice_id?: string
+          precio_unitario?: number
+          service_id?: string | null
+          subtotal_linea?: number
+          total_linea?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          appointment_id: string | null
+          created_at: string | null
+          cufe: string | null
+          doctor_id: string
+          errores_validacion: Json | null
+          estado: Database["public"]["Enums"]["invoice_status"]
+          fecha_emision: string
+          fecha_vencimiento: string
+          id: string
+          impuestos: number
+          metodo_emision: string | null
+          notas: string | null
+          numero_factura_dian: string | null
+          patient_id: string
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          pdf_url: string | null
+          proveedor_dian: string | null
+          subtotal: number
+          total: number
+          updated_at: string | null
+          xml_url: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string | null
+          cufe?: string | null
+          doctor_id: string
+          errores_validacion?: Json | null
+          estado?: Database["public"]["Enums"]["invoice_status"]
+          fecha_emision?: string
+          fecha_vencimiento: string
+          id?: string
+          impuestos?: number
+          metodo_emision?: string | null
+          notas?: string | null
+          numero_factura_dian?: string | null
+          patient_id: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          pdf_url?: string | null
+          proveedor_dian?: string | null
+          subtotal?: number
+          total?: number
+          updated_at?: string | null
+          xml_url?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string | null
+          cufe?: string | null
+          doctor_id?: string
+          errores_validacion?: Json | null
+          estado?: Database["public"]["Enums"]["invoice_status"]
+          fecha_emision?: string
+          fecha_vencimiento?: string
+          id?: string
+          impuestos?: number
+          metodo_emision?: string | null
+          notas?: string | null
+          numero_factura_dian?: string | null
+          patient_id?: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          pdf_url?: string | null
+          proveedor_dian?: string | null
+          subtotal?: number
+          total?: number
+          updated_at?: string | null
+          xml_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
         ]
@@ -706,6 +889,51 @@ export type Database = {
         }
         Relationships: []
       }
+      services: {
+        Row: {
+          activo: boolean | null
+          codigo_cups: string | null
+          created_at: string | null
+          descripcion: string | null
+          doctor_id: string
+          id: string
+          impuestos_aplican: boolean | null
+          nombre_servicio: string
+          porcentaje_impuesto: number | null
+          precio_unitario: number
+          tipo_servicio: Database["public"]["Enums"]["service_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          activo?: boolean | null
+          codigo_cups?: string | null
+          created_at?: string | null
+          descripcion?: string | null
+          doctor_id: string
+          id?: string
+          impuestos_aplican?: boolean | null
+          nombre_servicio: string
+          porcentaje_impuesto?: number | null
+          precio_unitario: number
+          tipo_servicio: Database["public"]["Enums"]["service_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          activo?: boolean | null
+          codigo_cups?: string | null
+          created_at?: string | null
+          descripcion?: string | null
+          doctor_id?: string
+          id?: string
+          impuestos_aplican?: boolean | null
+          nombre_servicio?: string
+          porcentaje_impuesto?: number | null
+          precio_unitario?: number
+          tipo_servicio?: Database["public"]["Enums"]["service_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       suggestion_history: {
         Row: {
           created_at: string
@@ -836,6 +1064,8 @@ export type Database = {
         | "disposable"
         | "equipment"
         | "other"
+      invoice_status: "DRAFT" | "EMITIDA" | "VALIDADA" | "RECHAZADA" | "ANULADA"
+      payment_status: "PENDIENTE" | "PAGADA" | "PARCIAL" | "VENCIDA"
       record_type:
         | "consultation"
         | "procedure"
@@ -843,6 +1073,15 @@ export type Database = {
         | "prescription"
         | "lab_result"
         | "imaging"
+      service_type:
+        | "CONSULTA"
+        | "PROCEDIMIENTO"
+        | "CIRUGIA"
+        | "LABORATORIO"
+        | "IMAGENES"
+        | "TERAPIA"
+        | "MEDICAMENTO"
+        | "OTRO"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -987,6 +1226,8 @@ export const Constants = {
         "equipment",
         "other",
       ],
+      invoice_status: ["DRAFT", "EMITIDA", "VALIDADA", "RECHAZADA", "ANULADA"],
+      payment_status: ["PENDIENTE", "PAGADA", "PARCIAL", "VENCIDA"],
       record_type: [
         "consultation",
         "procedure",
@@ -994,6 +1235,16 @@ export const Constants = {
         "prescription",
         "lab_result",
         "imaging",
+      ],
+      service_type: [
+        "CONSULTA",
+        "PROCEDIMIENTO",
+        "CIRUGIA",
+        "LABORATORIO",
+        "IMAGENES",
+        "TERAPIA",
+        "MEDICAMENTO",
+        "OTRO",
       ],
     },
   },
