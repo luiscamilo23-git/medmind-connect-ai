@@ -889,6 +889,201 @@ export type Database = {
         }
         Relationships: []
       }
+      rips_batches: {
+        Row: {
+          archivo_rips_url: string | null
+          created_at: string | null
+          doctor_id: string
+          errores_validacion: Json | null
+          estado: Database["public"]["Enums"]["rips_status"]
+          fecha_envio: string | null
+          fecha_fin: string
+          fecha_inicio: string
+          fecha_validacion: string | null
+          id: string
+          json_data: Json | null
+          mecanismo_validacion_id: string | null
+          nit_pagador: string | null
+          observaciones: string | null
+          pagador: string
+          total_registros: number | null
+          total_valor: number | null
+          updated_at: string | null
+          validation_response: string | null
+        }
+        Insert: {
+          archivo_rips_url?: string | null
+          created_at?: string | null
+          doctor_id: string
+          errores_validacion?: Json | null
+          estado?: Database["public"]["Enums"]["rips_status"]
+          fecha_envio?: string | null
+          fecha_fin: string
+          fecha_inicio: string
+          fecha_validacion?: string | null
+          id?: string
+          json_data?: Json | null
+          mecanismo_validacion_id?: string | null
+          nit_pagador?: string | null
+          observaciones?: string | null
+          pagador: string
+          total_registros?: number | null
+          total_valor?: number | null
+          updated_at?: string | null
+          validation_response?: string | null
+        }
+        Update: {
+          archivo_rips_url?: string | null
+          created_at?: string | null
+          doctor_id?: string
+          errores_validacion?: Json | null
+          estado?: Database["public"]["Enums"]["rips_status"]
+          fecha_envio?: string | null
+          fecha_fin?: string
+          fecha_inicio?: string
+          fecha_validacion?: string | null
+          id?: string
+          json_data?: Json | null
+          mecanismo_validacion_id?: string | null
+          nit_pagador?: string | null
+          observaciones?: string | null
+          pagador?: string
+          total_registros?: number | null
+          total_valor?: number | null
+          updated_at?: string | null
+          validation_response?: string | null
+        }
+        Relationships: []
+      }
+      rips_records: {
+        Row: {
+          codigo_diagnostico_principal: string | null
+          codigo_diagnostico_relacionado: string | null
+          codigo_servicio: string
+          copago: number | null
+          created_at: string | null
+          datos_json: Json
+          descripcion_servicio: string
+          fecha_fin_atencion: string | null
+          fecha_inicio_atencion: string
+          id: string
+          invoice_id: string | null
+          numero_autorizacion: string | null
+          patient_id: string
+          rips_batch_id: string
+          tipo_archivo: Database["public"]["Enums"]["rips_file_type"]
+          tipo_diagnostico_principal: string | null
+          valor_neto: number
+          valor_total: number
+        }
+        Insert: {
+          codigo_diagnostico_principal?: string | null
+          codigo_diagnostico_relacionado?: string | null
+          codigo_servicio: string
+          copago?: number | null
+          created_at?: string | null
+          datos_json: Json
+          descripcion_servicio: string
+          fecha_fin_atencion?: string | null
+          fecha_inicio_atencion: string
+          id?: string
+          invoice_id?: string | null
+          numero_autorizacion?: string | null
+          patient_id: string
+          rips_batch_id: string
+          tipo_archivo: Database["public"]["Enums"]["rips_file_type"]
+          tipo_diagnostico_principal?: string | null
+          valor_neto: number
+          valor_total: number
+        }
+        Update: {
+          codigo_diagnostico_principal?: string | null
+          codigo_diagnostico_relacionado?: string | null
+          codigo_servicio?: string
+          copago?: number | null
+          created_at?: string | null
+          datos_json?: Json
+          descripcion_servicio?: string
+          fecha_fin_atencion?: string | null
+          fecha_inicio_atencion?: string
+          id?: string
+          invoice_id?: string | null
+          numero_autorizacion?: string | null
+          patient_id?: string
+          rips_batch_id?: string
+          tipo_archivo?: Database["public"]["Enums"]["rips_file_type"]
+          tipo_diagnostico_principal?: string | null
+          valor_neto?: number
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rips_records_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rips_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rips_records_rips_batch_id_fkey"
+            columns: ["rips_batch_id"]
+            isOneToOne: false
+            referencedRelation: "rips_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rips_validation_logs: {
+        Row: {
+          created_at: string | null
+          detalles: string | null
+          errores: Json | null
+          id: string
+          resultado: string
+          rips_batch_id: string
+          tipo_validacion: string
+          validado_por: string | null
+          warnings: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          detalles?: string | null
+          errores?: Json | null
+          id?: string
+          resultado: string
+          rips_batch_id: string
+          tipo_validacion: string
+          validado_por?: string | null
+          warnings?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          detalles?: string | null
+          errores?: Json | null
+          id?: string
+          resultado?: string
+          rips_batch_id?: string
+          tipo_validacion?: string
+          validado_por?: string | null
+          warnings?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rips_validation_logs_rips_batch_id_fkey"
+            columns: ["rips_batch_id"]
+            isOneToOne: false
+            referencedRelation: "rips_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           activo: boolean | null
@@ -1047,6 +1242,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_rips_structure: { Args: { rips_json: Json }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "doctor" | "staff" | "patient"
@@ -1073,6 +1269,8 @@ export type Database = {
         | "prescription"
         | "lab_result"
         | "imaging"
+      rips_file_type: "AC" | "AP" | "AU" | "AH" | "AN" | "AM" | "AT"
+      rips_status: "DRAFT" | "GENERADO" | "VALIDADO" | "RECHAZADO" | "ENVIADO"
       service_type:
         | "CONSULTA"
         | "PROCEDIMIENTO"
@@ -1236,6 +1434,8 @@ export const Constants = {
         "lab_result",
         "imaging",
       ],
+      rips_file_type: ["AC", "AP", "AU", "AH", "AN", "AM", "AT"],
+      rips_status: ["DRAFT", "GENERADO", "VALIDADO", "RECHAZADO", "ENVIADO"],
       service_type: [
         "CONSULTA",
         "PROCEDIMIENTO",

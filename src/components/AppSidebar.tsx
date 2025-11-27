@@ -86,6 +86,11 @@ const billingItems = [
     url: "/billing/invoices", 
     icon: FileText 
   },
+  { 
+    title: "RIPS", 
+    url: "/billing/rips", 
+    icon: FileText 
+  },
 ];
 
 const socialItems = [
