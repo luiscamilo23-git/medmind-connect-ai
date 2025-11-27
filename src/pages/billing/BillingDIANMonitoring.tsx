@@ -25,6 +25,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { DIANRealtimeNotifications } from "@/components/billing/DIANRealtimeNotifications";
 
 const COLORS = {
   success: 'hsl(var(--success))',
@@ -146,6 +147,7 @@ export default function BillingDIANMonitoring() {
 
   return (
     <SidebarProvider>
+      <DIANRealtimeNotifications />
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
