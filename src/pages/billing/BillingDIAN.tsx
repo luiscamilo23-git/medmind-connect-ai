@@ -4,7 +4,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { LogOut, Bell, User, Settings } from "lucide-react";
+import { LogOut, Bell, User, Settings, Send } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DIANProviderConfigDialog } from "@/components/billing/DIANProviderConfigDialog";
 
@@ -54,6 +54,10 @@ export default function BillingDIAN() {
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-6">
             <h1 className="text-2xl font-bold">Configuración DIAN</h1>
             <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => navigate("/billing/monitoring")}>
+                <Send className="h-4 w-4 mr-2" />
+                Ver Monitoreo
+              </Button>
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>

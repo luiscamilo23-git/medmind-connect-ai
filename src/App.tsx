@@ -34,6 +34,7 @@ import BillingRIPS from "./pages/billing/BillingRIPS";
 import BillingPayments from "./pages/billing/BillingPayments";
 import BillingSettings from "./pages/billing/BillingSettings";
 import BillingDIAN from "./pages/billing/BillingDIAN";
+import BillingDIANMonitoring from "./pages/billing/BillingDIANMonitoring";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
           <Route path="/billing/payments" element={<BillingPayments />} />
           <Route path="/billing/settings" element={<BillingSettings />} />
           <Route path="/billing/dian" element={<BillingDIAN />} />
+          <Route path="/billing/monitoring" element={<BillingDIANMonitoring />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
