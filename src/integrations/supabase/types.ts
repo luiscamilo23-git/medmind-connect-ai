@@ -225,6 +225,56 @@ export type Database = {
         }
         Relationships: []
       }
+      dian_emission_logs: {
+        Row: {
+          created_at: string | null
+          cufe: string | null
+          doctor_id: string
+          error_message: string | null
+          id: string
+          invoice_id: string
+          numero_dian: string | null
+          provider: string
+          request_payload: Json | null
+          response_payload: Json | null
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          cufe?: string | null
+          doctor_id: string
+          error_message?: string | null
+          id?: string
+          invoice_id: string
+          numero_dian?: string | null
+          provider: string
+          request_payload?: Json | null
+          response_payload?: Json | null
+          status: string
+        }
+        Update: {
+          created_at?: string | null
+          cufe?: string | null
+          doctor_id?: string
+          error_message?: string | null
+          id?: string
+          invoice_id?: string
+          numero_dian?: string | null
+          provider?: string
+          request_payload?: Json | null
+          response_payload?: Json | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dian_emission_logs_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       doctor_questions: {
         Row: {
           created_at: string
