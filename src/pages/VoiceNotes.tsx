@@ -36,7 +36,6 @@ interface Suggestion {
 const VoiceNotes = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -332,66 +331,9 @@ const VoiceNotes = () => {
     return labels[field] || field;
   };
 
-  const generateMedicalRecord = async () => {
-    if (!transcript) {
-      toast({
-        title: "Sin transcripción",
-        description: "Primero debes grabar y transcribir una consulta",
-        variant: "destructive",
-      });
-      return;
-    }
+  // Combined AI Assistant function removed - now using runAIAssistant
 
-    setIsGenerating(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-medical-record', {
-        body: { transcript }
-      });
-
-      if (error) throw error;
-
-      const record = data.medicalRecord;
-      
-      // Fill all fields
-      setTitle(record.chief_complaint || `Consulta - ${new Date().toLocaleDateString()}`);
-      setPatientIdentification(record.patient_identification || "");
-      setChiefComplaint(record.chief_complaint || "");
-      setCurrentIllness(record.current_illness || "");
-      setRos(record.ros || "");
-      setMedicalHistory(record.medical_history || "");
-      if (record.vital_signs) {
-        setVitalSigns(record.vital_signs);
-      }
-      setPhysicalExam(record.physical_exam || "");
-      setDiagnosticAids(record.diagnostic_aids || "");
-      setDiagnosis(record.diagnosis || "");
-      setCie10Code(record.cie10_code || "");
-      setTreatment(record.treatment || "");
-      setEducation(record.education || "");
-      setFollowup(record.followup || "");
-      setMedications(Array.isArray(record.medications) ? record.medications : []);
-      setConsent(record.consent || "");
-      setEvolutionNotes(record.evolution_notes || "");
-      setNotes(record.notes || "");
-
-      toast({
-        title: "Historia clínica generada",
-        description: "La IA ha organizado la transcripción. Revisa y edita antes de guardar.",
-      });
-    } catch (error: any) {
-      console.error('Error generating medical record:', error);
-      toast({
-        title: "Error al generar",
-        description: error.message || "No se pudo generar la historia clínica",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const autocompleteClinicalInfo = async () => {
+  const runAIAssistant = async () => {
     if (!transcript) {
       toast({
         title: "Sin transcripción",
@@ -404,13 +346,14 @@ const VoiceNotes = () => {
     setIsAutocompleting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('extract-clinical-info', {
+      // Paso 1: Autocompletar campos vacíos
+      const { data: extractData, error: extractError } = await supabase.functions.invoke('extract-clinical-info', {
         body: { transcript }
       });
 
-      if (error) throw error;
+      if (extractError) throw extractError;
 
-      const extracted = data.extractedData;
+      const extracted = extractData.extractedData;
       
       // Autocompletar solo campos vacíos con información detectada por la IA
       if (extracted.patientName && !patientName) setPatientName(extracted.patientName);
@@ -433,19 +376,33 @@ const VoiceNotes = () => {
         setMedications(extracted.medications);
       }
 
+      // Paso 2: Analizar y sugerir preguntas faltantes
+      setIsAnalyzing(true);
+      const { data: suggestData, error: suggestError } = await supabase.functions.invoke('analyze-clinical-transcript', {
+        body: { 
+          transcript,
+          specialty: doctorProfile?.specialty || 'general'
+        }
+      });
+
+      if (!suggestError && suggestData?.suggestions) {
+        setSuggestions(suggestData.suggestions);
+      }
+
       toast({
-        title: "✨ Campos autocompletados con IA",
-        description: "La IA detectó información y rellenó los campos vacíos. Puedes editarlos.",
+        title: "✨ Asistente IA completado",
+        description: "Campos autocompletados y sugerencias de preguntas generadas.",
       });
     } catch (error: any) {
-      console.error('Error autocompleting:', error);
+      console.error('Error en asistente IA:', error);
       toast({
-        title: "Error al autocompletar",
-        description: error.message || "No se pudo autocompletar",
+        title: "Error en asistente IA",
+        description: error.message || "No se pudo completar el análisis",
         variant: "destructive",
       });
     } finally {
       setIsAutocompleting(false);
+      setIsAnalyzing(false);
     }
   };
 
@@ -814,43 +771,23 @@ const VoiceNotes = () => {
                     Paso 2: Organiza con IA o llena manualmente los campos
                   </CardDescription>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={autocompleteClinicalInfo}
-                    disabled={isAutocompleting}
-                    variant="secondary"
-                    className="gap-2"
-                  >
-                    {isAutocompleting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Autocompletando...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4" />
-                        Autocompletar con IA
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={generateMedicalRecord}
-                    disabled={isGenerating}
-                    className="gap-2"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Organizando con IA...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4" />
-                        Organizar con IA
-                      </>
-                    )}
-                  </Button>
-                </div>
+                <Button
+                  onClick={runAIAssistant}
+                  disabled={isAutocompleting || isAnalyzing}
+                  className="gap-2"
+                >
+                  {isAutocompleting || isAnalyzing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Procesando con IA...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 w-4" />
+                      Asistente IA
+                    </>
+                  )}
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
