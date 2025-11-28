@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import {
@@ -9,6 +9,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Label } from "./ui/label";
 import {
   FileText,
   Microscope,
@@ -40,6 +48,13 @@ const documentTypes = [
   { id: "disability", label: "Incapacidad", icon: ClipboardX, color: "text-red-600" },
 ];
 
+interface Template {
+  id: string;
+  template_name: string;
+  document_type: string;
+  custom_fields: any;
+}
+
 export const MedicalDocumentGenerator = ({
   medicalRecordId,
   patientName,
@@ -50,7 +65,26 @@ export const MedicalDocumentGenerator = ({
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [generatedData, setGeneratedData] = useState<any>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadTemplates();
+    }
+  }, [isOpen]);
+
+  const loadTemplates = async () => {
+    const { data, error } = await supabase
+      .from("document_templates")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      setTemplates(data as Template[]);
+    }
+  };
 
   const generateDocument = async (documentType: string) => {
     setLoading(true);
@@ -58,7 +92,11 @@ export const MedicalDocumentGenerator = ({
     
     try {
       const { data, error } = await supabase.functions.invoke('generate-medical-document', {
-        body: { medicalRecordId, documentType }
+        body: { 
+          medicalRecordId, 
+          documentType,
+          templateId: selectedTemplate || null
+        }
       });
 
       if (error) throw error;
@@ -204,23 +242,45 @@ export const MedicalDocumentGenerator = ({
         </DialogHeader>
         
         {!generatedData ? (
-          <div className="grid grid-cols-2 gap-3 py-4">
-            {documentTypes.map((docType) => (
-              <Card
-                key={docType.id}
-                className="cursor-pointer hover:border-primary transition-colors"
-                onClick={() => !loading && generateDocument(docType.id)}
-              >
-                <CardContent className="flex flex-col items-center justify-center p-4 text-center">
-                  {loading && selectedType === docType.id ? (
-                    <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-                  ) : (
-                    <docType.icon className={`h-8 w-8 mb-2 ${docType.color}`} />
-                  )}
-                  <span className="text-sm font-medium">{docType.label}</span>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="space-y-4 py-4">
+            {/* Template Selection */}
+            {templates.length > 0 && (
+              <div>
+                <Label>Plantilla Personalizada (Opcional)</Label>
+                <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Usar plantilla estándar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Plantilla estándar</SelectItem>
+                    {templates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.template_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              {documentTypes.map((docType) => (
+                <Card
+                  key={docType.id}
+                  className="cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => !loading && generateDocument(docType.id)}
+                >
+                  <CardContent className="flex flex-col items-center justify-center p-4 text-center">
+                    {loading && selectedType === docType.id ? (
+                      <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+                    ) : (
+                      <docType.icon className={`h-8 w-8 mb-2 ${docType.color}`} />
+                    )}
+                    <span className="text-sm font-medium">{docType.label}</span>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="py-4">
@@ -245,6 +305,7 @@ export const MedicalDocumentGenerator = ({
                     onClick={() => {
                       setGeneratedData(null);
                       setSelectedType(null);
+                      setSelectedTemplate("");
                     }}
                   >
                     Generar Otro

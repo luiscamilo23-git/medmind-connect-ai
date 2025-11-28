@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { SignaturePad } from "@/components/SignaturePad";
 import { MedicalDocumentGenerator } from "@/components/MedicalDocumentGenerator";
+import { DocumentTemplatesDialog } from "@/components/DocumentTemplatesDialog";
 
 interface Suggestion {
   question: string;
@@ -633,15 +634,18 @@ const VoiceNotes = () => {
             </div>
           </div>
           
-          {savedRecordId && patientName && (
-            <MedicalDocumentGenerator
-              medicalRecordId={savedRecordId}
-              patientName={patientName}
-              doctorName={doctorProfile?.full_name || 'Doctor'}
-              doctorLicense={doctorProfile?.license_number || undefined}
-              doctorSignature={doctorSignature || undefined}
-            />
-          )}
+          <div className="flex gap-2">
+            <DocumentTemplatesDialog />
+            {savedRecordId && patientName && (
+              <MedicalDocumentGenerator
+                medicalRecordId={savedRecordId}
+                patientName={patientName}
+                doctorName={doctorProfile?.full_name || 'Doctor'}
+                doctorLicense={doctorProfile?.license_number || undefined}
+                doctorSignature={doctorSignature || undefined}
+              />
+            )}
+          </div>
         </div>
       </header>
 
