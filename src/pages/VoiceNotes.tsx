@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Activity, 
@@ -87,6 +88,7 @@ const VoiceNotes = () => {
   const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
   const [savedMedicalRecord, setSavedMedicalRecord] = useState<any>(null);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
+  const [showExportDialog, setShowExportDialog] = useState(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -508,15 +510,13 @@ const VoiceNotes = () => {
       if (savedRecord) {
         setSavedRecordId(savedRecord.id);
         setSavedMedicalRecord(savedRecord);
+        setShowExportDialog(true); // Show export dialog after save
       }
 
       toast({
         title: "✅ Historia clínica guardada",
-        description: "Historia clínica completa guardada exitosamente. Ahora puedes generar documentos.",
+        description: "Historia clínica completa guardada exitosamente.",
       });
-
-      // Reset form
-      resetForm();
     } catch (error: any) {
       console.error('Error saving medical record:', error);
       toast({
@@ -530,6 +530,9 @@ const VoiceNotes = () => {
   };
 
   const resetForm = () => {
+    setShowExportDialog(false);
+    setSavedRecordId(null);
+    setSavedMedicalRecord(null);
     setTranscript("");
     setTitle("");
     setPatientIdentification("");
@@ -559,8 +562,6 @@ const VoiceNotes = () => {
     setEvolutionNotes("");
     setNotes("");
     setPatientName("");
-    setSavedRecordId(null);
-    setSavedMedicalRecord(null);
     audioChunksRef.current = [];
   };
 
@@ -981,6 +982,51 @@ const VoiceNotes = () => {
           </CardContent>
         </Card>
       </main>
+
+      {/* Export Dialog after saving */}
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>✅ Historia Clínica Guardada</DialogTitle>
+            <DialogDescription>
+              Tu historia clínica ha sido guardada exitosamente. ¿Qué deseas hacer ahora?
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 py-4">
+            {savedMedicalRecord && doctorProfile && (
+              <ExportMedicalRecordPDF
+                medicalRecord={savedMedicalRecord}
+                patientName={patientName}
+                doctorName={doctorProfile.full_name}
+                doctorLicense={doctorProfile.license_number}
+                doctorSignature={doctorSignature || undefined}
+              />
+            )}
+            
+            {savedRecordId && savedMedicalRecord && doctorProfile && (
+              <MedicalDocumentGenerator
+                medicalRecordId={savedRecordId}
+                patientName={patientName}
+                doctorName={doctorProfile.full_name}
+                doctorLicense={doctorProfile.license_number}
+                doctorSignature={doctorSignature || undefined}
+              />
+            )}
+            
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                setShowExportDialog(false);
+                resetForm();
+              }}
+            >
+              Crear Nueva Historia
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
