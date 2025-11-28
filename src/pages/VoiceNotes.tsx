@@ -24,6 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { SignaturePad } from "@/components/SignaturePad";
 import { MedicalDocumentGenerator } from "@/components/MedicalDocumentGenerator";
 import { DocumentTemplatesDialog } from "@/components/DocumentTemplatesDialog";
+import { ExportMedicalRecordPDF } from "@/components/ExportMedicalRecordPDF";
 
 interface Suggestion {
   question: string;
@@ -84,6 +85,7 @@ const VoiceNotes = () => {
   
   // For document generation
   const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
+  const [savedMedicalRecord, setSavedMedicalRecord] = useState<any>(null);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
 
   const navigate = useNavigate();
@@ -497,14 +499,15 @@ const VoiceNotes = () => {
           notes: notes,
           voice_transcript: transcript,
         }])
-        .select('id')
+        .select('*')
         .single();
 
       if (error) throw error;
       
-      // Save record ID for document generation
+      // Save record ID and full record for document generation
       if (savedRecord) {
         setSavedRecordId(savedRecord.id);
+        setSavedMedicalRecord(savedRecord);
       }
 
       toast({
@@ -557,6 +560,7 @@ const VoiceNotes = () => {
     setNotes("");
     setPatientName("");
     setSavedRecordId(null);
+    setSavedMedicalRecord(null);
     audioChunksRef.current = [];
   };
 
@@ -636,14 +640,23 @@ const VoiceNotes = () => {
           
           <div className="flex gap-2">
             <DocumentTemplatesDialog />
-            {savedRecordId && patientName && (
-              <MedicalDocumentGenerator
-                medicalRecordId={savedRecordId}
-                patientName={patientName}
-                doctorName={doctorProfile?.full_name || 'Doctor'}
-                doctorLicense={doctorProfile?.license_number || undefined}
-                doctorSignature={doctorSignature || undefined}
-              />
+            {savedRecordId && savedMedicalRecord && patientName && (
+              <>
+                <ExportMedicalRecordPDF
+                  medicalRecord={savedMedicalRecord}
+                  patientName={patientName}
+                  doctorName={doctorProfile?.full_name || 'Doctor'}
+                  doctorLicense={doctorProfile?.license_number || undefined}
+                  doctorSignature={doctorSignature || undefined}
+                />
+                <MedicalDocumentGenerator
+                  medicalRecordId={savedRecordId}
+                  patientName={patientName}
+                  doctorName={doctorProfile?.full_name || 'Doctor'}
+                  doctorLicense={doctorProfile?.license_number || undefined}
+                  doctorSignature={doctorSignature || undefined}
+                />
+              </>
             )}
           </div>
         </div>

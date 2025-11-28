@@ -148,17 +148,23 @@ export const DocumentTemplatesDialog = () => {
 
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Plantillas de Documentos</DialogTitle>
+          <DialogTitle>Plantillas Personalizadas</DialogTitle>
           <DialogDescription>
-            Crea plantillas personalizadas con campos adicionales para tus documentos
+            Las plantillas te permiten agregar campos extras a documentos médicos (fórmulas, órdenes, etc.).
+            Por ejemplo: agregar "Dosis pediátrica" a fórmulas o "Preparación especial" a órdenes de laboratorio.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {/* Create New Template */}
-          <Card>
+          <Card className="border-primary/20">
             <CardContent className="pt-6 space-y-4">
-              <h3 className="font-semibold">Nueva Plantilla</h3>
+              <div>
+                <h3 className="font-semibold text-lg">Crear Nueva Plantilla</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Personaliza tus documentos médicos agregando campos adicionales
+                </p>
+              </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -198,7 +204,10 @@ export const DocumentTemplatesDialog = () => {
 
               {/* Custom Fields */}
               <div>
-                <Label>Campos Personalizados</Label>
+                <Label>Campos Adicionales (Opcional)</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Agrega campos extras que quieras incluir en este tipo de documento
+                </p>
                 <div className="flex gap-2 mt-2">
                   <Input
                     placeholder="Nombre del campo"
@@ -253,7 +262,10 @@ export const DocumentTemplatesDialog = () => {
           {/* Existing Templates */}
           {templates.length > 0 && (
             <div>
-              <h3 className="font-semibold mb-3">Plantillas Guardadas</h3>
+              <h3 className="font-semibold mb-3">Mis Plantillas</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Selecciona estas plantillas al generar documentos para usar tus campos personalizados
+              </p>
               <div className="space-y-2">
                 {templates.map((template) => (
                   <Card key={template.id}>
