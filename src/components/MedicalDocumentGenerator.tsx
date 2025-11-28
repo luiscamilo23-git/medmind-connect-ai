@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import {
@@ -17,6 +17,8 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 import {
   FileText,
   Microscope,
@@ -26,6 +28,9 @@ import {
   ClipboardX,
   Download,
   Loader2,
+  Mic,
+  MicOff,
+  ArrowLeft,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -68,12 +73,69 @@ export const MedicalDocumentGenerator = ({
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [templates, setTemplates] = useState<Template[]>([]);
   const [generatedData, setGeneratedData] = useState<any>(null);
+  const [editableData, setEditableData] = useState<any>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingField, setRecordingField] = useState<string | null>(null);
+  
+  const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       loadTemplates();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'es-ES';
+
+      recognition.onresult = (event: any) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          }
+        }
+        
+        if (finalTranscript && recordingField) {
+          appendToField(recordingField, finalTranscript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        if (event.error !== 'no-speech' && event.error !== 'aborted') {
+          toast.error(`Error en reconocimiento de voz: ${event.error}`);
+          setIsRecording(false);
+          setRecordingField(null);
+        }
+      };
+
+      recognition.onend = () => {
+        if (isRecording && recordingField) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.error('Error restarting recognition:', e);
+          }
+        }
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [isRecording, recordingField]);
 
   const loadTemplates = async () => {
     const { data, error } = await supabase
@@ -109,7 +171,8 @@ export const MedicalDocumentGenerator = ({
       }
 
       setGeneratedData(data.document);
-      toast.success("Documento generado exitosamente");
+      setEditableData(JSON.parse(JSON.stringify(data.document.document_data)));
+      toast.success("Documento generado exitosamente. Revísalo y edítalo antes de descargar.");
     } catch (error: any) {
       console.error('Error generating document:', error);
       toast.error(error.message || "Error al generar documento");
@@ -119,11 +182,100 @@ export const MedicalDocumentGenerator = ({
     }
   };
 
+  const appendToField = (field: string, text: string) => {
+    setEditableData((prev: any) => {
+      const newData = { ...prev };
+      const fieldPath = field.split('.');
+      
+      if (fieldPath.length === 1) {
+        newData[field] = (newData[field] || '') + text;
+      } else if (fieldPath.length === 3) {
+        const [array, index, prop] = fieldPath;
+        if (!newData[array]) newData[array] = [];
+        if (!newData[array][parseInt(index)]) newData[array][parseInt(index)] = {};
+        newData[array][parseInt(index)][prop] = (newData[array][parseInt(index)][prop] || '') + text;
+      }
+      
+      return newData;
+    });
+  };
+
+  const startFieldRecording = (field: string) => {
+    if (isRecording && recordingField === field) {
+      stopRecording();
+      return;
+    }
+    
+    if (isRecording) {
+      stopRecording();
+    }
+    
+    setRecordingField(field);
+    startRecording();
+  };
+
+  const startRecording = async () => {
+    if (!recognitionRef.current) {
+      toast.error("Reconocimiento de voz no disponible");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      
+      recognitionRef.current.start();
+      setIsRecording(true);
+      toast.success("🎤 Grabación iniciada");
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      toast.error("No se pudo iniciar la grabación");
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = () => {
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
+    }
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+      if (mediaRecorderRef.current.stream) {
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      }
+    }
+
+    setIsRecording(false);
+    setRecordingField(null);
+    toast.success("✓ Grabación detenida");
+  };
+
+  const updateField = (field: string, value: string) => {
+    setEditableData((prev: any) => {
+      const newData = { ...prev };
+      const fieldPath = field.split('.');
+      
+      if (fieldPath.length === 1) {
+        newData[field] = value;
+      } else if (fieldPath.length === 3) {
+        const [array, index, prop] = fieldPath;
+        if (!newData[array]) newData[array] = [];
+        if (!newData[array][parseInt(index)]) newData[array][parseInt(index)] = {};
+        newData[array][parseInt(index)][prop] = value;
+      }
+      
+      return newData;
+    });
+  };
+
   const downloadPDF = () => {
-    if (!generatedData) return;
+    if (!editableData) return;
 
     const doc = new jsPDF();
-    const docData = generatedData.document_data;
+    const docData = editableData;
     
     // Header with doctor info
     doc.setFontSize(16);
@@ -435,6 +587,151 @@ export const MedicalDocumentGenerator = ({
     setIsOpen(false);
     setSelectedType(null);
     setGeneratedData(null);
+    setEditableData(null);
+  };
+
+  const renderFieldWithMic = (label: string, field: string, value: string, multiline = false) => {
+    const isRecordingThis = isRecording && recordingField === field;
+    
+    return (
+      <div className="space-y-2">
+        <Label className="text-sm font-semibold flex items-center gap-2">
+          {label}
+          <Button
+            type="button"
+            size="sm"
+            variant={isRecordingThis ? "destructive" : "outline"}
+            onClick={() => startFieldRecording(field)}
+            className="h-7 w-7 p-0"
+          >
+            {isRecordingThis ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
+          </Button>
+        </Label>
+        {multiline ? (
+          <Textarea
+            value={value || ''}
+            onChange={(e) => updateField(field, e.target.value)}
+            className="min-h-[80px]"
+          />
+        ) : (
+          <Input
+            value={value || ''}
+            onChange={(e) => updateField(field, e.target.value)}
+          />
+        )}
+      </div>
+    );
+  };
+
+  const renderEditForm = () => {
+    if (!editableData || !selectedType) return null;
+
+    return (
+      <div className="space-y-6 py-4">
+        <div className="bg-accent/20 p-4 rounded-lg border border-accent/30">
+          <p className="text-sm font-semibold mb-2">📝 Edita el Documento</p>
+          <p className="text-xs text-muted-foreground">
+            Usa el teclado o haz clic en el ícono del micrófono para editar por voz cada campo.
+          </p>
+        </div>
+
+        {selectedType === 'prescription' && (
+          <div className="space-y-6">
+            {editableData.medications?.map((med: any, i: number) => (
+              <Card key={i} className="p-4 space-y-4">
+                <h3 className="font-bold text-lg">Medicamento {i + 1}</h3>
+                {renderFieldWithMic('Nombre', `medications.${i}.name`, med.name)}
+                {renderFieldWithMic('Presentación', `medications.${i}.presentation`, med.presentation)}
+                {renderFieldWithMic('Dosis', `medications.${i}.dose`, med.dose)}
+                {renderFieldWithMic('Frecuencia', `medications.${i}.frequency`, med.frequency)}
+                {renderFieldWithMic('Duración', `medications.${i}.duration`, med.duration)}
+                {renderFieldWithMic('Vía', `medications.${i}.route`, med.route)}
+                {renderFieldWithMic('Instrucciones', `medications.${i}.instructions`, med.instructions, true)}
+              </Card>
+            ))}
+            {renderFieldWithMic('Indicaciones Generales', 'generalInstructions', editableData.generalInstructions, true)}
+          </div>
+        )}
+
+        {selectedType === 'lab_order' && (
+          <div className="space-y-6">
+            {editableData.tests?.map((test: any, i: number) => (
+              <Card key={i} className="p-4 space-y-4">
+                <h3 className="font-bold text-lg">Examen {i + 1}</h3>
+                {renderFieldWithMic('Nombre del Examen', `tests.${i}.name`, test.name)}
+                {renderFieldWithMic('Código', `tests.${i}.code`, test.code)}
+                {renderFieldWithMic('Urgencia', `tests.${i}.urgency`, test.urgency)}
+                {renderFieldWithMic('Preparación', `tests.${i}.specialInstructions`, test.specialInstructions, true)}
+              </Card>
+            ))}
+            {renderFieldWithMic('Indicación Clínica', 'clinicalIndication', editableData.clinicalIndication, true)}
+          </div>
+        )}
+
+        {selectedType === 'image_order' && (
+          <div className="space-y-6">
+            {editableData.studies?.map((study: any, i: number) => (
+              <Card key={i} className="p-4 space-y-4">
+                <h3 className="font-bold text-lg">Estudio {i + 1}</h3>
+                {renderFieldWithMic('Nombre del Estudio', `studies.${i}.name`, study.name)}
+                {renderFieldWithMic('Modalidad', `studies.${i}.modality`, study.modality)}
+                {renderFieldWithMic('Región Anatómica', `studies.${i}.bodyPart`, study.bodyPart)}
+                {renderFieldWithMic('Urgencia', `studies.${i}.urgency`, study.urgency)}
+                {renderFieldWithMic('Preparación', `studies.${i}.specialInstructions`, study.specialInstructions, true)}
+              </Card>
+            ))}
+            {renderFieldWithMic('Indicación Clínica', 'clinicalIndication', editableData.clinicalIndication, true)}
+          </div>
+        )}
+
+        {selectedType === 'certificate' && (
+          <div className="space-y-4">
+            {renderFieldWithMic('Propósito', 'purpose', editableData.purpose, true)}
+            {renderFieldWithMic('Hallazgos', 'findings', editableData.findings, true)}
+            {renderFieldWithMic('Conclusión', 'conclusion', editableData.conclusion, true)}
+          </div>
+        )}
+
+        {selectedType === 'referral' && (
+          <div className="space-y-4">
+            {renderFieldWithMic('Especialidad', 'specialty', editableData.specialty)}
+            {renderFieldWithMic('Urgencia', 'urgency', editableData.urgency)}
+            {renderFieldWithMic('Motivo de Remisión', 'reason', editableData.reason, true)}
+            {renderFieldWithMic('Resumen Clínico', 'clinicalSummary', editableData.clinicalSummary, true)}
+          </div>
+        )}
+
+        {selectedType === 'disability' && (
+          <div className="space-y-4">
+            {renderFieldWithMic('Diagnóstico', 'diagnosis', editableData.diagnosis, true)}
+            {renderFieldWithMic('Código CIE-10', 'cie10Code', editableData.cie10Code)}
+            {renderFieldWithMic('Días de Incapacidad', 'days', editableData.days)}
+            {renderFieldWithMic('Fecha Inicio', 'startDate', editableData.startDate)}
+            {renderFieldWithMic('Fecha Fin', 'endDate', editableData.endDate)}
+            {renderFieldWithMic('Justificación', 'justification', editableData.justification, true)}
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-4">
+          <Button
+            onClick={() => {
+              setGeneratedData(null);
+              setEditableData(null);
+              setSelectedType(null);
+            }}
+            variant="outline"
+            className="flex-1"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver
+          </Button>
+          <Button onClick={downloadPDF} className="flex-1">
+            <Download className="mr-2 h-4 w-4" />
+            Descargar PDF
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -453,7 +750,7 @@ export const MedicalDocumentGenerator = ({
             <p>Selecciona el tipo de documento médico que necesitas.</p>
             <p className="text-xs bg-muted p-2 rounded">
               💡 La IA generará el documento basándose en la historia clínica guardada. 
-              Puedes personalizar el resultado usando tus plantillas personalizadas.
+              Podrás editarlo con voz o texto antes de descargarlo.
             </p>
           </DialogDescription>
         </DialogHeader>
@@ -498,44 +795,14 @@ export const MedicalDocumentGenerator = ({
                     ) : (
                       <docType.icon className={`h-8 w-8 mb-2 ${docType.color}`} />
                     )}
-                    <span className="text-sm font-medium">{docType.label}</span>
+                    <p className="text-sm font-medium">{docType.label}</p>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
         ) : (
-          <div className="py-4">
-            <Card>
-              <CardContent className="p-6">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold mb-2">
-                    {documentTypes.find(d => d.id === selectedType)?.label}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Documento generado correctamente
-                  </p>
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button onClick={downloadPDF} className="flex-1">
-                    <Download className="mr-2 h-4 w-4" />
-                    Descargar PDF
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setGeneratedData(null);
-                      setSelectedType(null);
-                      setSelectedTemplate("");
-                    }}
-                  >
-                    Generar Otro
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          renderEditForm()
         )}
       </DialogContent>
     </Dialog>
