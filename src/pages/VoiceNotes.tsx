@@ -55,6 +55,7 @@ const VoiceNotes = () => {
   const [patientName, setPatientName] = useState("");
   const [recordType, setRecordType] = useState("consultation");
   const [title, setTitle] = useState("");
+  const [isAutocompleting, setIsAutocompleting] = useState(false);
   
   // Required fields
   const [patientIdentification, setPatientIdentification] = useState("");
@@ -387,6 +388,64 @@ const VoiceNotes = () => {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const autocompleteClinicalInfo = async () => {
+    if (!transcript) {
+      toast({
+        title: "Sin transcripción",
+        description: "Primero debes grabar y transcribir una consulta",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAutocompleting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('extract-clinical-info', {
+        body: { transcript }
+      });
+
+      if (error) throw error;
+
+      const extracted = data.extractedData;
+      
+      // Autocompletar solo campos vacíos con información detectada por la IA
+      if (extracted.patientName && !patientName) setPatientName(extracted.patientName);
+      if (extracted.patientIdentification && !patientIdentification) setPatientIdentification(extracted.patientIdentification);
+      if (extracted.chiefComplaint && !chiefComplaint) {
+        setChiefComplaint(extracted.chiefComplaint);
+        if (!title) setTitle(extracted.chiefComplaint);
+      }
+      if (extracted.currentIllness && !currentIllness) setCurrentIllness(extracted.currentIllness);
+      if (extracted.ros && !ros) setRos(extracted.ros);
+      if (extracted.medicalHistory && !medicalHistory) setMedicalHistory(extracted.medicalHistory);
+      if (extracted.physicalExam && !physicalExam) setPhysicalExam(extracted.physicalExam);
+      if (extracted.diagnosticAids && !diagnosticAids) setDiagnosticAids(extracted.diagnosticAids);
+      if (extracted.diagnosis && !diagnosis) setDiagnosis(extracted.diagnosis);
+      if (extracted.cie10Code && !cie10Code) setCie10Code(extracted.cie10Code);
+      if (extracted.treatment && !treatment) setTreatment(extracted.treatment);
+      if (extracted.education && !education) setEducation(extracted.education);
+      if (extracted.followup && !followup) setFollowup(extracted.followup);
+      if (extracted.medications && Array.isArray(extracted.medications) && medications.length === 0) {
+        setMedications(extracted.medications);
+      }
+
+      toast({
+        title: "✨ Campos autocompletados con IA",
+        description: "La IA detectó información y rellenó los campos vacíos. Puedes editarlos.",
+      });
+    } catch (error: any) {
+      console.error('Error autocompleting:', error);
+      toast({
+        title: "Error al autocompletar",
+        description: error.message || "No se pudo autocompletar",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAutocompleting(false);
     }
   };
 
@@ -755,23 +814,43 @@ const VoiceNotes = () => {
                     Paso 2: Organiza con IA o llena manualmente los campos
                   </CardDescription>
                 </div>
-                <Button
-                  onClick={generateMedicalRecord}
-                  disabled={isGenerating}
-                  className="gap-2"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Organizando con IA...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      Organizar con IA
-                    </>
-                  )}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={autocompleteClinicalInfo}
+                    disabled={isAutocompleting}
+                    variant="secondary"
+                    className="gap-2"
+                  >
+                    {isAutocompleting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Autocompletando...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        Autocompletar con IA
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={generateMedicalRecord}
+                    disabled={isGenerating}
+                    className="gap-2"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Organizando con IA...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        Organizar con IA
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>

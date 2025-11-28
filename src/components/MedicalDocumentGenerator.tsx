@@ -203,15 +203,30 @@ export const MedicalDocumentGenerator = ({
       });
     }
     
-    // Firma
-    if (doctorSignature) {
-      doc.addImage(doctorSignature, 'PNG', 20, 250, 50, 20);
+    // Firma Médica
+    if (y > 230) {
+      doc.addPage();
+      y = 20;
     }
-    doc.line(20, 272, 70, 272);
+
+    y += 10;
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Firma Médica", 20, y);
+    y += 8;
+
+    if (doctorSignature) {
+      doc.addImage(doctorSignature, 'PNG', 20, y, 50, 20);
+      y += 22;
+    }
+    doc.line(20, y, 70, y);
+    y += 5;
     doc.setFontSize(9);
-    doc.text(doctorName, 20, 277);
+    doc.setFont("helvetica", "normal");
+    doc.text(doctorName, 20, y);
     if (doctorLicense) {
-      doc.text(`Reg. ${doctorLicense}`, 20, 282);
+      y += 4;
+      doc.text(`Reg. ${doctorLicense}`, 20, y);
     }
     
     // Descargar
