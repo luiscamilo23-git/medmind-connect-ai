@@ -148,10 +148,22 @@ export const DocumentTemplatesDialog = () => {
 
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Plantillas Personalizadas</DialogTitle>
-          <DialogDescription>
-            Las plantillas te permiten agregar campos extras a documentos médicos (fórmulas, órdenes, etc.).
-            Por ejemplo: agregar "Dosis pediátrica" a fórmulas o "Preparación especial" a órdenes de laboratorio.
+          <DialogTitle>Plantillas de Documentos Personalizadas</DialogTitle>
+          <DialogDescription className="space-y-2 pt-2">
+            <p className="text-base">
+              Las plantillas te permiten personalizar los documentos que genera la IA (incapacidades, órdenes de examen, etc.).
+            </p>
+            <div className="bg-muted p-3 rounded-lg space-y-1">
+              <p className="font-medium text-foreground">💡 ¿Cómo funcionan?</p>
+              <ol className="text-sm space-y-1 ml-4 list-decimal">
+                <li>Creas una plantilla agregando campos personalizados (ej: "Días de incapacidad")</li>
+                <li>Al generar un documento, seleccionas tu plantilla</li>
+                <li>La IA incluye automáticamente esos campos en el documento generado</li>
+              </ol>
+            </div>
+            <p className="text-sm">
+              <strong>Ejemplo:</strong> Para incapacidades, puedes agregar campos como "Duración", "Tipo de reposo", "Restricciones laborales".
+            </p>
           </DialogDescription>
         </DialogHeader>
 
@@ -160,9 +172,9 @@ export const DocumentTemplatesDialog = () => {
           <Card className="border-primary/20">
             <CardContent className="pt-6 space-y-4">
               <div>
-                <h3 className="font-semibold text-lg">Crear Nueva Plantilla</h3>
+                <h3 className="font-semibold text-lg">Crear Plantilla Personalizada</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Personaliza tus documentos médicos agregando campos adicionales
+                  Agrega campos específicos que necesitas en tus documentos
                 </p>
               </div>
               

@@ -233,11 +233,15 @@ export const MedicalDocumentGenerator = ({
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Generar Documento Médico</DialogTitle>
-          <DialogDescription>
-            Selecciona el tipo de documento que necesitas generar
+          <DialogTitle>Generar Documento Médico con IA</DialogTitle>
+          <DialogDescription className="space-y-2 pt-2">
+            <p>Selecciona el tipo de documento médico que necesitas.</p>
+            <p className="text-xs bg-muted p-2 rounded">
+              💡 La IA generará el documento basándose en la historia clínica guardada. 
+              Puedes personalizar el resultado usando tus plantillas personalizadas.
+            </p>
           </DialogDescription>
         </DialogHeader>
         
@@ -245,11 +249,16 @@ export const MedicalDocumentGenerator = ({
           <div className="space-y-4 py-4">
             {/* Template Selection */}
             {templates.length > 0 && (
-              <div>
-                <Label>Plantilla Personalizada (Opcional)</Label>
+              <div className="bg-accent/20 p-4 rounded-lg border border-accent/30">
+                <Label className="text-sm font-semibold mb-2 block">
+                  🎨 Usar Plantilla Personalizada (Opcional)
+                </Label>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Si creaste plantillas con campos personalizados, selecciónalas aquí para incluirlos en el documento.
+                </p>
                 <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Usar plantilla estándar" />
+                    <SelectValue placeholder="Plantilla estándar (sin personalizar)" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Plantilla estándar</SelectItem>
