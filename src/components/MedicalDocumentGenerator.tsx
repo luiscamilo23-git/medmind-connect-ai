@@ -99,13 +99,20 @@ export const MedicalDocumentGenerator = ({
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Error al generar documento');
+      }
+
+      if (!data?.document) {
+        throw new Error('No se recibió el documento generado');
+      }
 
       setGeneratedData(data.document);
       toast.success("Documento generado exitosamente");
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error("Error al generar documento");
+    } catch (error: any) {
+      console.error('Error generating document:', error);
+      toast.error(error.message || "Error al generar documento");
       setSelectedType(null);
     } finally {
       setLoading(false);
