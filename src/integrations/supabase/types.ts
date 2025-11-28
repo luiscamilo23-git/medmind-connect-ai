@@ -382,6 +382,42 @@ export type Database = {
         }
         Relationships: []
       }
+      document_templates: {
+        Row: {
+          created_at: string | null
+          custom_fields: Json | null
+          doctor_id: string
+          document_type: string
+          id: string
+          is_default: boolean | null
+          specialty: string | null
+          template_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          custom_fields?: Json | null
+          doctor_id: string
+          document_type: string
+          id?: string
+          is_default?: boolean | null
+          specialty?: string | null
+          template_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          custom_fields?: Json | null
+          doctor_id?: string
+          document_type?: string
+          id?: string
+          is_default?: boolean | null
+          specialty?: string | null
+          template_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       inventory: {
         Row: {
           category: Database["public"]["Enums"]["inventory_category"]

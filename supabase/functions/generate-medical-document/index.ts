@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { medicalRecordId, documentType } = await req.json();
+    const { medicalRecordId, documentType, templateId } = await req.json();
 
     // Obtener registro médico
     const { data: record, error: recordError } = await supabaseClient
@@ -45,6 +45,18 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Get custom template if provided
+    let customTemplate = null;
+    if (templateId) {
+      const { data: template } = await supabaseClient
+        .from('document_templates')
+        .select('*')
+        .eq('id', templateId)
+        .single();
+      
+      customTemplate = template;
+    }
+
     // Generar documento con IA
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -54,7 +66,7 @@ Deno.serve(async (req) => {
       });
     }
     
-    const documentData = await generateDocumentWithAI(record, documentType, LOVABLE_API_KEY);
+    const documentData = await generateDocumentWithAI(record, documentType, LOVABLE_API_KEY, customTemplate);
 
     // Guardar en BD
     const { data: savedDoc, error: saveError } = await supabaseClient
@@ -90,7 +102,7 @@ Deno.serve(async (req) => {
   }
 });
 
-async function generateDocumentWithAI(record: any, documentType: string, apiKey: string) {
+async function generateDocumentWithAI(record: any, documentType: string, apiKey: string, customTemplate: any = null) {
   const prompts: Record<string, string> = {
     prescription: `Analiza la siguiente historia clínica y extrae SOLO los medicamentos prescritos en formato JSON estructurado.
 
@@ -196,7 +208,16 @@ Responde SOLO con un JSON válido:
 }`
   };
 
-  const prompt = prompts[documentType] || prompts.certificate;
+  let prompt = prompts[documentType] || prompts.certificate;
+  
+  // Add custom template fields to prompt if provided
+  if (customTemplate && customTemplate.custom_fields && customTemplate.custom_fields.length > 0) {
+    const customFieldsDesc = customTemplate.custom_fields
+      .map((f: any) => `- ${f.label} (${f.type})${f.required ? ' [REQUERIDO]' : ''}`)
+      .join('\n');
+    
+    prompt += `\n\nCAMPOS PERSONALIZADOS ADICIONALES:\n${customFieldsDesc}\n\nIncluye estos campos adicionales en el JSON bajo una clave "customFields" con valores apropiados basados en la historia clínica.`;
+  }
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
