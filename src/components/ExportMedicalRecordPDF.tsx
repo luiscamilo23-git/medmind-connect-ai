@@ -22,7 +22,20 @@ export const ExportMedicalRecordPDF = ({
   const exportToPDF = () => {
     const doc = new jsPDF();
     let y = 20;
-    
+
+    const recordTypeLabelMap: Record<string, string> = {
+      consultation: "Consulta",
+      procedure: "Procedimiento",
+      diagnosis: "Diagnóstico",
+      prescription: "Prescripción",
+      lab_result: "Resultado de Laboratorio",
+      imaging: "Estudio de Imágenes",
+    };
+
+    const recordTypeLabel =
+      medicalRecord.record_type && recordTypeLabelMap[medicalRecord.record_type]
+        ? recordTypeLabelMap[medicalRecord.record_type]
+        : medicalRecord.record_type;
     // Header - Datos del médico
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
@@ -44,14 +57,23 @@ export const ExportMedicalRecordPDF = ({
     doc.text("HISTORIA CLÍNICA", 105, y, { align: 'center' });
     y += 10;
     
-    // Datos del paciente
+    // 1. Identificación del Paciente
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
-    doc.text(`Paciente: ${patientName}`, 20, y);
+    doc.text("1. Identificación del Paciente", 20, y);
     y += 6;
+
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
+    doc.text(`Paciente: ${patientName}`, 20, y);
+    y += 5;
     doc.text(`Fecha: ${new Date(medicalRecord.created_at).toLocaleDateString('es-CO')}`, 20, y);
-    y += 6;
+    y += 5;
+
+    if (recordTypeLabel) {
+      doc.text(`Tipo de Registro: ${recordTypeLabel}`, 20, y);
+      y += 5;
+    }
     
     if (medicalRecord.patient_identification) {
       doc.text(`Identificación: ${medicalRecord.patient_identification}`, 20, y);
@@ -84,10 +106,10 @@ export const ExportMedicalRecordPDF = ({
     };
     
     // Agregar todas las secciones
-    addSection("MOTIVO DE CONSULTA", medicalRecord.chief_complaint);
-    addSection("ENFERMEDAD ACTUAL", medicalRecord.current_illness);
-    addSection("REVISIÓN POR SISTEMAS (ROS)", medicalRecord.ros);
-    addSection("ANTECEDENTES", medicalRecord.medical_history);
+    addSection("2. Motivo de Consulta", medicalRecord.chief_complaint);
+    addSection("3. Enfermedad Actual", medicalRecord.current_illness);
+    addSection("4. Revisión por Sistemas (ROS)", medicalRecord.ros);
+    addSection("5. Antecedentes Médicos", medicalRecord.medical_history);
     
     // Signos vitales
     if (medicalRecord.vital_signs && Object.keys(medicalRecord.vital_signs).length > 0) {
@@ -98,7 +120,7 @@ export const ExportMedicalRecordPDF = ({
       
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.text("SIGNOS VITALES", 20, y);
+      doc.text("6. Signos Vitales", 20, y);
       y += 6;
       
       doc.setFont("helvetica", "normal");
@@ -135,9 +157,9 @@ export const ExportMedicalRecordPDF = ({
       y += 4;
     }
     
-    addSection("EXAMEN FÍSICO", medicalRecord.physical_exam);
-    addSection("AYUDAS DIAGNÓSTICAS", medicalRecord.diagnostic_aids);
-    addSection("DIAGNÓSTICO", medicalRecord.diagnosis);
+    addSection("7. Examen Físico", medicalRecord.physical_exam);
+    addSection("8. Ayudas Diagnósticas", medicalRecord.diagnostic_aids);
+    addSection("9. Diagnóstico", medicalRecord.diagnosis);
     
     if (medicalRecord.cie10_code) {
       if (y > 270) {
@@ -150,9 +172,9 @@ export const ExportMedicalRecordPDF = ({
       y += 6;
     }
     
-    addSection("PLAN DE TRATAMIENTO", medicalRecord.treatment);
-    addSection("EDUCACIÓN AL PACIENTE", medicalRecord.education);
-    addSection("SEGUIMIENTO", medicalRecord.followup);
+    addSection("10. Plan de Manejo - Tratamiento", medicalRecord.treatment);
+    addSection("10. Plan de Manejo - Educación al Paciente", medicalRecord.education);
+    addSection("10. Plan de Manejo - Seguimiento", medicalRecord.followup);
     
     // Medicamentos
     if (medicalRecord.medications && medicalRecord.medications.length > 0) {
@@ -175,17 +197,22 @@ export const ExportMedicalRecordPDF = ({
       y += 4;
     }
     
-    addSection("CONSENTIMIENTO", medicalRecord.consent);
-    addSection("NOTAS DE EVOLUCIÓN", medicalRecord.evolution_notes);
-    addSection("NOTAS ADICIONALES", medicalRecord.notes);
+    addSection("11. Consentimiento Informado", medicalRecord.consent);
+    addSection("13. Notas de Evolución (SOAP)", medicalRecord.evolution_notes);
+    addSection("Notas Adicionales", medicalRecord.notes);
     
-    // Firma
+    // 12. Firma Médica
     if (y > 240) {
       doc.addPage();
       y = 20;
     }
     
     y += 10;
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("12. Firma Médica", 20, y);
+    y += 8;
     
     if (doctorSignature) {
       try {
