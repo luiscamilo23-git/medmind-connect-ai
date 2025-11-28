@@ -31,19 +31,41 @@ Deno.serve(async (req) => {
 
     const { medicalRecordId, documentType, templateId } = await req.json();
 
-    // Obtener registro médico
+    console.log('Generating document for record:', medicalRecordId, 'type:', documentType);
+
+    // Obtener registro médico con información del paciente
     const { data: record, error: recordError } = await supabaseClient
       .from('medical_records')
-      .select('*, patients(*), profiles(*)')
+      .select(`
+        *,
+        patients (
+          full_name,
+          date_of_birth,
+          allergies,
+          phone,
+          email
+        )
+      `)
       .eq('id', medicalRecordId)
-      .single();
+      .maybeSingle();
 
-    if (recordError || !record) {
-      return new Response(JSON.stringify({ error: 'Historia clínica no encontrada' }), {
+    if (recordError) {
+      console.error('Error fetching medical record:', recordError);
+      return new Response(JSON.stringify({ error: `Error al obtener historia: ${recordError.message}` }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!record) {
+      console.error('Medical record not found:', medicalRecordId);
+      return new Response(JSON.stringify({ error: 'Historia clínica no encontrada. Verifica que esté guardada.' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    console.log('Medical record found:', record.id, 'Patient:', record.patients?.full_name);
 
     // Get custom template if provided
     let customTemplate = null;
@@ -52,7 +74,7 @@ Deno.serve(async (req) => {
         .from('document_templates')
         .select('*')
         .eq('id', templateId)
-        .single();
+        .maybeSingle();
       
       customTemplate = template;
     }
