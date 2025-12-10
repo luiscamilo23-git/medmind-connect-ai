@@ -130,13 +130,29 @@ const TermsOfService = () => {
               </ul>
 
               <h3 className="text-xl font-semibold mt-4">5.2 Limitaciones de la IA</h3>
+              <div className="p-4 border-2 border-destructive/50 rounded-lg bg-destructive/5 my-4">
+                <p className="font-bold text-destructive mb-2">⚠️ ADVERTENCIA IMPORTANTE - CHAT DE IA PARA PACIENTES</p>
+                <p>
+                  El chat de inteligencia artificial disponible para pacientes es ÚNICAMENTE con fines informativos y educativos. 
+                  <strong> MEDMIND NO SE HACE RESPONSABLE</strong> de ningún diagnóstico, tratamiento o decisión médica tomada 
+                  basándose en la información proporcionada por el asistente de IA.
+                </p>
+                <ul className="list-disc pl-6 mt-2 space-y-1">
+                  <li>El chat de IA NO es un sustituto de la consulta médica profesional</li>
+                  <li>El chat de IA NO puede diagnosticar enfermedades ni recetar medicamentos</li>
+                  <li>El chat de IA puede cometer errores y proporcionar información incorrecta</li>
+                  <li>El usuario asume toda la responsabilidad por las decisiones tomadas basándose en el chat</li>
+                  <li>En caso de emergencia, el usuario debe acudir inmediatamente a un servicio de urgencias</li>
+                </ul>
+              </div>
               <p>
-                Las funcionalidades de inteligencia artificial (transcripción, análisis, sugerencias) son herramientas de apoyo y pueden contener errores. Usted debe:
+                Las funcionalidades de inteligencia artificial (transcripción, análisis, sugerencias, chat) son herramientas de apoyo y pueden contener errores. Usted debe:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Revisar y verificar toda información generada por IA</li>
                 <li>No confiar exclusivamente en sugerencias o análisis automatizados</li>
                 <li>Mantener su criterio profesional como base de todas las decisiones médicas</li>
+                <li>Entender que el chat de IA para pacientes es solo orientativo y no constituye consejo médico</li>
               </ul>
             </section>
 
