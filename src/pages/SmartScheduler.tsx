@@ -243,25 +243,25 @@ const SmartScheduler = () => {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left Sidebar */}
-      <aside className="w-72 border-r bg-card/50 backdrop-blur-sm flex flex-col">
-        <div className="p-4 border-b">
+      <aside className="w-80 border-r bg-card/30 backdrop-blur-sm flex flex-col">
+        <div className="p-5 border-b">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="shrink-0">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
-                <Sparkles className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg">SmartScheduler</span>
+              <span className="font-bold text-xl">SmartScheduler</span>
             </div>
           </div>
         </div>
 
         <ScrollArea className="flex-1">
-          <div className="p-4 space-y-6">
+          <div className="p-5 space-y-8">
             {/* Mini Calendar */}
-            <div className="bg-muted/30 rounded-xl p-3 border border-border/50">
+            <div className="bg-muted/20 rounded-2xl p-4 border border-border/30">
               <CalendarComponent
                 mode="single"
                 selected={miniCalendarDate}
@@ -276,59 +276,60 @@ const SmartScheduler = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="space-y-2">
+            <div className="space-y-3">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Acciones Rápidas</h4>
               <Button 
                 variant="outline" 
-                className="w-full justify-start gap-2 text-sm group hover:border-primary/50"
+                className="w-full justify-start gap-3 text-sm group hover:border-primary/50 h-12"
                 onClick={handleNewAppointment}
               >
-                <Plus className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                <Plus className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
                 <span>Nueva Cita</span>
                 <Badge variant="secondary" className="ml-auto text-xs">Nuevo</Badge>
               </Button>
               
-              <Button variant="outline" className="w-full justify-start gap-2 text-sm group hover:border-warning/50">
-                <Lock className="w-4 h-4 text-warning group-hover:scale-110 transition-transform" />
+              <Button variant="outline" className="w-full justify-start gap-3 text-sm group hover:border-warning/50 h-12">
+                <Lock className="w-5 h-5 text-warning group-hover:scale-110 transition-transform" />
                 <span>Bloquear Fechas</span>
               </Button>
             </div>
 
-            <Separator />
+            <Separator className="my-6" />
 
             {/* Today's Stats */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2">
+            <div className="space-y-4">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                 <CalendarDays className="w-4 h-4 text-primary" />
                 Visitas de Hoy
               </h4>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-primary/10 rounded-lg p-3 text-center border border-primary/20">
-                  <p className="text-2xl font-bold text-primary">{todayAppointments.length}</p>
-                  <p className="text-xs text-muted-foreground">Citas</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-primary/10 rounded-xl p-4 text-center border border-primary/20">
+                  <p className="text-3xl font-bold text-primary">{todayAppointments.length}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Citas</p>
                 </div>
-                <div className="bg-success/10 rounded-lg p-3 text-center border border-success/20">
-                  <p className="text-2xl font-bold text-success">
+                <div className="bg-success/10 rounded-xl p-4 text-center border border-success/20">
+                  <p className="text-3xl font-bold text-success">
                     {todayAppointments.filter(a => a.status === "completed").length}
                   </p>
-                  <p className="text-xs text-muted-foreground">Completadas</p>
+                  <p className="text-xs text-muted-foreground mt-1">Completadas</p>
                 </div>
               </div>
             </div>
 
-            <Separator />
+            <Separator className="my-6" />
 
             {/* Services Filter */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2">
+            <div className="space-y-4">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                 <Filter className="w-4 h-4 text-primary" />
                 Servicios
               </h4>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {services.length > 0 ? (
                   services.map(service => (
                     <label 
                       key={service.id}
-                      className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-2 rounded-md transition-colors"
+                      className="flex items-center gap-3 text-sm cursor-pointer hover:bg-muted/50 p-3 rounded-lg transition-colors"
                     >
                       <Checkbox 
                         checked={selectedServices.includes(service.id)}
@@ -344,30 +345,30 @@ const SmartScheduler = () => {
                     </label>
                   ))
                 ) : (
-                  <p className="text-xs text-muted-foreground py-2">No hay servicios configurados</p>
+                  <p className="text-xs text-muted-foreground py-3 text-center bg-muted/20 rounded-lg">No hay servicios configurados</p>
                 )}
               </div>
             </div>
 
-            <Separator />
+            <Separator className="my-6" />
 
             {/* AI Features */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold flex items-center gap-2">
+            <div className="space-y-4">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                 <Brain className="w-4 h-4 text-secondary" />
                 IA Asistente
               </h4>
               <div className="space-y-2">
-                <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-xs h-8">
-                  <Zap className="w-3 h-3 text-warning" />
+                <Button variant="ghost" size="sm" className="w-full justify-start gap-3 text-sm h-11 hover:bg-muted/50">
+                  <Zap className="w-4 h-4 text-warning" />
                   Auto-organizar agenda
                 </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-xs h-8">
-                  <Sparkles className="w-3 h-3 text-primary" />
+                <Button variant="ghost" size="sm" className="w-full justify-start gap-3 text-sm h-11 hover:bg-muted/50">
+                  <Sparkles className="w-4 h-4 text-primary" />
                   Sugerir horarios óptimos
                 </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-xs h-8">
-                  <MessageSquare className="w-3 h-3 text-info" />
+                <Button variant="ghost" size="sm" className="w-full justify-start gap-3 text-sm h-11 hover:bg-muted/50">
+                  <MessageSquare className="w-4 h-4 text-info" />
                   Recordatorios automáticos
                 </Button>
               </div>
@@ -376,11 +377,11 @@ const SmartScheduler = () => {
         </ScrollArea>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t bg-muted/20">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="p-5 border-t bg-muted/10">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>{appointments.length} citas totales</span>
-            <Button variant="ghost" size="icon" className="h-6 w-6">
-              <Settings className="w-3 h-3" />
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Settings className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -389,44 +390,44 @@ const SmartScheduler = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="border-b bg-card/50 backdrop-blur-sm px-6 py-4">
-          <div className="flex items-center justify-between gap-4">
+        <header className="border-b bg-card/30 backdrop-blur-sm px-8 py-5">
+          <div className="flex items-center justify-between gap-6">
             {/* Navigation */}
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" onClick={goToToday}>
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="default" onClick={goToToday} className="h-10">
                 Esta semana
               </Button>
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigateWeek("prev")}>
-                  <ChevronLeft className="w-4 h-4" />
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => navigateWeek("prev")}>
+                  <ChevronLeft className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigateWeek("next")}>
-                  <ChevronRight className="w-4 h-4" />
+                <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => navigateWeek("next")}>
+                  <ChevronRight className="w-5 h-5" />
                 </Button>
               </div>
-              <h2 className="font-semibold text-lg">
+              <h2 className="font-semibold text-xl ml-2">
                 {format(currentWeekStart, "d", { locale: es })} - {format(addDays(currentWeekStart, 6), "d MMMM yyyy", { locale: es })}
               </h2>
             </div>
 
             {/* Search & Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar paciente..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-64 bg-muted/30"
+                  className="pl-11 w-72 bg-muted/20 h-10"
                 />
               </div>
               
-              <div className="flex items-center border rounded-lg overflow-hidden">
+              <div className="flex items-center border rounded-xl overflow-hidden">
                 <Button 
                   variant={viewMode === "week" ? "default" : "ghost"} 
                   size="sm"
                   onClick={() => setViewMode("week")}
-                  className="rounded-none"
+                  className="rounded-none h-10 px-5"
                 >
                   Semana
                 </Button>
@@ -434,17 +435,17 @@ const SmartScheduler = () => {
                   variant={viewMode === "day" ? "default" : "ghost"} 
                   size="sm"
                   onClick={() => setViewMode("day")}
-                  className="rounded-none"
+                  className="rounded-none h-10 px-5"
                 >
                   Día
                 </Button>
               </div>
 
-              <Button variant="ghost" size="icon" className="h-9 w-9">
-                <Bell className="w-4 h-4" />
+              <Button variant="ghost" size="icon" className="h-10 w-10">
+                <Bell className="w-5 h-5" />
               </Button>
 
-              <Button onClick={handleNewAppointment} className="gap-2 shadow-lg shadow-primary/20">
+              <Button onClick={handleNewAppointment} className="gap-2 shadow-lg shadow-primary/20 h-10 px-5">
                 <Plus className="w-4 h-4" />
                 Nueva Cita
               </Button>
@@ -464,21 +465,21 @@ const SmartScheduler = () => {
           ) : (
             <div className="h-full">
               {/* Week Header */}
-              <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-muted/20 sticky top-0 z-10">
-                <div className="p-2" />
+              <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b bg-muted/10 sticky top-0 z-10">
+                <div className="p-4" />
                 {weekDays.map((day, idx) => (
                   <div 
                     key={idx}
-                    className={`p-3 text-center border-l transition-colors ${
+                    className={`py-5 px-4 text-center border-l transition-colors ${
                       isToday(day) ? "bg-primary/10" : ""
                     }`}
                   >
-                    <p className="text-xs text-muted-foreground uppercase">
+                    <p className="text-xs text-muted-foreground uppercase font-medium tracking-wide">
                       {format(day, "EEE", { locale: es })}
                     </p>
-                    <p className={`text-xl font-bold mt-1 ${
+                    <p className={`text-2xl font-bold mt-2 ${
                       isToday(day) 
-                        ? "w-9 h-9 mx-auto rounded-full bg-primary text-primary-foreground flex items-center justify-center" 
+                        ? "w-11 h-11 mx-auto rounded-full bg-primary text-primary-foreground flex items-center justify-center" 
                         : ""
                     }`}>
                       {format(day, "d")}
@@ -488,12 +489,12 @@ const SmartScheduler = () => {
               </div>
 
               {/* Time Grid */}
-              <div className="grid grid-cols-[60px_repeat(7,1fr)]">
+              <div className="grid grid-cols-[80px_repeat(7,1fr)]">
                 {timeSlots.map((time, timeIdx) => (
                   <>
                     <div 
                       key={`time-${timeIdx}`}
-                      className="p-2 text-right text-xs text-muted-foreground border-b h-20 flex items-start justify-end pr-3"
+                      className="p-3 text-right text-sm text-muted-foreground border-b h-24 flex items-start justify-end pr-4 font-medium"
                     >
                       {time}
                     </div>
@@ -504,7 +505,7 @@ const SmartScheduler = () => {
                       return (
                         <div
                           key={`cell-${timeIdx}-${dayIdx}`}
-                          className={`border-l border-b h-20 p-1 cursor-pointer hover:bg-muted/30 transition-colors relative group ${
+                          className={`border-l border-b h-24 p-2 cursor-pointer hover:bg-muted/20 transition-colors relative group ${
                             isToday(day) ? "bg-primary/5" : ""
                           }`}
                           onClick={() => slotAppointments.length === 0 && handleDateSelect(day, hour)}
@@ -516,25 +517,25 @@ const SmartScheduler = () => {
                                 e.stopPropagation();
                                 handleEditAppointment(apt);
                               }}
-                              className={`absolute inset-x-1 rounded-md p-2 text-white text-xs cursor-pointer border-l-4 shadow-md hover:shadow-lg transition-all hover:scale-[1.02] ${getStatusColor(apt.status)}`}
+                              className={`absolute inset-x-2 rounded-lg p-3 text-white text-sm cursor-pointer border-l-4 shadow-md hover:shadow-xl transition-all hover:scale-[1.02] ${getStatusColor(apt.status)}`}
                               style={{
-                                height: `${Math.max(apt.duration_minutes / 60 * 80, 40)}px`,
-                                minHeight: "40px"
+                                height: `${Math.max(apt.duration_minutes / 60 * 96, 48)}px`,
+                                minHeight: "48px"
                               }}
                             >
-                              <div className="flex items-start justify-between gap-1">
+                              <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-medium truncate">
+                                  <p className="font-semibold truncate">
                                     {format(parseISO(apt.appointment_date), "HH:mm")} - {apt.patients?.full_name || apt.title}
                                   </p>
                                   {apt.location && (
-                                    <p className="text-[10px] opacity-80 flex items-center gap-1 mt-0.5">
-                                      <MapPin className="w-2.5 h-2.5" />
+                                    <p className="text-xs opacity-80 flex items-center gap-1.5 mt-1">
+                                      <MapPin className="w-3 h-3" />
                                       {apt.location}
                                     </p>
                                   )}
                                 </div>
-                                <div className="flex items-center gap-1 opacity-80">
+                                <div className="flex items-center gap-1 opacity-90">
                                   {getStatusIcon(apt.status)}
                                 </div>
                               </div>
@@ -544,8 +545,8 @@ const SmartScheduler = () => {
                           {/* Add button on hover */}
                           {slotAppointments.length === 0 && (
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                                <Plus className="w-3 h-3 text-primary" />
+                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-dashed border-primary/40">
+                                <Plus className="w-4 h-4 text-primary" />
                               </div>
                             </div>
                           )}
