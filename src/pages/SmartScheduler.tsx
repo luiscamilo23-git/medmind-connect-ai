@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { 
   ArrowLeft, 
@@ -18,7 +20,11 @@ import {
   Phone,
   Users,
   Sparkles,
-  Lock
+  Lock,
+  Filter,
+  Brain,
+  Zap,
+  MessageSquare
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
@@ -42,6 +48,11 @@ interface Appointment {
   };
 }
 
+interface Service {
+  id: string;
+  nombre_servicio: string;
+}
+
 const SmartScheduler = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,11 +63,20 @@ const SmartScheduler = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"week" | "day">("week");
   const [miniCalendarDate, setMiniCalendarDate] = useState<Date>(new Date());
+  const [services, setServices] = useState<Service[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
-  const timeSlots = Array.from({ length: 11 }, (_, i) => `${8 + i}:00`);
+  // Expanded time slots: 6:00 AM to 24:00 (midnight)
+  const timeSlots = Array.from({ length: 19 }, (_, i) => {
+    const hour = 6 + i;
+    return `${hour.toString().padStart(2, '0')}:00`;
+  });
+
+  const weekDays = viewMode === "week" 
+    ? Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i))
+    : [miniCalendarDate];
 
   // Get dates that have appointments for mini calendar dots
   const datesWithAppointments = useMemo(() => {
@@ -71,6 +91,7 @@ const SmartScheduler = () => {
   useEffect(() => {
     checkAuth();
     loadAppointments();
+    loadServices();
 
     const channel = supabase
       .channel("appointments-changes")
@@ -131,6 +152,26 @@ const SmartScheduler = () => {
     }
   };
 
+  const loadServices = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("services")
+        .select("id, nombre_servicio")
+        .eq("doctor_id", user.id)
+        .eq("activo", true);
+
+      if (data) {
+        setServices(data);
+        setSelectedServices(data.map(s => s.id));
+      }
+    } catch (error) {
+      console.error("Error loading services:", error);
+    }
+  };
+
   const handleEditAppointment = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
     setSelectedDate(null);
@@ -165,7 +206,11 @@ const SmartScheduler = () => {
   };
 
   const navigateWeek = (direction: "prev" | "next") => {
-    setCurrentWeekStart(prev => addDays(prev, direction === "next" ? 7 : -7));
+    if (viewMode === "week") {
+      setCurrentWeekStart(prev => addDays(prev, direction === "next" ? 7 : -7));
+    } else {
+      setMiniCalendarDate(prev => addDays(prev, direction === "next" ? 1 : -1));
+    }
   };
 
   const goToToday = () => {
@@ -183,6 +228,27 @@ const SmartScheduler = () => {
   const todayAppointments = appointments.filter(
     (apt) => isToday(parseISO(apt.appointment_date))
   );
+
+  const handleAIAutoOrganize = () => {
+    toast({
+      title: "IA Organizando...",
+      description: "Analizando tu agenda para optimizar horarios.",
+    });
+  };
+
+  const handleAISuggestSlots = () => {
+    toast({
+      title: "Analizando disponibilidad",
+      description: "Buscando los mejores horarios para nuevas citas.",
+    });
+  };
+
+  const handleAIReminders = () => {
+    toast({
+      title: "Recordatorios configurados",
+      description: "Se enviarán recordatorios automáticos a tus pacientes.",
+    });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -202,49 +268,38 @@ const SmartScheduler = () => {
     }
   };
 
-  // Custom day render for mini calendar with dots
-  const modifiers = {
-    hasAppointment: (date: Date) => datesWithAppointments.has(format(date, "yyyy-MM-dd"))
-  };
-
-  const modifiersStyles = {
-    hasAppointment: {
-      position: 'relative' as const
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left Sidebar - Clean & Minimal */}
+      {/* Left Sidebar */}
       <aside className="w-72 border-r border-border/50 flex flex-col bg-card/20">
         {/* Header */}
-        <div className="h-16 px-4 flex items-center gap-3 border-b border-border/50">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="h-9 w-9">
-            <ArrowLeft className="w-5 h-5" />
+        <div className="h-14 px-4 flex items-center gap-3 border-b border-border/50">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="h-8 w-8">
+            <ArrowLeft className="w-4 h-4" />
           </Button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-primary-foreground" />
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-lg">SmartScheduler</span>
+            <span className="font-semibold">SmartScheduler</span>
           </div>
         </div>
 
         <ScrollArea className="flex-1">
-          <div className="p-4 space-y-6">
-            {/* Mini Calendar with dots for appointments */}
+          <div className="p-4 space-y-5">
+            {/* Mini Calendar with dots */}
             <CalendarComponent
               mode="single"
               selected={miniCalendarDate}
               onSelect={(date) => {
                 if (date) {
                   setMiniCalendarDate(date);
-                  setCurrentWeekStart(startOfWeek(date, { locale: es }));
+                  if (viewMode === "week") {
+                    setCurrentWeekStart(startOfWeek(date, { locale: es }));
+                  }
                 }
               }}
-              modifiers={modifiers}
-              modifiersStyles={modifiersStyles}
-              className="rounded-xl border-0 p-0"
+              className="rounded-lg border-0 p-0"
               classNames={{
                 months: "flex flex-col",
                 month: "space-y-2",
@@ -260,8 +315,7 @@ const SmartScheduler = () => {
                 row: "flex w-full mt-1",
                 cell: "relative h-8 w-8 text-center text-sm p-0 focus-within:relative focus-within:z-20",
                 day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-muted rounded-md inline-flex items-center justify-center",
-                day_range_end: "day-range-end",
-                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+                day_selected: "bg-primary text-primary-foreground hover:bg-primary",
                 day_today: "bg-accent text-accent-foreground",
                 day_outside: "text-muted-foreground opacity-50",
                 day_disabled: "text-muted-foreground opacity-50",
@@ -274,7 +328,7 @@ const SmartScheduler = () => {
                     <div className="relative flex items-center justify-center w-full h-full">
                       <span>{date.getDate()}</span>
                       {hasAppointment && (
-                        <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                       )}
                     </div>
                   );
@@ -282,93 +336,174 @@ const SmartScheduler = () => {
               }}
             />
 
+            <Separator />
+
             {/* Quick Actions */}
-            <div className="space-y-2">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider px-1">Acciones Rápidas</p>
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2">Acciones Rápidas</p>
               <Button 
                 variant="ghost" 
-                className="w-full justify-start gap-3 h-10 text-sm hover:bg-primary/10"
+                className="w-full justify-start gap-2 h-9 text-sm hover:bg-primary/10"
                 onClick={handleNewAppointment}
               >
                 <Plus className="w-4 h-4 text-primary" />
                 Nueva Cita
-                <Badge className="ml-auto text-[10px] bg-secondary/20 text-secondary hover:bg-secondary/20">Nuevo</Badge>
+                <Badge className="ml-auto text-[9px] bg-secondary/20 text-secondary hover:bg-secondary/20 px-1.5">Nuevo</Badge>
               </Button>
               
-              <Button variant="ghost" className="w-full justify-start gap-3 h-10 text-sm hover:bg-warning/10">
+              <Button variant="ghost" className="w-full justify-start gap-2 h-9 text-sm hover:bg-warning/10">
                 <Lock className="w-4 h-4 text-warning" />
                 Bloquear Fechas
               </Button>
             </div>
 
+            <Separator />
+
             {/* Today's Stats */}
-            <div className="space-y-3">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-2">
-                <CalendarDays className="w-3.5 h-3.5" />
+            <div className="space-y-2">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-1.5">
+                <CalendarDays className="w-3 h-3" />
                 Visitas de Hoy
               </p>
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-primary/5 rounded-lg p-3 text-center border border-primary/10">
-                  <p className="text-2xl font-bold text-primary">{todayAppointments.length}</p>
-                  <p className="text-[10px] text-muted-foreground">Citas</p>
+                <div className="bg-primary/5 rounded-lg p-2.5 text-center border border-primary/10">
+                  <p className="text-xl font-bold text-primary">{todayAppointments.length}</p>
+                  <p className="text-[9px] text-muted-foreground">Citas</p>
                 </div>
-                <div className="bg-emerald-500/5 rounded-lg p-3 text-center border border-emerald-500/10">
-                  <p className="text-2xl font-bold text-emerald-500">
+                <div className="bg-emerald-500/5 rounded-lg p-2.5 text-center border border-emerald-500/10">
+                  <p className="text-xl font-bold text-emerald-500">
                     {todayAppointments.filter(a => a.status === "completed").length}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">Completadas</p>
+                  <p className="text-[9px] text-muted-foreground">Completadas</p>
                 </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Services Filter */}
+            <div className="space-y-2">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-1.5">
+                <Filter className="w-3 h-3" />
+                Servicios
+              </p>
+              {services.length > 0 ? (
+                <div className="space-y-0.5">
+                  {services.map(service => (
+                    <label 
+                      key={service.id}
+                      className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-2 rounded-md transition-colors"
+                    >
+                      <Checkbox 
+                        checked={selectedServices.includes(service.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedServices([...selectedServices, service.id]);
+                          } else {
+                            setSelectedServices(selectedServices.filter(id => id !== service.id));
+                          }
+                        }}
+                        className="h-3.5 w-3.5"
+                      />
+                      <span className="truncate text-xs">{service.nombre_servicio}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[10px] text-muted-foreground py-2 px-1">No hay servicios configurados</p>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* AI Assistant */}
+            <div className="space-y-2">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-1.5">
+                <Brain className="w-3 h-3 text-secondary" />
+                IA Asistente
+              </p>
+              <div className="space-y-0.5">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start gap-2 text-xs h-8 hover:bg-muted/50"
+                  onClick={handleAIAutoOrganize}
+                >
+                  <Zap className="w-3.5 h-3.5 text-warning" />
+                  Auto-organizar agenda
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start gap-2 text-xs h-8 hover:bg-muted/50"
+                  onClick={handleAISuggestSlots}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  Sugerir horarios óptimos
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start gap-2 text-xs h-8 hover:bg-muted/50"
+                  onClick={handleAIReminders}
+                >
+                  <MessageSquare className="w-3.5 h-3.5 text-info" />
+                  Recordatorios automáticos
+                </Button>
               </div>
             </div>
           </div>
         </ScrollArea>
 
         {/* Footer */}
-        <div className="h-12 px-4 flex items-center justify-between border-t border-border/50 text-xs text-muted-foreground">
-          <span>{appointments.length} citas totales</span>
+        <div className="h-10 px-4 flex items-center border-t border-border/50 text-[10px] text-muted-foreground">
+          {appointments.length} citas totales
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header - Clean */}
-        <header className="h-16 border-b border-border/50 px-6 flex items-center justify-between gap-4 bg-card/20">
+        {/* Top Header */}
+        <header className="h-14 border-b border-border/50 px-5 flex items-center justify-between gap-4 bg-card/20">
           {/* Navigation */}
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" onClick={goToToday} className="h-9 text-sm">
-              Esta semana
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={goToToday} className="h-8 text-xs">
+              Hoy
             </Button>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigateWeek("prev")}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigateWeek("prev")}>
                 <ChevronLeft className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigateWeek("next")}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigateWeek("next")}>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
-            <span className="font-medium text-lg">
-              {format(currentWeekStart, "d", { locale: es })} - {format(addDays(currentWeekStart, 6), "d MMMM yyyy", { locale: es })}
+            <span className="font-medium">
+              {viewMode === "week" 
+                ? `${format(currentWeekStart, "d", { locale: es })} - ${format(addDays(currentWeekStart, 6), "d MMMM yyyy", { locale: es })}`
+                : format(miniCalendarDate, "EEEE d MMMM yyyy", { locale: es })
+              }
             </span>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 placeholder="Buscar paciente..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 w-56 h-9 bg-muted/30 border-0"
+                className="pl-8 w-48 h-8 text-sm bg-muted/30 border-0"
               />
             </div>
             
-            <div className="flex h-9 border rounded-lg overflow-hidden">
+            <div className="flex h-8 border rounded-md overflow-hidden">
               <Button 
                 variant={viewMode === "week" ? "default" : "ghost"} 
                 size="sm"
                 onClick={() => setViewMode("week")}
-                className="rounded-none h-full px-4 text-sm"
+                className="rounded-none h-full px-3 text-xs"
               >
                 Semana
               </Button>
@@ -376,7 +511,7 @@ const SmartScheduler = () => {
                 variant={viewMode === "day" ? "default" : "ghost"} 
                 size="sm"
                 onClick={() => setViewMode("day")}
-                className="rounded-none h-full px-4 text-sm"
+                className="rounded-none h-full px-3 text-xs"
               >
                 Día
               </Button>
@@ -384,8 +519,8 @@ const SmartScheduler = () => {
 
             <NotificationBell />
 
-            <Button onClick={handleNewAppointment} size="sm" className="h-9 gap-2">
-              <Plus className="w-4 h-4" />
+            <Button onClick={handleNewAppointment} size="sm" className="h-8 gap-1.5 text-xs">
+              <Plus className="w-3.5 h-3.5" />
               Nueva Cita
             </Button>
           </div>
@@ -395,29 +530,29 @@ const SmartScheduler = () => {
         <div className="flex-1 overflow-auto">
           {loading ? (
             <div className="flex items-center justify-center h-full">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                <p className="text-muted-foreground text-sm">Cargando agenda...</p>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-muted-foreground text-xs">Cargando agenda...</p>
               </div>
             </div>
           ) : (
             <div className="h-full">
-              {/* Week Header */}
-              <div className="grid grid-cols-[70px_repeat(7,1fr)] border-b sticky top-0 z-10 bg-background">
-                <div className="h-16" />
+              {/* Week/Day Header */}
+              <div className={`grid ${viewMode === "week" ? "grid-cols-[60px_repeat(7,1fr)]" : "grid-cols-[60px_1fr]"} border-b sticky top-0 z-10 bg-background`}>
+                <div className="h-12" />
                 {weekDays.map((day, idx) => (
                   <div 
                     key={idx}
-                    className={`h-16 flex flex-col items-center justify-center border-l border-border/30 ${
+                    className={`h-12 flex flex-col items-center justify-center border-l border-border/30 ${
                       isToday(day) ? "bg-primary/5" : ""
                     }`}
                   >
-                    <p className="text-[11px] text-muted-foreground uppercase font-medium">
+                    <p className="text-[10px] text-muted-foreground uppercase font-medium">
                       {format(day, "EEE", { locale: es })}
                     </p>
-                    <p className={`text-xl font-semibold mt-0.5 ${
+                    <p className={`text-lg font-semibold ${
                       isToday(day) 
-                        ? "w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center" 
+                        ? "w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm" 
                         : ""
                     }`}>
                       {format(day, "d")}
@@ -427,23 +562,23 @@ const SmartScheduler = () => {
               </div>
 
               {/* Time Grid */}
-              <div className="grid grid-cols-[70px_repeat(7,1fr)]">
+              <div className={`grid ${viewMode === "week" ? "grid-cols-[60px_repeat(7,1fr)]" : "grid-cols-[60px_1fr]"}`}>
                 {timeSlots.map((time, timeIdx) => (
                   <>
                     <div 
                       key={`time-${timeIdx}`}
-                      className="h-16 pr-3 flex items-start justify-end pt-0 text-xs text-muted-foreground"
+                      className="h-12 pr-2 flex items-start justify-end text-[10px] text-muted-foreground"
                     >
                       {time}
                     </div>
                     {weekDays.map((day, dayIdx) => {
-                      const hour = 8 + timeIdx;
+                      const hour = 6 + timeIdx;
                       const slotAppointments = getAppointmentsForSlot(day, hour);
                       
                       return (
                         <div
                           key={`cell-${timeIdx}-${dayIdx}`}
-                          className={`h-16 border-l border-t border-border/20 relative group cursor-pointer hover:bg-muted/10 transition-colors ${
+                          className={`h-12 border-l border-t border-border/20 relative group cursor-pointer hover:bg-muted/10 transition-colors ${
                             isToday(day) ? "bg-primary/[0.02]" : ""
                           }`}
                           onClick={() => slotAppointments.length === 0 && handleDateSelect(day, hour)}
@@ -455,31 +590,25 @@ const SmartScheduler = () => {
                                 e.stopPropagation();
                                 handleEditAppointment(apt);
                               }}
-                              className={`absolute inset-x-1 top-1 rounded-md px-2 py-1.5 text-white text-xs cursor-pointer shadow-sm hover:shadow-md transition-shadow ${getStatusColor(apt.status)}`}
+                              className={`absolute inset-x-0.5 top-0.5 rounded px-1.5 py-1 text-white text-[10px] cursor-pointer shadow-sm hover:shadow-md transition-shadow ${getStatusColor(apt.status)}`}
                               style={{
-                                height: `${Math.max((apt.duration_minutes / 60) * 64 - 8, 28)}px`,
-                                minHeight: "28px"
+                                height: `${Math.max((apt.duration_minutes / 60) * 48 - 4, 20)}px`,
+                                minHeight: "20px"
                               }}
                             >
-                              <div className="flex items-center gap-1.5">
+                              <div className="flex items-center gap-1 truncate">
+                                {getStatusIcon(apt.status)}
                                 <span className="font-medium truncate">
                                   {format(parseISO(apt.appointment_date), "HH:mm")} {apt.patients?.full_name || apt.title}
                                 </span>
-                                {getStatusIcon(apt.status)}
                               </div>
-                              {apt.location && apt.duration_minutes >= 30 && (
-                                <p className="text-[10px] opacity-80 flex items-center gap-1 mt-0.5 truncate">
-                                  <MapPin className="w-2.5 h-2.5 shrink-0" />
-                                  {apt.location}
-                                </p>
-                              )}
                             </div>
                           ))}
                           
                           {/* Hover indicator */}
                           {slotAppointments.length === 0 && (
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Plus className="w-4 h-4 text-muted-foreground/50" />
+                              <Plus className="w-3 h-3 text-muted-foreground/40" />
                             </div>
                           )}
                         </div>
