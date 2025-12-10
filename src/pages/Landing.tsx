@@ -631,59 +631,95 @@ const Landing = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
+                icon: Brain,
+                title: "Asistente IA para Pacientes",
+                description: "Bot inteligente que responde a tus pacientes, confirma citas y envía recordatorios automáticos por llamada o mensaje.",
+                date: "Próximamente - Enero 2026",
+                isUpcoming: true
+              },
+              {
+                icon: Activity,
+                title: "Telemedicina Integrada",
+                description: "Videoconsultas directas desde la plataforma con sala de espera virtual y grabación opcional.",
+                date: "Próximamente - Enero 2026",
+                isUpcoming: true
+              },
+              {
+                icon: Sparkles,
+                title: "IA para Tratamientos",
+                description: "Asistencia inteligente que sugiere tratamientos basados en diagnósticos y evidencia médica actualizada.",
+                date: "Próximamente - Enero 2026",
+                isUpcoming: true
+              },
+              {
                 icon: Bell,
                 title: "Notificaciones de Citas",
                 description: "Recibe alertas de citas del día y mañana directamente en la campana de notificaciones. Nunca pierdas una cita.",
-                date: "Diciembre 2024"
+                date: "Diciembre 2025"
               },
               {
                 icon: Calendar,
                 title: "Calendario con Indicadores",
                 description: "El mini-calendario ahora muestra puntos en las fechas con citas programadas para una vista rápida.",
-                date: "Diciembre 2024"
+                date: "Diciembre 2025"
               },
               {
                 icon: FileText,
                 title: "Descarga de Audio",
                 description: "Descarga las grabaciones de consultas en formato WebM para archivar o revisar más tarde.",
-                date: "Diciembre 2024"
+                date: "Diciembre 2025"
               },
               {
                 icon: LineChart,
                 title: "Facturación DIAN",
                 description: "Genera facturas electrónicas válidas ante la DIAN con notificaciones en tiempo real de aprobación.",
-                date: "Noviembre 2024"
+                date: "Noviembre 2025"
               },
               {
                 icon: Brain,
                 title: "IA Mejorada",
                 description: "El asistente de IA ahora autocompleta campos y sugiere preguntas en una sola operación.",
-                date: "Noviembre 2024"
+                date: "Noviembre 2025"
               },
               {
                 icon: Users,
                 title: "Programa de Referidos",
                 description: "Refiere colegas y obtén hasta 100% de descuento en tu suscripción.",
-                date: "Octubre 2024"
+                date: "Octubre 2025"
               }
             ].map((update, index) => (
               <Card 
                 key={index}
-                className={`group hover:shadow-xl transition-all duration-500 hover:-translate-y-1 border border-border/50 hover:border-primary/30 ${
+                className={`group hover:shadow-xl transition-all duration-500 hover:-translate-y-1 border ${
+                  update.isUpcoming 
+                    ? "border-primary/40 bg-gradient-to-br from-primary/5 to-secondary/5" 
+                    : "border-border/50 hover:border-primary/30"
+                } ${
                   isVisible["whats-new-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                 }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
                 <CardHeader>
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${
+                      update.isUpcoming 
+                        ? "bg-gradient-to-br from-primary/20 to-secondary/20" 
+                        : "bg-gradient-to-br from-primary/10 to-primary/5"
+                    }`}>
                       <update.icon className="w-6 h-6 text-primary" />
                     </div>
-                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      update.isUpcoming 
+                        ? "text-primary bg-primary/10 font-semibold" 
+                        : "text-muted-foreground bg-muted"
+                    }`}>
                       {update.date}
                     </span>
                   </div>
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors">{update.title}</CardTitle>
+                  <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                    {update.isUpcoming && <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded mr-2">PRÓXIMO</span>}
+                    {update.title}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">{update.description}</p>
