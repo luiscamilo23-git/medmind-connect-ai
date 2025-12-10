@@ -53,3 +53,9 @@ verify_jwt = true
 
 [functions.extract-clinical-info]
 verify_jwt = true
+
+[functions.doctor-ai-assistant]
+verify_jwt = true
+
+[functions.patient-ai-chat]
+verify_jwt = true
