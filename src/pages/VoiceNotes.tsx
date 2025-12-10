@@ -24,7 +24,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { SignaturePad } from "@/components/SignaturePad";
 import { MedicalDocumentGenerator } from "@/components/MedicalDocumentGenerator";
-import { DocumentTemplatesDialog } from "@/components/DocumentTemplatesDialog";
+
 import { ExportMedicalRecordPDF } from "@/components/ExportMedicalRecordPDF";
 
 interface Suggestion {
@@ -656,7 +656,6 @@ const VoiceNotes = () => {
           </div>
           
           <div className="flex gap-2">
-            <DocumentTemplatesDialog />
             {savedRecordId && savedMedicalRecord && patientName && (
               <>
                 <ExportMedicalRecordPDF
