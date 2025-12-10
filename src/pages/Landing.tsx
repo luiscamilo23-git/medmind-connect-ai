@@ -754,45 +754,45 @@ const Landing = () => {
       <section
         id="smart-notes-section"
         ref={(el) => (observerRefs.current["smart-notes-section"] = el)}
-        className={`py-20 px-4 bg-gradient-to-br from-blue-50 to-background dark:from-blue-950/20 dark:to-background transition-all duration-700 ${
+        className={`py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-secondary/5 transition-all duration-700 ${
           isVisible["smart-notes-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
       >
         <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-950 border border-blue-200 dark:border-blue-900">
-                <Brain className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Notas Inteligentes</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+                <Brain className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Notas Inteligentes</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-bold">
                 Transforma tus notas en
                 <br />
-                <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                   acciones concretas
                 </span>
               </h2>
               <p className="text-lg text-foreground/80">
-                La IA analiza tus notas clínicas (escritas o por voz) y extrae automáticamente <span className="text-blue-600 dark:text-blue-400 font-semibold">tareas pendientes</span>, 
-                <span className="text-blue-600 dark:text-blue-400 font-semibold"> ideas principales</span> y <span className="text-blue-600 dark:text-blue-400 font-semibold">recordatorios importantes</span>.
+                La IA analiza tus notas clínicas (escritas o por voz) y extrae automáticamente <span className="text-primary font-semibold">tareas pendientes</span>, 
+                <span className="text-primary font-semibold"> ideas principales</span> y <span className="text-primary font-semibold">recordatorios importantes</span>.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Extracción automática de tareas</h3>
                     <p className="text-sm text-foreground/70">Identifica acciones pendientes como estudios, seguimientos o referencias</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Ideas principales destacadas</h3>
                     <p className="text-sm text-foreground/70">Resume los puntos clave de cada consulta automáticamente</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Recordatorios inteligentes</h3>
                     <p className="text-sm text-foreground/70">Alertas sobre alergias, medicaciones y fechas de seguimiento</p>
@@ -800,7 +800,7 @@ const Landing = () => {
                 </div>
               </div>
               <div className="flex flex-wrap gap-4">
-                <Button size="lg" onClick={() => navigate("/smart-notes")} className="bg-blue-600 hover:bg-blue-700">
+                <Button size="lg" onClick={() => navigate("/smart-notes")} className="bg-primary hover:bg-primary/90">
                   Probar ahora
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -810,8 +810,8 @@ const Landing = () => {
               </div>
             </div>
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-3xl blur-3xl opacity-20"></div>
-              <Card className="relative border-2 border-blue-200 dark:border-blue-900 shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl blur-3xl opacity-20"></div>
+              <Card className="relative border-2 border-primary/20 shadow-2xl">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-3 h-3 rounded-full bg-red-500"></div>
@@ -922,19 +922,19 @@ const Landing = () => {
                 <div className="grid grid-cols-3 gap-4 pb-6 border-b border-border/40">
                   <div className="text-center">
                     <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1">
-                      2,500+
+                      50+
                     </div>
                     <div className="text-xs text-muted-foreground">Médicos refieren</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1">
-                      15K+
+                      120+
                     </div>
                     <div className="text-xs text-muted-foreground">Referidos activos</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1">
-                      $450K
+                      $5K
                     </div>
                     <div className="text-xs text-muted-foreground">Ahorrados total</div>
                   </div>
@@ -947,24 +947,24 @@ const Landing = () => {
                         CM
                       </div>
                       <div>
-                        <div className="font-semibold text-sm">Dr. Carlos Mendoza</div>
-                        <div className="text-xs text-muted-foreground">12 referidos • Cardiología</div>
+                        <div className="font-semibold text-sm">Dr. Carlos M.</div>
+                        <div className="text-xs text-muted-foreground">4 referidos • Cardiología</div>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground italic">"Mi suscripción es gratis desde hace 8 meses"</p>
+                    <p className="text-sm text-muted-foreground italic">"Mi suscripción es gratis gracias al programa"</p>
                   </div>
 
                   <div className="p-4 rounded-lg bg-secondary/10 border border-secondary/20">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold text-sm">
-                        AT
+                        AS
                       </div>
                       <div>
-                        <div className="font-semibold text-sm">Dra. Ana Torres</div>
-                        <div className="text-xs text-muted-foreground">8 referidos • Pediatría</div>
+                        <div className="font-semibold text-sm">Dra. Ana S.</div>
+                        <div className="text-xs text-muted-foreground">2 referidos • Pediatría</div>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground italic">"Ahorro $150 USD mensuales"</p>
+                    <p className="text-sm text-muted-foreground italic">"Ya tengo 50% de descuento"</p>
                   </div>
                 </div>
               </CardContent>
