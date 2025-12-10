@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play } from "lucide-react";
+import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play, Gift, Percent, FileText, Bell } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Landing = () => {
@@ -34,15 +34,16 @@ const Landing = () => {
       title: "VoiceNotes MD",
       description: "Transcripción automática de consultas y generación de historias clínicas con IA",
       color: "from-blue-500 to-cyan-500",
-      howItWorks: "Graba la consulta con tu voz, la IA transcribe literalmente lo que dice el paciente y genera automáticamente una historia clínica estructurada y profesional.",
-      savings: "Ahorra 15-20 minutos por consulta en documentación"
+      howItWorks: "Graba la consulta con tu voz, la IA transcribe literalmente y genera una historia clínica estructurada. ¡NUEVO! Descarga el audio de cada consulta.",
+      savings: "Ahorra 15-20 minutos por consulta en documentación",
+      isNew: true
     },
     {
       icon: Package,
       title: "SupplyLens",
       description: "Gestión inteligente de inventario con predicción de consumo y alertas",
       color: "from-emerald-500 to-teal-500",
-      howItWorks: "Registra tu inventario y la IA analiza tus citas diarias para sugerir automáticamente el consumo de materiales, actualizando el stock en tiempo real.",
+      howItWorks: "Registra tu inventario y la IA analiza tus citas diarias para sugerir automáticamente el consumo de materiales.",
       savings: "Reduce pérdidas por vencimiento y sobre-stock en un 30%"
     },
     {
@@ -50,32 +51,35 @@ const Landing = () => {
       title: "SmartScheduler",
       description: "Agenda predictiva que optimiza tus citas y reduce cancelaciones",
       color: "from-purple-500 to-pink-500",
-      howItWorks: "Gestiona citas con recordatorios automáticos, visualiza tu agenda semanal y recibe notificaciones de cancelaciones y confirmaciones.",
-      savings: "Reduce cancelaciones en 40% y optimiza tu agenda"
+      howItWorks: "Gestiona citas con recordatorios automáticos, visualiza tu agenda semanal con indicadores de citas en el calendario.",
+      savings: "Reduce cancelaciones en 40% y optimiza tu agenda",
+      isNew: true
     },
     {
       icon: LineChart,
-      title: "Inteligencia Operativa",
-      description: "Analytics en tiempo real con recomendaciones personalizadas de IA",
+      title: "Facturación Electrónica DIAN",
+      description: "Facturación electrónica y RIPS integrados para Colombia",
       color: "from-orange-500 to-red-500",
-      howItWorks: "Dashboards con métricas clave: pacientes atendidos, satisfacción, ingresos y tendencias. La IA identifica patrones y oportunidades de mejora.",
-      savings: "Aumenta ingresos en 25% identificando oportunidades"
+      howItWorks: "Genera facturas electrónicas válidas ante la DIAN, exporta RIPS en JSON y recibe notificaciones en tiempo real.",
+      savings: "Cumple normativa colombiana 100% automático",
+      isNew: true
     },
     {
       icon: Users,
       title: "Gestión de Pacientes",
       description: "Base de datos completa con historiales médicos digitalizados",
       color: "from-indigo-500 to-blue-500",
-      howItWorks: "Almacena información de pacientes, consultas, diagnósticos y tratamientos. Accede al historial completo en segundos desde cualquier dispositivo.",
+      howItWorks: "Almacena información de pacientes, consultas, diagnósticos y tratamientos. Accede al historial completo en segundos.",
       savings: "Elimina 100% el uso de papel y archivos físicos"
     },
     {
       icon: Activity,
-      title: "Dashboard Completo",
-      description: "Visualiza métricas clave: pacientes, satisfacción e ingresos",
+      title: "Notificaciones Inteligentes",
+      description: "Alertas de citas, recordatorios y actualizaciones en tiempo real",
       color: "from-yellow-500 to-amber-500",
-      howItWorks: "Panel central que muestra el estado de tu práctica en tiempo real con estadísticas, alertas y accesos rápidos a todas las funciones.",
-      savings: "Ahorra 2-3 horas diarias en tareas administrativas"
+      howItWorks: "Recibe notificaciones de citas del día, recordatorios de seguimiento y alertas de facturación directamente en la app.",
+      savings: "Nunca pierdas una cita o seguimiento importante",
+      isNew: true
     }
   ];
 
@@ -168,6 +172,21 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen overflow-hidden">
+      {/* Promo Banner */}
+      <div className="bg-gradient-to-r from-primary via-secondary to-primary text-primary-foreground py-3 px-4 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMCAwaDIwdjIwSDB6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
+        <div className="container mx-auto flex items-center justify-center gap-3 flex-wrap relative z-10">
+          <Gift className="w-5 h-5 animate-bounce" />
+          <span className="font-bold text-lg">🎉 OFERTA ESPECIAL DE LANZAMIENTO</span>
+          <span className="hidden sm:inline">•</span>
+          <span className="text-sm sm:text-base">Primeros 3 meses con <span className="font-black text-xl">50% OFF</span></span>
+          <span className="hidden sm:inline">•</span>
+          <Link to="/auth" className="bg-white text-primary px-4 py-1 rounded-full font-bold text-sm hover:scale-105 transition-transform">
+            ¡Aprovechar Ahora!
+          </Link>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <section className="relative bg-background py-40 px-4 overflow-hidden">
         {/* Animated Background Elements */}
@@ -381,6 +400,14 @@ const Landing = () => {
                 <Card className="group h-full hover:shadow-[0_0_40px_rgba(var(--primary-glow),0.15)] transition-all duration-500 hover:-translate-y-1 border border-border/50 hover:border-primary/30 bg-card/50 backdrop-blur-sm overflow-hidden relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
+                  {(feature as any).isNew && (
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className="bg-gradient-to-r from-primary to-secondary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full animate-pulse">
+                        ✨ NUEVO
+                      </span>
+                    </div>
+                  )}
+                  
                   <CardHeader className="relative">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-6 group-hover:scale-105 transition-all duration-500">
                       <feature.icon className="w-6 h-6 text-primary" />
@@ -558,8 +585,110 @@ const Landing = () => {
                   Eso es <strong className="text-foreground">$17,412 al año</strong> que puedes reinvertir en tu práctica
                 </p>
               </div>
+              
+              {/* Special Offer */}
+              <div className="mt-6 p-6 bg-gradient-to-r from-secondary to-primary rounded-xl text-primary-foreground text-center animate-pulse">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Percent className="w-6 h-6" />
+                  <span className="font-black text-2xl">OFERTA DE LANZAMIENTO</span>
+                </div>
+                <p className="text-lg mb-3">
+                  <span className="line-through opacity-70">$99/mes</span> → <span className="font-black text-3xl">$49/mes</span> los primeros 3 meses
+                </p>
+                <Link to="/auth">
+                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold">
+                    ¡Aprovechar Ahora!
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* What's New Section */}
+      <section 
+        className="py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-secondary/5"
+        id="whats-new-section"
+        ref={(el) => (observerRefs.current["whats-new-section"] = el)}
+      >
+        <div className="container mx-auto max-w-6xl">
+          <div className={`text-center mb-16 transition-all duration-1000 ${isVisible["whats-new-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Actualizaciones Recientes</span>
+            </div>
+            <h2 className="text-5xl lg:text-6xl font-black text-foreground mb-4">
+              ¿Qué Hay de <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Nuevo</span>?
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Mejoras continuas para hacer tu práctica más eficiente
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Bell,
+                title: "Notificaciones de Citas",
+                description: "Recibe alertas de citas del día y mañana directamente en la campana de notificaciones. Nunca pierdas una cita.",
+                date: "Diciembre 2024"
+              },
+              {
+                icon: Calendar,
+                title: "Calendario con Indicadores",
+                description: "El mini-calendario ahora muestra puntos en las fechas con citas programadas para una vista rápida.",
+                date: "Diciembre 2024"
+              },
+              {
+                icon: FileText,
+                title: "Descarga de Audio",
+                description: "Descarga las grabaciones de consultas en formato WebM para archivar o revisar más tarde.",
+                date: "Diciembre 2024"
+              },
+              {
+                icon: LineChart,
+                title: "Facturación DIAN",
+                description: "Genera facturas electrónicas válidas ante la DIAN con notificaciones en tiempo real de aprobación.",
+                date: "Noviembre 2024"
+              },
+              {
+                icon: Brain,
+                title: "IA Mejorada",
+                description: "El asistente de IA ahora autocompleta campos y sugiere preguntas en una sola operación.",
+                date: "Noviembre 2024"
+              },
+              {
+                icon: Users,
+                title: "Programa de Referidos",
+                description: "Refiere colegas y obtén hasta 100% de descuento en tu suscripción.",
+                date: "Octubre 2024"
+              }
+            ].map((update, index) => (
+              <Card 
+                key={index}
+                className={`group hover:shadow-xl transition-all duration-500 hover:-translate-y-1 border border-border/50 hover:border-primary/30 ${
+                  isVisible["whats-new-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+                }`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <CardHeader>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <update.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                      {update.date}
+                    </span>
+                  </div>
+                  <CardTitle className="text-lg group-hover:text-primary transition-colors">{update.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{update.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
