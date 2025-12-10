@@ -152,13 +152,32 @@ const Dashboard = () => {
         time: Math.floor(Math.random() * 20) - 10 // -10% a +10%
       };
 
-      setStats({
-        totalPatients: patientsCount || 0,
-        satisfactionRate,
-        estimatedRevenue,
-        averageTime,
-        trends
-      });
+      // Si no hay datos, mostrar datos demo profesionales para el video
+      const hasRealData = (patientsCount || 0) > 0;
+      
+      if (hasRealData) {
+        setStats({
+          totalPatients: patientsCount || 0,
+          satisfactionRate,
+          estimatedRevenue,
+          averageTime,
+          trends
+        });
+      } else {
+        // Datos demo para presentaciones y videos
+        setStats({
+          totalPatients: 127,
+          satisfactionRate: 96,
+          estimatedRevenue: 15840000,
+          averageTime: 28,
+          trends: {
+            patients: 18,
+            satisfaction: 4,
+            revenue: 23,
+            time: -8
+          }
+        });
+      }
     } catch (error) {
       console.error('Error loading stats:', error);
     }
