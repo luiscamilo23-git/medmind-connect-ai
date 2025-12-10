@@ -1,26 +1,54 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <title>MEDMIND - Plataforma Inteligente para Médicos</title>
     <meta name="description" content="Automatiza tu práctica médica con IA. Reduce costos operativos hasta 85% y aumenta tu productividad 40%.">
     <meta name="author" content="MEDMIND" />
 
+    <!-- Mobile App Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MEDMIND">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="format-detection" content="telephone=no">
     
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/favicon.png">
     
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/hPrRCTsGI8MNimgqRxTxVuZXzZF3/social-images/social-1762748068497-medmind 1 publicacion.png">
+    <meta property="og:title" content="MEDMIND - Plataforma Inteligente para Médicos">
+    <meta property="og:description" content="Automatiza tu práctica médica con IA. Reduce costos operativos hasta 85% y aumenta tu productividad 40%.">
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@Lovable" />
     <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/hPrRCTsGI8MNimgqRxTxVuZXzZF3/social-images/social-1762748068497-medmind 1 publicacion.png">
-    <meta property="og:title" content="MEDMIND - Plataforma Inteligente para Médicos">
-  <meta name="twitter:title" content="MEDMIND - Plataforma Inteligente para Médicos">
-  <meta property="og:description" content="Automatiza tu práctica médica con IA. Reduce costos operativos hasta 85% y aumenta tu productividad 40%.">
-  <meta name="twitter:description" content="Automatiza tu práctica médica con IA. Reduce costos operativos hasta 85% y aumenta tu productividad 40%.">
-</head>
+    <meta name="twitter:title" content="MEDMIND - Plataforma Inteligente para Médicos">
+    <meta name="twitter:description" content="Automatiza tu práctica médica con IA. Reduce costos operativos hasta 85% y aumenta tu productividad 40%.">
+
+    <style>
+      /* Safe area padding for iOS notch */
+      :root {
+        --sat: env(safe-area-inset-top);
+        --sar: env(safe-area-inset-right);
+        --sab: env(safe-area-inset-bottom);
+        --sal: env(safe-area-inset-left);
+      }
+      
+      body {
+        padding-top: var(--sat);
+        padding-right: var(--sar);
+        padding-bottom: var(--sab);
+        padding-left: var(--sal);
+      }
+    </style>
+  </head>
 
   <body>
     <div id="root"></div>
