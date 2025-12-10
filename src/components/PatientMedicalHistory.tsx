@@ -19,6 +19,7 @@ import autoTable from "jspdf-autotable";
 import InventoryUsageDialog from "./InventoryUsageDialog";
 import { InventoryItem } from "@/pages/SupplyLens";
 import { PatientVoiceRecordings } from "./PatientVoiceRecordings";
+import { PatientAISummary } from "./PatientAISummary";
 
 interface Patient {
   id: string;
@@ -364,7 +365,14 @@ export const PatientMedicalHistory = ({ open, onOpenChange, patient }: PatientMe
           </div>
         </DialogHeader>
 
-        <ScrollArea className="h-[600px] pr-4">
+        <ScrollArea className="h-[550px] pr-4">
+          {/* AI Summary Section */}
+          {patient && (
+            <div className="mb-6">
+              <PatientAISummary patientId={patient.id} patientName={patient.full_name} />
+            </div>
+          )}
+
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Activity className="w-8 h-8 text-primary animate-pulse" />
