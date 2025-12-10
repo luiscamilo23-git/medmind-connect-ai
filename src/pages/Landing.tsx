@@ -108,13 +108,13 @@ const Landing = () => {
     },
     {
       icon: Shield,
-      title: "Seguridad y Cumplimiento",
-      description: "Datos protegidos y organizados",
+      title: "Cumplimiento Legal Total",
+      description: "100% conforme a normativa colombiana",
       items: [
-        "Respaldo automático en la nube",
-        "Acceso controlado y encriptado",
-        "Trazabilidad completa de cambios",
-        "Cumplimiento de normativas de salud"
+        "Facturación electrónica DIAN integrada",
+        "RIPS automático según Resolución 2275/2023",
+        "Historia clínica conforme a Ley 1995/1999",
+        "Protección de datos según Ley 1581/2012"
       ]
     },
     {
@@ -133,9 +133,11 @@ const Landing = () => {
   const whyUs = [
     "✓ Diseñado específicamente para médicos y odontólogos latinoamericanos",
     "✓ IA entrenada en terminología médica en español",
+    "✓ Cumple 100% con normativa colombiana (DIAN, RIPS, Ley 1581)",
+    "✓ Facturación electrónica válida ante la DIAN integrada",
+    "✓ Historia clínica conforme a Resolución 1995/1999",
     "✓ Implementación en menos de 24 horas sin capacitación técnica",
     "✓ Soporte 24/7 en tu idioma por profesionales de salud",
-    "✓ Actualización automática con nuevas funciones sin costo adicional",
     "✓ Precios transparentes sin sorpresas ni contratos largos"
   ];
 
@@ -996,7 +998,7 @@ const Landing = () => {
           </div>
 
           <p className="text-white/80 text-lg pt-8 animate-fade-in" style={{ animationDelay: "0.6s" }}>
-            ✓ Sin tarjeta de crédito  •  ✓ Configuración en 5 minutos  •  ✓ Soporte 24/7
+            ✓ Sin tarjeta de crédito  •  ✓ Configuración en 5 minutos  •  ✓ Cumple normativa DIAN  •  ✓ Soporte 24/7
           </p>
         </div>
       </section>

@@ -298,12 +298,29 @@ const LegalNotice = () => {
               <p>
                 MEDMIND cuenta con las siguientes certificaciones y cumple con:
               </p>
+              
+              <h3 className="text-xl font-semibold mt-4">13.1 Seguridad y Privacidad</h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>ISO 27001:</strong> Gestión de Seguridad de la Información</li>
                 <li><strong>SOC 2 Type II:</strong> Certificación de seguridad y privacidad</li>
                 <li><strong>HIPAA Compliance:</strong> Cumplimiento de normativa de privacidad médica (EE.UU.)</li>
                 <li><strong>GDPR Ready:</strong> Preparado para el Reglamento General de Protección de Datos (UE)</li>
+              </ul>
+
+              <h3 className="text-xl font-semibold mt-4">13.2 Normativa Colombiana de Salud</h3>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>Resolución 1995/1999:</strong> Historia clínica electrónica con inmutabilidad, marca de tiempo e identificación profesional</li>
+                <li><strong>Ley 1581/2012:</strong> Protección de datos personales de pacientes con encriptación y control de acceso</li>
                 <li><strong>NOM-024-SSA3-2012:</strong> Sistemas de información de registro electrónico para la salud (México)</li>
+              </ul>
+
+              <h3 className="text-xl font-semibold mt-4">13.3 Facturación Electrónica DIAN Colombia</h3>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>Resolución DIAN 000042:</strong> Cumplimiento de facturación electrónica con CUFE</li>
+                <li><strong>Resolución 558/2024:</strong> Modelo de validación previa de factura electrónica</li>
+                <li><strong>Resolución 2275/2023:</strong> Generación de RIPS en formato JSON obligatorio</li>
+                <li><strong>Ley 527/1999:</strong> Validez jurídica de documentos electrónicos</li>
+                <li><strong>Proveedores Autorizados DIAN:</strong> Integración con tecnológicos autorizados (Alegra, Siigo, Alanube)</li>
               </ul>
             </section>
 
