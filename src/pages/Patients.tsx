@@ -12,11 +12,13 @@ import {
   Users,
   Eye,
   Edit,
-  Trash2
+  Trash2,
+  FileText
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PatientDialog } from "@/components/PatientDialog";
 import { PatientMedicalHistory } from "@/components/PatientMedicalHistory";
+import { PatientDocuments } from "@/components/PatientDocuments";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,6 +52,7 @@ const Patients = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [documentsOpen, setDocumentsOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
@@ -111,6 +114,11 @@ const Patients = () => {
   const handleViewHistory = (patient: Patient) => {
     setSelectedPatient(patient);
     setHistoryOpen(true);
+  };
+
+  const handleViewDocuments = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setDocumentsOpen(true);
   };
 
   const handleDeleteClick = (patient: Patient) => {
@@ -243,6 +251,14 @@ const Patients = () => {
                       <Button
                         variant="outline"
                         size="icon"
+                        onClick={() => handleViewDocuments(patient)}
+                        title="Ver documentos médicos"
+                      >
+                        <FileText className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
                         onClick={() => handleEdit(patient)}
                         title="Editar paciente"
                       >
@@ -274,6 +290,12 @@ const Patients = () => {
       <PatientMedicalHistory
         open={historyOpen}
         onOpenChange={setHistoryOpen}
+        patient={selectedPatient}
+      />
+
+      <PatientDocuments
+        open={documentsOpen}
+        onOpenChange={setDocumentsOpen}
         patient={selectedPatient}
       />
 
