@@ -64,32 +64,32 @@ const Referrals = () => {
   ];
 
   const stats = [
-    { value: "2,500+", label: "Médicos ya refieren" },
-    { value: "15,000+", label: "Referidos registrados" },
-    { value: "$450K", label: "Ahorrados en total" },
+    { value: "50+", label: "Médicos activos" },
+    { value: "120+", label: "Referidos registrados" },
+    { value: "$5K", label: "Ahorrados en total" },
     { value: "4.9/5", label: "Satisfacción" }
   ];
 
   const testimonials = [
     {
-      name: "Dr. Carlos Mendoza",
+      name: "Dr. Carlos M.",
       specialty: "Cardiología",
-      referrals: 12,
-      comment: "He referido a 12 colegas y mi suscripción es gratis desde hace 8 meses. ¡Una inversión que se paga sola!",
+      referrals: 3,
+      comment: "He referido a 3 colegas y ya estoy ahorrando 75% en mi suscripción. ¡Excelente programa!",
       avatar: "CM"
     },
     {
-      name: "Dra. Ana Sofía Torres",
+      name: "Dra. Ana S.",
       specialty: "Pediatría",
-      referrals: 8,
-      comment: "Referir a MEDMIND es fácil. Mis colegas están encantados y yo ahorro $150 mensuales.",
-      avatar: "AT"
+      referrals: 2,
+      comment: "Referir a MEDMIND es fácil. Mis colegas están encantados y ya tengo 50% de descuento.",
+      avatar: "AS"
     },
     {
-      name: "Dr. Miguel Ángel Rivera",
+      name: "Dr. Miguel R.",
       specialty: "Medicina General",
-      referrals: 6,
-      comment: "La calidad de MEDMIND habla por sí misma. Mis referidos me agradecen constantemente.",
+      referrals: 4,
+      comment: "Con 4 referidos mi suscripción es gratis. La plataforma es tan buena que se vende sola.",
       avatar: "MR"
     }
   ];

@@ -150,23 +150,23 @@ const Landing = () => {
 
   const testimonials = [
     {
-      name: "Dr. Carlos Mendoza",
+      name: "Dr. Carlos M.",
       specialty: "Odontólogo",
-      comment: "MEDMIND transformó mi consultorio. Ahora puedo ver 30% más pacientes sin trabajar más horas.",
+      comment: "MEDMIND ha simplificado enormemente mi documentación clínica. La transcripción por voz es muy precisa.",
       rating: 5,
       avatar: "CM"
     },
     {
-      name: "Dra. Ana Rodríguez",
+      name: "Dra. Ana R.",
       specialty: "Medicina General",
-      comment: "La transcripción automática es increíble. Ya no pierdo tiempo escribiendo historias clínicas.",
+      comment: "La generación automática de historias clínicas me ahorra mucho tiempo en cada consulta.",
       rating: 5,
       avatar: "AR"
     },
     {
-      name: "Dr. Luis Torres",
+      name: "Dr. Luis T.",
       specialty: "Dermatólogo",
-      comment: "El análisis de inventario me ahorró miles de dólares en productos vencidos.",
+      comment: "El control de inventario me ayuda a mantener mis insumos siempre al día sin desperdicios.",
       rating: 5,
       avatar: "LT"
     }
@@ -706,7 +706,7 @@ const Landing = () => {
               Lo que dicen los médicos
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Miles de profesionales ya confían en MEDMIND
+              Profesionales que ya confían en MEDMIND
             </p>
           </div>
 
