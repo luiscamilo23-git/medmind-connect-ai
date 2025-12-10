@@ -19,7 +19,8 @@ import {
   Zap,
   TrendingUp,
   TrendingDown,
-  Sparkles
+  Sparkles,
+  Bot
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReVerification } from "@/hooks/useReVerification";
@@ -27,11 +28,15 @@ import ReVerification from "@/components/auth/ReVerification";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { DoctorAIAssistant } from "@/components/DoctorAIAssistant";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [doctorName, setDoctorName] = useState<string>("");
+  const [specialty, setSpecialty] = useState<string>("");
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiExpanded, setAiExpanded] = useState(false);
   const [stats, setStats] = useState({
     totalPatients: 0,
     satisfactionRate: 0,
@@ -87,12 +92,15 @@ const Dashboard = () => {
     try {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name')
+        .select('full_name, specialty')
         .eq('id', doctorId)
         .maybeSingle();
 
       if (profile?.full_name) {
         setDoctorName(profile.full_name);
+      }
+      if (profile?.specialty) {
+        setSpecialty(profile.specialty);
       }
     } catch (error) {
       console.error('Error loading doctor profile:', error);
@@ -380,6 +388,37 @@ const Dashboard = () => {
               </Card>
             </div>
           </main>
+
+          {/* Floating AI Assistant Button */}
+          {!showAIAssistant && (
+            <Button
+              onClick={() => setShowAIAssistant(true)}
+              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl bg-gradient-to-br from-primary to-primary/80 hover:scale-110 transition-transform z-50"
+              size="icon"
+            >
+              <Bot className="w-6 h-6" />
+            </Button>
+          )}
+
+          {/* AI Assistant Panel */}
+          {showAIAssistant && (
+            <div className={`fixed z-50 transition-all duration-300 ${
+              aiExpanded 
+                ? 'inset-4 md:inset-8' 
+                : 'bottom-6 right-6 w-[380px] max-w-[calc(100vw-3rem)]'
+            }`}>
+              <DoctorAIAssistant 
+                expanded={aiExpanded}
+                onToggleExpand={() => setAiExpanded(!aiExpanded)}
+                onClose={() => {
+                  setShowAIAssistant(false);
+                  setAiExpanded(false);
+                }}
+                doctorName={doctorName}
+                specialty={specialty}
+              />
+            </div>
+          )}
         </div>
       </div>
     </SidebarProvider>
