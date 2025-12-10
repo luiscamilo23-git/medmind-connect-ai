@@ -17,7 +17,7 @@ interface Message {
 const INITIAL_MESSAGE: Message = {
   id: "welcome",
   role: "assistant",
-  content: "¡Hola Doctor! 👋 Soy tu asistente médico IA. Puedo ayudarte con:\n\n• Consultar información sobre medicamentos y dosis\n• Revisar protocolos clínicos\n• Sugerir diagnósticos diferenciales\n• Recordar códigos CIE-10\n• Resolver dudas médicas rápidas\n\n¿En qué puedo asistirte?",
+  content: "¡Hola Doctor! 👋 Soy **Asistente MED**, tu apoyo clínico virtual.\n\nPuedo ayudarte con:\n• Consultar dosis y medicamentos\n• Códigos CIE-10 y CUPS\n• Diagnósticos diferenciales\n• Protocolos clínicos\n• Valores de referencia\n\n⚠️ *Recuerda: Mis respuestas son orientativas. Tu criterio clínico siempre prevalece.*\n\n¿En qué puedo asistirte?",
   timestamp: new Date(),
 };
 
@@ -174,7 +174,7 @@ export const DoctorAIAssistant = ({
               <Bot className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="flex items-center gap-1.5">
-              Asistente IA
+              Asistente MED
               <Sparkles className="w-3.5 h-3.5 text-yellow-500" />
             </span>
           </CardTitle>
