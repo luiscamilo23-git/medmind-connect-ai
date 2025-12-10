@@ -51,9 +51,11 @@ const TermsOfService = () => {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Transcripción automática de consultas médicas mediante inteligencia artificial</li>
-                <li>Gestión de historias clínicas y expedientes de pacientes</li>
+                <li>Gestión de historias clínicas y expedientes de pacientes conforme a normativa colombiana</li>
                 <li>Administración de citas y agenda médica</li>
                 <li>Control de inventario de suministros médicos</li>
+                <li>Facturación electrónica válida ante la DIAN (Colombia)</li>
+                <li>Generación automática de RIPS según Resolución 2275/2023</li>
                 <li>Análisis predictivo y generación de reportes</li>
                 <li>Comunicación con pacientes y red médica social</li>
               </ul>

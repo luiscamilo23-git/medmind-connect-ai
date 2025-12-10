@@ -208,12 +208,37 @@ const PrivacyPolicy = () => {
               <p>
                 MEDMIND cumple con las siguientes normativas y estándares de protección de datos:
               </p>
+              
+              <h3 className="text-xl font-semibold mt-4">14.1 Normativa Colombiana</h3>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Ley Federal de Protección de Datos Personales en Posesión de los Particulares (México)</li>
-                <li>HIPAA (Health Insurance Portability and Accountability Act)</li>
-                <li>GDPR (General Data Protection Regulation) para usuarios europeos</li>
-                <li>ISO 27001 - Gestión de Seguridad de la Información</li>
-                <li>SOC 2 Type II - Certificación de seguridad y privacidad</li>
+                <li><strong>Ley 1581 de 2012:</strong> Protección de datos personales - Encriptación en tránsito y reposo, acceso basado en roles, registro de auditoría</li>
+                <li><strong>Resolución 1995/1999:</strong> Normas para el manejo de la historia clínica - Inmutabilidad, marca de tiempo, identificación profesional</li>
+                <li><strong>Resolución 2275/2023:</strong> RIPS en formato JSON obligatorio para reporte de servicios de salud</li>
+                <li><strong>Resolución 558/2024:</strong> Modelo de validación de factura electrónica</li>
+                <li><strong>Ley 527/1999 + Resolución DIAN 000042:</strong> Legalidad de facturación electrónica</li>
+              </ul>
+
+              <h3 className="text-xl font-semibold mt-4">14.2 Normativa Internacional</h3>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>Ley Federal de Protección de Datos Personales (México)</strong></li>
+                <li><strong>HIPAA:</strong> Health Insurance Portability and Accountability Act</li>
+                <li><strong>GDPR:</strong> General Data Protection Regulation para usuarios europeos</li>
+                <li><strong>ISO 27001:</strong> Gestión de Seguridad de la Información</li>
+                <li><strong>SOC 2 Type II:</strong> Certificación de seguridad y privacidad</li>
+              </ul>
+            </section>
+
+            <section className="space-y-4">
+              <h2 className="text-2xl font-semibold">15. Facturación Electrónica y DIAN</h2>
+              <p>
+                MEDMIND facilita el cumplimiento de las obligaciones tributarias en Colombia:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>Facturación Electrónica:</strong> Generación de facturas electrónicas válidas ante la DIAN con CUFE (Código Único de Factura Electrónica)</li>
+                <li><strong>Proveedores Autorizados:</strong> Integración con proveedores tecnológicos autorizados por la DIAN (Alegra, Siigo, Alanube, entre otros)</li>
+                <li><strong>RIPS Automatizado:</strong> Generación automática de archivos RIPS en formato JSON según Resolución 2275/2023</li>
+                <li><strong>Validación en Tiempo Real:</strong> Notificaciones instantáneas de aprobación o rechazo de facturas</li>
+                <li><strong>Auditoría Completa:</strong> Registro detallado de todas las emisiones para cumplimiento tributario</li>
               </ul>
             </section>
           </div>
