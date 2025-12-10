@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MessageSquare, Activity, Heart, TrendingUp, Users } from "lucide-react";
+import { Calendar, MessageSquare, Activity, Heart, TrendingUp, Users, Bot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { PatientAIChatbot } from "@/components/patient/PatientAIChatbot";
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
@@ -67,6 +68,14 @@ const PatientDashboard = () => {
 
   const modules = [
     {
+      title: "Asistente IA",
+      description: "Chat inteligente para resolver dudas de salud",
+      icon: Bot,
+      path: null, // Will show chatbot inline
+      color: "from-emerald-500 to-teal-500",
+      isNew: true,
+    },
+    {
       title: "Explorar Médicos",
       description: "Encuentra especialistas cerca de ti",
       icon: Users,
@@ -105,6 +114,8 @@ const PatientDashboard = () => {
     },
   ];
 
+  const [showChatbot, setShowChatbot] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-8">
@@ -128,35 +139,57 @@ const PatientDashboard = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules.map((module) => (
-            <Card
-              key={module.path}
-              className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group overflow-hidden relative"
-              onClick={() => navigate(module.path)}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${module.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className={`p-3 rounded-lg bg-gradient-to-br ${module.color}`}>
-                    <module.icon className="h-6 w-6 text-white" />
+        {showChatbot ? (
+          <div className="space-y-4">
+            <Button variant="outline" onClick={() => setShowChatbot(false)}>
+              ← Volver al menú
+            </Button>
+            <PatientAIChatbot />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {modules.map((module, index) => (
+              <Card
+                key={module.path || `module-${index}`}
+                className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group overflow-hidden relative"
+                onClick={() => {
+                  if (module.path) {
+                    navigate(module.path);
+                  } else {
+                    setShowChatbot(true);
+                  }
+                }}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${module.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className={`p-3 rounded-lg bg-gradient-to-br ${module.color}`}>
+                      <module.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {module.isNew && (
+                        <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse">
+                          ✨ NUEVO
+                        </span>
+                      )}
+                      {module.badge !== undefined && module.badge > 0 && (
+                        <span className="px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full">
+                          {module.badge}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  {module.badge !== undefined && module.badge > 0 && (
-                    <span className="px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full">
-                      {module.badge}
-                    </span>
-                  )}
-                </div>
-                <CardTitle className="mt-4">{module.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {module.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  <CardTitle className="mt-4">{module.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    {module.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         <Card>
           <CardHeader>
