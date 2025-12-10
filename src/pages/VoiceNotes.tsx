@@ -17,7 +17,8 @@ import {
   Loader2,
   ArrowLeft,
   Save,
-  Sparkles
+  Sparkles,
+  Download
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -39,6 +40,7 @@ const VoiceNotes = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   
   // Recording state for individual fields
   const [recordingField, setRecordingField] = useState<string | null>(null);
@@ -294,6 +296,12 @@ const VoiceNotes = () => {
     }
 
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.onstop = () => {
+        // Create audio blob when recording stops
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setAudioBlob(blob);
+      };
+      
       mediaRecorderRef.current.stop();
       
       if (mediaRecorderRef.current.stream) {
@@ -306,7 +314,32 @@ const VoiceNotes = () => {
     
     toast({
       title: "✓ Grabación detenida",
-      description: "Transcripción completada",
+      description: "Transcripción completada. Puedes descargar el audio.",
+    });
+  };
+
+  const downloadAudio = () => {
+    if (!audioBlob) {
+      toast({
+        title: "Sin grabación",
+        description: "No hay grabación disponible para descargar",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const url = URL.createObjectURL(audioBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `consulta_${patientName || 'paciente'}_${new Date().toISOString().split('T')[0]}.webm`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "✓ Audio descargado",
+      description: "La grabación se ha guardado en tu dispositivo",
     });
   };
 
@@ -579,6 +612,7 @@ const VoiceNotes = () => {
     setNotes("");
     setPatientName("");
     audioChunksRef.current = [];
+    setAudioBlob(null);
   };
 
   const renderFieldWithMic = (
@@ -691,7 +725,7 @@ const VoiceNotes = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-4 flex-wrap">
               {!isRecording || recordingField ? (
                 <Button
                   size="lg"
@@ -711,6 +745,18 @@ const VoiceNotes = () => {
                 >
                   <Square className="w-5 h-5" />
                   Detener Grabación
+                </Button>
+              )}
+              
+              {audioBlob && !isRecording && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={downloadAudio}
+                  className="gap-2"
+                >
+                  <Download className="w-5 h-5" />
+                  Descargar Audio
                 </Button>
               )}
             </div>
