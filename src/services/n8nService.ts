@@ -1,4 +1,4 @@
-const N8N_WEBHOOK_URL = "https://chispa-ia-n8n.653wwo.easypanel.host/webhook/messages-upsert";
+const N8N_WEBHOOK_URL = "https://chispa-ia-n8n.653wwo.easypanel.host/webhook/medmind";
 
 export interface N8NSchedulerPayload {
   action: "auto_organize" | "suggest_slots" | "send_reminders";
