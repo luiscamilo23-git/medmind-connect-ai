@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { sendToN8NWebhook, N8NSchedulerPayload } from "@/services/n8nService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -229,25 +230,73 @@ const SmartScheduler = () => {
     (apt) => isToday(parseISO(apt.appointment_date))
   );
 
+  const sendToN8N = async (action: N8NSchedulerPayload["action"], message: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const payload: N8NSchedulerPayload = {
+        action,
+        doctor_id: user?.id,
+        appointments: appointments.map(apt => ({
+          id: apt.id,
+          title: apt.title,
+          date: apt.appointment_date,
+          duration: apt.duration_minutes,
+          status: apt.status,
+          patient_name: apt.patients?.full_name,
+        })),
+        current_date: new Date().toISOString(),
+        week_start: currentWeekStart.toISOString(),
+        week_end: addDays(currentWeekStart, 6).toISOString(),
+        message,
+      };
+
+      const result = await sendToN8NWebhook(payload);
+
+      if (result.success) {
+        toast({
+          title: "Solicitud enviada",
+          description: "n8n está procesando tu solicitud. Recibirás una respuesta pronto.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "No se pudo conectar con n8n",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error in sendToN8N:", error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al enviar la solicitud",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAIAutoOrganize = () => {
     toast({
       title: "IA Organizando...",
-      description: "Analizando tu agenda para optimizar horarios.",
+      description: "Enviando agenda a n8n para optimización.",
     });
+    sendToN8N("auto_organize", "Organizar automáticamente la agenda del doctor");
   };
 
   const handleAISuggestSlots = () => {
     toast({
       title: "Analizando disponibilidad",
-      description: "Buscando los mejores horarios para nuevas citas.",
+      description: "Enviando solicitud a n8n para sugerir horarios.",
     });
+    sendToN8N("suggest_slots", "Sugerir horarios óptimos para nuevas citas");
   };
 
   const handleAIReminders = () => {
     toast({
-      title: "Recordatorios configurados",
-      description: "Se enviarán recordatorios automáticos a tus pacientes.",
+      title: "Configurando recordatorios",
+      description: "Enviando solicitud a n8n para programar recordatorios.",
     });
+    sendToN8N("send_reminders", "Enviar recordatorios automáticos a pacientes");
   };
 
   const getStatusColor = (status: string) => {
