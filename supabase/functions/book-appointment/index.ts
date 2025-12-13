@@ -3,15 +3,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-api-key',
 };
 
 interface BookAppointmentRequest {
-  patient_phone: string;
   patient_name?: string;
-  appointment_date: string;
-  reason: string;
+  phone: string;
+  date: string;
   doctor_id: string;
+  reason?: string;
 }
 
 serve(async (req) => {
@@ -29,26 +29,39 @@ serve(async (req) => {
       );
     }
 
+    // Authenticate using x-api-key header
+    const apiKey = req.headers.get('x-api-key');
+    const expectedKey = Deno.env.get('N8N_AUTH_TOKEN');
+    
+    if (!expectedKey) {
+      console.error('N8N_AUTH_TOKEN not configured');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (!apiKey || apiKey !== expectedKey) {
+      console.error('Invalid or missing API key');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized. Invalid or missing x-api-key header.' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const body: BookAppointmentRequest = await req.json();
     
     // Validate required fields
-    if (!body.patient_phone) {
+    if (!body.phone) {
       return new Response(
-        JSON.stringify({ error: 'patient_phone is required' }),
+        JSON.stringify({ error: 'phone is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
     
-    if (!body.appointment_date) {
+    if (!body.date) {
       return new Response(
-        JSON.stringify({ error: 'appointment_date is required (ISO format)' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    
-    if (!body.reason) {
-      return new Response(
-        JSON.stringify({ error: 'reason is required' }),
+        JSON.stringify({ error: 'date is required (ISO format)' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -74,7 +87,7 @@ serve(async (req) => {
     });
 
     // Clean phone number (remove spaces, dashes, etc.)
-    const cleanPhone = body.patient_phone.replace(/[\s\-\(\)]/g, '');
+    const cleanPhone = body.phone.replace(/[\s\-\(\)]/g, '');
 
     // Step 1: Search for existing patient by phone
     console.log('Searching for patient with phone:', cleanPhone);
@@ -133,14 +146,16 @@ serve(async (req) => {
     // Step 2: Create the appointment
     console.log('Creating appointment for patient:', patientId);
     
+    const appointmentTitle = body.reason || 'Cita agendada vía n8n';
+    
     const { data: appointment, error: appointmentError } = await supabase
       .from('appointments')
       .insert({
         doctor_id: body.doctor_id,
         patient_id: patientId,
-        appointment_date: body.appointment_date,
-        title: body.reason,
-        description: `Cita agendada vía n8n - ${body.reason}`,
+        appointment_date: body.date,
+        title: appointmentTitle,
+        description: `Cita agendada vía n8n - ${appointmentTitle}`,
         status: 'scheduled',
         duration_minutes: 30,
       })
