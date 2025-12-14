@@ -7,10 +7,11 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Manejo de Preflight (CORS)
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    // 1. PREPARAR DATOS
+    // 1. OBTENER USUARIO
     const supabaseClient = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
       global: { headers: { Authorization: req.headers.get("Authorization")! } },
     });
@@ -21,47 +22,57 @@ serve(async (req) => {
     } = await supabaseClient.auth.getUser();
     if (userError || !user) throw new Error("Usuario no autenticado");
 
+    // 2. PREPARAR DATOS
     // Limpiamos el nombre (quitamos guiones)
     const instanceName = user.id.replace(/-/g, "");
     const evoUrl = Deno.env.get("EVOLUTION_API_URL");
     const evoKey = Deno.env.get("EVOLUTION_API_KEY");
     const webhookUrl = Deno.env.get("MEDMIND_WEBHOOK") || Deno.env.get("N8N_WEBHOOK_URL");
 
-    if (!evoUrl || !evoKey || !webhookUrl) throw new Error("Faltan secretos de configuración");
+    if (!evoUrl || !evoKey || !webhookUrl) throw new Error("Faltan secretos");
 
-    console.log(`Creando instancia básica: ${instanceName}`);
+    console.log(`Intentando crear instancia: ${instanceName}`);
 
-    // 2. CREAR INSTANCIA (SOLO QR, SIN WEBHOOK AÚN)
-    // Quitamos "webhook" de aquí para evitar el error "reading length"
+    // ---------------------------------------------------------
+    // PASO A: CREAR INSTANCIA (ULTRA-MINIMALISTA)
+    // ---------------------------------------------------------
+    // Quitamos 'integration' y 'webhook' para evitar el bug "reading length"
     const createRes = await fetch(`${evoUrl}/instance/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: evoKey },
       body: JSON.stringify({
         instanceName: instanceName,
         qrcode: true,
-        integration: "WHATSAPP-BAILEYS",
       }),
     });
 
     const createText = await createRes.text();
 
+    // Si falla, revisamos si es porque ya existe
     if (!createRes.ok && !createText.includes("already exists")) {
-      throw new Error(`Evolution Error: ${createText}`);
+      console.error("Error Crudo Evolution:", createText);
+      throw new Error(`Evolution rechazó la creación: ${createText}`);
     }
 
-    // Rescatar QR
+    // Intentamos rescatar el QR del JSON (si se creó nueva)
     let qrCode = null;
     try {
       const json = JSON.parse(createText);
       qrCode = json.qrcode?.base64 || json.base64 || json.qr?.base64;
-    } catch (e) {}
+    } catch (e) {
+      console.log("Instancia ya existía, no hay QR nuevo en respuesta inicial");
+    }
 
-    // 3. CONFIGURAR WEBHOOK (PASO SEPARADO)
-    // Esperamos 2 segundos para asegurar que la instancia existe
-    await new Promise((r) => setTimeout(r, 2000));
+    // ---------------------------------------------------------
+    // PASO B: INYECTAR WEBHOOK Y CONFIGURACIÓN (DELAY DE SEGURIDAD)
+    // ---------------------------------------------------------
+    // Esperamos 2.5 segundos para que la base de datos de Evolution respire
+    await new Promise((r) => setTimeout(r, 2500));
 
-    console.log(`Configurando Webhook en: ${webhookUrl}`);
-    await fetch(`${evoUrl}/webhook/set/${instanceName}`, {
+    console.log(`Configurando Webhook...`);
+
+    // 1. Set Webhook
+    const webhookRes = await fetch(`${evoUrl}/webhook/set/${instanceName}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: evoKey },
       body: JSON.stringify({
@@ -72,7 +83,7 @@ serve(async (req) => {
       }),
     });
 
-    // 4. CONFIGURAR COMPORTAMIENTO
+    // 2. Set Comportamiento
     await fetch(`${evoUrl}/settings/set/${instanceName}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: evoKey },
@@ -86,15 +97,18 @@ serve(async (req) => {
       }),
     });
 
-    // 5. ACTUALIZAR BASE DE DATOS
+    // ---------------------------------------------------------
+    // PASO C: ACTUALIZAR PERFIL SUPABASE
+    // ---------------------------------------------------------
     await supabaseClient.from("profiles").update({ whatsapp_instance_name: instanceName }).eq("id", user.id);
 
-    // FIN
+    // Respuesta Final
     return new Response(
       JSON.stringify({
         success: true,
         qrcode: qrCode,
         instanceName: instanceName,
+        webhookStatus: webhookRes.ok ? "Configurado" : "Pendiente",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
