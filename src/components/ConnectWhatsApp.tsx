@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw } from "lucide-react";
+import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export function ConnectWhatsApp() {
   const [loading, setLoading] = useState(false);
@@ -15,6 +17,7 @@ export function ConnectWhatsApp() {
   const [instanceName, setInstanceName] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [status, setStatus] = useState<'online' | 'offline' | 'unknown' | 'disconnected'>('disconnected');
+  const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -124,7 +127,7 @@ export function ConnectWhatsApp() {
 
       const { data } = await supabase
         .from("profiles")
-        .select("whatsapp_instance_name")
+        .select("whatsapp_instance_name, whatsapp_last_sync_at")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -132,6 +135,7 @@ export function ConnectWhatsApp() {
         setIsConnected(true);
         setInstanceName(data.whatsapp_instance_name);
         setStatus('unknown');
+        setLastSyncAt(data.whatsapp_last_sync_at || null);
       }
     } catch (error) {
       console.error("Error checking local WhatsApp status:", error);
@@ -185,6 +189,10 @@ export function ConnectWhatsApp() {
           variant: "destructive",
         });
         return;
+      }
+
+      if (data?.syncedAt) {
+        setLastSyncAt(data.syncedAt);
       }
 
       toast({
@@ -358,6 +366,12 @@ export function ConnectWhatsApp() {
               </>
             )}
           </Button>
+          {lastSyncAt && (
+            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              Última sincronización: {format(new Date(lastSyncAt), "d MMM yyyy, HH:mm", { locale: es })}
+            </p>
+          )}
         </CardContent>
       </Card>
     );
