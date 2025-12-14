@@ -95,7 +95,14 @@ export function ConnectWhatsApp() {
         return false;
       }
 
-      if (data?.connected && (data?.status === 'online' || data?.status === 'offline')) {
+      // Solo considerar conectado si status es 'online' o 'offline' (ya escaneado)
+      // NO si status es 'connecting' (esperando escaneo)
+      const isReallyConnected = data?.connected === true && 
+        (data?.status === 'online' || data?.status === 'offline');
+      
+      console.log(`Silent check: connected=${data?.connected}, status=${data?.status}, isReallyConnected=${isReallyConnected}`);
+
+      if (isReallyConnected) {
         setIsConnected(true);
         setInstanceName(data?.instanceName || null);
         setStatus(data?.status || 'unknown');
