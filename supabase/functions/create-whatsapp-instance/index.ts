@@ -103,7 +103,7 @@ serve(async (req) => {
     console.log(`[3/5] Esperando sincronización...`);
     await new Promise(r => setTimeout(r, 1500));
 
-    // 5. CONFIGURAR WEBHOOK (envuelto en objeto webhook)
+    // 5. CONFIGURAR WEBHOOK (formato plano, activando webhookByEvents y webhookBase64)
     if (webhookUrl) {
       console.log(`[4/5] Configurando webhook: ${webhookUrl}`);
       try {
@@ -111,13 +111,11 @@ serve(async (req) => {
           method: "POST",
           headers: { "Content-Type": "application/json", apikey: evoKey },
           body: JSON.stringify({
-            webhook: {
-              enabled: true,
-              url: webhookUrl,
-              webhookByEvents: false,
-              webhookBase64: true,
-              events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "MESSAGES_UPDATE"]
-            }
+            enabled: true,
+            url: webhookUrl,
+            webhookByEvents: true,
+            webhookBase64: true,
+            events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "MESSAGES_UPDATE"]
           }),
         });
         const webhookData = await webhookRes.text();
