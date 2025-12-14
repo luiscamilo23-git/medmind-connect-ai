@@ -1638,7 +1638,7 @@ export type Database = {
       validate_rips_structure: { Args: { rips_json: Json }; Returns: Json }
     }
     Enums: {
-      app_role: "admin" | "doctor" | "staff" | "patient"
+      app_role: "admin" | "doctor" | "staff" | "patient" | "moderator"
       appointment_status:
         | "scheduled"
         | "confirmed"
@@ -1817,7 +1817,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "doctor", "staff", "patient"],
+      app_role: ["admin", "doctor", "staff", "patient", "moderator"],
       appointment_status: [
         "scheduled",
         "confirmed",
