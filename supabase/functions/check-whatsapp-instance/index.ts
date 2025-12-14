@@ -113,14 +113,19 @@ serve(async (req) => {
     // Get connection status from the instance
     const connectionStatus = foundInstance.connectionStatus || foundInstance.status || 'unknown';
     const isOnline = connectionStatus === 'open' || connectionStatus === 'connected' || connectionStatus === 'online';
-    console.log(`Instance ${instanceName} connection status: ${connectionStatus}`);
+    const isConnecting = connectionStatus === 'connecting';
+    
+    // IMPORTANTE: "connecting" significa que el QR está esperando escaneo, NO está conectado aún
+    const isActuallyConnected = isOnline && !isConnecting;
+    
+    console.log(`Instance ${instanceName} connection status: ${connectionStatus}, isActuallyConnected: ${isActuallyConnected}`);
 
     return new Response(
       JSON.stringify({ 
-        connected: true, 
+        connected: isActuallyConnected, 
         instanceName, 
         verified: true,
-        status: isOnline ? 'online' : 'offline',
+        status: isOnline ? 'online' : (isConnecting ? 'connecting' : 'offline'),
         connectionStatus
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
