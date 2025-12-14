@@ -1,170 +1,102 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  // 1. Manejo de CORS (Permisos)
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const evolutionApiUrl = Deno.env.get('EVOLUTION_API_URL');
-    const evolutionApiKey = Deno.env.get('EVOLUTION_API_KEY');
-    const medmindWebhook = Deno.env.get('MEDMIND_WEBHOOK');
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    // 2. Conectar a Supabase para saber quién eres
+    const supabaseClient = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
+      global: { headers: { Authorization: req.headers.get("Authorization")! } },
+    });
 
-    if (!evolutionApiUrl || !evolutionApiKey) {
-      console.error('Missing Evolution API configuration');
-      throw new Error('Evolution API configuration not found');
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+    if (userError || !user) throw new Error("Usuario no autenticado");
+
+    // 3. Preparar Datos (Usamos tu ID como nombre de instancia)
+    const instanceName = user.id;
+    const evoUrl = Deno.env.get("EVOLUTION_API_URL");
+    const evoKey = Deno.env.get("EVOLUTION_API_KEY");
+    // IMPORTANTE: Asegúrate de que este secreto "MEDMIND_WEBHOOK" exista en Lovable
+    const webhookUrl = Deno.env.get("MEDMIND_WEBHOOK");
+
+    if (!evoUrl || !evoKey || !webhookUrl) {
+      throw new Error("Faltan secretos (EVOLUTION_API_URL, API_KEY o MEDMIND_WEBHOOK)");
     }
 
-    if (!medmindWebhook) {
-      console.error('Missing MEDMIND_WEBHOOK configuration');
-      throw new Error('MEDMIND_WEBHOOK configuration not found');
-    }
+    console.log(`Creando instancia: ${instanceName} conectada a ${webhookUrl}`);
 
-    if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('Missing Supabase configuration');
-      throw new Error('Supabase configuration not found');
-    }
-
-    // Get the authorization header to extract user
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      console.error('No authorization header provided');
-      throw new Error('Authorization required');
-    }
-
-    // Create Supabase client with user's token
-    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
-    
-    // Get the user from the JWT token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await createClient(
-      supabaseUrl,
-      Deno.env.get('SUPABASE_ANON_KEY') || '',
-      { global: { headers: { Authorization: authHeader } } }
-    ).auth.getUser();
-
-    if (userError || !user) {
-      console.error('Failed to get user:', userError);
-      throw new Error('Failed to authenticate user');
-    }
-
-    const userId = user.id;
-    console.log(`Creating WhatsApp instance for user: ${userId}`);
-
-    // Check if user already has an instance and get profile name
-    const { data: existingProfile } = await supabaseClient
-      .from('profiles')
-      .select('whatsapp_instance_name, full_name')
-      .eq('id', userId)
-      .single();
-
-    if (existingProfile?.whatsapp_instance_name) {
-      console.log(`User ${userId} already has instance: ${existingProfile.whatsapp_instance_name}`);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Ya tienes una instancia de WhatsApp configurada',
-          instanceName: existingProfile.whatsapp_instance_name,
-          alreadyConnected: true
-        }),
-        { 
-          status: 200, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Create instance name using doctor's profile name
-    const sanitizedName = (existingProfile?.full_name || 'doctor')
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '_')
-      .substring(0, 30);
-    const instanceName = `medmind_${sanitizedName}_${userId.substring(0, 8)}`;
-    console.log(`Creating Evolution API instance: ${instanceName}`);
-
-    const evolutionResponse = await fetch(`${evolutionApiUrl}/instance/create`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': evolutionApiKey,
-      },
+    // 4. CREAR INSTANCIA + CONFIGURAR WEBHOOK (Todo en uno)
+    const createRes = await fetch(`${evoUrl}/instance/create`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: evoKey },
       body: JSON.stringify({
         instanceName: instanceName,
         qrcode: true,
-        integration: 'WHATSAPP-BAILEYS',
-        webhook: medmindWebhook,
-        events: [
-          'MESSAGES_UPSERT',
-          'CONNECTION_UPDATE'
-        ],
+        integration: "WHATSAPP-BAILEYS",
+        webhook: webhookUrl, // ¡Aquí conectamos n8n de una vez!
+        events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "MESSAGES_UPDATE"],
+      }),
+    });
+
+    // Si falla, revisamos por qué (si ya existe, seguimos adelante)
+    if (!createRes.ok) {
+      const errorText = await createRes.text();
+      if (!errorText.includes("already exists")) {
+        throw new Error(`Error Evolution API: ${errorText}`);
+      }
+    }
+
+    const createData = await createRes.json();
+
+    // 5. CONFIGURACIÓN EXTRA (Rechazar llamadas, Always Online, etc.)
+    // Esperamos 1.5 seg para asegurar que la instancia cargó
+    await new Promise((r) => setTimeout(r, 1500));
+
+    await fetch(`${evoUrl}/settings/set/${instanceName}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: evoKey },
+      body: JSON.stringify({
         reject_call: true,
-        msgCall: 'No recibo llamadas, por favor escribe tu mensaje.',
+        msgCall: "No recibo llamadas, por favor escribe tu mensaje.",
         groups_ignore: true,
         always_online: true,
         read_messages: true,
         read_status: true,
-        sync_full_history: true
       }),
     });
 
-    if (!evolutionResponse.ok) {
-      const errorText = await evolutionResponse.text();
-      console.error(`Evolution API error: ${evolutionResponse.status} - ${errorText}`);
-      throw new Error(`Evolution API error: ${evolutionResponse.status}`);
-    }
-
-    const evolutionData = await evolutionResponse.json();
-    console.log('Evolution API response:', JSON.stringify(evolutionData));
-
-    // Update the user's profile with the instance name
-    const { error: updateError } = await supabaseClient
-      .from('profiles')
+    // 6. GUARDAR EN BASE DE DATOS (Vital para tu n8n)
+    const { error: dbError } = await supabaseClient
+      .from("profiles")
       .update({ whatsapp_instance_name: instanceName })
-      .eq('id', userId);
+      .eq("id", user.id);
 
-    if (updateError) {
-      console.error('Failed to update profile:', updateError);
-      throw new Error('Failed to save WhatsApp instance to profile');
-    }
+    if (dbError) console.error("Error guardando en perfil:", dbError);
 
-    console.log(`Successfully created instance ${instanceName} for user ${userId}`);
-
-    // Extract QR code from response
-    const qrCode = evolutionData.qrcode?.base64 || evolutionData.base64 || evolutionData.qr?.base64 || null;
-
+    // 7. DEVOLVER EL QR
     return new Response(
       JSON.stringify({
-        success: true,
+        qrcode: createData.qrcode?.base64 || createData.base64 || null,
         instanceName: instanceName,
-        qrCode: qrCode,
-        message: 'Instancia de WhatsApp creada exitosamente',
       }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
-
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Error creating WhatsApp instance';
-    console.error('Error in create-whatsapp-instance:', errorMessage);
-    return new Response(
-      JSON.stringify({ 
-        error: errorMessage,
-        success: false 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
