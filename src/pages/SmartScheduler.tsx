@@ -25,7 +25,9 @@ import {
   Filter,
   Brain,
   Zap,
-  MessageSquare
+  MessageSquare,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
@@ -66,6 +68,7 @@ const SmartScheduler = () => {
   const [miniCalendarDate, setMiniCalendarDate] = useState<Date>(new Date());
   const [services, setServices] = useState<Service[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [whatsappConnected, setWhatsappConnected] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -89,10 +92,28 @@ const SmartScheduler = () => {
     return dates;
   }, [appointments]);
 
+  const checkWhatsAppStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("whatsapp_instance_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      setWhatsappConnected(!!data?.whatsapp_instance_name);
+    } catch (error) {
+      console.error("Error checking WhatsApp status:", error);
+    }
+  };
+
   useEffect(() => {
     checkAuth();
     loadAppointments();
     loadServices();
+    checkWhatsAppStatus();
 
     const channel = supabase
       .channel("appointments-changes")
@@ -500,6 +521,39 @@ const SmartScheduler = () => {
                   Recordatorios automáticos
                 </Button>
               </div>
+            </div>
+
+            <Separator />
+
+            {/* WhatsApp Status */}
+            <div className="space-y-2">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-1.5">
+                <MessageSquare className="w-3 h-3 text-emerald-500" />
+                WhatsApp
+              </p>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={`w-full justify-start gap-2 text-xs h-9 ${
+                  whatsappConnected 
+                    ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600' 
+                    : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-600'
+                }`}
+                onClick={() => navigate("/profile")}
+              >
+                {whatsappConnected ? (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Conectado</span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-4 h-4" />
+                    <span>Sin conectar</span>
+                    <Badge className="ml-auto text-[9px] bg-amber-500/20 text-amber-600 hover:bg-amber-500/20 px-1.5">Configurar</Badge>
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </ScrollArea>
