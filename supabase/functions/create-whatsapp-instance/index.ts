@@ -51,9 +51,37 @@ serve(async (req) => {
       auth: { persistSession: false }
     });
 
-    // 2. LIMPIAR NOMBRE (quitar guiones del UUID)
-    const instanceName = userId.replace(/-/g, "");
+    // Obtener nombre del perfil para crear instancia legible
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name, whatsapp_instance_name")
+      .eq("id", userId)
+      .single();
+
+    // Si ya tiene instancia, retornarla
+    if (profile?.whatsapp_instance_name) {
+      console.log("Ya existe instancia:", profile.whatsapp_instance_name);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          alreadyConnected: true,
+          instanceName: profile.whatsapp_instance_name,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 2. GENERAR NOMBRE LEGIBLE: DrNombre_shortId
+    const doctorName = profile?.full_name || "Doctor";
+    const sanitizedName = doctorName
+      .replace(/^Dr\.?\s*/i, "") // Quitar prefijo Dr.
+      .replace(/[^a-zA-Z0-9]/g, "") // Solo alfanuméricos
+      .substring(0, 15); // Máximo 15 caracteres
+    const shortId = userId.split("-")[0]; // Primeros 8 chars del UUID
+    const instanceName = `${sanitizedName}_${shortId}`;
     
+    console.log(`Nombre del doctor: ${doctorName}, Instancia: ${instanceName}`);
+
     const evoUrl = Deno.env.get("EVOLUTION_API_URL");
     const evoKey = Deno.env.get("EVOLUTION_API_KEY");
     const webhookUrl = Deno.env.get("MEDMIND_WEBHOOK");
@@ -62,7 +90,7 @@ serve(async (req) => {
       throw new Error("Faltan secretos de Evolution API");
     }
 
-    console.log(`[1/5] Creando instancia mínima: ${instanceName}`);
+    console.log(`[1/5] Creando instancia: ${instanceName}`);
     console.log(`Evolution URL: ${evoUrl}`);
 
     // 3. CREAR INSTANCIA (SOLO CAMPOS MÍNIMOS - SIN WEBHOOK NI SETTINGS)
