@@ -216,7 +216,22 @@ export function ConnectWhatsApp() {
     setQrCode(null);
 
     try {
+      // Verificar sesión antes de llamar
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) {
+        toast({
+          title: "Error de sesión",
+          description: "Debes iniciar sesión para conectar WhatsApp",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("Llamando create-whatsapp-instance con sesión activa");
+      
       const { data, error } = await supabase.functions.invoke('create-whatsapp-instance');
+
+      console.log("Respuesta del Edge Function:", data, error);
 
       if (error) {
         console.error('Error calling create-whatsapp-instance:', error);
@@ -250,17 +265,20 @@ export function ConnectWhatsApp() {
         return;
       }
 
-      if (data?.qrCode) {
-        setQrCode(data.qrCode);
+      // Verificar qrCode (respuesta del Edge Function)
+      const qr = data?.qrCode || data?.qrcode;
+      if (qr) {
+        setQrCode(qr);
         setInstanceName(data.instanceName);
         toast({
           title: "QR Generado",
           description: "Escanea el código con WhatsApp para conectar",
         });
       } else {
+        console.error("No se recibió QR. Data:", data);
         toast({
           title: "Sin QR",
-          description: "La instancia fue creada pero no se recibió código QR",
+          description: "La instancia fue creada pero no se recibió código QR. Intenta de nuevo.",
           variant: "destructive",
         });
       }
