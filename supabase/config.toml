@@ -65,3 +65,6 @@ verify_jwt = true
 
 [functions.book-appointment]
 verify_jwt = false
+
+[functions.get-doctor-context]
+verify_jwt = false
