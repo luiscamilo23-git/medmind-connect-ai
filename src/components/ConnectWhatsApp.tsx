@@ -18,6 +18,36 @@ export function ConnectWhatsApp() {
 
   const checkConnectionStatus = async () => {
     try {
+      // Call edge function to verify instance exists in Evolution API
+      const { data, error } = await supabase.functions.invoke('check-whatsapp-instance');
+
+      if (error) {
+        console.error("Error checking WhatsApp status:", error);
+        // Fallback to local check
+        await checkLocalStatus();
+        return;
+      }
+
+      if (data?.wasCleared) {
+        toast({
+          title: "Instancia desconectada",
+          description: "Tu instancia de WhatsApp fue eliminada externamente",
+          variant: "destructive",
+        });
+      }
+
+      setIsConnected(data?.connected || false);
+      setInstanceName(data?.instanceName || null);
+    } catch (error) {
+      console.error("Error checking WhatsApp status:", error);
+      await checkLocalStatus();
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
+
+  const checkLocalStatus = async () => {
+    try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -32,9 +62,7 @@ export function ConnectWhatsApp() {
         setInstanceName(data.whatsapp_instance_name);
       }
     } catch (error) {
-      console.error("Error checking WhatsApp status:", error);
-    } finally {
-      setCheckingStatus(false);
+      console.error("Error checking local WhatsApp status:", error);
     }
   };
 
@@ -55,7 +83,6 @@ export function ConnectWhatsApp() {
         return;
       }
 
-      // Check if already connected
       if (data?.alreadyConnected) {
         setIsConnected(true);
         setInstanceName(data.instanceName);
@@ -132,6 +159,14 @@ export function ConnectWhatsApp() {
               Instancia: <span className="font-mono bg-muted px-2 py-1 rounded">{instanceName}</span>
             </p>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={checkConnectionStatus}
+            className="text-xs"
+          >
+            Verificar estado
+          </Button>
         </CardContent>
       </Card>
     );

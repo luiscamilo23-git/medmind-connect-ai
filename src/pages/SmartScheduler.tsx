@@ -94,16 +94,24 @@ const SmartScheduler = () => {
 
   const checkWhatsAppStatus = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Use edge function to verify instance exists in Evolution API
+      const { data, error } = await supabase.functions.invoke('check-whatsapp-instance');
 
-      const { data } = await supabase
-        .from("profiles")
-        .select("whatsapp_instance_name")
-        .eq("id", user.id)
-        .maybeSingle();
+      if (error) {
+        console.error("Error checking WhatsApp status:", error);
+        // Fallback to local check
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("whatsapp_instance_name")
+          .eq("id", user.id)
+          .maybeSingle();
+        setWhatsappConnected(!!profile?.whatsapp_instance_name);
+        return;
+      }
 
-      setWhatsappConnected(!!data?.whatsapp_instance_name);
+      setWhatsappConnected(data?.connected || false);
     } catch (error) {
       console.error("Error checking WhatsApp status:", error);
     }
