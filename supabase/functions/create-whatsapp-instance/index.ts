@@ -16,12 +16,18 @@ serve(async (req) => {
   try {
     const evolutionApiUrl = Deno.env.get('EVOLUTION_API_URL');
     const evolutionApiKey = Deno.env.get('EVOLUTION_API_KEY');
+    const medmindWebhook = Deno.env.get('MEDMIND_WEBHOOK');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!evolutionApiUrl || !evolutionApiKey) {
       console.error('Missing Evolution API configuration');
       throw new Error('Evolution API configuration not found');
+    }
+
+    if (!medmindWebhook) {
+      console.error('Missing MEDMIND_WEBHOOK configuration');
+      throw new Error('MEDMIND_WEBHOOK configuration not found');
     }
 
     if (!supabaseUrl || !supabaseServiceKey) {
@@ -95,6 +101,18 @@ serve(async (req) => {
         instanceName: instanceName,
         qrcode: true,
         integration: 'WHATSAPP-BAILEYS',
+        webhook: medmindWebhook,
+        events: [
+          'MESSAGES_UPSERT',
+          'CONNECTION_UPDATE'
+        ],
+        reject_call: true,
+        msgCall: 'No recibo llamadas, por favor escribe tu mensaje.',
+        groups_ignore: true,
+        always_online: true,
+        read_messages: true,
+        read_status: true,
+        sync_full_history: true
       }),
     });
 
