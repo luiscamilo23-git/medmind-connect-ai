@@ -6,13 +6,28 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Función para decodificar JWT y obtener el user_id
+function decodeJWT(token: string): { sub?: string } | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // 1. AUTENTICACIÓN
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    
+    // 1. AUTENTICACIÓN - Extraer user_id del JWT
     const authHeader = req.headers.get("Authorization");
     console.log("Auth header presente:", !!authHeader);
     
@@ -20,27 +35,24 @@ serve(async (req) => {
       throw new Error("No se encontró token de autorización");
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // Extraer el token Bearer
+    const token = authHeader.replace("Bearer ", "");
+    const decoded = decodeJWT(token);
     
-    if (userError) {
-      console.error("Error de autenticación:", userError.message);
-      throw new Error(`Error de autenticación: ${userError.message}`);
-    }
-    
-    if (!user) {
-      throw new Error("Usuario no autenticado");
+    if (!decoded || !decoded.sub) {
+      throw new Error("Token JWT inválido o sin user_id");
     }
 
-    console.log("Usuario autenticado:", user.id);
+    const userId = decoded.sub;
+    console.log("Usuario ID extraído del JWT:", userId);
+
+    // Crear cliente con service role para todas las operaciones
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false }
+    });
 
     // 2. LIMPIAR NOMBRE (quitar guiones del UUID)
-    const instanceName = user.id.replace(/-/g, "");
+    const instanceName = userId.replace(/-/g, "");
     
     const evoUrl = Deno.env.get("EVOLUTION_API_URL");
     const evoKey = Deno.env.get("EVOLUTION_API_KEY");
@@ -54,26 +66,37 @@ serve(async (req) => {
     console.log(`Evolution URL: ${evoUrl}`);
 
     // 3. CREAR INSTANCIA (SOLO CAMPOS MÍNIMOS - SIN WEBHOOK NI SETTINGS)
+    const createPayload = {
+      instanceName: instanceName,
+      qrcode: true,
+      integration: "WHATSAPP-BAILEYS"
+    };
+    console.log("Create payload:", JSON.stringify(createPayload));
+
     const createRes = await fetch(`${evoUrl}/instance/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: evoKey },
-      body: JSON.stringify({
-        instanceName: instanceName,
-        qrcode: true,
-        integration: "WHATSAPP-BAILEYS"
-      }),
+      body: JSON.stringify(createPayload),
     });
 
-    const createData = await createRes.json();
-    console.log(`[2/5] Respuesta create:`, JSON.stringify(createData));
+    const createText = await createRes.text();
+    console.log(`[2/5] Respuesta create (status ${createRes.status}):`, createText);
+
+    let createData;
+    try {
+      createData = JSON.parse(createText);
+    } catch {
+      createData = { raw: createText };
+    }
 
     // Si falla y NO es porque ya existe, lanzar error
-    if (!createRes.ok && !JSON.stringify(createData).includes("already exists")) {
-      throw new Error(`Error creando instancia: ${JSON.stringify(createData)}`);
+    const alreadyExists = createText.includes("already exists") || createText.includes("Instance already");
+    if (!createRes.ok && !alreadyExists) {
+      throw new Error(`Error creando instancia: ${createText}`);
     }
 
     // Extraer QR del response de creación
-    let qrCode = createData.qrcode?.base64 || createData.base64 || createData.code;
+    let qrCode = createData?.qrcode?.base64 || createData?.base64 || createData?.code;
     console.log("QR obtenido de create:", !!qrCode);
 
     // 4. ESPERAR para que la instancia se sincronice
@@ -95,7 +118,7 @@ serve(async (req) => {
           }),
         });
         const webhookData = await webhookRes.text();
-        console.log(`Webhook response:`, webhookData);
+        console.log(`Webhook response (${webhookRes.status}):`, webhookData);
       } catch (webhookError) {
         console.error("Error configurando webhook:", webhookError);
       }
@@ -118,12 +141,12 @@ serve(async (req) => {
         }),
       });
       const settingsData = await settingsRes.text();
-      console.log(`Settings response:`, settingsData);
+      console.log(`Settings response (${settingsRes.status}):`, settingsData);
     } catch (settingsError) {
       console.error("Error configurando settings:", settingsError);
     }
 
-    // Si no obtuvimos QR en la creación, intentar obtenerlo del endpoint connect
+    // Si no obtuvimos QR en la creación (o ya existía), intentar obtenerlo del endpoint connect
     if (!qrCode) {
       console.log(`Obteniendo QR desde endpoint connect...`);
       try {
@@ -131,34 +154,41 @@ serve(async (req) => {
           method: "GET",
           headers: { apikey: evoKey },
         });
+        const connectText = await connectRes.text();
+        console.log(`Connect response (${connectRes.status}):`, connectText);
+        
         if (connectRes.ok) {
-          const connectData = await connectRes.json();
-          console.log("Connect response:", JSON.stringify(connectData));
-          qrCode = connectData.code || connectData.base64 || connectData.qrcode?.base64;
-        } else {
-          console.log("Connect failed:", await connectRes.text());
+          try {
+            const connectData = JSON.parse(connectText);
+            qrCode = connectData.code || connectData.base64 || connectData.qrcode?.base64;
+            console.log("QR obtenido de connect:", !!qrCode);
+          } catch {
+            console.log("Connect response no es JSON válido");
+          }
         }
       } catch (connectError) {
         console.error("Error obteniendo QR:", connectError);
       }
     }
 
-    // 7. GUARDAR EN PROFILES
-    const { error: updateError } = await supabaseClient
+    // 7. GUARDAR EN PROFILES usando service role
+    const { error: updateError } = await supabase
       .from("profiles")
       .update({ whatsapp_instance_name: instanceName })
-      .eq("id", user.id);
+      .eq("id", userId);
     
     if (updateError) {
       console.error("Error actualizando perfil:", updateError);
+    } else {
+      console.log("Perfil actualizado correctamente");
     }
 
-    console.log(`Instancia ${instanceName} creada. QR disponible: ${!!qrCode}`);
+    console.log(`Instancia ${instanceName} procesada. QR disponible: ${!!qrCode}`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        qrCode: qrCode, // Nombre correcto para el frontend
+        qrCode: qrCode,
         instanceName: instanceName,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
