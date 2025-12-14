@@ -55,10 +55,10 @@ serve(async (req) => {
     const userId = user.id;
     console.log(`Creating WhatsApp instance for user: ${userId}`);
 
-    // Check if user already has an instance
+    // Check if user already has an instance and get profile name
     const { data: existingProfile } = await supabaseClient
       .from('profiles')
-      .select('whatsapp_instance_name')
+      .select('whatsapp_instance_name, full_name')
       .eq('id', userId)
       .single();
 
@@ -67,17 +67,22 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: 'Ya tienes una instancia de WhatsApp configurada',
-          instanceName: existingProfile.whatsapp_instance_name 
+          instanceName: existingProfile.whatsapp_instance_name,
+          alreadyConnected: true
         }),
         { 
-          status: 400, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
     }
 
-    // Create instance in Evolution API
-    const instanceName = `medmind_${userId.replace(/-/g, '_').substring(0, 20)}`;
+    // Create instance name using doctor's profile name
+    const sanitizedName = (existingProfile?.full_name || 'doctor')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '_')
+      .substring(0, 30);
+    const instanceName = `medmind_${sanitizedName}_${userId.substring(0, 8)}`;
     console.log(`Creating Evolution API instance: ${instanceName}`);
 
     const evolutionResponse = await fetch(`${evolutionApiUrl}/instance/create`, {

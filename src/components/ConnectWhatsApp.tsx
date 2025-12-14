@@ -1,14 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MessageCircle, QrCode } from "lucide-react";
+import { Loader2, MessageCircle, QrCode, CheckCircle } from "lucide-react";
 
 export function ConnectWhatsApp() {
   const [loading, setLoading] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(true);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [instanceName, setInstanceName] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    checkConnectionStatus();
+  }, []);
+
+  const checkConnectionStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("whatsapp_instance_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (data?.whatsapp_instance_name) {
+        setIsConnected(true);
+        setInstanceName(data.whatsapp_instance_name);
+      }
+    } catch (error) {
+      console.error("Error checking WhatsApp status:", error);
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
 
   const handleGenerateQR = async () => {
     setLoading(true);
@@ -27,7 +55,18 @@ export function ConnectWhatsApp() {
         return;
       }
 
-      if (data?.error) {
+      // Check if already connected
+      if (data?.alreadyConnected) {
+        setIsConnected(true);
+        setInstanceName(data.instanceName);
+        toast({
+          title: "Ya conectado",
+          description: "Tu WhatsApp ya está vinculado a MEDMIND",
+        });
+        return;
+      }
+
+      if (data?.error && !data?.alreadyConnected) {
         toast({
           title: "Aviso",
           description: data.error,
@@ -64,6 +103,39 @@ export function ConnectWhatsApp() {
       setLoading(false);
     }
   };
+
+  if (checkingStatus) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isConnected) {
+    return (
+      <Card className="w-full max-w-md mx-auto border-emerald-500/30 bg-emerald-500/5">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
+            <CheckCircle className="h-6 w-6 text-emerald-500" />
+          </div>
+          <CardTitle className="text-xl text-emerald-600">WhatsApp Vinculado</CardTitle>
+          <p className="text-sm text-muted-foreground mt-2">
+            Tu asistente de WhatsApp está conectado y listo para usar
+          </p>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center gap-4">
+          {instanceName && (
+            <p className="text-xs text-muted-foreground text-center">
+              Instancia: <span className="font-mono bg-muted px-2 py-1 rounded">{instanceName}</span>
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -123,12 +195,6 @@ export function ConnectWhatsApp() {
             "Generar QR"
           )}
         </Button>
-
-        {instanceName && !qrCode && (
-          <p className="text-sm text-amber-600 text-center">
-            Ya tienes una instancia configurada: {instanceName}
-          </p>
-        )}
       </CardContent>
     </Card>
   );
