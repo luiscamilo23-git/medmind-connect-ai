@@ -16,6 +16,7 @@ import MFAVerification from "@/components/auth/MFAVerification";
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [userRole, setUserRole] = useState<"doctor" | "patient">("patient");
@@ -57,6 +58,9 @@ const Auth = () => {
     try {
       const redirectPath = userRole === "patient" ? "/patient/dashboard" : "/dashboard";
       
+      // Add "Dr." prefix for doctors
+      const displayName = userRole === "doctor" ? `Dr. ${fullName}` : fullName;
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -64,6 +68,7 @@ const Auth = () => {
           emailRedirectTo: `${window.location.origin}${redirectPath}`,
           data: {
             role: userRole,
+            full_name: displayName,
           },
         },
       });
@@ -356,6 +361,17 @@ const Auth = () => {
             
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullname-signup">Nombre completo</Label>
+                  <Input
+                    id="fullname-signup"
+                    type="text"
+                    placeholder="Juan Pérez"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="email-signup">Email</Label>
                   <Input
