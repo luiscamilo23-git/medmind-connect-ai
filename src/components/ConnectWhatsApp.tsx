@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug } from "lucide-react";
+import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export function ConnectWhatsApp() {
   const [loading, setLoading] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [instanceName, setInstanceName] = useState<string | null>(null);
@@ -172,6 +173,36 @@ export function ConnectWhatsApp() {
     }
   };
 
+  const handleSyncSettings = async () => {
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-instance-settings');
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "No se pudo sincronizar la configuración",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "✅ Sincronizado",
+        description: "Instancia actualizada correctamente",
+      });
+    } catch (err) {
+      console.error('Error syncing:', err);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al sincronizar",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const handleGenerateQR = async () => {
     setLoading(true);
     setQrCode(null);
@@ -311,6 +342,22 @@ export function ConnectWhatsApp() {
               )}
             </Button>
           </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleSyncSettings}
+            className="w-full text-xs gap-1"
+            disabled={syncing}
+          >
+            {syncing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                🔄 Sincronizar Configuración
+              </>
+            )}
+          </Button>
         </CardContent>
       </Card>
     );
