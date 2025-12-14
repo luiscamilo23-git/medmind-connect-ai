@@ -108,9 +108,10 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
-  } catch (error) {
+  } catch (error: unknown) {
     // Devolvemos el error real para verlo en la consola
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
