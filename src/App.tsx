@@ -91,23 +91,10 @@ const App = () => (
           <Route path="/moderator/patients" element={<ModeratorPatients />} />
           <Route path="/moderator/records" element={<ModeratorRecords />} />
           <Route path="/moderator/appointments" element={<ModeratorAppointments />} />
-          <Route path="/moderator/voice-notes" element={<ModeratorRecords />} />
-          <Route path="/moderator/notes" element={<ModeratorRecords />} />
           <Route path="/moderator/inventory" element={<ModeratorInventory />} />
-          <Route path="/moderator/scheduler" element={<ModeratorAppointments />} />
-          <Route path="/moderator/analytics" element={<ModeratorDashboard />} />
-          <Route path="/moderator/predictive" element={<ModeratorDashboard />} />
-          <Route path="/moderator/intelligence" element={<ModeratorDashboard />} />
-          <Route path="/moderator/billing/services" element={<ModeratorInvoices />} />
-          <Route path="/moderator/billing/invoices" element={<ModeratorInvoices />} />
-          <Route path="/moderator/billing/rips" element={<ModeratorInvoices />} />
-          <Route path="/moderator/billing/payments" element={<ModeratorInvoices />} />
-          <Route path="/moderator/billing/dian" element={<ModeratorInvoices />} />
+          <Route path="/moderator/invoices" element={<ModeratorInvoices />} />
           <Route path="/moderator/social" element={<ModeratorSocial />} />
-          <Route path="/moderator/chats" element={<ModeratorSocial />} />
-          <Route path="/moderator/reviews" element={<ModeratorSocial />} />
           <Route path="/moderator/users" element={<ModeratorUsers />} />
-          <Route path="/moderator/settings" element={<ModeratorUsers />} />
           <Route path="/moderator/audit-logs" element={<ModeratorAuditLogs />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

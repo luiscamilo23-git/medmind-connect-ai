@@ -3,18 +3,8 @@ import {
   Users, 
   Calendar, 
   FileText, 
-  Receipt, 
-  DollarSign,
   Package,
-  Mic,
-  Brain,
   Globe,
-  BarChart3,
-  TrendingUp,
-  Activity,
-  MessageSquare,
-  Star,
-  Settings,
   Shield,
   ClipboardList
 } from "lucide-react";
@@ -39,38 +29,19 @@ const clinicalItems = [
   { title: "Pacientes", url: "/moderator/patients", icon: Users },
   { title: "Historias Clínicas", url: "/moderator/records", icon: FileText },
   { title: "Citas", url: "/moderator/appointments", icon: Calendar },
-  { title: "VoiceNotes", url: "/moderator/voice-notes", icon: Mic },
-  { title: "Notas Inteligentes", url: "/moderator/notes", icon: Brain },
 ];
 
 const operationalItems = [
-  { title: "SupplyLens", url: "/moderator/inventory", icon: Package },
-  { title: "SmartScheduler", url: "/moderator/scheduler", icon: Calendar },
-];
-
-const analyticsItems = [
-  { title: "Analytics", url: "/moderator/analytics", icon: BarChart3 },
-  { title: "Análisis Predictivo", url: "/moderator/predictive", icon: TrendingUp },
-  { title: "Inteligencia Operativa", url: "/moderator/intelligence", icon: Activity },
-];
-
-const billingItems = [
-  { title: "Servicios", url: "/moderator/billing/services", icon: Receipt },
-  { title: "Facturas", url: "/moderator/billing/invoices", icon: FileText },
-  { title: "RIPS", url: "/moderator/billing/rips", icon: ClipboardList },
-  { title: "Pagos", url: "/moderator/billing/payments", icon: DollarSign },
-  { title: "Monitoreo DIAN", url: "/moderator/billing/dian", icon: Shield },
+  { title: "Inventario", url: "/moderator/inventory", icon: Package },
+  { title: "Facturas", url: "/moderator/invoices", icon: FileText },
 ];
 
 const communityItems = [
   { title: "Red Social", url: "/moderator/social", icon: Globe },
-  { title: "Chats", url: "/moderator/chats", icon: MessageSquare },
-  { title: "Reseñas", url: "/moderator/reviews", icon: Star },
 ];
 
 const systemItems = [
   { title: "Usuarios & Roles", url: "/moderator/users", icon: Users },
-  { title: "Configuración", url: "/moderator/settings", icon: Settings },
   { title: "Logs de Auditoría", url: "/moderator/audit-logs", icon: ClipboardList },
 ];
 
@@ -141,38 +112,6 @@ export function ModeratorSidebar() {
           <SidebarGroupLabel className="text-orange-400">Operativo</SidebarGroupLabel>
           <SidebarMenu>
             {operationalItems.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
-                  <NavLink to={item.url} className="flex items-center gap-2">
-                    <item.icon className="w-4 h-4" />
-                    {!isCollapsed && <span>{item.title}</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-orange-400">Analytics</SidebarGroupLabel>
-          <SidebarMenu>
-            {analyticsItems.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
-                  <NavLink to={item.url} className="flex items-center gap-2">
-                    <item.icon className="w-4 h-4" />
-                    {!isCollapsed && <span>{item.title}</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-orange-400">Facturación</SidebarGroupLabel>
-          <SidebarMenu>
-            {billingItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <NavLink to={item.url} className="flex items-center gap-2">
