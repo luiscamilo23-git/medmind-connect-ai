@@ -1276,6 +1276,7 @@ export type Database = {
           specialty: string | null
           updated_at: string
           whatsapp_instance_name: string | null
+          whatsapp_last_sync_at: string | null
           years_experience: number | null
         }
         Insert: {
@@ -1294,6 +1295,7 @@ export type Database = {
           specialty?: string | null
           updated_at?: string
           whatsapp_instance_name?: string | null
+          whatsapp_last_sync_at?: string | null
           years_experience?: number | null
         }
         Update: {
@@ -1312,6 +1314,7 @@ export type Database = {
           specialty?: string | null
           updated_at?: string
           whatsapp_instance_name?: string | null
+          whatsapp_last_sync_at?: string | null
           years_experience?: number | null
         }
         Relationships: []

@@ -106,10 +106,21 @@ serve(async (req) => {
 
     console.log('Settings configured successfully');
 
+    // Update last sync timestamp
+    const { error: updateError } = await supabaseAdmin
+      .from('profiles')
+      .update({ whatsapp_last_sync_at: new Date().toISOString() })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Failed to update sync timestamp:', updateError);
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Configuración Sincronizada'
+        message: 'Configuración Sincronizada',
+        syncedAt: new Date().toISOString()
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
