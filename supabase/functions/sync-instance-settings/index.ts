@@ -70,7 +70,8 @@ serve(async (req) => {
         webhook: {
           enabled: true,
           url: medmindWebhook,
-          webhookByEvents: false,
+          webhookByEvents: true,
+          webhookBase64: true,
           events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'MESSAGES_UPDATE']
         }
       }),
