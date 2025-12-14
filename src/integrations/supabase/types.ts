@@ -825,6 +825,45 @@ export type Database = {
           },
         ]
       }
+      moderator_audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          moderator_id: string
+          module: string
+          record_id: string | null
+          record_table: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          moderator_id: string
+          module: string
+          record_id?: string | null
+          record_table?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          moderator_id?: string
+          module?: string
+          record_id?: string | null
+          record_table?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       notes_analysis: {
         Row: {
           created_at: string
