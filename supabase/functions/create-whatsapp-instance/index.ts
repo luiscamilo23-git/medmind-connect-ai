@@ -1,6 +1,5 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    // 1. AUTENTICACIÓN
+    // 1. CONEXIÓN A SUPABASE
     const supabaseClient = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
       global: { headers: { Authorization: req.headers.get("Authorization")! } },
     });
@@ -20,31 +19,27 @@ serve(async (req) => {
       data: { user },
       error: userError,
     } = await supabaseClient.auth.getUser();
-    if (userError || !user) throw new Error("Usuario no autenticado en Lovable");
+    if (userError || !user) throw new Error("Usuario no autenticado");
 
-    // 2. PREPARAR DATOS (Saneamiento y Secretos)
-    // Quitamos los guiones del ID para que sea un nombre limpio (ej: "a1b2c3d4")
-    const cleanInstanceName = user.id.replace(/-/g, "");
-
+    // 2. PREPARACIÓN DE DATOS
+    // Usamos el ID limpio (sin guiones) para evitar problemas con Evolution
+    const instanceName = user.id.replace(/-/g, "");
     const evoUrl = Deno.env.get("EVOLUTION_API_URL");
     const evoKey = Deno.env.get("EVOLUTION_API_KEY");
-
-    // INTENTO DOBLE: Buscamos el secreto con el nombre nuevo O el viejo
+    // Busca ambos nombres de secreto por seguridad
     const webhookUrl = Deno.env.get("MEDMIND_WEBHOOK") || Deno.env.get("N8N_WEBHOOK_URL");
 
-    // Validación estricta con mensajes claros
-    if (!evoUrl) throw new Error("Falta el secreto EVOLUTION_API_URL");
-    if (!evoKey) throw new Error("Falta el secreto EVOLUTION_API_KEY");
-    if (!webhookUrl) throw new Error("Falta el secreto del Webhook (MEDMIND_WEBHOOK o N8N_WEBHOOK_URL)");
+    if (!evoUrl || !evoKey || !webhookUrl) throw new Error("Faltan secretos de configuración");
 
-    console.log(`Intentando crear instancia: ${cleanInstanceName} conectada a ${webhookUrl}`);
+    console.log(`Procesando instancia: ${instanceName}`);
 
-    // 3. LLAMADA A EVOLUTION (Crear + Configurar)
+    // 3. CREAR INSTANCIA (Paso A)
+    // Nota: Solo enviamos lo básico aquí para evitar Error 400
     const createRes = await fetch(`${evoUrl}/instance/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: evoKey },
       body: JSON.stringify({
-        instanceName: cleanInstanceName,
+        instanceName: instanceName,
         qrcode: true,
         integration: "WHATSAPP-BAILEYS",
         webhook: webhookUrl,
@@ -52,36 +47,31 @@ serve(async (req) => {
       }),
     });
 
-    const createText = await createRes.text(); // Leemos texto por si falla el JSON
+    const createText = await createRes.text();
 
-    if (!createRes.ok) {
-      // Si el error es "ya existe", lo ignoramos y seguimos para re-configurar
-      if (!createText.includes("already exists")) {
-        console.error("Error Evolution Create:", createText);
-        throw new Error(`Evolution rechazó la creación: ${createText}`);
-      }
-      console.log("La instancia ya existía, procediendo a re-configurar...");
+    // Si falla pero NO es porque ya existe, lanzamos error
+    if (!createRes.ok && !createText.includes("already exists")) {
+      throw new Error(`Evolution Error: ${createText}`);
     }
 
-    // Intentamos parsear la respuesta (si fue exitosa o "ya existe" con datos)
+    // Intentamos rescatar el QR
     let qrCode = null;
     try {
-      const jsonData = JSON.parse(createText);
-      qrCode = jsonData.qrcode?.base64 || jsonData.base64 || jsonData.qr?.base64;
+      const json = JSON.parse(createText);
+      qrCode = json.qrcode?.base64 || json.base64 || json.qr?.base64;
     } catch (e) {
-      console.log("No se pudo extraer QR del JSON inicial, tal vez ya existía.");
+      console.log("No hay QR nuevo (instancia ya existía)");
     }
 
-    // 4. FORZAR CONFIGURACIÓN (Settings)
-    // Pausa de seguridad
-    await new Promise((r) => setTimeout(r, 1000));
+    // 4. CONFIGURAR AJUSTES (Paso B - Separado para evitar Error 400)
+    await new Promise((r) => setTimeout(r, 1500)); // Pausa técnica
 
-    const settingsRes = await fetch(`${evoUrl}/settings/set/${cleanInstanceName}`, {
+    await fetch(`${evoUrl}/settings/set/${instanceName}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: evoKey },
       body: JSON.stringify({
         reject_call: true,
-        msgCall: "No recibo llamadas, por favor escribe tu mensaje.",
+        msgCall: "No recibo llamadas, agenda por chat.",
         groups_ignore: true,
         always_online: true,
         read_messages: true,
@@ -89,29 +79,20 @@ serve(async (req) => {
       }),
     });
 
-    if (!settingsRes.ok) console.warn("Advertencia: No se pudieron aplicar los Settings extra.");
+    // 5. GUARDAR ID EN PERFIL
+    await supabaseClient.from("profiles").update({ whatsapp_instance_name: instanceName }).eq("id", user.id);
 
-    // 5. GUARDAR EN BASE DE DATOS (Actualizar Perfil)
-    const { error: dbError } = await supabaseClient
-      .from("profiles")
-      .update({ whatsapp_instance_name: cleanInstanceName })
-      .eq("id", user.id);
-
-    if (dbError) throw new Error(`Error DB: ${dbError.message}`);
-
-    // 6. RESPUESTA FINAL
+    // 6. ÉXITO
     return new Response(
       JSON.stringify({
         success: true,
         qrcode: qrCode,
-        instanceName: cleanInstanceName,
+        instanceName: instanceName,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
-  } catch (error: unknown) {
-    // Devolvemos el error real para verlo en la consola
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido";
-    return new Response(JSON.stringify({ error: errorMessage }), {
+  } catch (error: any) {
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
