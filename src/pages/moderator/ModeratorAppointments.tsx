@@ -16,7 +16,10 @@ interface Appointment {
   appointment_date: string;
   status: string;
   duration_minutes: number;
+  doctor_id: string;
   patients: { full_name: string } | null;
+  doctor_name?: string;
+  doctor_specialty?: string | null;
 }
 
 export default function ModeratorAppointments() {
@@ -32,14 +35,30 @@ export default function ModeratorAppointments() {
 
   const loadAppointments = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: appointmentsData, error } = await supabase
         .from('appointments')
-        .select('id, title, appointment_date, status, duration_minutes, patients(full_name)')
+        .select('id, title, appointment_date, status, duration_minutes, doctor_id, patients(full_name)')
         .order('appointment_date', { ascending: false })
         .limit(500);
 
       if (error) throw error;
-      setAppointments(data || []);
+
+      // Get unique doctor IDs and fetch their profiles
+      const doctorIds = [...new Set(appointmentsData?.map(a => a.doctor_id) || [])];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, specialty')
+        .in('id', doctorIds);
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+      const enrichedAppointments = (appointmentsData || []).map(apt => ({
+        ...apt,
+        doctor_name: profileMap.get(apt.doctor_id)?.full_name,
+        doctor_specialty: profileMap.get(apt.doctor_id)?.specialty,
+      }));
+
+      setAppointments(enrichedAppointments);
     } catch (error) {
       console.error("Error loading appointments:", error);
     } finally {
@@ -49,7 +68,8 @@ export default function ModeratorAppointments() {
 
   const filteredAppointments = appointments.filter(a =>
     a.title.toLowerCase().includes(search.toLowerCase()) ||
-    (a.patients?.full_name && a.patients.full_name.toLowerCase().includes(search.toLowerCase()))
+    (a.patients?.full_name && a.patients.full_name.toLowerCase().includes(search.toLowerCase())) ||
+    (a.doctor_name && a.doctor_name.toLowerCase().includes(search.toLowerCase()))
   );
 
   const getStatusColor = (status: string) => {
@@ -89,7 +109,7 @@ export default function ModeratorAppointments() {
           <div className="flex items-center gap-2 mb-4">
             <Search className="w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por título o paciente..."
+              placeholder="Buscar por título, paciente o doctor..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-sm"
@@ -107,6 +127,7 @@ export default function ModeratorAppointments() {
                   <TableRow>
                     <TableHead>Fecha/Hora</TableHead>
                     <TableHead>Título</TableHead>
+                    <TableHead>Doctor</TableHead>
                     <TableHead>Paciente</TableHead>
                     <TableHead>Duración</TableHead>
                     <TableHead>Estado</TableHead>
@@ -119,6 +140,14 @@ export default function ModeratorAppointments() {
                         {format(new Date(apt.appointment_date), "dd MMM yyyy HH:mm", { locale: es })}
                       </TableCell>
                       <TableCell className="font-medium">{apt.title}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{apt.doctor_name || "-"}</span>
+                          {apt.doctor_specialty && (
+                            <span className="text-xs text-muted-foreground">{apt.doctor_specialty}</span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>{apt.patients?.full_name || "-"}</TableCell>
                       <TableCell>{apt.duration_minutes} min</TableCell>
                       <TableCell>
@@ -130,7 +159,7 @@ export default function ModeratorAppointments() {
                   ))}
                   {filteredAppointments.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                         No se encontraron citas
                       </TableCell>
                     </TableRow>
