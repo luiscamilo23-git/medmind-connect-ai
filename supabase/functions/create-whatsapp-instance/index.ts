@@ -130,22 +130,20 @@ serve(async (req) => {
       }
     }
 
-    // 6. CONFIGURAR SETTINGS (envuelto en objeto settings, camelCase)
+    // 6. CONFIGURAR SETTINGS (formato plano según documentación oficial)
     console.log(`[5/5] Configurando settings...`);
     try {
       const settingsRes = await fetch(`${evoUrl}/settings/set/${instanceName}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", apikey: evoKey },
         body: JSON.stringify({
-          settings: {
-            rejectCall: true,
-            msgCall: "No recibo llamadas, agenda por chat.",
-            groupsIgnore: true,
-            alwaysOnline: true,
-            readMessages: true,
-            readStatus: true,
-            syncFullHistory: false
-          }
+          rejectCall: true,
+          msgCall: "No recibo llamadas, agenda por chat.",
+          groupsIgnore: true,
+          alwaysOnline: true,
+          readMessages: true,
+          readStatus: true,
+          syncFullHistory: false
         }),
       });
       const settingsData = await settingsRes.text();
