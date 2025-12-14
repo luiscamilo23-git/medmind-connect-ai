@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,10 +14,77 @@ export function ConnectWhatsApp() {
   const [instanceName, setInstanceName] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [status, setStatus] = useState<'online' | 'offline' | 'unknown' | 'disconnected'>('disconnected');
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     checkConnectionStatus();
+    
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+    };
   }, []);
+
+  // Start polling when QR is displayed
+  useEffect(() => {
+    if (qrCode && !isConnected) {
+      startPolling();
+    } else {
+      stopPolling();
+    }
+    
+    return () => stopPolling();
+  }, [qrCode, isConnected]);
+
+  const startPolling = () => {
+    stopPolling();
+    console.log('Starting WhatsApp connection polling...');
+    
+    pollingRef.current = setInterval(async () => {
+      console.log('Polling for WhatsApp connection...');
+      const connected = await checkConnectionStatusSilent();
+      if (connected) {
+        stopPolling();
+        setQrCode(null);
+        toast({
+          title: "¡Conectado!",
+          description: "Tu WhatsApp se ha vinculado exitosamente",
+        });
+      }
+    }, 3000); // Check every 3 seconds
+  };
+
+  const stopPolling = () => {
+    if (pollingRef.current) {
+      console.log('Stopping polling');
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+  };
+
+  const checkConnectionStatusSilent = async (): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-whatsapp-instance');
+
+      if (error) {
+        console.error("Error checking WhatsApp status:", error);
+        return false;
+      }
+
+      if (data?.connected && (data?.status === 'online' || data?.status === 'offline')) {
+        setIsConnected(true);
+        setInstanceName(data?.instanceName || null);
+        setStatus(data?.status || 'unknown');
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error checking WhatsApp status:", error);
+      return false;
+    }
+  };
 
   const checkConnectionStatus = async () => {
     setCheckingStatus(true);
@@ -263,14 +330,18 @@ export function ConnectWhatsApp() {
       <CardContent className="flex flex-col items-center gap-6">
         {qrCode ? (
           <div className="flex flex-col items-center gap-4">
-            <div className="p-4 bg-white rounded-xl shadow-lg">
+            <div className="p-4 bg-white rounded-xl shadow-lg relative">
               <img
                 src={qrCode.startsWith('data:') ? qrCode : `data:image/png;base64,${qrCode}`}
                 alt="WhatsApp QR Code"
                 className="w-64 h-64 object-contain"
               />
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-full">
+                <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                <span className="text-[10px] text-primary font-medium">Esperando escaneo...</span>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-xs text-muted-foreground text-center mt-2">
               Abre WhatsApp → Menú → Dispositivos vinculados → Vincular dispositivo
             </p>
             {instanceName && (
