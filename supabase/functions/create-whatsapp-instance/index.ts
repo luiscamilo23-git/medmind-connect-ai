@@ -103,7 +103,7 @@ serve(async (req) => {
     console.log(`[3/5] Esperando sincronización...`);
     await new Promise(r => setTimeout(r, 1500));
 
-    // 5. CONFIGURAR WEBHOOK (formato plano con webhookBase64)
+    // 5. CONFIGURAR WEBHOOK (envuelto en objeto webhook)
     if (webhookUrl) {
       console.log(`[4/5] Configurando webhook: ${webhookUrl}`);
       try {
@@ -111,11 +111,13 @@ serve(async (req) => {
           method: "POST",
           headers: { "Content-Type": "application/json", apikey: evoKey },
           body: JSON.stringify({
-            enabled: true,
-            url: webhookUrl,
-            webhookByEvents: false,
-            webhookBase64: true,
-            events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "MESSAGES_UPDATE"]
+            webhook: {
+              enabled: true,
+              url: webhookUrl,
+              webhookByEvents: false,
+              webhookBase64: true,
+              events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "MESSAGES_UPDATE"]
+            }
           }),
         });
         const webhookData = await webhookRes.text();
@@ -128,19 +130,22 @@ serve(async (req) => {
       }
     }
 
-    // 6. CONFIGURAR SETTINGS (formato plano con snake_case)
+    // 6. CONFIGURAR SETTINGS (envuelto en objeto settings, camelCase)
     console.log(`[5/5] Configurando settings...`);
     try {
       const settingsRes = await fetch(`${evoUrl}/settings/set/${instanceName}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", apikey: evoKey },
         body: JSON.stringify({
-          reject_call: true,
-          msgCall: "No recibo llamadas, agenda por chat.",
-          groups_ignore: true,
-          always_online: true,
-          read_messages: true,
-          read_status: true
+          settings: {
+            rejectCall: true,
+            msgCall: "No recibo llamadas, agenda por chat.",
+            groupsIgnore: true,
+            alwaysOnline: true,
+            readMessages: true,
+            readStatus: true,
+            syncFullHistory: false
+          }
         }),
       });
       const settingsData = await settingsRes.text();
