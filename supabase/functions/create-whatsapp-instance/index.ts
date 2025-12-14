@@ -103,7 +103,7 @@ serve(async (req) => {
     console.log(`[3/5] Esperando sincronización...`);
     await new Promise(r => setTimeout(r, 1500));
 
-    // 5. CONFIGURAR WEBHOOK (llamada separada)
+    // 5. CONFIGURAR WEBHOOK (llamada separada con formato correcto)
     if (webhookUrl) {
       console.log(`[4/5] Configurando webhook: ${webhookUrl}`);
       try {
@@ -111,37 +111,47 @@ serve(async (req) => {
           method: "POST",
           headers: { "Content-Type": "application/json", apikey: evoKey },
           body: JSON.stringify({
-            enabled: true,
-            url: webhookUrl,
-            webhookByEvents: false,
-            events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "MESSAGES_UPDATE"]
+            webhook: {
+              enabled: true,
+              url: webhookUrl,
+              webhookByEvents: false,
+              events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "MESSAGES_UPDATE"]
+            }
           }),
         });
         const webhookData = await webhookRes.text();
         console.log(`Webhook response (${webhookRes.status}):`, webhookData);
+        if (!webhookRes.ok) {
+          console.error("Webhook config failed, response:", webhookData);
+        }
       } catch (webhookError) {
         console.error("Error configurando webhook:", webhookError);
       }
     }
 
-    // 6. CONFIGURAR SETTINGS (llamada separada)
+    // 6. CONFIGURAR SETTINGS (llamada separada con formato correcto)
     console.log(`[5/5] Configurando settings...`);
     try {
       const settingsRes = await fetch(`${evoUrl}/settings/set/${instanceName}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", apikey: evoKey },
         body: JSON.stringify({
-          rejectCall: true,
-          msgCall: "No recibo llamadas, agenda por chat.",
-          groupsIgnore: true,
-          alwaysOnline: true,
-          readMessages: true,
-          readStatus: true,
-          syncFullHistory: false
+          settings: {
+            rejectCall: true,
+            msgCall: "No recibo llamadas, agenda por chat.",
+            groupsIgnore: true,
+            alwaysOnline: true,
+            readMessages: true,
+            readStatus: true,
+            syncFullHistory: false
+          }
         }),
       });
       const settingsData = await settingsRes.text();
       console.log(`Settings response (${settingsRes.status}):`, settingsData);
+      if (!settingsRes.ok) {
+        console.error("Settings config failed, response:", settingsData);
+      }
     } catch (settingsError) {
       console.error("Error configurando settings:", settingsError);
     }
