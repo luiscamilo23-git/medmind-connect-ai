@@ -3,27 +3,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MessageCircle, QrCode, CheckCircle } from "lucide-react";
+import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export function ConnectWhatsApp() {
   const [loading, setLoading] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [instanceName, setInstanceName] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [status, setStatus] = useState<'online' | 'offline' | 'unknown' | 'disconnected'>('disconnected');
 
   useEffect(() => {
     checkConnectionStatus();
   }, []);
 
   const checkConnectionStatus = async () => {
+    setCheckingStatus(true);
     try {
-      // Call edge function to verify instance exists in Evolution API
       const { data, error } = await supabase.functions.invoke('check-whatsapp-instance');
 
       if (error) {
         console.error("Error checking WhatsApp status:", error);
-        // Fallback to local check
         await checkLocalStatus();
         return;
       }
@@ -38,6 +40,7 @@ export function ConnectWhatsApp() {
 
       setIsConnected(data?.connected || false);
       setInstanceName(data?.instanceName || null);
+      setStatus(data?.status || 'disconnected');
     } catch (error) {
       console.error("Error checking WhatsApp status:", error);
       await checkLocalStatus();
@@ -60,9 +63,45 @@ export function ConnectWhatsApp() {
       if (data?.whatsapp_instance_name) {
         setIsConnected(true);
         setInstanceName(data.whatsapp_instance_name);
+        setStatus('unknown');
       }
     } catch (error) {
       console.error("Error checking local WhatsApp status:", error);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    setDisconnecting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('disconnect-whatsapp-instance');
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "No se pudo desconectar WhatsApp",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsConnected(false);
+      setInstanceName(null);
+      setStatus('disconnected');
+      setQrCode(null);
+
+      toast({
+        title: "Desconectado",
+        description: "Tu WhatsApp ha sido desvinculado exitosamente",
+      });
+    } catch (err) {
+      console.error('Error disconnecting:', err);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al desconectar",
+        variant: "destructive",
+      });
+    } finally {
+      setDisconnecting(false);
     }
   };
 
@@ -148,9 +187,28 @@ export function ConnectWhatsApp() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
             <CheckCircle className="h-6 w-6 text-emerald-500" />
           </div>
-          <CardTitle className="text-xl text-emerald-600">WhatsApp Vinculado</CardTitle>
+          <CardTitle className="text-xl text-emerald-600 flex items-center justify-center gap-2">
+            WhatsApp Vinculado
+            {status === 'online' && (
+              <Badge className="bg-emerald-500 text-white text-[10px] gap-1">
+                <Wifi className="h-3 w-3" />
+                Online
+              </Badge>
+            )}
+            {status === 'offline' && (
+              <Badge variant="secondary" className="text-amber-600 bg-amber-100 text-[10px] gap-1">
+                <WifiOff className="h-3 w-3" />
+                Offline
+              </Badge>
+            )}
+            {status === 'unknown' && (
+              <Badge variant="outline" className="text-muted-foreground text-[10px]">
+                Verificando...
+              </Badge>
+            )}
+          </CardTitle>
           <p className="text-sm text-muted-foreground mt-2">
-            Tu asistente de WhatsApp está conectado y listo para usar
+            Tu asistente de WhatsApp está conectado
           </p>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
@@ -159,14 +217,33 @@ export function ConnectWhatsApp() {
               Instancia: <span className="font-mono bg-muted px-2 py-1 rounded">{instanceName}</span>
             </p>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={checkConnectionStatus}
-            className="text-xs"
-          >
-            Verificar estado
-          </Button>
+          <div className="flex gap-2 w-full">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={checkConnectionStatus}
+              className="flex-1 text-xs"
+              disabled={checkingStatus}
+            >
+              {checkingStatus ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verificar estado"}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDisconnect}
+              className="flex-1 text-xs gap-1"
+              disabled={disconnecting}
+            >
+              {disconnecting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Unplug className="h-4 w-4" />
+                  Desconectar
+                </>
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );

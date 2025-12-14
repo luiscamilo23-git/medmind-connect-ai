@@ -55,7 +55,7 @@ serve(async (req) => {
 
     if (!profile?.whatsapp_instance_name) {
       return new Response(
-        JSON.stringify({ connected: false, instanceName: null }),
+        JSON.stringify({ connected: false, instanceName: null, status: 'disconnected' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -74,9 +74,8 @@ serve(async (req) => {
 
     if (!evolutionResponse.ok) {
       console.error(`Evolution API error: ${evolutionResponse.status}`);
-      // If we can't verify, assume connected to avoid false negatives
       return new Response(
-        JSON.stringify({ connected: true, instanceName, verified: false }),
+        JSON.stringify({ connected: true, instanceName, verified: false, status: 'unknown' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -84,13 +83,13 @@ serve(async (req) => {
     const instances = await evolutionResponse.json();
     console.log('Evolution API instances:', JSON.stringify(instances));
 
-    // Check if our instance exists in the list
-    const instanceExists = Array.isArray(instances) && instances.some(
-      (inst: { instanceName?: string; name?: string }) => 
+    // Find our instance in the list
+    const foundInstance = Array.isArray(instances) && instances.find(
+      (inst: { instanceName?: string; name?: string; status?: string; connectionStatus?: string }) => 
         inst.instanceName === instanceName || inst.name === instanceName
     );
 
-    if (!instanceExists) {
+    if (!foundInstance) {
       console.log(`Instance ${instanceName} not found in Evolution API, clearing profile`);
       
       // Clear the instance name from profile
@@ -104,14 +103,26 @@ serve(async (req) => {
           connected: false, 
           instanceName: null, 
           wasCleared: true,
+          status: 'disconnected',
           message: 'La instancia fue eliminada de Evolution API'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    // Get connection status from the instance
+    const connectionStatus = foundInstance.connectionStatus || foundInstance.status || 'unknown';
+    const isOnline = connectionStatus === 'open' || connectionStatus === 'connected' || connectionStatus === 'online';
+    console.log(`Instance ${instanceName} connection status: ${connectionStatus}`);
+
     return new Response(
-      JSON.stringify({ connected: true, instanceName, verified: true }),
+      JSON.stringify({ 
+        connected: true, 
+        instanceName, 
+        verified: true,
+        status: isOnline ? 'online' : 'offline',
+        connectionStatus
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
