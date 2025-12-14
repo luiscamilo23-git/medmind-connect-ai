@@ -30,6 +30,10 @@ export function ConnectWhatsApp() {
     };
   }, []);
 
+  const qrTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pollCountRef = useRef(0);
+  const MAX_POLL_COUNT = 40; // 40 * 3s = 2 minutos de tiempo para escanear
+
   // Start polling when QR is displayed
   useEffect(() => {
     if (qrCode && !isConnected) {
@@ -43,10 +47,13 @@ export function ConnectWhatsApp() {
 
   const startPolling = () => {
     stopPolling();
-    console.log('Starting WhatsApp connection polling...');
+    pollCountRef.current = 0;
+    console.log('Starting WhatsApp connection polling (max 2 min)...');
     
     pollingRef.current = setInterval(async () => {
-      console.log('Polling for WhatsApp connection...');
+      pollCountRef.current += 1;
+      console.log(`Polling for WhatsApp connection... (${pollCountRef.current}/${MAX_POLL_COUNT})`);
+      
       const connected = await checkConnectionStatusSilent();
       if (connected) {
         stopPolling();
@@ -55,6 +62,18 @@ export function ConnectWhatsApp() {
           title: "¡Conectado!",
           description: "Tu WhatsApp se ha vinculado exitosamente",
         });
+        return;
+      }
+      
+      // Si excedemos el tiempo máximo, regenerar QR automáticamente
+      if (pollCountRef.current >= MAX_POLL_COUNT) {
+        console.log('QR expired, regenerating...');
+        stopPolling();
+        toast({
+          title: "QR Expirado",
+          description: "Generando un nuevo código QR...",
+        });
+        handleGenerateQR();
       }
     }, 3000); // Check every 3 seconds
   };
