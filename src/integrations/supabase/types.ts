@@ -1264,6 +1264,11 @@ export type Database = {
           ai_behavior: string | null
           avatar_url: string | null
           bio: string | null
+          business_additional_info: string | null
+          business_description: string | null
+          business_hours: string | null
+          business_location: string | null
+          business_services: Json | null
           certifications: string[] | null
           city: string | null
           clinic_name: string | null
@@ -1286,6 +1291,11 @@ export type Database = {
           ai_behavior?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_additional_info?: string | null
+          business_description?: string | null
+          business_hours?: string | null
+          business_location?: string | null
+          business_services?: Json | null
           certifications?: string[] | null
           city?: string | null
           clinic_name?: string | null
@@ -1308,6 +1318,11 @@ export type Database = {
           ai_behavior?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_additional_info?: string | null
+          business_description?: string | null
+          business_hours?: string | null
+          business_location?: string | null
+          business_services?: Json | null
           certifications?: string[] | null
           city?: string | null
           clinic_name?: string | null
