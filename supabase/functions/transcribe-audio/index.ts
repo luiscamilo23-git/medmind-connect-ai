@@ -6,6 +6,36 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Process base64 in chunks to prevent memory issues
+function processBase64Chunks(base64String: string, chunkSize = 32768): Uint8Array {
+  const chunks: Uint8Array[] = [];
+  let position = 0;
+  
+  while (position < base64String.length) {
+    const chunk = base64String.slice(position, position + chunkSize);
+    const binaryChunk = atob(chunk);
+    const bytes = new Uint8Array(binaryChunk.length);
+    
+    for (let i = 0; i < binaryChunk.length; i++) {
+      bytes[i] = binaryChunk.charCodeAt(i);
+    }
+    
+    chunks.push(bytes);
+    position += chunkSize;
+  }
+
+  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  return result;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -20,15 +50,53 @@ serve(async (req) => {
 
     console.log('Received audio data, length:', audio.length);
 
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+
+    // Try OpenAI Whisper first if available (best for file uploads)
+    if (OPENAI_API_KEY) {
+      console.log('Using OpenAI Whisper for transcription...');
+      
+      // Process base64 audio in chunks
+      const binaryAudio = processBase64Chunks(audio);
+      
+      // Prepare form data for Whisper
+      const formData = new FormData();
+      const arrayBuffer = binaryAudio.buffer.slice(binaryAudio.byteOffset, binaryAudio.byteOffset + binaryAudio.byteLength) as ArrayBuffer;
+      const blob = new Blob([arrayBuffer], { type: 'audio/webm' });
+      formData.append('file', blob, 'audio.webm');
+      formData.append('model', 'whisper-1');
+      formData.append('language', 'es');
+      formData.append('response_format', 'text');
+
+      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('OpenAI Whisper error:', response.status, errorText);
+        throw new Error(`Whisper API error: ${errorText}`);
+      }
+
+      const transcribedText = await response.text();
+      console.log('Whisper transcription successful');
+
+      return new Response(
+        JSON.stringify({ text: transcribedText }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log('Using Lovable AI (Gemini) for LITERAL word-by-word transcription...');
+    // Fallback to Lovable AI if no OpenAI key
+    if (LOVABLE_API_KEY) {
+      console.log('Using Lovable AI (Gemini) for transcription...');
 
-    // Ultra-strict prompt for LITERAL transcription only
-    const systemPrompt = `Eres una máquina de transcripción de audio LITERAL.
+      const systemPrompt = `Eres una máquina de transcripción de audio LITERAL.
 
 REGLA ABSOLUTA: Transcribe EXACTAMENTE cada sonido y palabra que escuches, SIN CAMBIAR NADA.
 
@@ -50,70 +118,65 @@ LO QUE NO DEBES HACER:
 ✗ NO interpretar lo que "quiso decir"
 ✗ NO usar lenguaje médico profesional
 
-EJEMPLO CORRECTO:
-Audio: "Eh... doctor pues es que me duele... me duele mucho la cabeza desde ayer"
-Transcripción: "Eh... doctor pues es que me duele... me duele mucho la cabeza desde ayer"
-
-EJEMPLO INCORRECTO:
-Audio: "Eh... doctor pues es que me duele... me duele mucho la cabeza desde ayer"
-Transcripción: "Doctor, tengo dolor de cabeza desde ayer" ❌ (esto está PROHIBIDO)
-
 Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambiar NADA.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash', // Flash is better for literal transcription
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Transcribe este audio PALABRA POR PALABRA sin cambiar nada:'
-              },
-              {
-                type: 'audio',
-                audio: audio,
-                format: 'webm'
-              }
-            ]
-          }
-        ],
-        temperature: 0.0, // Zero temperature for consistency
-      }),
-    });
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt
+            },
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: 'Transcribe este audio PALABRA POR PALABRA sin cambiar nada:'
+                },
+                {
+                  type: 'audio',
+                  audio: audio,
+                  format: 'webm'
+                }
+              ]
+            }
+          ],
+          temperature: 0.0,
+        }),
+      });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        throw new Error('Límite de uso excedido. Por favor intenta más tarde.');
+      if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('Límite de uso excedido. Por favor intenta más tarde.');
+        }
+        if (response.status === 402) {
+          throw new Error('Créditos agotados. Por favor agrega fondos en Settings.');
+        }
+        
+        const errorText = await response.text();
+        console.error('Lovable AI error:', response.status, errorText);
+        throw new Error(`AI gateway error: ${errorText}`);
       }
-      if (response.status === 402) {
-        throw new Error('Créditos agotados. Por favor agrega fondos en Settings.');
-      }
+
+      const result = await response.json();
+      const transcribedText = result.choices[0].message.content;
       
-      const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
-      throw new Error(`AI gateway error: ${errorText}`);
+      console.log('Lovable AI transcription successful');
+
+      return new Response(
+        JSON.stringify({ text: transcribedText }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const result = await response.json();
-    const transcribedText = result.choices[0].message.content;
-    
-    console.log('Literal transcription successful:', transcribedText);
-
-    return new Response(
-      JSON.stringify({ text: transcribedText }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    throw new Error('No API key configured for transcription (OPENAI_API_KEY or LOVABLE_API_KEY)');
 
   } catch (error) {
     console.error('Error in transcribe-audio:', error);

@@ -18,13 +18,15 @@ import {
   ArrowLeft,
   Save,
   Sparkles,
-  Download
+  Download,
+  Upload
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 import { SignaturePad } from "@/components/SignaturePad";
 import { MedicalDocumentGenerator } from "@/components/MedicalDocumentGenerator";
+import { AudioFileUpload } from "@/components/AudioFileUpload";
 
 import { ExportMedicalRecordPDF } from "@/components/ExportMedicalRecordPDF";
 
@@ -714,51 +716,79 @@ const VoiceNotes = () => {
 
       <main className="container mx-auto px-4 py-8 max-w-6xl space-y-6">
         {/* Recording Card */}
-        <Card className="bg-gradient-card shadow-lg">
+        <Card className={`bg-gradient-card shadow-lg ${isRecording && !recordingField ? "border-destructive" : ""}`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Mic className="w-5 h-5 text-primary" />
               Grabación de Consulta Completa
             </CardTitle>
             <CardDescription>
-              Paso 1: Graba la consulta completa para transcripción literal
+              Paso 1: Graba en tiempo real o sube un archivo de audio para transcripción
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-center gap-4 flex-wrap">
-              {!isRecording || recordingField ? (
-                <Button
-                  size="lg"
-                  onClick={() => startRecording()}
-                  className="gap-2"
-                  disabled={isRecording && recordingField !== null}
-                >
-                  <Mic className="w-5 h-5" />
-                  Iniciar Grabación Completa
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  variant="destructive"
-                  onClick={stopRecording}
-                  className="gap-2 animate-pulse"
-                >
-                  <Square className="w-5 h-5" />
-                  Detener Grabación
-                </Button>
-              )}
-              
-              {audioBlob && !isRecording && (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={downloadAudio}
-                  className="gap-2"
-                >
-                  <Download className="w-5 h-5" />
-                  Descargar Audio
-                </Button>
-              )}
+          <CardContent className="space-y-6">
+            {/* Real-time recording buttons */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <Mic className="w-4 h-4" />
+                Grabación en tiempo real
+              </Label>
+              <div className="flex items-center justify-center gap-4 flex-wrap p-6 border rounded-xl bg-muted/30">
+                {!isRecording || recordingField ? (
+                  <Button
+                    size="lg"
+                    onClick={() => startRecording()}
+                    className="gap-2"
+                    disabled={isRecording && recordingField !== null}
+                  >
+                    <Mic className="w-5 h-5" />
+                    Iniciar Grabación Completa
+                  </Button>
+                ) : (
+                  <Button
+                    size="lg"
+                    variant="destructive"
+                    onClick={stopRecording}
+                    className="gap-2 animate-pulse"
+                  >
+                    <Square className="w-5 h-5" />
+                    Detener Grabación
+                  </Button>
+                )}
+                
+                {audioBlob && !isRecording && (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={downloadAudio}
+                    className="gap-2"
+                  >
+                    <Download className="w-5 h-5" />
+                    Descargar Audio
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">o</span>
+              </div>
+            </div>
+
+            {/* Audio file upload */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <Upload className="w-4 h-4" />
+                Subir archivo de audio
+              </Label>
+              <AudioFileUpload 
+                onTranscriptionComplete={(text) => setTranscript(text)}
+              />
             </div>
 
             {isRecording && !recordingField && (
