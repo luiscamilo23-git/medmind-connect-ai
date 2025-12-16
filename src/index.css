@@ -8,39 +8,42 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Modo oscuro intenso con luminosidad - Fondo principal */
-    --background: 0 0% 3%;
-    --foreground: 0 0% 92%;
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 92%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 92%;
+    /* 60-30-10 Color System */
+    /* 60% Dominant - Deep Space #030712 */
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
     
-    /* Primary - Azul médico */
-    --primary: 217 81% 51%;
+    /* Card surface - slightly lighter #0F172A with teal-tinted borders */
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    
+    /* 10% Primary Accent - Logo Blue #4A90D9 */
+    --primary: 211 63% 57%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 81% 61%;
+    --primary-glow: 211 63% 67%;
     
-    /* Secondary - Rosado vibrante */
-    --secondary: 340 82% 60%;
+    /* 30% Secondary - Teal #14B8A6 */
+    --secondary: 173 80% 40%;
     --secondary-foreground: 0 0% 100%;
     
-    /* Muted */
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    /* Muted - Deep Space variation */
+    --muted: 222 47% 15%;
+    --muted-foreground: 215 20% 65%;
     
-    /* Accent - Azul acero */
-    --accent: 209 100% 30%;
+    /* Accent - Teal variation for hover states */
+    --accent: 173 80% 35%;
     --accent-foreground: 0 0% 100%;
     
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    /* Borders & Inputs - transiciones suaves */
-    --border: 0 0% 15%;
-    --input: 0 0% 10%;
-    --ring: 217 81% 51%;
+    /* Borders - Teal at low opacity simulation */
+    --border: 222 30% 18%;
+    --input: 222 47% 13%;
+    --ring: 211 63% 57%;
     
     /* Success Green */
     --success: 142 76% 36%;
@@ -50,94 +53,103 @@ All colors MUST be HSL.
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
     
-    /* Info */
-    --info: 199 89% 48%;
+    /* Info - Logo Blue variation */
+    --info: 211 63% 52%;
     --info-foreground: 0 0% 100%;
     
-    /* Charts */
-    --chart-1: 217 81% 51%;
-    --chart-2: 340 82% 60%;
-    --chart-3: 209 100% 30%;
-    --chart-4: 199 89% 48%;
+    /* Charts - Using the 60-30-10 palette */
+    --chart-1: 211 63% 57%;
+    --chart-2: 173 80% 40%;
+    --chart-3: 211 63% 45%;
+    --chart-4: 173 80% 50%;
     --chart-5: 280 65% 60%;
     
     --radius: 0.75rem;
     
-    /* Gradients suaves */
-    --gradient-primary: linear-gradient(135deg, hsl(217 81% 51%), hsl(217 81% 61%));
-    --gradient-secondary: linear-gradient(135deg, hsl(340 82% 60%), hsl(340 82% 70%));
-    --gradient-hero: linear-gradient(135deg, hsl(217 81% 51%) 0%, hsl(340 82% 60%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 6%), hsl(0 0% 3%));
+    /* Gradients - Primary flows from Logo Blue to Teal */
+    --gradient-primary: linear-gradient(135deg, hsl(211 63% 57%), hsl(173 80% 40%));
+    --gradient-secondary: linear-gradient(135deg, hsl(173 80% 40%), hsl(173 80% 50%));
+    --gradient-hero: linear-gradient(135deg, hsl(211 63% 57%) 0%, hsl(173 80% 40%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(222 47% 11%), hsl(224 71% 4%));
+    --gradient-glow: linear-gradient(135deg, hsl(211 63% 57% / 0.3), hsl(173 80% 40% / 0.3));
     
-    /* Shadows suaves y profesionales */
-    --shadow-sm: 0 1px 3px 0 hsl(217 81% 51% / 0.08);
-    --shadow-md: 0 4px 8px -2px hsl(217 81% 51% / 0.12);
-    --shadow-lg: 0 12px 20px -5px hsl(217 81% 51% / 0.15);
-    --shadow-xl: 0 20px 30px -8px hsl(217 81% 51% / 0.18);
-    --shadow-glow: 0 0 40px hsl(217 81% 61% / 0.3);
+    /* Shadows - Using Logo Blue for glow effects */
+    --shadow-sm: 0 1px 3px 0 hsl(211 63% 57% / 0.08);
+    --shadow-md: 0 4px 8px -2px hsl(211 63% 57% / 0.12);
+    --shadow-lg: 0 12px 20px -5px hsl(211 63% 57% / 0.15);
+    --shadow-xl: 0 20px 30px -8px hsl(211 63% 57% / 0.18);
+    --shadow-glow: 0 0 40px hsl(211 63% 67% / 0.3);
+    --shadow-teal: 0 0 30px hsl(173 80% 40% / 0.25);
     
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 217 81% 51%;
+    /* Sidebar - Deep Space theme */
+    --sidebar-background: 224 71% 5%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 211 63% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 217 81% 51%;
+    --sidebar-accent: 222 47% 13%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 30% 18%;
+    --sidebar-ring: 211 63% 57%;
   }
   
   .dark {
-    --background: 0 0% 3%;
-    --foreground: 0 0% 92%;
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 92%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 92%;
+    /* 60% Dominant - Deep Space #030712 */
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
     
-    --primary: 217 81% 56%;
+    /* Card surface */
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    
+    /* 10% Primary - Logo Blue */
+    --primary: 211 63% 57%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 81% 66%;
+    --primary-glow: 211 63% 67%;
     
-    --secondary: 340 82% 65%;
+    /* 30% Secondary - Teal */
+    --secondary: 173 80% 40%;
     --secondary-foreground: 0 0% 100%;
     
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 222 47% 15%;
+    --muted-foreground: 215 20% 65%;
     
-    --accent: 209 100% 35%;
+    --accent: 173 80% 35%;
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 0 0% 15%;
-    --input: 0 0% 10%;
-    --ring: 217 81% 56%;
+    --border: 222 30% 18%;
+    --input: 222 47% 13%;
+    --ring: 211 63% 57%;
     
     --success: 142 76% 45%;
     --warning: 38 92% 55%;
-    --info: 199 89% 53%;
+    --info: 211 63% 52%;
     
-    --chart-1: 217 81% 56%;
-    --chart-2: 340 82% 65%;
-    --chart-3: 209 100% 35%;
-    --chart-4: 199 89% 53%;
+    --chart-1: 211 63% 57%;
+    --chart-2: 173 80% 40%;
+    --chart-3: 211 63% 45%;
+    --chart-4: 173 80% 50%;
     --chart-5: 280 65% 65%;
     
-    --shadow-glow: 0 0 40px hsl(217 81% 66% / 0.3);
+    --shadow-glow: 0 0 40px hsl(211 63% 67% / 0.3);
+    --shadow-teal: 0 0 30px hsl(173 80% 40% / 0.25);
 
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 217 81% 56%;
+    --sidebar-background: 224 71% 5%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 211 63% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 217 81% 56%;
+    --sidebar-accent: 222 47% 13%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 30% 18%;
+    --sidebar-ring: 211 63% 57%;
   }
 }
 
