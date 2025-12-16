@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, LogOut, Bell, User } from "lucide-react";
+import { Plus, Edit, Trash2, LogOut, Bell, User, Bot, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ServiceDialog } from "@/components/billing/ServiceDialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type Service = {
   id: string;
@@ -23,11 +24,19 @@ type Service = {
   descripcion: string | null;
 };
 
+interface KnowledgeBaseService {
+  name: string;
+  price: string;
+  duration?: string;
+  description?: string;
+}
+
 export default function BillingServices() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
 
   const { data: services, isLoading } = useQuery({
     queryKey: ["services"],
@@ -39,6 +48,25 @@ export default function BillingServices() {
 
       if (error) throw error;
       return data as Service[];
+    },
+  });
+
+  // Fetch knowledge base services from profile
+  const { data: knowledgeBaseServices } = useQuery({
+    queryKey: ["knowledge-base-services"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("business_services")
+        .eq("id", user.id)
+        .single();
+
+      if (error) return null;
+      if (!data?.business_services || !Array.isArray(data.business_services)) return null;
+      return data.business_services as unknown as KnowledgeBaseService[];
     },
   });
 
@@ -55,6 +83,52 @@ export default function BillingServices() {
       toast.error("Error al eliminar servicio");
     },
   });
+
+  const importFromKnowledgeBase = async () => {
+    if (!knowledgeBaseServices || knowledgeBaseServices.length === 0) {
+      toast.error("No hay servicios en la Base de Conocimiento");
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No autenticado");
+
+      // Convert knowledge base services to billing services
+      const servicesToInsert = knowledgeBaseServices
+        .filter(s => s.name && s.price)
+        .map(service => ({
+          doctor_id: user.id,
+          nombre_servicio: service.name,
+          precio_unitario: parseInt(service.price, 10) || 0,
+          tipo_servicio: "CONSULTA" as const, // Default type
+          impuestos_aplican: false,
+          porcentaje_impuesto: 0,
+          activo: true,
+          descripcion: service.description || null,
+        }));
+
+      if (servicesToInsert.length === 0) {
+        toast.error("No hay servicios válidos para importar");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("services")
+        .insert(servicesToInsert);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success(`${servicesToInsert.length} servicio(s) importado(s) exitosamente`);
+    } catch (error) {
+      console.error("Error importing services:", error);
+      toast.error("Error al importar servicios");
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -78,6 +152,9 @@ export default function BillingServices() {
       currency: "COP",
     }).format(amount);
   };
+
+  const hasKnowledgeBaseServices = knowledgeBaseServices && knowledgeBaseServices.length > 0;
+  const hasNoServices = !services || services.length === 0;
 
   return (
     <SidebarProvider>
@@ -109,14 +186,60 @@ export default function BillingServices() {
                     Gestiona tus servicios médicos y tarifas
                   </p>
                 </div>
-                <Button onClick={() => {
-                  setEditingService(null);
-                  setIsDialogOpen(true);
-                }}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nuevo Servicio
-                </Button>
+                <div className="flex gap-2">
+                  {hasKnowledgeBaseServices && (
+                    <Button 
+                      variant="outline" 
+                      onClick={importFromKnowledgeBase}
+                      disabled={isImporting}
+                      className="gap-2"
+                    >
+                      {isImporting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Bot className="h-4 w-4" />
+                      )}
+                      Importar desde Mi Agente IA
+                    </Button>
+                  )}
+                  <Button onClick={() => {
+                    setEditingService(null);
+                    setIsDialogOpen(true);
+                  }}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuevo Servicio
+                  </Button>
+                </div>
               </div>
+
+              {/* Import suggestion banner when no services */}
+              {hasNoServices && hasKnowledgeBaseServices && !isLoading && (
+                <Alert className="border-primary/30 bg-primary/5">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <AlertTitle className="text-primary">¡Ahorra tiempo!</AlertTitle>
+                  <AlertDescription className="flex items-center justify-between">
+                    <span>
+                      Tienes {knowledgeBaseServices.length} servicio(s) configurado(s) en tu Base de Conocimiento.
+                      Impórtalos con un clic.
+                    </span>
+                    <Button 
+                      size="sm" 
+                      onClick={importFromKnowledgeBase}
+                      disabled={isImporting}
+                      className="ml-4 gap-2"
+                    >
+                      {isImporting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          Importar
+                          <ArrowRight className="h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
 
               {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -199,15 +322,51 @@ export default function BillingServices() {
                   ))}
                 </div>
               ) : (
-                <Card>
+                <Card className="border-2 border-dashed">
                   <CardContent className="flex flex-col items-center justify-center py-12">
-                    <p className="text-muted-foreground mb-4">
+                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                      <Plus className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <p className="text-muted-foreground mb-4 text-center">
                       No tienes servicios registrados
                     </p>
-                    <Button onClick={() => setIsDialogOpen(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Crear Primer Servicio
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      {hasKnowledgeBaseServices ? (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            onClick={importFromKnowledgeBase}
+                            disabled={isImporting}
+                            className="gap-2"
+                          >
+                            {isImporting ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Bot className="h-4 w-4" />
+                            )}
+                            Importar desde Mi Agente IA
+                          </Button>
+                          <span className="text-muted-foreground self-center">o</span>
+                        </>
+                      ) : null}
+                      <Button onClick={() => setIsDialogOpen(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Crear Servicio Manual
+                      </Button>
+                    </div>
+                    {!hasKnowledgeBaseServices && (
+                      <p className="text-xs text-muted-foreground mt-4 text-center max-w-md">
+                        💡 Tip: Configura tus servicios en{" "}
+                        <Button 
+                          variant="link" 
+                          className="h-auto p-0 text-xs"
+                          onClick={() => navigate("/mi-agente-ia")}
+                        >
+                          Mi Agente IA
+                        </Button>{" "}
+                        y podrás importarlos aquí automáticamente.
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               )}
