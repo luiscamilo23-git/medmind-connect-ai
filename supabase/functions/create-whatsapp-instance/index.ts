@@ -142,6 +142,7 @@ serve(async (req) => {
             webhook: {
               enabled: true,
               url: webhookUrl,
+              byEvents: false,
               base64: true,
               events: ["MESSAGES_UPSERT"]
             }
