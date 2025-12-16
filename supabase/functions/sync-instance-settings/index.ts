@@ -99,7 +99,7 @@ serve(async (req) => {
           groupsIgnore: true,
           alwaysOnline: true,
           readMessages: true,
-          readStatus: true,
+          readStatus: false,
           syncFullHistory: false
         }
       }),
