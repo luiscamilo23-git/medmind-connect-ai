@@ -93,15 +93,13 @@ serve(async (req) => {
         'apikey': evolutionApiKey,
       },
       body: JSON.stringify({
-        settings: {
-          rejectCall: true,
-          msgCall: 'No recibo llamadas, agenda tu cita por texto.',
-          groupsIgnore: true,
-          alwaysOnline: true,
-          readMessages: true,
-          readStatus: false,
-          syncFullHistory: false
-        }
+        rejectCall: true,
+        msgCall: 'No recibo llamadas, agenda tu cita por texto.',
+        groupsIgnore: true,
+        alwaysOnline: true,
+        readMessages: true,
+        readStatus: false,
+        syncFullHistory: false
       }),
     });
 
