@@ -64,13 +64,20 @@ serve(async (req) => {
     }
 
     // SMART DATE VALIDATION - Auto-correct AI hallucinations
-    let requestedDate = new Date(body.date);
+    // Sanitize date: remove trailing 'Z' to treat as local time
+    let sanitizedDate = body.date;
+    if (sanitizedDate.endsWith('Z')) {
+      sanitizedDate = sanitizedDate.slice(0, -1);
+      console.log('Sanitized UTC date (removed Z):', body.date, '->', sanitizedDate);
+    }
+    
+    let requestedDate = new Date(sanitizedDate);
     const now = new Date();
     
     // Check if date is valid
     if (isNaN(requestedDate.getTime())) {
       console.error('Invalid date format received:', body.date);
-      return jsonResponse({ success: false, error: 'Formato de fecha inválido. Usa formato ISO (YYYY-MM-DDTHH:mm:ss).' });
+      return jsonResponse({ success: false, error: 'Formato de fecha inválido. Usa formato ISO (YYYY-MM-DDTHH:mm:ss o YYYY-MM-DDTHH:mm:ssZ).' });
     }
     
     // AUTO-CORRECTION: Force year to 2025 if less than 2025
