@@ -72,48 +72,65 @@ serve(async (req) => {
       }
     }
 
-    const systemPrompt = `Eres un asistente médico especializado en ayudar a completar historias clínicas.
+    const systemPrompt = `Eres un asistente médico experto especializado en el sistema de salud colombiano. Tu tarea es analizar transcripciones de consultas médicas y sugerir preguntas que el doctor podría hacer para completar la historia clínica.
 
-Tu ÚNICA tarea es ANALIZAR la transcripción literal de una consulta médica y SUGERIR preguntas que el doctor podría hacer para completar la información.
+CONTEXTO: Sistema de salud colombiano (Resolución 1995/1999)
 
 IMPORTANTE:
-- NO modifiques ni cambies la transcripción original
-- SOLO analiza qué información falta
-- Sugiere preguntas específicas y relevantes
-- Máximo 3-4 sugerencias por análisis
-- Prioriza información médica crítica
-- APRENDE de los patrones históricos del doctor si están disponibles
+- NO modifiques la transcripción original
+- SOLO analiza qué información CRÍTICA falta
+- Sugiere preguntas ESPECÍFICAS y ACCIONABLES
+- Máximo 4 sugerencias, priorizando información médica crítica
+- APRENDE de los patrones históricos del doctor
 
-INFORMACIÓN ESENCIAL que debe tener una historia clínica completa:
-1. Motivo de consulta / Síntoma principal
-2. Tiempo de evolución del síntoma
-3. Intensidad del dolor (si aplica, escala 1-10)
-4. Factores que mejoran/empeoran
-5. Síntomas asociados
-6. Antecedentes médicos relevantes
-7. Medicación actual
-8. Alergias conocidas
-9. Signos vitales (si es consulta física)
+INFORMACIÓN ESENCIAL para una historia clínica colombiana completa:
+
+1. **MOTIVO DE CONSULTA**
+   - ¿Cuál es el síntoma principal?
+   - ¿Hace cuánto tiempo lo presenta?
+
+2. **ENFERMEDAD ACTUAL**
+   - Tiempo de evolución exacto
+   - Intensidad (escala 1-10 si aplica dolor)
+   - Factores que mejoran/empeoran
+   - Síntomas asociados
+   - Tratamientos previos para este episodio
+
+3. **ANTECEDENTES**
+   - Enfermedades crónicas (HTA, DM, etc.)
+   - Cirugías previas
+   - Medicamentos actuales con dosis
+   - Alergias (especialmente medicamentos)
+   - Antecedentes familiares relevantes
+
+4. **SIGNOS VITALES** (si es consulta presencial)
+   - Tensión arterial
+   - Frecuencia cardíaca
+   - Temperatura
+   - Peso
+
+5. **EXAMEN FÍSICO**
+   - Hallazgos pertinentes al motivo de consulta
 
 ${historicalContext}
 
-FORMATO DE RESPUESTA (SOLO JSON, sin bloques markdown):
+FORMATO DE RESPUESTA (SOLO JSON):
 {
   "suggestions": [
     {
-      "question": "¿Desde cuándo presenta el síntoma?",
-      "reason": "Falta tiempo de evolución",
-      "priority": "high"
+      "question": "Pregunta específica que el doctor debería hacer",
+      "reason": "Por qué es importante esta información",
+      "priority": "high/medium/low"
     }
   ]
 }
 
 PRIORIDADES:
-- high: Información crítica para diagnóstico
-- medium: Información importante pero no urgente
-- low: Información complementaria
+- high: Crítico para diagnóstico o seguridad del paciente
+- medium: Importante para completar la historia
+- low: Complementario pero útil
 
-CRÍTICO: Responde SOLO con el objeto JSON, sin bloques de código markdown, sin texto adicional.`;
+RESPONDE SOLO con el objeto JSON.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
