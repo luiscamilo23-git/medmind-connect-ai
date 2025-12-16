@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
-import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw, Clock } from "lucide-react";
+import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw, Clock, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -14,6 +14,7 @@ export function ConnectWhatsApp() {
   const [disconnecting, setDisconnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [reconnecting, setReconnecting] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [instanceName, setInstanceName] = useState<string | null>(null);
@@ -313,6 +314,66 @@ export function ConnectWhatsApp() {
     }
   };
 
+  // Reconnect: disconnect then generate new QR (keeps knowledge base intact)
+  const handleReconnect = async () => {
+    setReconnecting(true);
+    try {
+      // Step 1: Disconnect current instance
+      const { error: disconnectError } = await supabase.functions.invoke('disconnect-whatsapp-instance');
+
+      if (disconnectError) {
+        toast({
+          title: "Error",
+          description: "No se pudo desconectar la instancia actual",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update local state
+      setIsConnected(false);
+      setInstanceName(null);
+      setStatus('disconnected');
+
+      // Step 2: Generate new QR
+      const { data, error } = await supabase.functions.invoke('create-whatsapp-instance');
+
+      if (error || data?.error) {
+        toast({
+          title: "Error",
+          description: error?.message || data?.error || "No se pudo generar el nuevo QR",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const qr = data?.qrCode || data?.qrcode;
+      if (qr) {
+        setQrCode(qr);
+        setInstanceName(data.instanceName);
+        toast({
+          title: "QR Generado",
+          description: "Tu base de conocimiento se mantiene. Escanea para reconectar.",
+        });
+      } else {
+        toast({
+          title: "Sin QR",
+          description: "No se recibió código QR. Intenta de nuevo.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error('Error reconnecting:', err);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al reconectar",
+        variant: "destructive",
+      });
+    } finally {
+      setReconnecting(false);
+    }
+  };
+
   const handleGenerateQR = async () => {
     setLoading(true);
     setQrCode(null);
@@ -484,6 +545,22 @@ export function ConnectWhatsApp() {
                 <>
                   <RefreshCw className="h-4 w-4" />
                   Sincronizar
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReconnect}
+              className="flex-1 text-xs gap-2 border-amber-500/30 text-amber-600 hover:bg-amber-500/10 hover:text-amber-500"
+              disabled={reconnecting}
+            >
+              {reconnecting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <RotateCcw className="h-4 w-4" />
+                  Reconectar
                 </>
               )}
             </Button>
