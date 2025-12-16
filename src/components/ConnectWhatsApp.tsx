@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -21,6 +22,8 @@ export function ConnectWhatsApp() {
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const { playSound } = useNotificationSound();
 
   useEffect(() => {
     checkConnectionStatus();
@@ -70,6 +73,7 @@ export function ConnectWhatsApp() {
       if (connected) {
         stopPolling();
         setQrCode(null);
+        playSound('success'); // Sonido de éxito
         toast({
           title: "¡Conectado!",
           description: "Tu WhatsApp se ha vinculado exitosamente",
@@ -81,6 +85,7 @@ export function ConnectWhatsApp() {
       if (pollCountRef.current >= MAX_POLL_COUNT) {
         console.log('QR expired, regenerating...');
         stopPolling();
+        playSound('warning'); // Sonido de alerta
         toast({
           title: "QR Expirado",
           description: "Generando un nuevo código QR...",
