@@ -63,22 +63,19 @@ serve(async (req) => {
       return jsonResponse({ success: false, error: 'El campo "doctor_id" es requerido.' });
     }
 
-    // SMART DATE VALIDATION - Auto-correct AI hallucinations
-    // Sanitize date: remove trailing 'Z' to treat as local time
-    let sanitizedDate = body.date;
-    if (sanitizedDate.endsWith('Z')) {
-      sanitizedDate = sanitizedDate.slice(0, -1);
-      console.log('Sanitized UTC date (removed Z):', body.date, '->', sanitizedDate);
-    }
+    // SIMPLE DATE PARSING - Trust standard JS Date parsing
+    console.log('Raw date received:', body.date);
     
-    let requestedDate = new Date(sanitizedDate);
+    let requestedDate = new Date(body.date);
     const now = new Date();
     
-    // Check if date is valid
+    // Check if date is valid using standard parsing
     if (isNaN(requestedDate.getTime())) {
-      console.error('Invalid date format received:', body.date);
-      return jsonResponse({ success: false, error: 'Formato de fecha inválido. Usa formato ISO (YYYY-MM-DDTHH:mm:ss o YYYY-MM-DDTHH:mm:ssZ).' });
+      console.error('Invalid date - could not parse:', body.date);
+      return jsonResponse({ success: false, error: `No pude entender la fecha "${body.date}". Intenta con formato como "21 de diciembre a las 10am".` });
     }
+    
+    console.log('Parsed date successfully:', requestedDate.toISOString());
     
     // AUTO-CORRECTION: Force year to 2025 if less than 2025
     const originalYear = requestedDate.getFullYear();
