@@ -86,8 +86,18 @@ serve(async (req) => {
     const evoKey = Deno.env.get("EVOLUTION_API_KEY");
     const webhookUrl = Deno.env.get("MEDMIND_WEBHOOK");
 
+    // No loguear valores; solo presencia (debug)
+    console.log("Secrets presence:", {
+      hasEvoUrl: !!evoUrl,
+      hasEvoKey: !!evoKey,
+      hasWebhook: !!webhookUrl,
+    });
+
     if (!evoUrl || !evoKey) {
-      throw new Error("Faltan secretos de Evolution API");
+      const missing: string[] = [];
+      if (!evoUrl) missing.push("EVOLUTION_API_URL");
+      if (!evoKey) missing.push("EVOLUTION_API_KEY");
+      throw new Error(`Faltan secretos: ${missing.join(", ")}`);
     }
 
     console.log(`[1/5] Creando instancia: ${instanceName}`);
