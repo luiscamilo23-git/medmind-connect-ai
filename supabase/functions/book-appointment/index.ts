@@ -63,8 +63,8 @@ serve(async (req) => {
       return jsonResponse({ success: false, error: 'El campo "doctor_id" es requerido.' });
     }
 
-    // STRICT DATE VALIDATION - Block AI hallucinations
-    const requestedDate = new Date(body.date);
+    // SMART DATE VALIDATION - Auto-correct AI hallucinations
+    let requestedDate = new Date(body.date);
     const now = new Date();
     
     // Check if date is valid
@@ -73,18 +73,28 @@ serve(async (req) => {
       return jsonResponse({ success: false, error: 'Formato de fecha inválido. Usa formato ISO (YYYY-MM-DDTHH:mm:ss).' });
     }
     
-    // Block past dates
-    if (requestedDate < now) {
-      console.error('Attempted to book in the past:', body.date);
-      return jsonResponse({ success: false, error: 'No se puede agendar en el pasado.' });
+    // AUTO-CORRECTION: Force year to 2025 if less than 2025
+    const originalYear = requestedDate.getFullYear();
+    if (originalYear < 2025) {
+      console.log(`AUTO-CORRECTION: Corrected year from ${originalYear} to 2025`);
+      requestedDate.setFullYear(2025);
     }
     
-    // Enforce current/next year only (2025-2026)
-    const requestedYear = requestedDate.getFullYear();
-    if (requestedYear < 2025 || requestedYear > 2026) {
-      console.error('Invalid year received:', requestedYear);
-      return jsonResponse({ success: false, error: 'El año es incorrecto. Solo agenda para 2025 en adelante.' });
+    // Validate year is within acceptable range (2025-2026)
+    const correctedYear = requestedDate.getFullYear();
+    if (correctedYear > 2026) {
+      console.error('Year too far in future:', correctedYear);
+      return jsonResponse({ success: false, error: `Año incorrecto (${correctedYear}). Solo agenda para 2025 o 2026.` });
     }
+    
+    // Block past dates (AFTER year correction)
+    if (requestedDate < now) {
+      console.error('Date is in the past after correction:', requestedDate.toISOString());
+      return jsonResponse({ success: false, error: 'No se puede agendar en el pasado. Dame una fecha futura.' });
+    }
+    
+    // Update body.date with corrected date for database insertion
+    const correctedDateISO = requestedDate.toISOString();
 
     console.log('Received booking request:', JSON.stringify(body));
 
@@ -151,7 +161,7 @@ serve(async (req) => {
     }
 
     // Step 2: Check for slot conflicts (30 minute slots)
-    const appointmentStart = new Date(body.date);
+    const appointmentStart = new Date(correctedDateISO);
     const appointmentEnd = new Date(appointmentStart.getTime() + 30 * 60 * 1000); // 30 min duration
     
     // Format time for error message
@@ -202,7 +212,7 @@ serve(async (req) => {
       .insert({
         doctor_id: body.doctor_id,
         patient_id: patientId,
-        appointment_date: body.date,
+        appointment_date: correctedDateISO,
         title: appointmentTitle,
         description: `Cita agendada vía WhatsApp - ${appointmentTitle}`,
         status: 'scheduled',

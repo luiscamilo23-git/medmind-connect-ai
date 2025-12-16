@@ -86,11 +86,33 @@ serve(async (req) => {
       );
     }
 
-    const requestedDate = new Date(body.date + 'T00:00:00');
+    // Parse the date
+    let dateParts = body.date.split('-');
+    let year = parseInt(dateParts[0]);
+    const month = dateParts[1];
+    const day = dateParts[2];
+    
+    // AUTO-CORRECTION: Force year to 2025 if less than 2025
+    if (year < 2025) {
+      console.log(`AUTO-CORRECTION: Corrected year from ${year} to 2025`);
+      year = 2025;
+    }
+    
+    // Validate year is within acceptable range (2025-2026)
+    if (year > 2026) {
+      return new Response(
+        JSON.stringify({ success: false, error: `Año incorrecto (${year}). Solo consulta para 2025 o 2026.` }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Rebuild corrected date string
+    const correctedDateStr = `${year}-${month}-${day}`;
+    const requestedDate = new Date(correctedDateStr + 'T00:00:00');
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    // Block past dates
+    // Block past dates (AFTER year correction)
     if (requestedDate < today) {
       return new Response(
         JSON.stringify({ success: false, error: 'No se puede consultar disponibilidad para fechas pasadas.' }),
@@ -98,16 +120,7 @@ serve(async (req) => {
       );
     }
 
-    // Validate year
-    const requestedYear = requestedDate.getFullYear();
-    if (requestedYear < 2025 || requestedYear > 2026) {
-      return new Response(
-        JSON.stringify({ success: false, error: `Año incorrecto (${requestedYear}). Solo consulta para 2025 o 2026.` }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log('Checking availability for:', body.date, 'doctor:', body.doctor_id);
+    console.log('Checking availability for:', correctedDateStr, 'doctor:', body.doctor_id);
 
     // Create Supabase client with service role key
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -121,8 +134,8 @@ serve(async (req) => {
     });
 
     // Query appointments for this doctor on this date
-    const startOfDay = `${body.date}T00:00:00`;
-    const endOfDay = `${body.date}T23:59:59`;
+    const startOfDay = `${correctedDateStr}T00:00:00`;
+    const endOfDay = `${correctedDateStr}T23:59:59`;
 
     const { data: appointments, error: queryError } = await supabase
       .from('appointments')
@@ -178,7 +191,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        date: body.date,
+        date: correctedDateStr,
+        original_date: body.date,
+        year_corrected: year !== parseInt(body.date.split('-')[0]),
         doctor_id: body.doctor_id,
         available_slots: availableSlots,
         total_available: availableSlots.length,
