@@ -81,7 +81,7 @@ export default {
         'gradient-hero': 'var(--gradient-hero)',
         'gradient-card': 'var(--gradient-card)',
         'gradient-glow': 'var(--gradient-glow)',
-        'gradient-cta': 'linear-gradient(135deg, #4A90D9, #14B8A6)',
+        'gradient-cta': 'var(--gradient-cta)',
       },
       boxShadow: {
         'sm': 'var(--shadow-sm)',
