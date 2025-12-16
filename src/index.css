@@ -20,22 +20,27 @@
     --popover: 222 47% 7%;
     --popover-foreground: 0 0% 100%;
     
-    /* Primary - Logo Blue as light source */
-    --primary: 217 91% 60%;
+    /* Primary - Logo Blue as light source (10% - Accent) */
+    --primary: 210 79% 56%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 187 100% 50%;
+    --primary-glow: 174 84% 45%;
     
-    /* Secondary - AI Neural Processing Violet */
-    --secondary: 263 70% 50%;
+    /* Secondary - Teal (30% - Supporting) */
+    --secondary: 174 84% 40%;
     --secondary-foreground: 0 0% 100%;
     
     /* Muted - Slate tones */
     --muted: 222 47% 11%;
     --muted-foreground: 215 20% 65%;
     
-    /* Accent - Cyan light */
-    --accent: 187 100% 42%;
+    /* Accent - Teal light for highlights */
+    --accent: 174 72% 50%;
     --accent-foreground: 0 0% 100%;
+    
+    /* Teal variations for 30% rule */
+    --teal: 174 84% 40%;
+    --teal-light: 174 72% 55%;
+    --teal-dark: 174 84% 32%;
     
     /* Destructive */
     --destructive: 0 84% 60%;
@@ -58,31 +63,31 @@
     --info: 187 100% 50%;
     --info-foreground: 0 0% 100%;
     
-    /* Charts - Luminescent colors */
-    --chart-1: 217 91% 60%;
-    --chart-2: 187 100% 50%;
-    --chart-3: 263 70% 50%;
+    /* Charts - Luminescent colors with Teal */
+    --chart-1: 210 79% 56%;
+    --chart-2: 174 84% 45%;
+    --chart-3: 174 72% 55%;
     --chart-4: 142 76% 45%;
     --chart-5: 38 92% 50%;
     
     --radius: 1rem;
     
-    /* === ADVANCED GRADIENTS === */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
-    --gradient-secondary: linear-gradient(135deg, hsl(263 70% 50%), hsl(217 91% 60%));
-    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(263 70% 50%) 50%, hsl(187 100% 50%) 100%);
+    /* === ADVANCED GRADIENTS (60-30-10 Rule) === */
+    --gradient-primary: linear-gradient(135deg, hsl(210 79% 56%), hsl(174 84% 45%));
+    --gradient-secondary: linear-gradient(135deg, hsl(174 84% 40%), hsl(174 72% 55%));
+    --gradient-hero: linear-gradient(135deg, hsl(210 79% 56%) 0%, hsl(174 84% 40%) 50%, hsl(174 72% 55%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(222 47% 9%), hsl(222 47% 5%));
-    --gradient-neural: linear-gradient(135deg, hsl(263 70% 50%), hsl(187 100% 50%));
-    --gradient-glow: radial-gradient(ellipse at center, hsl(217 91% 60% / 0.3), transparent 70%);
+    --gradient-teal: linear-gradient(135deg, hsl(174 84% 40%), hsl(174 72% 55%));
+    --gradient-glow: radial-gradient(ellipse at center, hsl(210 79% 56% / 0.3), transparent 70%);
     
-    /* === AI GLOW SHADOWS === */
-    --shadow-sm: 0 1px 3px 0 hsl(217 91% 60% / 0.08);
-    --shadow-md: 0 4px 12px -2px hsl(217 91% 60% / 0.15);
-    --shadow-lg: 0 12px 24px -5px hsl(217 91% 60% / 0.2);
-    --shadow-xl: 0 20px 40px -8px hsl(217 91% 60% / 0.25);
-    --shadow-glow: 0 0 40px hsl(217 91% 60% / 0.4), 0 0 80px hsl(187 100% 50% / 0.2);
-    --shadow-glow-intense: 0 0 60px hsl(217 91% 60% / 0.6), 0 0 120px hsl(187 100% 50% / 0.3);
-    --shadow-neural: 0 0 30px hsl(263 70% 50% / 0.4);
+    /* === AI GLOW SHADOWS (with Teal accents) === */
+    --shadow-sm: 0 1px 3px 0 hsl(210 79% 56% / 0.08);
+    --shadow-md: 0 4px 12px -2px hsl(210 79% 56% / 0.15);
+    --shadow-lg: 0 12px 24px -5px hsl(210 79% 56% / 0.2);
+    --shadow-xl: 0 20px 40px -8px hsl(210 79% 56% / 0.25);
+    --shadow-glow: 0 0 40px hsl(210 79% 56% / 0.4), 0 0 80px hsl(174 84% 45% / 0.2);
+    --shadow-glow-intense: 0 0 60px hsl(210 79% 56% / 0.6), 0 0 120px hsl(174 84% 45% / 0.3);
+    --shadow-teal: 0 0 30px hsl(174 84% 40% / 0.4);
     
     /* === GLASSMORPHISM === */
     --glass-bg: hsl(222 47% 7% / 0.8);
@@ -112,29 +117,30 @@
     --card-foreground: 0 0% 100%;
     --popover: 222 47% 7%;
     --popover-foreground: 0 0% 100%;
-    --primary: 217 91% 60%;
+    --primary: 210 79% 56%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 187 100% 50%;
-    --secondary: 263 70% 50%;
+    --primary-glow: 174 84% 45%;
+    --secondary: 174 84% 40%;
     --secondary-foreground: 0 0% 100%;
     --muted: 222 47% 11%;
     --muted-foreground: 215 20% 65%;
     --accent: 187 100% 42%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 62% 50%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --accent: 174 72% 50%;
     --border: 222 47% 14%;
     --input: 222 47% 11%;
     --ring: 217 91% 60%;
     --success: 142 76% 45%;
     --warning: 38 92% 55%;
-    --info: 187 100% 50%;
-    --chart-1: 217 91% 60%;
-    --chart-2: 187 100% 50%;
-    --chart-3: 263 70% 50%;
+    --info: 174 84% 50%;
+    --chart-1: 210 79% 56%;
+    --chart-2: 174 84% 45%;
+    --chart-3: 174 72% 55%;
     --chart-4: 142 76% 45%;
     --chart-5: 38 92% 50%;
-    --shadow-glow: 0 0 40px hsl(217 91% 60% / 0.5);
+    --shadow-glow: 0 0 40px hsl(210 79% 56% / 0.5);
     --sidebar-background: 222 47% 5%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 217 91% 60%;
@@ -225,15 +231,15 @@
    ============================================ */
 @layer components {
   .glow-primary {
-    box-shadow: 0 0 20px hsl(217 91% 60% / 0.3), 0 0 40px hsl(187 100% 50% / 0.15);
+    box-shadow: 0 0 20px hsl(210 79% 56% / 0.3), 0 0 40px hsl(174 84% 45% / 0.15);
   }
   
   .glow-primary-intense {
-    box-shadow: 0 0 40px hsl(217 91% 60% / 0.5), 0 0 80px hsl(187 100% 50% / 0.25);
+    box-shadow: 0 0 40px hsl(210 79% 56% / 0.5), 0 0 80px hsl(174 84% 45% / 0.25);
   }
   
-  .glow-neural {
-    box-shadow: 0 0 30px hsl(263 70% 50% / 0.4), 0 0 60px hsl(217 91% 60% / 0.2);
+  .glow-teal {
+    box-shadow: 0 0 30px hsl(174 84% 40% / 0.4), 0 0 60px hsl(174 72% 55% / 0.2);
   }
   
   .glow-success {
@@ -245,14 +251,14 @@
   }
   
   .hover-glow:hover {
-    box-shadow: 0 0 25px hsl(217 91% 60% / 0.3), 0 0 50px hsl(187 100% 50% / 0.15);
-    border-color: hsl(217 91% 60% / 0.3);
+    box-shadow: 0 0 25px hsl(210 79% 56% / 0.3), 0 0 50px hsl(174 84% 45% / 0.15);
+    border-color: hsl(210 79% 56% / 0.3);
   }
   
   /* EKG Monitor Effect for charts */
   .chart-glow line,
   .chart-glow path {
-    filter: drop-shadow(0 0 4px hsl(187 100% 50% / 0.8));
+    filter: drop-shadow(0 0 4px hsl(174 84% 45% / 0.8));
   }
 }
 
@@ -262,20 +268,20 @@
 @layer components {
   .btn-gradient-primary {
     @apply relative overflow-hidden font-semibold;
-    background: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
-    box-shadow: 0 0 20px hsl(217 91% 60% / 0.4);
+    background: linear-gradient(135deg, hsl(210 79% 56%), hsl(174 84% 45%));
+    box-shadow: 0 0 20px hsl(210 79% 56% / 0.4);
     transition: all 0.3s ease;
   }
   
   .btn-gradient-primary:hover {
-    box-shadow: 0 0 40px hsl(217 91% 60% / 0.6), 0 0 80px hsl(187 100% 50% / 0.3);
+    box-shadow: 0 0 40px hsl(210 79% 56% / 0.6), 0 0 80px hsl(174 84% 45% / 0.3);
     transform: translateY(-2px);
   }
   
   .btn-gradient-secondary {
     @apply relative overflow-hidden font-semibold;
-    background: linear-gradient(135deg, hsl(263 70% 50%), hsl(217 91% 60%));
-    box-shadow: 0 0 20px hsl(263 70% 50% / 0.4);
+    background: linear-gradient(135deg, hsl(174 84% 40%), hsl(174 72% 55%));
+    box-shadow: 0 0 20px hsl(174 84% 40% / 0.4);
   }
   
   .btn-outline-glow {
@@ -302,20 +308,20 @@
     content: '';
     @apply absolute inset-0 rounded-full;
     border: 2px solid transparent;
-    border-top-color: hsl(217 91% 60%);
+    border-top-color: hsl(210 79% 56%);
     animation: neural-spin 1.2s linear infinite;
   }
   
   .loader-neural::after {
     @apply inset-2;
-    border-top-color: hsl(187 100% 50%);
+    border-top-color: hsl(174 84% 45%);
     animation-duration: 0.8s;
     animation-direction: reverse;
   }
   
   .loader-pulse {
     @apply w-3 h-3 rounded-full;
-    background: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
+    background: linear-gradient(135deg, hsl(210 79% 56%), hsl(174 84% 45%));
     animation: pulse-glow 1.5s ease-in-out infinite;
   }
   
@@ -325,7 +331,7 @@
   
   .loader-wave span {
     @apply w-1 h-4 rounded-full;
-    background: linear-gradient(180deg, hsl(217 91% 60%), hsl(187 100% 50%));
+    background: linear-gradient(180deg, hsl(210 79% 56%), hsl(174 84% 45%));
     animation: wave 1s ease-in-out infinite;
   }
   
@@ -342,11 +348,11 @@
 @keyframes pulse-glow {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 10px hsl(217 91% 60% / 0.5);
+    box-shadow: 0 0 10px hsl(210 79% 56% / 0.5);
   }
   50% {
     transform: scale(1.2);
-    box-shadow: 0 0 30px hsl(217 91% 60% / 0.8), 0 0 60px hsl(187 100% 50% / 0.4);
+    box-shadow: 0 0 30px hsl(210 79% 56% / 0.8), 0 0 60px hsl(174 84% 45% / 0.4);
   }
 }
 
@@ -372,11 +378,15 @@
   }
   
   .bg-glow-top {
-    background: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(217 91% 60% / 0.15), transparent);
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210 79% 56% / 0.15), transparent);
   }
   
   .bg-glow-center {
-    background: radial-gradient(ellipse at center, hsl(217 91% 60% / 0.1), transparent 70%);
+    background: radial-gradient(ellipse at center, hsl(210 79% 56% / 0.1), transparent 70%);
+  }
+  
+  .bg-glow-teal {
+    background: radial-gradient(ellipse at center, hsl(174 84% 40% / 0.1), transparent 70%);
   }
 }
 
@@ -386,21 +396,25 @@
 @layer utilities {
   .text-gradient-primary {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
+    background-image: linear-gradient(135deg, hsl(210 79% 56%), hsl(174 84% 45%));
   }
   
   .text-gradient-secondary {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(263 70% 50%), hsl(217 91% 60%));
+    background-image: linear-gradient(135deg, hsl(174 84% 40%), hsl(174 72% 55%));
   }
   
   .text-gradient-hero {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(217 91% 60%), hsl(263 70% 50%), hsl(187 100% 50%));
+    background-image: linear-gradient(135deg, hsl(210 79% 56%), hsl(174 84% 40%), hsl(174 72% 55%));
   }
   
   .text-glow {
-    text-shadow: 0 0 20px hsl(217 91% 60% / 0.5);
+    text-shadow: 0 0 20px hsl(210 79% 56% / 0.5);
+  }
+  
+  .text-glow-teal {
+    text-shadow: 0 0 20px hsl(174 84% 40% / 0.5);
   }
 }
 
@@ -428,13 +442,13 @@
   font-size: 0.85rem;
   cursor: pointer;
   border-radius: 6px;
-  background: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
+  background: linear-gradient(135deg, hsl(210 79% 56%), hsl(174 84% 45%));
   border: none;
-  box-shadow: 0 2px 8px hsl(217 91% 60% / 0.3);
+  box-shadow: 0 2px 8px hsl(210 79% 56% / 0.3);
 }
 
 .appointment-calendar .rbc-event:hover {
-  box-shadow: 0 4px 16px hsl(217 91% 60% / 0.5);
+  box-shadow: 0 4px 16px hsl(210 79% 56% / 0.5);
   transform: translateY(-1px);
 }
 
@@ -454,10 +468,10 @@
 }
 
 .appointment-calendar .rbc-toolbar button.rbc-active {
-  background: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
+  background: linear-gradient(135deg, hsl(210 79% 56%), hsl(174 84% 45%));
   color: white;
   border-color: transparent;
-  box-shadow: 0 0 20px hsl(217 91% 60% / 0.4);
+  box-shadow: 0 0 20px hsl(210 79% 56% / 0.4);
 }
 
 .appointment-calendar .rbc-month-view {
@@ -487,12 +501,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, hsl(217 91% 60% / 0.5), hsl(187 100% 50% / 0.3));
+  background: linear-gradient(180deg, hsl(210 79% 56% / 0.5), hsl(174 84% 45% / 0.3));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, hsl(217 91% 60% / 0.7), hsl(187 100% 50% / 0.5));
+  background: linear-gradient(180deg, hsl(210 79% 56% / 0.7), hsl(174 84% 45% / 0.5));
 }
 
 /* ============================================
