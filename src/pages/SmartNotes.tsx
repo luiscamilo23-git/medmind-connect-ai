@@ -15,12 +15,14 @@ import {
   BrainCircuit,
   Mic,
   Square,
-  X
+  X,
+  Upload
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AudioFileUpload } from "@/components/AudioFileUpload";
 
 const SmartNotes = () => {
   const [notes, setNotes] = useState("");
@@ -316,55 +318,82 @@ const SmartNotes = () => {
                   <CardHeader>
                     <CardTitle>Graba tus Notas</CardTitle>
                     <CardDescription>
-                      Presiona el botón y habla. La IA transcribirá automáticamente lo que digas.
+                      Graba en tiempo real o sube un archivo de audio para transcripción con IA.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-lg bg-muted/30">
-                      {isRecording ? (
-                        <div className="text-center space-y-6">
-                          <div className="relative inline-block">
-                            <div className="w-28 h-28 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
-                              <Mic className="h-14 w-14 text-white" />
+                  <CardContent className="space-y-6">
+                    {/* Real-time recording */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <Mic className="w-4 h-4" />
+                        Grabación en tiempo real
+                      </Label>
+                      <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl bg-muted/30">
+                        {isRecording ? (
+                          <div className="text-center space-y-4">
+                            <div className="relative inline-block">
+                              <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
+                                <Mic className="h-10 w-10 text-white" />
+                              </div>
+                              <div className="absolute inset-0 rounded-full border-4 border-red-500 animate-ping"></div>
                             </div>
-                            <div className="absolute inset-0 rounded-full border-4 border-red-500 animate-ping"></div>
+                            <p className="text-sm font-medium">🎙️ Grabando...</p>
+                            <Button
+                              onClick={stopRecording}
+                              variant="destructive"
+                              size="default"
+                            >
+                              <Square className="mr-2 h-4 w-4" />
+                              Detener
+                            </Button>
                           </div>
-                          <p className="text-base font-medium">🎙️ Grabando... Habla ahora</p>
-                          <Button
-                            onClick={stopRecording}
-                            variant="destructive"
-                            size="lg"
-                          >
-                            <Square className="mr-2 h-5 w-5" />
-                            Detener Grabación
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="text-center space-y-6">
-                          <div className="w-28 h-28 bg-primary/10 rounded-full flex items-center justify-center">
-                            <Mic className="h-14 w-14 text-primary" />
+                        ) : (
+                          <div className="text-center space-y-4">
+                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                              <Mic className="h-8 w-8 text-primary" />
+                            </div>
+                            <Button
+                              onClick={startRecording}
+                              size="default"
+                              className="bg-red-500 hover:bg-red-600"
+                            >
+                              <Mic className="mr-2 h-4 w-4" />
+                              Iniciar Grabación
+                            </Button>
                           </div>
-                          <p className="text-sm text-muted-foreground">Presiona para comenzar a grabar</p>
-                          <Button
-                            onClick={startRecording}
-                            size="lg"
-                            className="bg-red-500 hover:bg-red-600"
-                          >
-                            <Mic className="mr-2 h-5 w-5" />
-                            Iniciar Grabación
-                          </Button>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">o</span>
+                      </div>
+                    </div>
+
+                    {/* Audio file upload */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <Upload className="w-4 h-4" />
+                        Subir archivo de audio
+                      </Label>
+                      <AudioFileUpload 
+                        onTranscriptionComplete={(text) => setTranscript(text)}
+                      />
                     </div>
 
                     {transcript && (
-                      <div className="space-y-4 pt-4">
+                      <div className="space-y-4 pt-4 border-t">
                         <div>
                           <Label className="mb-2 block font-semibold">Transcripción:</Label>
                           <Textarea
                             value={transcript}
                             onChange={(e) => setTranscript(e.target.value)}
-                            className="min-h-[200px] text-base"
+                            className="min-h-[150px] text-base"
                             placeholder="La transcripción aparecerá aquí..."
                           />
                         </div>
