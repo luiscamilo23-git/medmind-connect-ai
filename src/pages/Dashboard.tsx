@@ -195,7 +195,7 @@ const Dashboard = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-6">
           <div className="loader-neural mx-auto" />
-          <p className="text-muted-foreground animate-pulse">Iniciando Centro de Comando...</p>
+          <p className="text-muted-foreground animate-pulse">Preparando tu consultorio digital...</p>
         </div>
       </div>
     );
