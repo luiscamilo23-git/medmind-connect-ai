@@ -1272,6 +1272,7 @@ export type Database = {
           id: string
           is_accepting_patients: boolean | null
           license_number: string | null
+          notifications_sound_enabled: boolean | null
           phone: string | null
           specialty: string | null
           updated_at: string
@@ -1291,6 +1292,7 @@ export type Database = {
           id: string
           is_accepting_patients?: boolean | null
           license_number?: string | null
+          notifications_sound_enabled?: boolean | null
           phone?: string | null
           specialty?: string | null
           updated_at?: string
@@ -1310,6 +1312,7 @@ export type Database = {
           id?: string
           is_accepting_patients?: boolean | null
           license_number?: string | null
+          notifications_sound_enabled?: boolean | null
           phone?: string | null
           specialty?: string | null
           updated_at?: string

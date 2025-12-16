@@ -1,6 +1,40 @@
+import { useEffect, useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
 // Hook para reproducir sonidos de notificación usando Web Audio API
 export const useNotificationSound = () => {
-  const playSound = (type: 'success' | 'warning' | 'error') => {
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Load sound preference from profile
+  useEffect(() => {
+    const loadPreference = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) return;
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('notifications_sound_enabled')
+        .eq('id', session.user.id)
+        .single();
+
+      if (data) {
+        setSoundEnabled(data.notifications_sound_enabled ?? true);
+      }
+    };
+
+    loadPreference();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      loadPreference();
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const playSound = useCallback((type: 'success' | 'warning' | 'error') => {
+    if (!soundEnabled) return;
+
     try {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
@@ -46,7 +80,7 @@ export const useNotificationSound = () => {
     } catch (e) {
       console.log('Audio not supported:', e);
     }
-  };
+  }, [soundEnabled]);
 
-  return { playSound };
+  return { playSound, soundEnabled };
 };
