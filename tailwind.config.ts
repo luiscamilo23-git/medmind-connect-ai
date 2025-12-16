@@ -19,6 +19,10 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        // 60-30-10 Named Colors
+        "medmind-dark": "#030712",
+        "medmind-teal": "#14B8A6",
+        "medmind-blue": "#4A90D9",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -76,6 +80,8 @@ export default {
         'gradient-secondary': 'var(--gradient-secondary)',
         'gradient-hero': 'var(--gradient-hero)',
         'gradient-card': 'var(--gradient-card)',
+        'gradient-glow': 'var(--gradient-glow)',
+        'gradient-cta': 'linear-gradient(135deg, #4A90D9, #14B8A6)',
       },
       boxShadow: {
         'sm': 'var(--shadow-sm)',
@@ -83,6 +89,8 @@ export default {
         'lg': 'var(--shadow-lg)',
         'xl': 'var(--shadow-xl)',
         'glow': 'var(--shadow-glow)',
+        'teal': 'var(--shadow-teal)',
+        'cta-glow': '0 0 30px rgba(74, 144, 217, 0.4), 0 0 60px rgba(20, 184, 166, 0.2)',
       },
       transitionTimingFunction: {
         'smooth': 'var(--transition-smooth)',
