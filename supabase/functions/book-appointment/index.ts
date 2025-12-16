@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { format } from "https://esm.sh/date-fns@3.6.0";
+import { es as esLocale } from "https://esm.sh/date-fns@3.6.0/locale";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -283,7 +285,9 @@ serve(async (req) => {
     // Step 3: Create the appointment
     console.log('Creating appointment for patient:', patientId);
     
-    const appointmentTitle = body.reason || 'Cita agendada vía WhatsApp';
+    // Format title as "{patient_name} - {reason}"
+    const reasonText = body.reason || 'Consulta General';
+    const appointmentTitle = `${patientName} - ${reasonText}`;
     
     const { data: appointment, error: appointmentError } = await supabase
       .from('appointments')
@@ -292,7 +296,7 @@ serve(async (req) => {
         patient_id: patientId,
         appointment_date: correctedDateISO,
         title: appointmentTitle,
-        description: `Cita agendada vía WhatsApp - ${appointmentTitle}`,
+        description: `Cita agendada vía WhatsApp`,
         status: 'scheduled',
         duration_minutes: 30,
       })
@@ -305,6 +309,25 @@ serve(async (req) => {
     }
 
     console.log('Appointment created successfully:', appointment.id);
+
+    // Step 4: Create notification for the doctor
+    const appointmentDateFormatted = format(new Date(correctedDateISO), "d 'de' MMMM 'a las' HH:mm", { locale: esLocale });
+    const notificationMessage = `Nueva cita: ${patientName} para el ${appointmentDateFormatted}`;
+    
+    const { error: notificationError } = await supabase
+      .from('notifications')
+      .insert({
+        doctor_id: body.doctor_id,
+        message: notificationMessage,
+        is_read: false,
+      });
+
+    if (notificationError) {
+      console.error('Error creating notification (non-blocking):', notificationError);
+      // Don't fail the booking if notification fails
+    } else {
+      console.log('Notification created for doctor');
+    }
 
     // Return success response
     return jsonResponse({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, Calendar, Clock } from "lucide-react";
+import { Bell, Calendar, Clock, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -8,11 +8,10 @@ import {
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { format, isToday, isTomorrow, parseISO } from "date-fns";
+import { format, isToday, isTomorrow, parseISO, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
 interface Reminder {
@@ -31,18 +30,27 @@ interface UpcomingAppointment {
   };
 }
 
+interface Notification {
+  id: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 export const NotificationBell = () => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [upcomingAppointments, setUpcomingAppointments] = useState<UpcomingAppointment[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     loadReminders();
     loadUpcomingAppointments();
+    loadNotifications();
 
     // Subscribe to appointment changes
-    const channel = supabase
+    const appointmentChannel = supabase
       .channel("notification-appointments")
       .on(
         "postgres_changes",
@@ -57,10 +65,46 @@ export const NotificationBell = () => {
       )
       .subscribe();
 
+    // Subscribe to notifications changes
+    const notificationsChannel = supabase
+      .channel("notification-updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+        },
+        () => {
+          loadNotifications();
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(appointmentChannel);
+      supabase.removeChannel(notificationsChannel);
     };
   }, []);
+
+  const loadNotifications = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('doctor_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setNotifications(data || []);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  };
 
   const loadReminders = async () => {
     try {
@@ -121,10 +165,6 @@ export const NotificationBell = () => {
 
       if (error) throw error;
       setUpcomingAppointments(data || []);
-      
-      // Update total count
-      const todayCount = (data || []).filter(apt => isToday(parseISO(apt.appointment_date))).length;
-      setUnreadCount(todayCount + reminders.length);
     } catch (error) {
       console.error('Error loading appointments:', error);
     }
@@ -132,14 +172,30 @@ export const NotificationBell = () => {
 
   useEffect(() => {
     const todayCount = upcomingAppointments.filter(apt => isToday(parseISO(apt.appointment_date))).length;
-    setUnreadCount(todayCount + reminders.length);
-  }, [upcomingAppointments, reminders]);
+    const unreadNotifications = notifications.filter(n => !n.is_read).length;
+    setUnreadCount(todayCount + reminders.length + unreadNotifications);
+  }, [upcomingAppointments, reminders, notifications]);
 
   const handleReminderClick = () => {
     navigate('/smart-notes');
   };
 
   const handleAppointmentClick = () => {
+    navigate('/scheduler');
+  };
+
+  const handleNotificationClick = async (notification: Notification) => {
+    // Mark as read
+    if (!notification.is_read) {
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notification.id);
+      
+      setNotifications(prev => 
+        prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
+      );
+    }
     navigate('/scheduler');
   };
 
@@ -155,6 +211,7 @@ export const NotificationBell = () => {
 
   const todayAppointments = upcomingAppointments.filter(apt => isToday(parseISO(apt.appointment_date)));
   const tomorrowAppointments = upcomingAppointments.filter(apt => isTomorrow(parseISO(apt.appointment_date)));
+  const unreadNotifications = notifications.filter(n => !n.is_read);
 
   return (
     <Popover>
@@ -177,29 +234,29 @@ export const NotificationBell = () => {
         </div>
         
         <ScrollArea className="max-h-[400px]">
-          {/* Today's Appointments */}
-          {todayAppointments.length > 0 && (
+          {/* Unread Notifications (New Appointments) */}
+          {unreadNotifications.length > 0 && (
             <div className="p-3">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                <Calendar className="w-3 h-3" />
-                Citas de Hoy
+                <MessageSquare className="w-3 h-3" />
+                Nuevas Notificaciones
               </p>
               <div className="space-y-2">
-                {todayAppointments.map((apt) => (
+                {unreadNotifications.map((notif) => (
                   <div
-                    key={apt.id}
-                    onClick={handleAppointmentClick}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors"
+                    key={notif.id}
+                    onClick={() => handleNotificationClick(notif)}
+                    className="flex items-start gap-3 p-2 rounded-lg bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors border border-primary/20"
                   >
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Clock className="w-4 h-4 text-primary" />
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                      <Calendar className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {apt.patients?.full_name || apt.title}
+                      <p className="text-sm font-medium leading-snug line-clamp-2">
+                        {notif.message}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatAppointmentTime(apt.appointment_date)}
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {formatDistanceToNow(parseISO(notif.created_at), { addSuffix: true, locale: es })}
                       </p>
                     </div>
                   </div>
@@ -208,10 +265,44 @@ export const NotificationBell = () => {
             </div>
           )}
 
+          {/* Today's Appointments */}
+          {todayAppointments.length > 0 && (
+            <>
+              {unreadNotifications.length > 0 && <Separator />}
+              <div className="p-3">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                  <Calendar className="w-3 h-3" />
+                  Citas de Hoy
+                </p>
+                <div className="space-y-2">
+                  {todayAppointments.map((apt) => (
+                    <div
+                      key={apt.id}
+                      onClick={handleAppointmentClick}
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Clock className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {apt.patients?.full_name || apt.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatAppointmentTime(apt.appointment_date)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Tomorrow's Appointments */}
           {tomorrowAppointments.length > 0 && (
             <>
-              {todayAppointments.length > 0 && <Separator />}
+              {(unreadNotifications.length > 0 || todayAppointments.length > 0) && <Separator />}
               <div className="p-3">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
                   <Calendar className="w-3 h-3" />
@@ -245,7 +336,7 @@ export const NotificationBell = () => {
           {/* Reminders */}
           {reminders.length > 0 && (
             <>
-              {(todayAppointments.length > 0 || tomorrowAppointments.length > 0) && <Separator />}
+              {(unreadNotifications.length > 0 || todayAppointments.length > 0 || tomorrowAppointments.length > 0) && <Separator />}
               <div className="p-3">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
                   <Bell className="w-3 h-3" />
@@ -277,7 +368,7 @@ export const NotificationBell = () => {
           )}
 
           {/* Empty State */}
-          {todayAppointments.length === 0 && tomorrowAppointments.length === 0 && reminders.length === 0 && (
+          {todayAppointments.length === 0 && tomorrowAppointments.length === 0 && reminders.length === 0 && unreadNotifications.length === 0 && (
             <div className="p-8 text-center text-muted-foreground">
               <Bell className="h-10 w-10 mx-auto mb-2 opacity-30" />
               <p className="text-sm">No hay notificaciones</p>
@@ -285,7 +376,7 @@ export const NotificationBell = () => {
           )}
         </ScrollArea>
 
-        {(reminders.length > 0 || upcomingAppointments.length > 0) && (
+        {(reminders.length > 0 || upcomingAppointments.length > 0 || notifications.length > 0) && (
           <div className="p-2 border-t">
             <Button 
               variant="ghost" 
