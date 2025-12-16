@@ -20,8 +20,7 @@ import {
   TrendingUp,
   TrendingDown,
   Sparkles,
-  Bot,
-  ArrowRight
+  Bot
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReVerification } from "@/hooks/useReVerification";
@@ -145,13 +144,15 @@ const Dashboard = () => {
         ? Math.round(appointments.reduce((sum, a) => sum + a.duration_minutes, 0) / appointments.length)
         : 0;
 
+      // Simular tendencias (en producción, compararías con mes anterior)
       const trends = {
-        patients: Math.floor(Math.random() * 30) - 10,
-        satisfaction: Math.floor(Math.random() * 20) - 5,
-        revenue: Math.floor(Math.random() * 40) - 10,
-        time: Math.floor(Math.random() * 20) - 10
+        patients: Math.floor(Math.random() * 30) - 10, // -10% a +20%
+        satisfaction: Math.floor(Math.random() * 20) - 5, // -5% a +15%
+        revenue: Math.floor(Math.random() * 40) - 10, // -10% a +30%
+        time: Math.floor(Math.random() * 20) - 10 // -10% a +10%
       };
 
+      // Si no hay datos reales, mostrar datos demo para el video
       const hasRealData = (patientsCount || 0) > 0;
       
       if (hasRealData) {
@@ -163,6 +164,7 @@ const Dashboard = () => {
           trends
         });
       } else {
+        // Datos demo para presentaciones y videos
         setStats({
           totalPatients: 127,
           satisfactionRate: 96,
@@ -192,10 +194,10 @@ const Dashboard = () => {
 
   if (checking || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-6">
-          <div className="loader-neural mx-auto" />
-          <p className="text-muted-foreground animate-pulse">Iniciando Centro de Comando...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Activity className="w-12 h-12 text-primary animate-pulse mx-auto" />
+          <p className="text-muted-foreground">Cargando...</p>
         </div>
       </div>
     );
@@ -206,28 +208,28 @@ const Dashboard = () => {
       label: "Pacientes Tratados", 
       value: stats.totalPatients.toString(), 
       icon: Users, 
-      gradient: "from-primary to-primary-glow",
+      color: "text-primary",
       trend: stats.trends.patients
     },
     { 
       label: "Tasa de Satisfacción", 
       value: stats.satisfactionRate > 0 ? `${stats.satisfactionRate}%` : "N/A", 
       icon: Star, 
-      gradient: "from-success to-emerald-400",
+      color: "text-success",
       trend: stats.trends.satisfaction
     },
     { 
       label: "Ingresos Estimados", 
       value: `$${stats.estimatedRevenue.toLocaleString()}`, 
       icon: DollarSign, 
-      gradient: "from-warning to-amber-400",
+      color: "text-accent",
       trend: stats.trends.revenue
     },
     { 
       label: "Tiempo Promedio", 
       value: stats.averageTime > 0 ? `${stats.averageTime} min` : "N/A", 
       icon: Clock, 
-      gradient: "from-info to-cyan-400",
+      color: "text-info",
       trend: stats.trends.time
     },
   ];
@@ -237,42 +239,42 @@ const Dashboard = () => {
       title: "Nueva Consulta",
       description: "Inicia una consulta con transcripción automática",
       icon: Brain,
-      gradient: "from-primary to-primary-glow",
+      color: "bg-primary",
       path: "/voicenotes"
     },
     {
       title: "Notas Inteligentes",
       description: "Analiza notas y extrae tareas e ideas",
       icon: BrainCircuit,
-      gradient: "from-secondary to-violet-400",
+      color: "bg-secondary",
       path: "/smart-notes"
     },
     {
       title: "Gestionar Pacientes",
       description: "Ver y editar historiales médicos",
       icon: Users,
-      gradient: "from-accent to-cyan-400",
+      color: "bg-accent",
       path: "/patients"
     },
     {
       title: "Ver Agenda",
       description: "Consultar y gestionar citas",
       icon: Calendar,
-      gradient: "from-primary to-blue-400",
+      color: "bg-primary",
       path: "/scheduler"
     },
     {
       title: "Inventario",
       description: "Control de suministros médicos",
       icon: Package,
-      gradient: "from-success to-emerald-400",
+      color: "bg-success",
       path: "/supplylens"
     },
     {
       title: "Analytics",
       description: "Métricas e insights de tu práctica",
       icon: Activity,
-      gradient: "from-warning to-amber-400",
+      color: "bg-warning",
       path: "/analytics"
     }
   ];
@@ -288,24 +290,23 @@ const Dashboard = () => {
         <AppSidebar />
 
         <div className="flex-1 flex flex-col min-h-screen">
-          {/* Glassmorphism Header */}
-          <header className="sticky top-0 z-10 glass-navbar">
+          <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
             <div className="flex h-16 items-center gap-4 px-6">
-              <SidebarTrigger className="-ml-2 text-muted-foreground hover:text-foreground" />
+              <SidebarTrigger className="-ml-2" />
               <div className="flex items-center gap-3 flex-1">
-                <div className="w-9 h-9 btn-gradient-primary rounded-xl flex items-center justify-center animate-glow-pulse">
+                <div className="w-9 h-9 bg-gradient-primary rounded-lg flex items-center justify-center shadow-md">
                   <Activity className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">MEDMIND</h1>
+                  <h1 className="text-xl font-bold">MEDMIND</h1>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <NotificationBell />
-                <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil" className="text-muted-foreground hover:text-foreground hover:bg-muted">
+                <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil">
                   <UserIcon className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={handleLogout} title="Cerrar Sesión" className="text-muted-foreground hover:text-foreground hover:bg-muted">
+                <Button variant="ghost" size="icon" onClick={handleLogout} title="Cerrar Sesión">
                   <LogOut className="w-5 h-5" />
                 </Button>
               </div>
@@ -314,104 +315,96 @@ const Dashboard = () => {
 
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto px-6 py-8 space-y-8 max-w-7xl">
-              {/* Hero Welcome Card - AI Command Center Style */}
-              <div className="relative overflow-hidden rounded-3xl p-8 md:p-10">
-                {/* Background Effects */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/10 to-primary-glow/20" />
-                <div className="absolute inset-0 bg-grid-pattern opacity-10" />
-                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px]" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/20 rounded-full blur-[80px]" />
-                
+              <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-glow to-secondary rounded-2xl p-6 md:p-8 text-white">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
                 <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/30">
-                      <div className="w-2 h-2 rounded-full bg-primary-glow animate-pulse" />
-                      <span className="text-sm font-medium text-primary-glow">Centro de Comando Activo</span>
-                    </div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <Sparkles className="w-7 h-7 animate-pulse" />
+                    <h2 className="text-2xl md:text-3xl font-bold">
+                      {getGreeting()}, {doctorName || user?.email?.split('@')[0]}
+                    </h2>
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-black text-foreground mb-3">
-                    {getGreeting()}, <span className="text-gradient-primary">{doctorName || user?.email?.split('@')[0]}</span>
-                  </h2>
-                  <p className="text-muted-foreground text-lg max-w-xl">
-                    Tu asistente IA está listo. Aquí tienes el resumen de tu actividad y productividad profesional.
+                  <p className="text-white/90 text-lg">
+                    Resumen de tu actividad y productividad profesional
                   </p>
                 </div>
               </div>
 
-              {/* Stats Bento Grid */}
-              <div className="bento-grid grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {statsDisplay.map((stat, index) => (
-                  <div 
-                    key={index} 
-                    className="bento-card p-6 hover-glow group"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center glow-primary`}>
-                        <stat.icon className="w-5 h-5 text-white" />
+                  <Card key={index} className="hover:shadow-lg transition-all hover:scale-105 duration-300 border-border/50">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                      <CardDescription className="text-xs md:text-sm font-medium">
+                        {stat.label}
+                      </CardDescription>
+                      <stat.icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-end justify-between">
+                        <div className="text-2xl md:text-3xl font-bold">{stat.value}</div>
+                        {stat.trend !== 0 && (
+                          <div className={`flex items-center gap-1 text-xs font-semibold ${
+                            stat.trend > 0 ? 'text-success' : 'text-destructive'
+                          }`}>
+                            {stat.trend > 0 ? (
+                              <TrendingUp className="w-3 h-3" />
+                            ) : (
+                              <TrendingDown className="w-3 h-3" />
+                            )}
+                            <span>{Math.abs(stat.trend)}%</span>
+                          </div>
+                        )}
                       </div>
-                      {stat.trend !== 0 && (
-                        <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
-                          stat.trend > 0 ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
-                        }`}>
-                          {stat.trend > 0 ? (
-                            <TrendingUp className="w-3 h-3" />
-                          ) : (
-                            <TrendingDown className="w-3 h-3" />
-                          )}
-                          <span>{Math.abs(stat.trend)}%</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-3xl md:text-4xl font-black text-foreground mb-1">{stat.value}</div>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
+                      <p className="text-xs text-muted-foreground mt-1">vs mes anterior</p>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
 
-              {/* Quick Actions - Bento Cards */}
               <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl btn-gradient-primary flex items-center justify-center glow-primary">
-                    <Zap className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-foreground">Acciones Rápidas</h2>
+                <div className="flex items-center gap-2 mb-6">
+                  <Zap className="w-6 h-6 text-primary" />
+                  <h2 className="text-2xl font-bold">Acciones Rápidas</h2>
                 </div>
-                <div className="bento-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {quickActions.map((action, index) => (
-                    <div
-                      key={index}
-                      className="bento-card p-6 hover-glow cursor-pointer group"
+                    <Card 
+                      key={index} 
+                      className="group cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                       onClick={() => navigate(action.path)}
                     >
-                      <div className="flex items-start gap-4">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center group-hover:scale-110 transition-transform glow-primary`}>
-                          <action.icon className="w-6 h-6 text-white" />
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}>
+                            <action.icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <CardTitle className="text-base mb-1">{action.title}</CardTitle>
+                            <CardDescription className="text-sm">
+                              {action.description}
+                            </CardDescription>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors mb-1">{action.title}</h3>
-                          <p className="text-sm text-muted-foreground">{action.description}</p>
-                        </div>
-                        <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                      </div>
-                    </div>
+                      </CardHeader>
+                    </Card>
                   ))}
                 </div>
               </div>
 
-              {/* Tip of the Day - Glass Card */}
-              <div className="bento-card p-6 bg-gradient-to-br from-primary/5 to-secondary/5 hover-glow">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl btn-gradient-secondary flex items-center justify-center glow-neural">
-                    <Sparkles className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-foreground mb-2">Tip del Día</h3>
-                    <p className="text-muted-foreground">
-                      💡 Usa <strong className="text-primary">Notas Inteligentes</strong> para transcribir tus consultas por voz y extraer automáticamente tareas, ideas y recordatorios.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-primary" />
+                    Tip del Día
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    💡 Usa <strong>Notas Inteligentes</strong> para transcribir tus consultas por voz y extraer automáticamente tareas, ideas y recordatorios.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </main>
 
@@ -419,10 +412,10 @@ const Dashboard = () => {
           {!showAIAssistant && (
             <Button
               onClick={() => setShowAIAssistant(true)}
-              className="fixed bottom-6 right-6 h-16 w-16 rounded-2xl btn-gradient-primary animate-glow-pulse hover:scale-110 transition-transform z-50"
+              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl bg-gradient-to-br from-primary to-primary/80 hover:scale-110 transition-transform z-50"
               size="icon"
             >
-              <Bot className="w-7 h-7 text-white" />
+              <Bot className="w-6 h-6" />
             </Button>
           )}
 
@@ -431,7 +424,7 @@ const Dashboard = () => {
             <div className={`fixed z-50 transition-all duration-300 ${
               aiExpanded 
                 ? 'inset-4 md:inset-8' 
-                : 'bottom-6 right-6 w-[400px] max-w-[calc(100vw-3rem)]'
+                : 'bottom-6 right-6 w-[380px] max-w-[calc(100vw-3rem)]'
             }`}>
               <DoctorAIAssistant 
                 expanded={aiExpanded}
