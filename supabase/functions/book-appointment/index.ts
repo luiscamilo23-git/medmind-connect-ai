@@ -73,6 +73,38 @@ serve(async (req) => {
       );
     }
 
+    // STRICT DATE VALIDATION - Block AI hallucinations
+    const requestedDate = new Date(body.date);
+    const now = new Date();
+    
+    // Check if date is valid
+    if (isNaN(requestedDate.getTime())) {
+      console.error('Invalid date format received:', body.date);
+      return new Response(
+        JSON.stringify({ error: 'Formato de fecha inválido. Usa formato ISO (YYYY-MM-DDTHH:mm:ss).' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Block past dates
+    if (requestedDate < now) {
+      console.error('Attempted to book in the past:', body.date);
+      return new Response(
+        JSON.stringify({ error: 'No puedes agendar en el pasado. Dame una fecha futura.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Enforce current/next year only (2025-2026)
+    const requestedYear = requestedDate.getFullYear();
+    if (requestedYear < 2025 || requestedYear > 2026) {
+      console.error('Invalid year received:', requestedYear);
+      return new Response(
+        JSON.stringify({ error: `Año incorrecto (${requestedYear}). Estamos en 2025. Por favor corrige la fecha.` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     console.log('Received booking request:', JSON.stringify(body));
 
     // Create Supabase client with service role key (bypasses RLS)
