@@ -60,6 +60,11 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
+        teal: {
+          DEFAULT: "hsl(var(--teal))",
+          light: "hsl(var(--teal-light))",
+          dark: "hsl(var(--teal-dark))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -76,7 +81,7 @@ export default {
         'gradient-secondary': 'var(--gradient-secondary)',
         'gradient-hero': 'var(--gradient-hero)',
         'gradient-card': 'var(--gradient-card)',
-        'gradient-neural': 'var(--gradient-neural)',
+        'gradient-teal': 'var(--gradient-teal)',
         'gradient-glow': 'var(--gradient-glow)',
       },
       boxShadow: {
@@ -86,7 +91,7 @@ export default {
         'xl': 'var(--shadow-xl)',
         'glow': 'var(--shadow-glow)',
         'glow-intense': 'var(--shadow-glow-intense)',
-        'neural': 'var(--shadow-neural)',
+        'teal': 'var(--shadow-teal)',
       },
       transitionTimingFunction: {
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
@@ -152,11 +157,11 @@ export default {
         "pulse-glow": {
           "0%, 100%": { 
             opacity: "1",
-            boxShadow: "0 0 20px hsl(217 91% 60% / 0.5)"
+            boxShadow: "0 0 20px hsl(210 79% 56% / 0.5)"
           },
           "50%": { 
             opacity: "0.8",
-            boxShadow: "0 0 40px hsl(217 91% 60% / 0.8), 0 0 80px hsl(187 100% 50% / 0.4)"
+            boxShadow: "0 0 40px hsl(210 79% 56% / 0.8), 0 0 80px hsl(174 84% 45% / 0.4)"
           }
         },
         "float": {
@@ -165,18 +170,18 @@ export default {
         },
         "glow-pulse": {
           "0%, 100%": { 
-            boxShadow: "0 0 20px hsl(217 91% 60% / 0.4), 0 0 40px hsl(187 100% 50% / 0.2)"
+            boxShadow: "0 0 20px hsl(210 79% 56% / 0.4), 0 0 40px hsl(174 84% 45% / 0.2)"
           },
           "50%": { 
-            boxShadow: "0 0 40px hsl(217 91% 60% / 0.6), 0 0 80px hsl(187 100% 50% / 0.3)"
+            boxShadow: "0 0 40px hsl(210 79% 56% / 0.6), 0 0 80px hsl(174 84% 45% / 0.3)"
           }
         },
-        "neural-pulse": {
+        "teal-pulse": {
           "0%, 100%": {
-            boxShadow: "0 0 20px hsl(263 70% 50% / 0.4)"
+            boxShadow: "0 0 20px hsl(174 84% 40% / 0.4)"
           },
           "50%": {
-            boxShadow: "0 0 40px hsl(263 70% 50% / 0.6), 0 0 80px hsl(217 91% 60% / 0.3)"
+            boxShadow: "0 0 40px hsl(174 84% 40% / 0.6), 0 0 80px hsl(174 72% 55% / 0.3)"
           }
         },
         "shimmer": {
@@ -184,8 +189,8 @@ export default {
           "100%": { backgroundPosition: "200% 0" }
         },
         "border-glow": {
-          "0%, 100%": { borderColor: "hsl(217 91% 60% / 0.3)" },
-          "50%": { borderColor: "hsl(217 91% 60% / 0.6)" }
+          "0%, 100%": { borderColor: "hsl(210 79% 56% / 0.3)" },
+          "50%": { borderColor: "hsl(210 79% 56% / 0.6)" }
         },
         "scanner": {
           "0%": { transform: "translateY(-100%)", opacity: "0" },
@@ -208,7 +213,7 @@ export default {
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
-        "neural-pulse": "neural-pulse 2.5s ease-in-out infinite",
+        "teal-pulse": "teal-pulse 2.5s ease-in-out infinite",
         "shimmer": "shimmer 2s linear infinite",
         "border-glow": "border-glow 2s ease-in-out infinite",
         "scanner": "scanner 2s ease-in-out infinite",
