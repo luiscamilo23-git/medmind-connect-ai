@@ -142,9 +142,9 @@ serve(async (req) => {
             webhook: {
               enabled: true,
               url: webhookUrl,
-              webhookByEvents: false,
+              webhookByEvents: true,
               webhookBase64: true,
-              events: ["MESSAGES_UPSERT"]  // Solo mensajes entrantes, evita spam de status updates
+              events: ["MESSAGES_UPSERT"]
             }
           }),
         });
