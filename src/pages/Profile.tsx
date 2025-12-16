@@ -7,10 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Activity, ArrowLeft, Camera, Save, Volume2, VolumeX } from "lucide-react";
+import { Activity, ArrowLeft, Camera, Save } from "lucide-react";
 import { ConnectWhatsApp } from "@/components/ConnectWhatsApp";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -23,8 +22,7 @@ const Profile = () => {
     bio: "",
     phone: "",
     license_number: "",
-    avatar_url: "",
-    notifications_sound_enabled: true
+    avatar_url: ""
   });
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -60,8 +58,7 @@ const Profile = () => {
           bio: data.bio || "",
           phone: data.phone || "",
           license_number: data.license_number || "",
-          avatar_url: data.avatar_url || "",
-          notifications_sound_enabled: data.notifications_sound_enabled ?? true
+          avatar_url: data.avatar_url || ""
         });
       }
     } catch (error: any) {
@@ -274,32 +271,6 @@ const Profile = () => {
                 <p className="text-xs text-muted-foreground">
                   Esta información aparecerá en tus publicaciones de la red social
                 </p>
-              </div>
-
-              {/* Sound Preferences */}
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  {profile.notifications_sound_enabled ? (
-                    <Volume2 className="w-5 h-5 text-primary" />
-                  ) : (
-                    <VolumeX className="w-5 h-5 text-muted-foreground" />
-                  )}
-                  <div>
-                    <Label htmlFor="sound-toggle" className="font-medium">
-                      Sonidos de Notificación
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      Reproduce sonidos al conectar WhatsApp, expiración de QR, etc.
-                    </p>
-                  </div>
-                </div>
-                <Switch
-                  id="sound-toggle"
-                  checked={profile.notifications_sound_enabled}
-                  onCheckedChange={(checked) => 
-                    setProfile({ ...profile, notifications_sound_enabled: checked })
-                  }
-                />
               </div>
             </div>
           </CardContent>

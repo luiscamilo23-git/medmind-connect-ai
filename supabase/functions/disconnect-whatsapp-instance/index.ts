@@ -18,9 +18,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    const evolutionConfigured = Boolean(evolutionApiUrl && evolutionApiKey);
-    if (!evolutionConfigured) {
-      // Requisito: SI o SI debe enviar la desconexión a Evolution API
+    if (!evolutionApiUrl || !evolutionApiKey) {
       throw new Error('Evolution API configuration not found');
     }
 
@@ -55,44 +53,30 @@ serve(async (req) => {
 
     const instanceName = profile?.whatsapp_instance_name;
 
-    if (!instanceName) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'No hay una instancia vinculada para desconectar',
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    if (instanceName) {
+      console.log(`Attempting to delete instance: ${instanceName}`);
 
-    console.log(`Attempting to delete instance in Evolution API: ${instanceName}`);
+      // Try to delete from Evolution API
+      try {
+        const deleteResponse = await fetch(`${evolutionApiUrl}/instance/delete/${instanceName}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': evolutionApiKey,
+          },
+        });
 
-    // Try to delete from Evolution API
-    const deleteResponse = await fetch(`${evolutionApiUrl!}/instance/delete/${instanceName}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': evolutionApiKey!,
-      },
-    });
-
-    if (deleteResponse.ok) {
-      console.log(`Successfully deleted instance ${instanceName} from Evolution API`);
-    } else if (deleteResponse.status === 404) {
-      // Si ya no existe en Evolution, consideramos desconectado y limpiamos perfil.
-      console.warn(`Instance ${instanceName} not found in Evolution API (404). Clearing profile link anyway.`);
-    } else {
-      const errorText = await deleteResponse.text();
-      console.error(`Evolution API delete failed: ${deleteResponse.status} - ${errorText}`);
-      // Requisito: no limpiar el perfil si Evolution no confirmó la desconexión
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: `No se pudo desconectar en Evolution API (${deleteResponse.status})`,
-          details: errorText,
-        }),
-        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+        if (deleteResponse.ok) {
+          console.log(`Successfully deleted instance ${instanceName} from Evolution API`);
+        } else {
+          const errorText = await deleteResponse.text();
+          console.log(`Evolution API delete response: ${deleteResponse.status} - ${errorText}`);
+          // Continue anyway to clear the profile
+        }
+      } catch (apiError) {
+        console.error('Error deleting from Evolution API:', apiError);
+        // Continue anyway to clear the profile
+      }
     }
 
     // Clear the instance name from profile
