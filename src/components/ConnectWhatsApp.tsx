@@ -417,10 +417,10 @@ export function ConnectWhatsApp() {
             </Button>
           </div>
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={handleSyncSettings}
-            className="w-full text-xs gap-1"
+            className="w-full text-xs gap-2 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-500"
             disabled={syncing}
           >
             {syncing ? (
@@ -428,7 +428,7 @@ export function ConnectWhatsApp() {
             ) : (
               <>
                 <RefreshCw className="h-4 w-4" />
-                🔄 Sincronizar Configuración
+                Sincronizar Configuración
               </>
             )}
           </Button>
