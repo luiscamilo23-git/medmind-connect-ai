@@ -59,11 +59,13 @@ serve(async (req) => {
 
     console.log(`Resetting instance: ${instanceName}`);
 
-    // Call Evolution API to restart the instance
-    const restartResponse = await fetch(`${evolutionApiUrl}/instance/restart/${instanceName}`, {
-      method: 'POST',
+    // Call Evolution API to restart the instance (PUT method per docs)
+    const restartUrl = `${evolutionApiUrl}/instance/restart/${instanceName}`;
+    console.log(`Calling restart endpoint: ${restartUrl}`);
+    
+    const restartResponse = await fetch(restartUrl, {
+      method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',
         'apikey': evolutionApiKey,
       },
     });
