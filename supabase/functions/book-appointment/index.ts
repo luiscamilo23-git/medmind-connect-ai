@@ -160,45 +160,93 @@ serve(async (req) => {
       console.log('Created new patient:', patientId);
     }
 
-    // Step 2: Check for slot conflicts (30 minute slots)
+    // Step 2: Check for slot conflicts with SMART RECOVERY
     const appointmentStart = new Date(correctedDateISO);
-    const appointmentEnd = new Date(appointmentStart.getTime() + 30 * 60 * 1000); // 30 min duration
+    const SLOT_DURATION = 30; // 30 minute slots
     
-    // Format time for error message
-    const requestedTime = `${appointmentStart.getHours().toString().padStart(2, '0')}:${appointmentStart.getMinutes().toString().padStart(2, '0')}`;
+    // Format time helper
+    const formatTime = (date: Date) => 
+      `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
     
-    // Query existing appointments that might overlap
-    const { data: conflictingAppointments, error: conflictError } = await supabase
-      .from('appointments')
-      .select('id, appointment_date, duration_minutes, title')
-      .eq('doctor_id', body.doctor_id)
-      .neq('status', 'cancelled')
-      .gte('appointment_date', new Date(appointmentStart.getTime() - 60 * 60 * 1000).toISOString()) // 1 hour before
-      .lte('appointment_date', new Date(appointmentStart.getTime() + 60 * 60 * 1000).toISOString()); // 1 hour after
-
-    if (conflictError) {
-      console.error('Error checking for conflicts:', conflictError);
-      return jsonResponse({ success: false, error: 'Error al verificar disponibilidad.' });
-    }
-
-    // Check for actual overlaps
-    if (conflictingAppointments && conflictingAppointments.length > 0) {
-      for (const existing of conflictingAppointments) {
+    const requestedTime = formatTime(appointmentStart);
+    
+    // Helper function to check if a slot is available
+    async function isSlotAvailable(slotStart: Date): Promise<boolean> {
+      const slotEnd = new Date(slotStart.getTime() + SLOT_DURATION * 60 * 1000);
+      
+      // Check working hours (8:00 - 18:00)
+      const hour = slotStart.getHours();
+      if (hour < 8 || hour >= 18) return false;
+      
+      // Check if slot is in the past
+      if (slotStart < now) return false;
+      
+      // Query existing appointments that might overlap
+      const { data: conflicts, error } = await supabase
+        .from('appointments')
+        .select('id, appointment_date, duration_minutes')
+        .eq('doctor_id', body.doctor_id)
+        .neq('status', 'cancelled')
+        .gte('appointment_date', new Date(slotStart.getTime() - 60 * 60 * 1000).toISOString())
+        .lte('appointment_date', new Date(slotStart.getTime() + 60 * 60 * 1000).toISOString());
+      
+      if (error) {
+        console.error('Error checking slot:', error);
+        return false;
+      }
+      
+      // Check for overlaps
+      for (const existing of conflicts || []) {
         const existingStart = new Date(existing.appointment_date);
         const existingEnd = new Date(existingStart.getTime() + (existing.duration_minutes || 30) * 60 * 1000);
         
-        // Check if times overlap
-        if (appointmentStart < existingEnd && appointmentEnd > existingStart) {
-          console.error('Slot conflict detected:', {
-            requested: body.date,
-            existing: existing.appointment_date,
-            existingTitle: existing.title
-          });
-          return jsonResponse({ 
-            success: false, 
-            error: `El horario de las ${requestedTime} ya está ocupado. Por favor elige otra hora.` 
-          });
+        if (slotStart < existingEnd && slotEnd > existingStart) {
+          return false; // Conflict found
         }
+      }
+      
+      return true; // Slot is available
+    }
+    
+    // Check if requested slot is available
+    const isRequestedSlotAvailable = await isSlotAvailable(appointmentStart);
+    
+    if (!isRequestedSlotAvailable) {
+      console.log('Requested slot occupied, searching for alternatives...');
+      
+      // SMART RECOVERY: Check next 3 slots (+30, +60, +90 mins)
+      const alternativeOffsets = [30, 60, 90]; // minutes
+      let suggestedSlot: Date | null = null;
+      
+      for (const offset of alternativeOffsets) {
+        const alternativeSlot = new Date(appointmentStart.getTime() + offset * 60 * 1000);
+        
+        if (await isSlotAvailable(alternativeSlot)) {
+          suggestedSlot = alternativeSlot;
+          console.log(`Found available alternative slot: ${formatTime(alternativeSlot)}`);
+          break;
+        }
+      }
+      
+      if (suggestedSlot) {
+        // Return smart suggestion
+        const suggestedTime = formatTime(suggestedSlot);
+        return jsonResponse({
+          success: false,
+          error: 'Occupied',
+          message: `El horario de las ${requestedTime} está ocupado, pero tengo libre a las ${suggestedTime}. ¿Te sirve?`,
+          suggested_date: suggestedSlot.toISOString(),
+          suggested_time: suggestedTime,
+          original_requested_time: requestedTime
+        });
+      } else {
+        // No alternatives found in next 90 minutes
+        return jsonResponse({
+          success: false,
+          error: 'Occupied',
+          message: `El horario de las ${requestedTime} y los siguientes 90 minutos están ocupados. Por favor elige otra hora del día.`,
+          original_requested_time: requestedTime
+        });
       }
     }
 
@@ -234,7 +282,7 @@ serve(async (req) => {
       message: 'Cita agendada exitosamente.',
       appointment_id: appointment.id,
       appointment_date: appointment.appointment_date,
-      appointment_time: requestedTime,
+      appointment_time: formatTime(appointmentStart),
       status: appointment.status,
       patient_id: patientId,
       patient_name: patientName,
