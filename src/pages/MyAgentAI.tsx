@@ -127,8 +127,29 @@ export default function MyAgentAI() {
 
   const updateService = (index: number, field: keyof Service, value: string) => {
     const updated = [...services];
-    updated[index] = { ...updated[index], [field]: value };
+    
+    // For price field, only allow numbers and store raw numeric value
+    if (field === 'price') {
+      const numericValue = value.replace(/\D/g, '');
+      updated[index] = { ...updated[index], [field]: numericValue };
+    } else {
+      updated[index] = { ...updated[index], [field]: value };
+    }
+    
     setServices(updated);
+  };
+
+  // Format price for display with $ and thousands separator
+  const formatPrice = (value: string): string => {
+    if (!value) return '';
+    const num = parseInt(value, 10);
+    if (isNaN(num)) return '';
+    return `$ ${num.toLocaleString('es-CO')}`;
+  };
+
+  // Parse formatted price back to raw number for editing
+  const parsePrice = (formatted: string): string => {
+    return formatted.replace(/\D/g, '');
   };
 
   // Listen for WhatsApp connection changes
@@ -270,11 +291,15 @@ export default function MyAgentAI() {
                                 value={service.name}
                                 onChange={(e) => updateService(index, "name", e.target.value)}
                               />
-                              <Input
-                                placeholder="Precio (ej: $50.000)"
-                                value={service.price}
-                                onChange={(e) => updateService(index, "price", e.target.value)}
-                              />
+                              <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                                <Input
+                                  placeholder="0"
+                                  value={service.price ? parseInt(service.price, 10).toLocaleString('es-CO') : ''}
+                                  onChange={(e) => updateService(index, "price", e.target.value)}
+                                  className="pl-7 text-right font-mono"
+                                />
+                              </div>
                               <Input
                                 placeholder="Descripción breve (opcional)"
                                 value={service.description || ""}
