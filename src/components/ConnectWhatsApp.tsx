@@ -265,10 +265,21 @@ export function ConnectWhatsApp() {
     try {
       const { data, error } = await supabase.functions.invoke('reset-whatsapp-instance');
 
+      // If the function returns a non-2xx, Supabase treats it as error.
       if (error) {
         toast({
           title: "Error",
           description: "No se pudo reiniciar la instancia",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data?.success === false) {
+        console.warn('Restart failed attempts:', data?.attempts);
+        toast({
+          title: "No se pudo reiniciar",
+          description: data?.message || "Tu servidor no expone el endpoint de reinicio.",
           variant: "destructive",
         });
         return;

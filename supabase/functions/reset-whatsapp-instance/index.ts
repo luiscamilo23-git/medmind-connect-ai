@@ -49,30 +49,33 @@ serve(async (req) => {
       .from('profiles')
       .select('whatsapp_instance_name')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     const instanceName = profile?.whatsapp_instance_name;
 
     if (!instanceName) {
-      throw new Error('No WhatsApp instance found for this user');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: 'No hay una instancia de WhatsApp asociada a este usuario.',
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log(`Restarting instance (no logout) for: ${instanceName}`);
 
-    // Evolution API deployments differ (reverse proxies / method). Try a small set of known variants.
+    // Evolution API deployments differ (reverse proxies / basePath / method). Try common variants.
     const candidates: Array<{ method: 'PUT' | 'POST'; path: string }> = [
       { method: 'PUT', path: `/instance/restart/${instanceName}` },
       { method: 'POST', path: `/instance/restart/${instanceName}` },
-      // Some setups mount API under /api
       { method: 'PUT', path: `/api/instance/restart/${instanceName}` },
       { method: 'POST', path: `/api/instance/restart/${instanceName}` },
-      // Some setups expose v2 under /v2
       { method: 'PUT', path: `/v2/instance/restart/${instanceName}` },
       { method: 'POST', path: `/v2/instance/restart/${instanceName}` },
     ];
 
-    let lastErrorText = '';
-    let lastStatus = 0;
+    const attempts: Array<{ method: string; url: string; status: number; body: string }> = [];
 
     for (const c of candidates) {
       const url = `${evolutionApiUrl}${c.path}`;
@@ -83,13 +86,17 @@ serve(async (req) => {
         headers: { apikey: evolutionApiKey },
       });
 
-      lastStatus = res.status;
       const text = await res.text();
-      lastErrorText = text;
+      attempts.push({
+        method: c.method,
+        url,
+        status: res.status,
+        body: text?.slice?.(0, 500) ?? String(text),
+      });
+
       console.log(`Restart attempt result: ${res.status} - ${text}`);
 
       if (res.ok) {
-        // Many deployments return JSON, but keep it safe.
         let parsed: unknown = null;
         try {
           parsed = text ? JSON.parse(text) : null;
@@ -108,19 +115,15 @@ serve(async (req) => {
       }
     }
 
-    console.error(`All restart attempts failed. Last: ${lastStatus} - ${lastErrorText}`);
-    throw new Error(
-      `No se pudo reiniciar la instancia sin cerrar sesión (HTTP ${lastStatus}). ` +
-        `Tu servidor no expone el endpoint de restart en esa ruta. Revisa el base path (p.ej. /api) y/o método (PUT/POST).`
-    );
-
+    console.error('All restart attempts failed:', JSON.stringify(attempts));
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Instancia reiniciada.',
-        qrCode: null,
-        data: null
+      JSON.stringify({
+        success: false,
+        message:
+          'No se pudo reiniciar sin desconectar: tu servidor no expone el endpoint de restart en las rutas probadas. ' +
+          'Esto normalmente es un base path distinto (por proxy) o el endpoint está deshabilitado en esa build.',
+        attempts,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -129,8 +132,9 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : 'Error resetting WhatsApp instance';
     console.error('Error in reset-whatsapp-instance:', errorMessage);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ success: false, message: errorMessage }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
+
