@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -18,7 +19,11 @@ export function ConnectWhatsApp() {
   const [isConnected, setIsConnected] = useState(false);
   const [status, setStatus] = useState<'online' | 'offline' | 'unknown' | 'disconnected'>('disconnected');
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const { playSound } = useNotificationSound();
 
   useEffect(() => {
     checkConnectionStatus();
@@ -48,7 +53,17 @@ export function ConnectWhatsApp() {
   const startPolling = () => {
     stopPolling();
     pollCountRef.current = 0;
+    const totalSeconds = MAX_POLL_COUNT * 3; // 120 segundos
+    setRemainingSeconds(totalSeconds);
     console.log('Starting WhatsApp connection polling (max 2 min)...');
+    
+    // Countdown cada segundo
+    countdownRef.current = setInterval(() => {
+      setRemainingSeconds(prev => {
+        if (prev <= 1) return 0;
+        return prev - 1;
+      });
+    }, 1000);
     
     pollingRef.current = setInterval(async () => {
       pollCountRef.current += 1;
@@ -58,6 +73,7 @@ export function ConnectWhatsApp() {
       if (connected) {
         stopPolling();
         setQrCode(null);
+        playSound('success'); // Sonido de éxito
         toast({
           title: "¡Conectado!",
           description: "Tu WhatsApp se ha vinculado exitosamente",
@@ -69,6 +85,7 @@ export function ConnectWhatsApp() {
       if (pollCountRef.current >= MAX_POLL_COUNT) {
         console.log('QR expired, regenerating...');
         stopPolling();
+        playSound('warning'); // Sonido de alerta
         toast({
           title: "QR Expirado",
           description: "Generando un nuevo código QR...",
@@ -84,6 +101,11 @@ export function ConnectWhatsApp() {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
     }
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+    setRemainingSeconds(0);
   };
 
   const checkConnectionStatusSilent = async (): Promise<boolean> => {
@@ -441,12 +463,43 @@ export function ConnectWhatsApp() {
                 alt="WhatsApp QR Code"
                 className="w-64 h-64 object-contain"
               />
-              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-full">
-                <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                <span className="text-[10px] text-primary font-medium">Esperando escaneo...</span>
-              </div>
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-2">
+            {/* Countdown indicator */}
+            {remainingSeconds > 0 && (
+              <div className="flex items-center gap-3 bg-primary/10 px-4 py-2 rounded-full">
+                <div className="relative h-8 w-8">
+                  <svg className="h-8 w-8 -rotate-90" viewBox="0 0 32 32">
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      className="text-muted/30"
+                    />
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeDasharray={`${(remainingSeconds / 120) * 88} 88`}
+                      className="text-primary transition-all duration-1000"
+                    />
+                  </svg>
+                  <Loader2 className="absolute inset-0 m-auto h-4 w-4 animate-spin text-primary" />
+                </div>
+                <div className="text-sm">
+                  <span className="font-semibold text-primary">
+                    {Math.floor(remainingSeconds / 60)}:{(remainingSeconds % 60).toString().padStart(2, '0')}
+                  </span>
+                  <span className="text-muted-foreground ml-1">restantes</span>
+                </div>
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground text-center">
               Abre WhatsApp → Menú → Dispositivos vinculados → Vincular dispositivo
             </p>
             {instanceName && (

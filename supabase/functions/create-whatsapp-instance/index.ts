@@ -86,18 +86,8 @@ serve(async (req) => {
     const evoKey = Deno.env.get("EVOLUTION_API_KEY");
     const webhookUrl = Deno.env.get("MEDMIND_WEBHOOK");
 
-    // No loguear valores; solo presencia (debug)
-    console.log("Secrets presence:", {
-      hasEvoUrl: !!evoUrl,
-      hasEvoKey: !!evoKey,
-      hasWebhook: !!webhookUrl,
-    });
-
     if (!evoUrl || !evoKey) {
-      const missing: string[] = [];
-      if (!evoUrl) missing.push("EVOLUTION_API_URL");
-      if (!evoKey) missing.push("EVOLUTION_API_KEY");
-      throw new Error(`Faltan secretos: ${missing.join(", ")}`);
+      throw new Error("Faltan secretos de Evolution API");
     }
 
     console.log(`[1/5] Creando instancia: ${instanceName}`);
@@ -152,9 +142,9 @@ serve(async (req) => {
             webhook: {
               enabled: true,
               url: webhookUrl,
-              webhookByEvents: true,
+              webhookByEvents: false,
               webhookBase64: true,
-              events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "MESSAGES_UPDATE"]
+              events: ["MESSAGES_UPSERT"]  // Solo mensajes entrantes, evita spam de status updates
             }
           }),
         });
