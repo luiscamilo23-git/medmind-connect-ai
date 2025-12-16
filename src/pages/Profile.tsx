@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Activity, ArrowLeft, Camera, Save, Volume2, VolumeX } from "lucide-react";
-import { ConnectWhatsApp } from "@/components/ConnectWhatsApp";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 
@@ -304,11 +303,6 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* WhatsApp Integration */}
-        <div className="mt-8">
-          <ConnectWhatsApp />
-        </div>
       </main>
     </div>
   );
