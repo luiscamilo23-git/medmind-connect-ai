@@ -14,6 +14,14 @@ interface BookAppointmentRequest {
   reason?: string;
 }
 
+// Helper to return consistent JSON responses (always 200 OK)
+function jsonResponse(data: Record<string, unknown>) {
+  return new Response(
+    JSON.stringify(data),
+    { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -23,10 +31,7 @@ serve(async (req) => {
   try {
     // Only allow POST requests
     if (req.method !== 'POST') {
-      return new Response(
-        JSON.stringify({ error: 'Method not allowed. Use POST.' }),
-        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'Método no permitido. Usa POST.' });
     }
 
     // Authenticate using x-api-key header
@@ -35,42 +40,27 @@ serve(async (req) => {
     
     if (!expectedKey) {
       console.error('N8N_AUTH_TOKEN not configured');
-      return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'Error de configuración del servidor.' });
     }
     
     if (!apiKey || apiKey !== expectedKey) {
       console.error('Invalid or missing API key');
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized. Invalid or missing x-api-key header.' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'No autorizado. API key inválido.' });
     }
 
     const body: BookAppointmentRequest = await req.json();
     
     // Validate required fields
     if (!body.phone) {
-      return new Response(
-        JSON.stringify({ error: 'phone is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'El campo "phone" es requerido.' });
     }
     
     if (!body.date) {
-      return new Response(
-        JSON.stringify({ error: 'date is required (ISO format)' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'El campo "date" es requerido (formato ISO).' });
     }
     
     if (!body.doctor_id) {
-      return new Response(
-        JSON.stringify({ error: 'doctor_id is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'El campo "doctor_id" es requerido.' });
     }
 
     // STRICT DATE VALIDATION - Block AI hallucinations
@@ -80,29 +70,20 @@ serve(async (req) => {
     // Check if date is valid
     if (isNaN(requestedDate.getTime())) {
       console.error('Invalid date format received:', body.date);
-      return new Response(
-        JSON.stringify({ error: 'Formato de fecha inválido. Usa formato ISO (YYYY-MM-DDTHH:mm:ss).' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'Formato de fecha inválido. Usa formato ISO (YYYY-MM-DDTHH:mm:ss).' });
     }
     
     // Block past dates
     if (requestedDate < now) {
       console.error('Attempted to book in the past:', body.date);
-      return new Response(
-        JSON.stringify({ error: 'No se puede agendar en el pasado.' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'No se puede agendar en el pasado.' });
     }
     
     // Enforce current/next year only (2025-2026)
     const requestedYear = requestedDate.getFullYear();
     if (requestedYear < 2025 || requestedYear > 2026) {
       console.error('Invalid year received:', requestedYear);
-      return new Response(
-        JSON.stringify({ error: 'El año es incorrecto. Solo agenda para 2025 en adelante.' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'El año es incorrecto. Solo agenda para 2025 en adelante.' });
     }
 
     console.log('Received booking request:', JSON.stringify(body));
@@ -133,10 +114,7 @@ serve(async (req) => {
 
     if (searchError) {
       console.error('Error searching for patient:', searchError);
-      return new Response(
-        JSON.stringify({ error: 'Error searching for patient', details: searchError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'Error al buscar el paciente en la base de datos.' });
     }
 
     let patientId: string;
@@ -164,10 +142,7 @@ serve(async (req) => {
 
       if (createError) {
         console.error('Error creating patient:', createError);
-        return new Response(
-          JSON.stringify({ error: 'Error creating patient', details: createError.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return jsonResponse({ success: false, error: 'Error al crear el paciente.' });
       }
 
       patientId = newPatient.id;
@@ -178,6 +153,9 @@ serve(async (req) => {
     // Step 2: Check for slot conflicts (30 minute slots)
     const appointmentStart = new Date(body.date);
     const appointmentEnd = new Date(appointmentStart.getTime() + 30 * 60 * 1000); // 30 min duration
+    
+    // Format time for error message
+    const requestedTime = `${appointmentStart.getHours().toString().padStart(2, '0')}:${appointmentStart.getMinutes().toString().padStart(2, '0')}`;
     
     // Query existing appointments that might overlap
     const { data: conflictingAppointments, error: conflictError } = await supabase
@@ -190,10 +168,7 @@ serve(async (req) => {
 
     if (conflictError) {
       console.error('Error checking for conflicts:', conflictError);
-      return new Response(
-        JSON.stringify({ error: 'Error al verificar disponibilidad.' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'Error al verificar disponibilidad.' });
     }
 
     // Check for actual overlaps
@@ -209,10 +184,10 @@ serve(async (req) => {
             existing: existing.appointment_date,
             existingTitle: existing.title
           });
-          return new Response(
-            JSON.stringify({ error: 'Ese horario ya está ocupado. Por favor elige otra hora.' }),
-            { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+          return jsonResponse({ 
+            success: false, 
+            error: `El horario de las ${requestedTime} ya está ocupado. Por favor elige otra hora.` 
+          });
         }
       }
     }
@@ -220,7 +195,7 @@ serve(async (req) => {
     // Step 3: Create the appointment
     console.log('Creating appointment for patient:', patientId);
     
-    const appointmentTitle = body.reason || 'Cita agendada vía n8n';
+    const appointmentTitle = body.reason || 'Cita agendada vía WhatsApp';
     
     const { data: appointment, error: appointmentError } = await supabase
       .from('appointments')
@@ -229,7 +204,7 @@ serve(async (req) => {
         patient_id: patientId,
         appointment_date: body.date,
         title: appointmentTitle,
-        description: `Cita agendada vía n8n - ${appointmentTitle}`,
+        description: `Cita agendada vía WhatsApp - ${appointmentTitle}`,
         status: 'scheduled',
         duration_minutes: 30,
       })
@@ -238,37 +213,27 @@ serve(async (req) => {
 
     if (appointmentError) {
       console.error('Error creating appointment:', appointmentError);
-      return new Response(
-        JSON.stringify({ error: 'Error creating appointment', details: appointmentError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ success: false, error: 'Error al crear la cita en la base de datos.' });
     }
 
     console.log('Appointment created successfully:', appointment.id);
 
     // Return success response
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: 'Appointment booked successfully',
-        data: {
-          appointment_id: appointment.id,
-          appointment_date: appointment.appointment_date,
-          status: appointment.status,
-          patient_id: patientId,
-          patient_name: patientName,
-          patient_created: !(existingPatients && existingPatients.length > 0),
-        },
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({
+      success: true,
+      message: 'Cita agendada exitosamente.',
+      appointment_id: appointment.id,
+      appointment_date: appointment.appointment_date,
+      appointment_time: requestedTime,
+      status: appointment.status,
+      patient_id: patientId,
+      patient_name: patientName,
+      patient_created: !(existingPatients && existingPatients.length > 0),
+    });
 
   } catch (error) {
     console.error('Unexpected error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: 'Internal server error', details: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+    return jsonResponse({ success: false, error: `Error interno: ${errorMessage}` });
   }
 });
