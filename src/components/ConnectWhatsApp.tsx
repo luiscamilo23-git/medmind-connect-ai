@@ -274,13 +274,22 @@ export function ConnectWhatsApp() {
         return;
       }
 
-      toast({
-        title: "✅ Reiniciado",
-        description: "Instancia reiniciada correctamente",
-      });
-      
-      // Re-check status after reset
-      await checkConnectionStatus();
+      // If we got a new QR code, show it
+      if (data?.qrCode) {
+        setQrCode(data.qrCode);
+        setIsConnected(false);
+        toast({
+          title: "Instancia reiniciada",
+          description: "Escanea el nuevo código QR para reconectar",
+        });
+      } else {
+        toast({
+          title: "✅ Reiniciado",
+          description: data?.message || "Instancia reiniciada correctamente",
+        });
+        // Re-check status after reset
+        await checkConnectionStatus();
+      }
     } catch (err) {
       console.error('Error resetting:', err);
       toast({
