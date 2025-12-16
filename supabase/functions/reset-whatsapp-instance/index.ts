@@ -61,7 +61,7 @@ serve(async (req) => {
 
     // Call Evolution API to restart the instance
     const restartResponse = await fetch(`${evolutionApiUrl}/instance/restart/${instanceName}`, {
-      method: 'PUT',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'apikey': evolutionApiKey,
