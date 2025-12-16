@@ -18,8 +18,9 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!evolutionApiUrl || !evolutionApiKey) {
-      throw new Error('Evolution API configuration not found');
+    const evolutionConfigured = Boolean(evolutionApiUrl && evolutionApiKey);
+    if (!evolutionConfigured) {
+      console.warn('Missing Evolution API configuration (will still clear profile link)');
     }
 
     if (!supabaseUrl || !supabaseServiceKey) {
@@ -53,16 +54,16 @@ serve(async (req) => {
 
     const instanceName = profile?.whatsapp_instance_name;
 
-    if (instanceName) {
+    if (instanceName && evolutionConfigured) {
       console.log(`Attempting to delete instance: ${instanceName}`);
 
       // Try to delete from Evolution API
       try {
-        const deleteResponse = await fetch(`${evolutionApiUrl}/instance/delete/${instanceName}`, {
+        const deleteResponse = await fetch(`${evolutionApiUrl!}/instance/delete/${instanceName}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': evolutionApiKey,
+            'apikey': evolutionApiKey!,
           },
         });
 
@@ -77,6 +78,8 @@ serve(async (req) => {
         console.error('Error deleting from Evolution API:', apiError);
         // Continue anyway to clear the profile
       }
+    } else if (instanceName) {
+      console.warn(`Evolution API not configured; skipping remote delete for instance ${instanceName}`);
     }
 
     // Clear the instance name from profile
