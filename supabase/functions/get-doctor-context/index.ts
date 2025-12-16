@@ -43,10 +43,10 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Query profiles table for the doctor
+    // Query profiles table for the doctor with knowledge base
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, full_name, specialty')
+      .select('id, full_name, specialty, clinic_name, phone, business_description, business_location, business_hours, business_services, business_additional_info')
       .eq('whatsapp_instance_name', instance_name)
       .maybeSingle();
 
@@ -72,7 +72,17 @@ serve(async (req) => {
       JSON.stringify({
         id: data.id,
         full_name: data.full_name,
-        specialty: data.specialty
+        specialty: data.specialty,
+        clinic_name: data.clinic_name,
+        phone: data.phone,
+        // Knowledge base for the agent
+        knowledge_base: {
+          description: data.business_description,
+          location: data.business_location,
+          hours: data.business_hours,
+          services: data.business_services,
+          additional_info: data.business_additional_info
+        }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

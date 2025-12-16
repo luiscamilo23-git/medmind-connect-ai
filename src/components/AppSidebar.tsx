@@ -13,7 +13,8 @@ import {
   Receipt,
   Send,
   BarChart3,
-  Settings
+  Settings,
+  Bot
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -43,6 +44,11 @@ const mainItems = [
 ];
 
 const modulesItems = [
+  { 
+    title: "Mi Agente IA", 
+    url: "/my-agent", 
+    icon: Bot 
+  },
   { 
     title: "VoiceNotes MD", 
     url: "/voicenotes", 

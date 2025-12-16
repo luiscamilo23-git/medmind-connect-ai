@@ -17,6 +17,7 @@ import DoctorSettings from "./pages/DoctorSettings";
 import SocialNetwork from "./pages/SocialNetwork";
 import PredictiveAnalysis from "./pages/PredictiveAnalysis";
 import SmartNotes from "./pages/SmartNotes";
+import MyAgentAI from "./pages/MyAgentAI";
 import PatientDashboard from "./pages/patient/PatientDashboard";
 import DoctorExplorer from "./pages/patient/DoctorExplorer";
 import PatientWellness from "./pages/patient/PatientWellness";
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/voicenotes" element={<VoiceNotes />} />
           <Route path="/smart-notes" element={<SmartNotes />} />
+          <Route path="/my-agent" element={<MyAgentAI />} />
           <Route path="/patients" element={<Patients />} />
           <Route path="/scheduler" element={<SmartScheduler />} />
           <Route path="/supplylens" element={<SupplyLens />} />
