@@ -67,11 +67,13 @@ serve(async (req) => {
         'apikey': evolutionApiKey,
       },
       body: JSON.stringify({
-        enabled: true,
-        url: medmindWebhook,
-        webhookByEvents: true,
-        webhookBase64: true,
-        events: ['MESSAGES_UPSERT']
+        webhook: {
+          enabled: true,
+          url: medmindWebhook,
+          webhookByEvents: true,
+          webhookBase64: true,
+          events: ['MESSAGES_UPSERT']
+        }
       }),
     });
 
