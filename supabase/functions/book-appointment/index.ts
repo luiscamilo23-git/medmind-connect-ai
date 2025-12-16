@@ -63,8 +63,16 @@ serve(async (req) => {
       return jsonResponse({ success: false, error: 'El campo "doctor_id" es requerido.' });
     }
 
-    // SIMPLE DATE PARSING - Trust standard JS Date parsing
+    // TIMEZONE-AWARE DATE PARSING
+    // Extract LOCAL time from ISO string BEFORE JS converts to UTC
     console.log('Raw date received:', body.date);
+    
+    // Extract local hour from ISO string (e.g., "2025-12-16T14:00:00-05:00" -> 14)
+    const isoMatch = body.date.match(/T(\d{2}):(\d{2})/);
+    const localHour = isoMatch ? parseInt(isoMatch[1], 10) : -1;
+    const localMinutes = isoMatch ? parseInt(isoMatch[2], 10) : 0;
+    
+    console.log('Extracted local time from ISO:', localHour + ':' + localMinutes.toString().padStart(2, '0'));
     
     let requestedDate = new Date(body.date);
     const now = new Date();
@@ -75,7 +83,7 @@ serve(async (req) => {
       return jsonResponse({ success: false, error: `No pude entender la fecha "${body.date}". Intenta con formato como "21 de diciembre a las 10am".` });
     }
     
-    console.log('Parsed date successfully:', requestedDate.toISOString());
+    console.log('Parsed date (UTC):', requestedDate.toISOString());
     
     // AUTO-CORRECTION: Force year to 2025 if less than 2025
     const originalYear = requestedDate.getFullYear();
@@ -168,19 +176,28 @@ serve(async (req) => {
     const appointmentStart = new Date(correctedDateISO);
     const SLOT_DURATION = 30; // 30 minute slots
     
-    // Format time helper
-    const formatTime = (date: Date) => 
-      `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    // Use the LOCAL hour extracted from original ISO string for display and validation
+    const requestedTime = `${localHour.toString().padStart(2, '0')}:${localMinutes.toString().padStart(2, '0')}`;
     
-    const requestedTime = formatTime(appointmentStart);
+    console.log('Checking availability for local time:', requestedTime);
+    
+    // Validate working hours using LOCAL time (extracted from ISO)
+    if (localHour < 8 || localHour >= 18) {
+      console.log('Requested time outside working hours (local):', localHour);
+      return jsonResponse({
+        success: false,
+        error: 'Fuera de horario',
+        message: `El horario de las ${requestedTime} está fuera del horario de atención (8:00 - 18:00). Por favor elige un horario dentro de ese rango.`,
+        original_requested_time: requestedTime
+      });
+    }
     
     // Helper function to check if a slot is available
-    async function isSlotAvailable(slotStart: Date): Promise<boolean> {
+    async function isSlotAvailable(slotStart: Date, slotLocalHour: number): Promise<boolean> {
       const slotEnd = new Date(slotStart.getTime() + SLOT_DURATION * 60 * 1000);
       
-      // Check working hours (8:00 - 18:00)
-      const hour = slotStart.getHours();
-      if (hour < 8 || hour >= 18) return false;
+      // Check working hours using LOCAL hour (not UTC)
+      if (slotLocalHour < 8 || slotLocalHour >= 18) return false;
       
       // Check if slot is in the past
       if (slotStart < now) return false;
@@ -199,6 +216,8 @@ serve(async (req) => {
         return false;
       }
       
+      console.log('Conflicts found for slot:', conflicts?.length || 0, 'at local hour:', slotLocalHour);
+      
       // Check for overlaps
       for (const existing of conflicts || []) {
         const existingStart = new Date(existing.appointment_date);
@@ -213,7 +232,7 @@ serve(async (req) => {
     }
     
     // Check if requested slot is available
-    const isRequestedSlotAvailable = await isSlotAvailable(appointmentStart);
+    const isRequestedSlotAvailable = await isSlotAvailable(appointmentStart, localHour);
     
     if (!isRequestedSlotAvailable) {
       console.log('Requested slot occupied, searching for alternatives...');
@@ -221,20 +240,27 @@ serve(async (req) => {
       // SMART RECOVERY: Check next 3 slots (+30, +60, +90 mins)
       const alternativeOffsets = [30, 60, 90]; // minutes
       let suggestedSlot: Date | null = null;
+      let suggestedLocalHour = localHour;
+      let suggestedLocalMinutes = localMinutes;
       
       for (const offset of alternativeOffsets) {
         const alternativeSlot = new Date(appointmentStart.getTime() + offset * 60 * 1000);
+        // Calculate the LOCAL hour for the alternative slot
+        const altLocalMinutes = (localMinutes + offset) % 60;
+        const altLocalHour = localHour + Math.floor((localMinutes + offset) / 60);
         
-        if (await isSlotAvailable(alternativeSlot)) {
+        if (await isSlotAvailable(alternativeSlot, altLocalHour)) {
           suggestedSlot = alternativeSlot;
-          console.log(`Found available alternative slot: ${formatTime(alternativeSlot)}`);
+          suggestedLocalHour = altLocalHour;
+          suggestedLocalMinutes = altLocalMinutes;
+          console.log(`Found available alternative slot: ${altLocalHour}:${altLocalMinutes.toString().padStart(2, '0')}`);
           break;
         }
       }
       
       if (suggestedSlot) {
         // Return smart suggestion
-        const suggestedTime = formatTime(suggestedSlot);
+        const suggestedTime = `${suggestedLocalHour.toString().padStart(2, '0')}:${suggestedLocalMinutes.toString().padStart(2, '0')}`;
         return jsonResponse({
           success: false,
           error: 'Occupied',
@@ -286,7 +312,7 @@ serve(async (req) => {
       message: 'Cita agendada exitosamente.',
       appointment_id: appointment.id,
       appointment_date: appointment.appointment_date,
-      appointment_time: formatTime(appointmentStart),
+      appointment_time: requestedTime,
       status: appointment.status,
       patient_id: patientId,
       patient_name: patientName,
