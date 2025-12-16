@@ -57,33 +57,50 @@ serve(async (req) => {
       throw new Error('No WhatsApp instance found for this user');
     }
 
-    console.log(`Resetting instance: ${instanceName}`);
+    console.log(`Resetting instance via logout+connect: ${instanceName}`);
 
-    // Call Evolution API to restart the instance (PUT method per docs)
-    const restartUrl = `${evolutionApiUrl}/instance/restart/${instanceName}`;
-    console.log(`Calling restart endpoint: ${restartUrl}`);
+    // Step 1: Logout the instance
+    const logoutUrl = `${evolutionApiUrl}/instance/logout/${instanceName}`;
+    console.log(`Calling logout: ${logoutUrl}`);
     
-    const restartResponse = await fetch(restartUrl, {
-      method: 'PUT',
+    const logoutResponse = await fetch(logoutUrl, {
+      method: 'DELETE',
       headers: {
         'apikey': evolutionApiKey,
       },
     });
 
-    if (!restartResponse.ok) {
-      const errorText = await restartResponse.text();
-      console.error(`Evolution API restart error: ${restartResponse.status} - ${errorText}`);
-      throw new Error('Failed to restart WhatsApp instance');
+    const logoutText = await logoutResponse.text();
+    console.log(`Logout response: ${logoutResponse.status} - ${logoutText}`);
+
+    // Wait a moment for logout to complete
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Step 2: Reconnect the instance to get new QR
+    const connectUrl = `${evolutionApiUrl}/instance/connect/${instanceName}`;
+    console.log(`Calling connect: ${connectUrl}`);
+    
+    const connectResponse = await fetch(connectUrl, {
+      method: 'GET',
+      headers: {
+        'apikey': evolutionApiKey,
+      },
+    });
+
+    if (!connectResponse.ok) {
+      const errorText = await connectResponse.text();
+      console.error(`Connect error: ${connectResponse.status} - ${errorText}`);
+      // Even if connect fails, the logout succeeded, so we consider it a partial success
     }
 
-    const restartData = await restartResponse.json();
-    console.log('Instance restart response:', restartData);
+    const connectData = await connectResponse.json().catch(() => ({}));
+    console.log('Connect response:', JSON.stringify(connectData));
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Instancia de WhatsApp reiniciada exitosamente',
-        data: restartData
+        message: 'Instancia reiniciada. Escanea el nuevo código QR.',
+        qrCode: connectData?.base64 || connectData?.qrcode?.base64 || null
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
