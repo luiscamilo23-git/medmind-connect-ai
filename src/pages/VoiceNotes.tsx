@@ -27,6 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import { SignaturePad } from "@/components/SignaturePad";
 import { MedicalDocumentGenerator } from "@/components/MedicalDocumentGenerator";
 import { AudioFileUpload } from "@/components/AudioFileUpload";
+import AudioWaveform from "@/components/AudioWaveform";
 
 import { ExportMedicalRecordPDF } from "@/components/ExportMedicalRecordPDF";
 
@@ -43,6 +44,7 @@ const VoiceNotes = () => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   
   // Recording state for individual fields
   const [recordingField, setRecordingField] = useState<string | null>(null);
@@ -257,6 +259,7 @@ const VoiceNotes = () => {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMediaStream(stream);
       
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -309,6 +312,11 @@ const VoiceNotes = () => {
       if (mediaRecorderRef.current.stream) {
         mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
       }
+    }
+
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      setMediaStream(null);
     }
 
     setIsRecording(false);
@@ -761,7 +769,7 @@ const VoiceNotes = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="text-center space-y-5">
+                  <div className="text-center space-y-5 w-full">
                     <div className="relative inline-block">
                       <div className="w-24 h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
                         <Mic className="h-12 w-12 text-white animate-pulse" />
@@ -769,6 +777,12 @@ const VoiceNotes = () => {
                       <div className="absolute inset-0 rounded-full border-4 border-destructive/50 animate-ping" />
                       <div className="absolute inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
                     </div>
+                    
+                    {/* Audio Waveform Visualization */}
+                    <div className="w-full px-4">
+                      <AudioWaveform isRecording={isRecording && !recordingField} mediaStream={mediaStream} barCount={48} className="h-20" />
+                    </div>
+                    
                     <div className="space-y-1">
                       <p className="text-lg font-semibold text-destructive">Grabando consulta...</p>
                       <p className="text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>

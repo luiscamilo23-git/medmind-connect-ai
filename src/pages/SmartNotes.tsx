@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AudioFileUpload } from "@/components/AudioFileUpload";
+import AudioWaveform from "@/components/AudioWaveform";
 
 const SmartNotes = () => {
   const [notes, setNotes] = useState("");
@@ -39,6 +40,7 @@ const SmartNotes = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const recognitionRef = useRef<any>(null);
 
   const navigate = useNavigate();
@@ -87,6 +89,8 @@ const SmartNotes = () => {
 
   const startRecording = async () => {
     try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMediaStream(stream);
       setIsRecording(true);
       setTranscript("");
       setInterimTranscript("");
@@ -102,7 +106,7 @@ const SmartNotes = () => {
       console.error('Error starting recording:', error);
       toast({
         title: "Error",
-        description: "No se pudo iniciar la grabación",
+        description: "No se pudo iniciar la grabación. Verifica los permisos del micrófono.",
         variant: "destructive",
       });
       setIsRecording(false);
@@ -112,6 +116,10 @@ const SmartNotes = () => {
   const stopRecording = () => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
+    }
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      setMediaStream(null);
     }
     setIsRecording(false);
     
@@ -362,7 +370,7 @@ const SmartNotes = () => {
                           : "border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-primary/5"
                       }`}>
                         {isRecording ? (
-                          <div className="text-center space-y-5">
+                          <div className="text-center space-y-5 w-full">
                             <div className="relative inline-block">
                               <div className="w-24 h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
                                 <Mic className="h-12 w-12 text-white animate-pulse" />
@@ -370,6 +378,12 @@ const SmartNotes = () => {
                               <div className="absolute inset-0 rounded-full border-4 border-destructive/50 animate-ping" />
                               <div className="absolute inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
                             </div>
+                            
+                            {/* Audio Waveform Visualization */}
+                            <div className="w-full px-4">
+                              <AudioWaveform isRecording={isRecording} mediaStream={mediaStream} barCount={48} className="h-20" />
+                            </div>
+                            
                             <div className="space-y-1">
                               <p className="text-lg font-semibold text-destructive">Grabando...</p>
                               <p className="text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>
