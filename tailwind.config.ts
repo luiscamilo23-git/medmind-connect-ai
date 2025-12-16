@@ -152,11 +152,11 @@ export default {
         "pulse-glow": {
           "0%, 100%": { 
             opacity: "1",
-            boxShadow: "0 0 20px hsl(217 91% 60% / 0.5)"
+            boxShadow: "0 0 20px hsl(174 84% 32% / 0.5)"
           },
           "50%": { 
             opacity: "0.8",
-            boxShadow: "0 0 40px hsl(217 91% 60% / 0.8), 0 0 80px hsl(187 100% 50% / 0.4)"
+            boxShadow: "0 0 40px hsl(174 84% 32% / 0.8), 0 0 80px hsl(174 84% 42% / 0.4)"
           }
         },
         "float": {
@@ -165,18 +165,18 @@ export default {
         },
         "glow-pulse": {
           "0%, 100%": { 
-            boxShadow: "0 0 20px hsl(217 91% 60% / 0.4), 0 0 40px hsl(187 100% 50% / 0.2)"
+            boxShadow: "0 0 20px hsl(174 84% 32% / 0.4), 0 0 40px hsl(174 84% 42% / 0.2)"
           },
           "50%": { 
-            boxShadow: "0 0 40px hsl(217 91% 60% / 0.6), 0 0 80px hsl(187 100% 50% / 0.3)"
+            boxShadow: "0 0 40px hsl(174 84% 32% / 0.6), 0 0 80px hsl(174 84% 42% / 0.3)"
           }
         },
         "neural-pulse": {
           "0%, 100%": {
-            boxShadow: "0 0 20px hsl(263 70% 50% / 0.4)"
+            boxShadow: "0 0 20px hsl(160 84% 39% / 0.4)"
           },
           "50%": {
-            boxShadow: "0 0 40px hsl(263 70% 50% / 0.6), 0 0 80px hsl(217 91% 60% / 0.3)"
+            boxShadow: "0 0 40px hsl(160 84% 39% / 0.6), 0 0 80px hsl(174 84% 32% / 0.3)"
           }
         },
         "shimmer": {
@@ -184,8 +184,8 @@ export default {
           "100%": { backgroundPosition: "200% 0" }
         },
         "border-glow": {
-          "0%, 100%": { borderColor: "hsl(217 91% 60% / 0.3)" },
-          "50%": { borderColor: "hsl(217 91% 60% / 0.6)" }
+          "0%, 100%": { borderColor: "hsl(174 84% 32% / 0.3)" },
+          "50%": { borderColor: "hsl(174 84% 32% / 0.6)" }
         },
         "scanner": {
           "0%": { transform: "translateY(-100%)", opacity: "0" },
