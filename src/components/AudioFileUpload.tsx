@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileAudio, Loader2, X } from "lucide-react";
+import { Upload, FileAudio, Loader2, X, Waves, Music } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -41,7 +41,6 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
   }, []);
 
   const handleFileSelection = (file: File) => {
-    // Validar tipo de archivo
     const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/webm', 'audio/m4a', 'audio/ogg', 'audio/x-m4a', 'audio/mp4'];
     if (!validTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|webm|m4a|ogg)$/i)) {
       toast({
@@ -52,7 +51,6 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
       return;
     }
 
-    // Validar tamaño (máximo 25MB para Whisper)
     if (file.size > 25 * 1024 * 1024) {
       toast({
         title: "Archivo muy grande",
@@ -77,7 +75,6 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
 
     setIsTranscribing(true);
     try {
-      // Convertir archivo a base64
       const reader = new FileReader();
       
       const base64Promise = new Promise<string>((resolve, reject) => {
@@ -92,7 +89,6 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
       reader.readAsDataURL(selectedFile);
       const base64Audio = await base64Promise;
 
-      // Llamar a la función de transcripción
       const { data, error } = await supabase.functions.invoke('transcribe-audio', {
         body: { audio: base64Audio }
       });
@@ -145,55 +141,84 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
           className={cn(
-            "relative border-2 border-dashed rounded-xl p-8 transition-all duration-300 cursor-pointer",
-            "hover:border-primary/50 hover:bg-primary/5",
+            "relative overflow-hidden border-2 border-dashed rounded-2xl p-8 transition-all duration-500 cursor-pointer group",
             isDragging 
-              ? "border-primary bg-primary/10 scale-[1.02] shadow-lg shadow-primary/20" 
-              : "border-muted-foreground/25 bg-muted/20"
+              ? "border-primary bg-primary/10 scale-[1.02]" 
+              : "border-border/50 bg-gradient-to-br from-muted/30 via-background to-muted/30 hover:border-primary/50 hover:bg-muted/40"
           )}
         >
-          <div className="flex flex-col items-center justify-center gap-4 text-center">
+          {/* Background animated pattern when dragging */}
+          {isDragging && (
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 animate-pulse" />
+              <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+              <div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-secondary/10 rounded-full blur-3xl animate-pulse delay-150" />
+            </div>
+          )}
+
+          <div className="relative flex flex-col items-center justify-center gap-4 text-center">
+            {/* Icon container with animation */}
             <div className={cn(
-              "p-4 rounded-full transition-all duration-300",
-              isDragging ? "bg-primary/20 scale-110" : "bg-muted"
+              "relative p-5 rounded-2xl transition-all duration-500",
+              isDragging 
+                ? "bg-primary/20 scale-110 shadow-lg shadow-primary/30" 
+                : "bg-muted/50 group-hover:bg-primary/10 group-hover:scale-105"
             )}>
-              <Upload className={cn(
-                "h-8 w-8 transition-colors duration-300",
-                isDragging ? "text-primary" : "text-muted-foreground"
+              {isDragging ? (
+                <Waves className="h-10 w-10 text-primary animate-pulse" />
+              ) : (
+                <Upload className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+              )}
+              
+              {/* Decorative ring */}
+              <div className={cn(
+                "absolute inset-0 rounded-2xl border-2 transition-all duration-500",
+                isDragging 
+                  ? "border-primary scale-110 opacity-100" 
+                  : "border-transparent scale-100 opacity-0 group-hover:border-primary/30 group-hover:opacity-100"
               )} />
             </div>
             
             <div className="space-y-2">
               <p className={cn(
-                "font-medium transition-colors duration-300",
+                "text-lg font-semibold transition-colors duration-300",
                 isDragging ? "text-primary" : "text-foreground"
               )}>
-                {isDragging ? "Suelta el archivo aquí" : "Arrastra un archivo de audio"}
+                {isDragging ? "¡Suelta el archivo aquí!" : "Arrastra un archivo de audio"}
               </p>
               <p className="text-sm text-muted-foreground">
-                o haz clic para seleccionar
+                o <span className="text-primary font-medium hover:underline">haz clic para seleccionar</span>
               </p>
-              <p className="text-xs text-muted-foreground/70">
-                MP3, WAV, WebM, M4A, OGG • Máx. 25MB
-              </p>
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <Music className="h-3 w-3 text-muted-foreground/60" />
+                <p className="text-xs text-muted-foreground/60">
+                  MP3, WAV, WebM, M4A, OGG • Máx. 25MB
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Animated border effect when dragging */}
+          {/* Animated corner accents when dragging */}
           {isDragging && (
-            <div className="absolute inset-0 rounded-xl border-2 border-primary animate-pulse pointer-events-none" />
+            <>
+              <div className="absolute top-3 left-3 w-8 h-8 border-l-2 border-t-2 border-primary rounded-tl-lg animate-pulse" />
+              <div className="absolute top-3 right-3 w-8 h-8 border-r-2 border-t-2 border-primary rounded-tr-lg animate-pulse" />
+              <div className="absolute bottom-3 left-3 w-8 h-8 border-l-2 border-b-2 border-primary rounded-bl-lg animate-pulse" />
+              <div className="absolute bottom-3 right-3 w-8 h-8 border-r-2 border-b-2 border-primary rounded-br-lg animate-pulse" />
+            </>
           )}
         </div>
       ) : (
-        <div className="border rounded-xl p-6 bg-card">
+        <div className="border rounded-2xl p-6 bg-gradient-to-br from-card via-card to-primary/5 shadow-lg">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-primary/10">
-              <FileAudio className="h-6 w-6 text-primary" />
+            <div className="relative p-4 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10">
+              <FileAudio className="h-8 w-8 text-primary" />
+              <div className="absolute inset-0 rounded-xl bg-primary/10 animate-pulse" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{selectedFile.name}</p>
+              <p className="font-semibold text-lg truncate">{selectedFile.name}</p>
               <p className="text-sm text-muted-foreground">
-                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Listo para transcribir
               </p>
             </div>
             <Button
@@ -201,15 +226,16 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
               size="icon"
               onClick={clearFile}
               disabled={isTranscribing}
+              className="hover:bg-destructive/10 hover:text-destructive"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </Button>
           </div>
 
           <Button
             onClick={transcribeAudio}
             disabled={isTranscribing}
-            className="w-full mt-4"
+            className="w-full mt-5 h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
             size="lg"
           >
             {isTranscribing ? (
@@ -219,7 +245,7 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
               </>
             ) : (
               <>
-                <FileAudio className="mr-2 h-5 w-5" />
+                <Waves className="mr-2 h-5 w-5" />
                 Transcribir Audio
               </>
             )}

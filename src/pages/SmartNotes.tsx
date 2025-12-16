@@ -16,7 +16,8 @@ import {
   Mic,
   Square,
   X,
-  Upload
+  Upload,
+  FileText
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -37,6 +38,7 @@ const SmartNotes = () => {
   // Voice recording states
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [interimTranscript, setInterimTranscript] = useState("");
   const recognitionRef = useRef<any>(null);
 
   const navigate = useNavigate();
@@ -53,17 +55,21 @@ const SmartNotes = () => {
 
       recognitionRef.current.onresult = (event: any) => {
         let finalTranscript = '';
+        let interim = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcriptPiece = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalTranscript += transcriptPiece + ' ';
+          } else {
+            interim += transcriptPiece;
           }
         }
 
         if (finalTranscript) {
           setTranscript(prev => prev + finalTranscript);
         }
+        setInterimTranscript(interim);
       };
 
       recognitionRef.current.onerror = (event: any) => {
@@ -83,13 +89,14 @@ const SmartNotes = () => {
     try {
       setIsRecording(true);
       setTranscript("");
+      setInterimTranscript("");
       setAnalysis(null);
       if (recognitionRef.current) {
         recognitionRef.current.start();
       }
       toast({
-        title: "Grabación iniciada",
-        description: "Habla ahora, estoy transcribiendo...",
+        title: "🎤 Grabación iniciada",
+        description: "Habla ahora, transcribiendo en tiempo real...",
       });
     } catch (error) {
       console.error('Error starting recording:', error);
@@ -258,7 +265,7 @@ const SmartNotes = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -266,12 +273,20 @@ const SmartNotes = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate("/dashboard")}
+                className="hover:bg-primary/10"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div className="flex items-center gap-2">
-                <BrainCircuit className="h-6 w-6 text-primary" />
-                <h1 className="text-2xl font-bold">Notas Inteligentes</h1>
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 shadow-lg shadow-primary/10">
+                  <BrainCircuit className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                    Notas Inteligentes
+                  </h1>
+                  <p className="text-sm text-muted-foreground">Analiza y organiza tus notas con IA</p>
+                </div>
               </div>
             </div>
           </div>
@@ -280,17 +295,21 @@ const SmartNotes = () => {
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Hero Section */}
-        <Card className="mb-8 border-primary/20 bg-gradient-to-br from-primary/5 to-background">
-          <CardHeader>
+        <Card className="mb-8 border-primary/20 bg-gradient-to-br from-primary/5 via-card to-secondary/5 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/5 rounded-full blur-3xl" />
+          <CardHeader className="relative">
             <div className="flex items-start gap-4">
-              <div className="p-3 rounded-lg bg-primary/10">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 shadow-xl shadow-primary/20">
                 <Sparkles className="h-8 w-8 text-primary" />
               </div>
-              <div>
-                <CardTitle className="text-3xl mb-2">Análisis Inteligente de Notas</CardTitle>
-                <CardDescription className="text-base">
+              <div className="flex-1">
+                <CardTitle className="text-3xl mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                  Análisis Inteligente de Notas
+                </CardTitle>
+                <CardDescription className="text-base max-w-2xl">
                   Utiliza inteligencia artificial para extraer automáticamente tareas, ideas principales 
-                  y recordatorios de tus notas clínicas. Escríbelas o grábalas por voz.
+                  y recordatorios de tus notas clínicas. Graba por voz o escríbelas directamente.
                 </CardDescription>
               </div>
             </div>
@@ -298,12 +317,18 @@ const SmartNotes = () => {
         </Card>
 
         <Tabs defaultValue="voice" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8 h-12">
-            <TabsTrigger value="voice" className="text-base">
+          <TabsList className="grid w-full grid-cols-2 mb-8 h-14 p-1.5 bg-muted/50 rounded-2xl">
+            <TabsTrigger 
+              value="voice" 
+              className="text-base rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300"
+            >
               <Mic className="mr-2 h-5 w-5" />
               Grabar por Voz
             </TabsTrigger>
-            <TabsTrigger value="text" className="text-base">
+            <TabsTrigger 
+              value="text" 
+              className="text-base rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300"
+            >
               <BrainCircuit className="mr-2 h-5 w-5" />
               Notas Escritas
             </TabsTrigger>
@@ -314,9 +339,12 @@ const SmartNotes = () => {
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Voice Recording Section */}
               <div>
-                <Card>
+                <Card className="border-border/50 bg-gradient-to-br from-card via-card to-primary/5 shadow-xl">
                   <CardHeader>
-                    <CardTitle>Graba tus Notas</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <Mic className="w-5 h-5 text-primary" />
+                      Graba tus Notas
+                    </CardTitle>
                     <CardDescription>
                       Graba en tiempo real o sube un archivo de audio para transcripción con IA.
                     </CardDescription>
@@ -325,39 +353,48 @@ const SmartNotes = () => {
                     {/* Real-time recording */}
                     <div className="space-y-3">
                       <Label className="text-sm font-medium flex items-center gap-2">
-                        <Mic className="w-4 h-4" />
+                        <Mic className="w-4 h-4 text-primary" />
                         Grabación en tiempo real
                       </Label>
-                      <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl bg-muted/30">
+                      <div className={`relative flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-2xl transition-all duration-500 ${
+                        isRecording 
+                          ? "border-destructive bg-destructive/5" 
+                          : "border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-primary/5"
+                      }`}>
                         {isRecording ? (
-                          <div className="text-center space-y-4">
+                          <div className="text-center space-y-5">
                             <div className="relative inline-block">
-                              <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
-                                <Mic className="h-10 w-10 text-white" />
+                              <div className="w-24 h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
+                                <Mic className="h-12 w-12 text-white animate-pulse" />
                               </div>
-                              <div className="absolute inset-0 rounded-full border-4 border-red-500 animate-ping"></div>
+                              <div className="absolute inset-0 rounded-full border-4 border-destructive/50 animate-ping" />
+                              <div className="absolute inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
                             </div>
-                            <p className="text-sm font-medium">🎙️ Grabando...</p>
+                            <div className="space-y-1">
+                              <p className="text-lg font-semibold text-destructive">Grabando...</p>
+                              <p className="text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>
+                            </div>
                             <Button
                               onClick={stopRecording}
                               variant="destructive"
-                              size="default"
+                              size="lg"
+                              className="shadow-lg shadow-destructive/25"
                             >
                               <Square className="mr-2 h-4 w-4" />
-                              Detener
+                              Detener Grabación
                             </Button>
                           </div>
                         ) : (
-                          <div className="text-center space-y-4">
-                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                              <Mic className="h-8 w-8 text-primary" />
+                          <div className="text-center space-y-5">
+                            <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                              <Mic className="h-10 w-10 text-primary" />
                             </div>
                             <Button
                               onClick={startRecording}
-                              size="default"
-                              className="bg-red-500 hover:bg-red-600"
+                              size="lg"
+                              className="bg-gradient-to-r from-destructive to-destructive/80 hover:from-destructive/90 hover:to-destructive/70 shadow-lg shadow-destructive/25"
                             >
-                              <Mic className="mr-2 h-4 w-4" />
+                              <Mic className="mr-2 h-5 w-5" />
                               Iniciar Grabación
                             </Button>
                           </div>
@@ -366,19 +403,19 @@ const SmartNotes = () => {
                     </div>
 
                     {/* Divider */}
-                    <div className="relative">
+                    <div className="relative py-2">
                       <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
+                        <span className="w-full border-t border-border/50" />
                       </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">o</span>
+                      <div className="relative flex justify-center">
+                        <span className="bg-card px-4 text-sm text-muted-foreground font-medium">o</span>
                       </div>
                     </div>
 
                     {/* Audio file upload */}
                     <div className="space-y-3">
                       <Label className="text-sm font-medium flex items-center gap-2">
-                        <Upload className="w-4 h-4" />
+                        <Upload className="w-4 h-4 text-primary" />
                         Subir archivo de audio
                       </Label>
                       <AudioFileUpload 
@@ -386,21 +423,31 @@ const SmartNotes = () => {
                       />
                     </div>
 
-                    {transcript && (
-                      <div className="space-y-4 pt-4 border-t">
+                    {(transcript || interimTranscript) && (
+                      <div className="space-y-4 pt-4 border-t border-border/50">
                         <div>
-                          <Label className="mb-2 block font-semibold">Transcripción:</Label>
-                          <Textarea
-                            value={transcript}
-                            onChange={(e) => setTranscript(e.target.value)}
-                            className="min-h-[150px] text-base"
-                            placeholder="La transcripción aparecerá aquí..."
-                          />
+                          <Label className="mb-2 block font-semibold flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-primary" />
+                            Transcripción:
+                          </Label>
+                          <div className="relative">
+                            <Textarea
+                              value={transcript}
+                              onChange={(e) => setTranscript(e.target.value)}
+                              className="min-h-[150px] text-base bg-muted/30 border-border/50 focus:border-primary/50"
+                              placeholder="La transcripción aparecerá aquí..."
+                            />
+                            {interimTranscript && (
+                              <p className="mt-2 text-sm text-muted-foreground italic animate-pulse">
+                                ...{interimTranscript}
+                              </p>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+                        <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50">
                           <div className="flex items-center gap-2">
-                            <Bell className="h-4 w-4 text-muted-foreground" />
+                            <Bell className="h-4 w-4 text-primary" />
                             <Label htmlFor="reminders-voice" className="cursor-pointer">
                               Incluir recordatorios
                             </Label>
@@ -415,13 +462,13 @@ const SmartNotes = () => {
                         <Button
                           onClick={analyzeNotes}
                           disabled={isAnalyzing || !transcript.trim()}
-                          className="w-full"
+                          className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
                           size="lg"
                         >
                           {isAnalyzing ? (
                             <>
                               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                              Analizando...
+                              Analizando con IA...
                             </>
                           ) : (
                             <>
@@ -439,14 +486,16 @@ const SmartNotes = () => {
               {/* Results placeholder for voice tab */}
               <div>
                 {!analysis ? (
-                  <Card className="border-dashed h-full">
-                    <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                      <BrainCircuit className="h-16 w-16 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground mb-2">
+                  <Card className="border-dashed border-2 border-border/50 h-full bg-gradient-to-br from-muted/10 to-muted/5">
+                    <CardContent className="flex flex-col items-center justify-center py-20 text-center">
+                      <div className="p-5 rounded-2xl bg-muted/30 mb-6">
+                        <BrainCircuit className="h-16 w-16 text-muted-foreground/50" />
+                      </div>
+                      <p className="text-lg font-medium text-muted-foreground mb-2">
                         Los resultados aparecerán aquí
                       </p>
-                      <p className="text-sm text-muted-foreground">
-                        Graba tu voz y presiona "Analizar" para comenzar
+                      <p className="text-sm text-muted-foreground/70 max-w-xs">
+                        Graba tu voz o sube un archivo de audio y presiona "Analizar" para comenzar
                       </p>
                     </CardContent>
                   </Card>
