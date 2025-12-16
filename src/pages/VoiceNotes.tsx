@@ -675,19 +675,23 @@ const VoiceNotes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card sticky top-0 z-10">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')} className="hover:bg-primary/10">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-md">
-              <Activity className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">Historia Clínica Completa</h1>
-              <p className="text-sm text-muted-foreground">Cumple con normativa colombiana (Resolución 1995/1999)</p>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center shadow-lg shadow-primary/10">
+                <Activity className="w-7 h-7 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                  Historia Clínica Completa
+                </h1>
+                <p className="text-sm text-muted-foreground">Cumple con normativa colombiana (Resolución 1995/1999)</p>
+              </div>
             </div>
           </div>
           
@@ -716,44 +720,69 @@ const VoiceNotes = () => {
 
       <main className="container mx-auto px-4 py-8 max-w-6xl space-y-6">
         {/* Recording Card */}
-        <Card className={`bg-gradient-card shadow-lg ${isRecording && !recordingField ? "border-destructive" : ""}`}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mic className="w-5 h-5 text-primary" />
+        <Card className={`bg-gradient-to-br from-card via-card to-primary/5 shadow-xl border-border/50 overflow-hidden relative ${isRecording && !recordingField ? "border-destructive/50" : ""}`}>
+          <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
+          <CardHeader className="relative">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Mic className="w-5 h-5 text-primary" />
+              </div>
               Grabación de Consulta Completa
             </CardTitle>
             <CardDescription>
-              Paso 1: Graba en tiempo real o sube un archivo de audio para transcripción
+              Paso 1: Graba en tiempo real o sube un archivo de audio para transcripción con IA
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 relative">
             {/* Real-time recording buttons */}
             <div className="space-y-3">
               <Label className="text-sm font-medium flex items-center gap-2">
-                <Mic className="w-4 h-4" />
+                <Mic className="w-4 h-4 text-primary" />
                 Grabación en tiempo real
               </Label>
-              <div className="flex items-center justify-center gap-4 flex-wrap p-6 border rounded-xl bg-muted/30">
+              <div className={`flex items-center justify-center gap-4 flex-wrap p-8 border-2 border-dashed rounded-2xl transition-all duration-500 ${
+                isRecording && !recordingField 
+                  ? "border-destructive bg-destructive/5" 
+                  : "border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-primary/5"
+              }`}>
                 {!isRecording || recordingField ? (
-                  <Button
-                    size="lg"
-                    onClick={() => startRecording()}
-                    className="gap-2"
-                    disabled={isRecording && recordingField !== null}
-                  >
-                    <Mic className="w-5 h-5" />
-                    Iniciar Grabación Completa
-                  </Button>
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                      <Mic className="h-8 w-8 text-primary" />
+                    </div>
+                    <Button
+                      size="lg"
+                      onClick={() => startRecording()}
+                      className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
+                      disabled={isRecording && recordingField !== null}
+                    >
+                      <Mic className="w-5 h-5" />
+                      Iniciar Grabación Completa
+                    </Button>
+                  </div>
                 ) : (
-                  <Button
-                    size="lg"
-                    variant="destructive"
-                    onClick={stopRecording}
-                    className="gap-2 animate-pulse"
-                  >
-                    <Square className="w-5 h-5" />
-                    Detener Grabación
-                  </Button>
+                  <div className="text-center space-y-5">
+                    <div className="relative inline-block">
+                      <div className="w-24 h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
+                        <Mic className="h-12 w-12 text-white animate-pulse" />
+                      </div>
+                      <div className="absolute inset-0 rounded-full border-4 border-destructive/50 animate-ping" />
+                      <div className="absolute inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-lg font-semibold text-destructive">Grabando consulta...</p>
+                      <p className="text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>
+                    </div>
+                    <Button
+                      size="lg"
+                      variant="destructive"
+                      onClick={stopRecording}
+                      className="gap-2 shadow-lg shadow-destructive/25"
+                    >
+                      <Square className="w-5 h-5" />
+                      Detener Grabación
+                    </Button>
+                  </div>
                 )}
                 
                 {audioBlob && !isRecording && (
@@ -761,7 +790,7 @@ const VoiceNotes = () => {
                     size="lg"
                     variant="outline"
                     onClick={downloadAudio}
-                    className="gap-2"
+                    className="gap-2 border-border/50 hover:bg-primary/10 hover:border-primary/50"
                   >
                     <Download className="w-5 h-5" />
                     Descargar Audio
@@ -771,19 +800,19 @@ const VoiceNotes = () => {
             </div>
 
             {/* Divider */}
-            <div className="relative">
+            <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+                <span className="w-full border-t border-border/50" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">o</span>
+              <div className="relative flex justify-center">
+                <span className="bg-card px-4 text-sm text-muted-foreground font-medium">o</span>
               </div>
             </div>
 
             {/* Audio file upload */}
             <div className="space-y-3">
               <Label className="text-sm font-medium flex items-center gap-2">
-                <Upload className="w-4 h-4" />
+                <Upload className="w-4 h-4 text-primary" />
                 Subir archivo de audio
               </Label>
               <AudioFileUpload 
@@ -792,8 +821,8 @@ const VoiceNotes = () => {
             </div>
 
             {isRecording && !recordingField && (
-              <div className="space-y-3">
-                <Badge variant="destructive" className="animate-pulse text-base py-2 px-4 w-full justify-center">
+              <div className="space-y-4">
+                <Badge variant="destructive" className="animate-pulse text-base py-2.5 px-5 w-full justify-center rounded-xl shadow-lg shadow-destructive/25">
                   ● GRABANDO CONSULTA COMPLETA
                 </Badge>
 
