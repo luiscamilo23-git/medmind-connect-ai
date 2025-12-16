@@ -1261,6 +1261,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_behavior: string | null
           avatar_url: string | null
           bio: string | null
           certifications: string[] | null
@@ -1274,6 +1275,7 @@ export type Database = {
           license_number: string | null
           notifications_sound_enabled: boolean | null
           phone: string | null
+          services_list: string | null
           specialty: string | null
           updated_at: string
           whatsapp_instance_name: string | null
@@ -1281,6 +1283,7 @@ export type Database = {
           years_experience: number | null
         }
         Insert: {
+          ai_behavior?: string | null
           avatar_url?: string | null
           bio?: string | null
           certifications?: string[] | null
@@ -1294,6 +1297,7 @@ export type Database = {
           license_number?: string | null
           notifications_sound_enabled?: boolean | null
           phone?: string | null
+          services_list?: string | null
           specialty?: string | null
           updated_at?: string
           whatsapp_instance_name?: string | null
@@ -1301,6 +1305,7 @@ export type Database = {
           years_experience?: number | null
         }
         Update: {
+          ai_behavior?: string | null
           avatar_url?: string | null
           bio?: string | null
           certifications?: string[] | null
@@ -1314,6 +1319,7 @@ export type Database = {
           license_number?: string | null
           notifications_sound_enabled?: boolean | null
           phone?: string | null
+          services_list?: string | null
           specialty?: string | null
           updated_at?: string
           whatsapp_instance_name?: string | null
