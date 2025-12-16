@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
-import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw, Clock } from "lucide-react";
+import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw, Clock, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -13,6 +13,7 @@ export function ConnectWhatsApp() {
   const [loading, setLoading] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [instanceName, setInstanceName] = useState<string | null>(null);
@@ -259,6 +260,39 @@ export function ConnectWhatsApp() {
     }
   };
 
+  const handleReset = async () => {
+    setResetting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('reset-whatsapp-instance');
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "No se pudo reiniciar la instancia",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "✅ Reiniciado",
+        description: "Instancia reiniciada correctamente",
+      });
+      
+      // Re-check status after reset
+      await checkConnectionStatus();
+    } catch (err) {
+      console.error('Error resetting:', err);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al reiniciar",
+        variant: "destructive",
+      });
+    } finally {
+      setResetting(false);
+    }
+  };
+
   const handleGenerateQR = async () => {
     setLoading(true);
     setQrCode(null);
@@ -416,22 +450,40 @@ export function ConnectWhatsApp() {
               )}
             </Button>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSyncSettings}
-            className="w-full text-xs gap-2 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-500"
-            disabled={syncing}
-          >
-            {syncing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                <RefreshCw className="h-4 w-4" />
-                Sincronizar Configuración
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2 w-full">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSyncSettings}
+              className="flex-1 text-xs gap-2 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-500"
+              disabled={syncing}
+            >
+              {syncing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4" />
+                  Sincronizar
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReset}
+              className="flex-1 text-xs gap-2 border-amber-500/30 text-amber-600 hover:bg-amber-500/10 hover:text-amber-500"
+              disabled={resetting}
+            >
+              {resetting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <RotateCcw className="h-4 w-4" />
+                  Reiniciar
+                </>
+              )}
+            </Button>
+          </div>
           {lastSyncAt && (
             <p className="text-[10px] text-muted-foreground flex items-center gap-1">
               <Clock className="h-3 w-3" />
