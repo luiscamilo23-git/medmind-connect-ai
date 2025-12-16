@@ -319,7 +319,7 @@ All colors MUST be HSL.
   .hover-icon-circle::before,
   .hover-icon-circle::after {
     content: '';
-    @apply absolute inset-0 rounded-full transition-all duration-400;
+    @apply absolute inset-0 rounded-full transition-all duration-300;
     border: 2px solid hsl(var(--primary));
   }
   
