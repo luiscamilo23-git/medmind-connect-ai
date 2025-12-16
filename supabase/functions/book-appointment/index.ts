@@ -90,7 +90,7 @@ serve(async (req) => {
     if (requestedDate < now) {
       console.error('Attempted to book in the past:', body.date);
       return new Response(
-        JSON.stringify({ error: 'No puedes agendar en el pasado. Dame una fecha futura.' }),
+        JSON.stringify({ error: 'No se puede agendar en el pasado.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -100,7 +100,7 @@ serve(async (req) => {
     if (requestedYear < 2025 || requestedYear > 2026) {
       console.error('Invalid year received:', requestedYear);
       return new Response(
-        JSON.stringify({ error: `Año incorrecto (${requestedYear}). Estamos en 2025. Por favor corrige la fecha.` }),
+        JSON.stringify({ error: 'El año es incorrecto. Solo agenda para 2025 en adelante.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -175,7 +175,49 @@ serve(async (req) => {
       console.log('Created new patient:', patientId);
     }
 
-    // Step 2: Create the appointment
+    // Step 2: Check for slot conflicts (30 minute slots)
+    const appointmentStart = new Date(body.date);
+    const appointmentEnd = new Date(appointmentStart.getTime() + 30 * 60 * 1000); // 30 min duration
+    
+    // Query existing appointments that might overlap
+    const { data: conflictingAppointments, error: conflictError } = await supabase
+      .from('appointments')
+      .select('id, appointment_date, duration_minutes, title')
+      .eq('doctor_id', body.doctor_id)
+      .neq('status', 'cancelled')
+      .gte('appointment_date', new Date(appointmentStart.getTime() - 60 * 60 * 1000).toISOString()) // 1 hour before
+      .lte('appointment_date', new Date(appointmentStart.getTime() + 60 * 60 * 1000).toISOString()); // 1 hour after
+
+    if (conflictError) {
+      console.error('Error checking for conflicts:', conflictError);
+      return new Response(
+        JSON.stringify({ error: 'Error al verificar disponibilidad.' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check for actual overlaps
+    if (conflictingAppointments && conflictingAppointments.length > 0) {
+      for (const existing of conflictingAppointments) {
+        const existingStart = new Date(existing.appointment_date);
+        const existingEnd = new Date(existingStart.getTime() + (existing.duration_minutes || 30) * 60 * 1000);
+        
+        // Check if times overlap
+        if (appointmentStart < existingEnd && appointmentEnd > existingStart) {
+          console.error('Slot conflict detected:', {
+            requested: body.date,
+            existing: existing.appointment_date,
+            existingTitle: existing.title
+          });
+          return new Response(
+            JSON.stringify({ error: 'Ese horario ya está ocupado. Por favor elige otra hora.' }),
+            { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+    }
+
+    // Step 3: Create the appointment
     console.log('Creating appointment for patient:', patientId);
     
     const appointmentTitle = body.reason || 'Cita agendada vía n8n';
