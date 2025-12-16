@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play, Gift, Percent, FileText, Bell } from "lucide-react";
+import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play, Gift, Percent, FileText, Bell, Twitter, Linkedin, Instagram, Mail } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Landing = () => {
@@ -258,16 +258,18 @@ const Landing = () => {
               </Link>
             </div>
 
-            {/* Stats Row - Minimalista */}
+            {/* Stats Row - Con efectos hover */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto pt-20 animate-fade-in opacity-0" style={{ animationDelay: "1s" }}>
               {stats.map((stat, index) => (
                 <div 
                   key={index} 
-                  className="group relative p-8 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 hover:bg-card/50 transition-all duration-500 hover:scale-105"
+                  className="group relative p-8 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 hover:bg-card/50 transition-all duration-500 hover-float-glow"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
                   <div className="relative space-y-3">
-                    <stat.icon className="h-6 w-6 text-primary/60 group-hover:text-primary transition-colors" />
+                    <div className="hover-icon-circle w-12 h-12 mx-auto mb-4">
+                      <stat.icon className="h-5 w-5 text-primary" />
+                    </div>
                     <div className="text-5xl font-black text-foreground tracking-tight">{stat.value}</div>
                     <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
                   </div>
@@ -399,7 +401,7 @@ const Landing = () => {
                 }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <Card className="group h-full hover:shadow-[0_0_40px_rgba(var(--primary-glow),0.15)] transition-all duration-500 hover:-translate-y-1 border border-border/50 hover:border-primary/30 bg-card/50 backdrop-blur-sm overflow-hidden relative">
+                <Card className="group h-full hover:shadow-[0_0_40px_rgba(var(--primary-glow),0.15)] transition-all duration-500 hover-float-glow border border-border/50 hover:border-primary/30 bg-card/50 backdrop-blur-sm overflow-hidden relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
                   {(feature as any).isNew && (
@@ -411,8 +413,8 @@ const Landing = () => {
                   )}
                   
                   <CardHeader className="relative">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-6 group-hover:scale-105 transition-all duration-500">
-                      <feature.icon className="w-6 h-6 text-primary" />
+                    <div className="hover-icon-circle w-12 h-12 mb-6">
+                      <feature.icon className="w-5 h-5 text-primary" />
                     </div>
                     <CardTitle className="text-xl mb-3 font-bold group-hover:text-primary transition-colors">{feature.title}</CardTitle>
                     <CardDescription className="text-sm leading-relaxed text-muted-foreground">
@@ -471,11 +473,11 @@ const Landing = () => {
                 }`}
                 style={{ transitionDelay: `${index * 150}ms` }}
               >
-                <Card className="h-full border border-border/50 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(var(--primary-glow),0.15)] transition-all duration-500 group bg-card/50 backdrop-blur-sm">
+                <Card className="h-full border border-border/50 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(var(--primary-glow),0.15)] transition-all duration-500 group bg-card/50 backdrop-blur-sm hover-float-glow">
                   <CardHeader>
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                        <benefit.icon className="w-6 h-6 text-primary" />
+                      <div className="hover-icon-circle w-12 h-12 flex-shrink-0">
+                        <benefit.icon className="w-5 h-5 text-primary" />
                       </div>
                       <div className="flex-1">
                         <CardTitle className="text-2xl mb-2 font-bold group-hover:text-primary transition-colors">{benefit.title}</CardTitle>
@@ -690,7 +692,7 @@ const Landing = () => {
             ].map((update, index) => (
               <Card 
                 key={index}
-                className={`group hover:shadow-xl transition-all duration-500 hover:-translate-y-1 border ${
+                className={`group hover:shadow-xl transition-all duration-500 hover-float-glow border ${
                   update.isUpcoming 
                     ? "border-primary/40 bg-gradient-to-br from-primary/5 to-secondary/5" 
                     : "border-border/50 hover:border-primary/30"
@@ -701,12 +703,12 @@ const Landing = () => {
               >
                 <CardHeader>
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${
+                    <div className={`hover-icon-circle w-12 h-12 ${
                       update.isUpcoming 
-                        ? "bg-gradient-to-br from-primary/20 to-secondary/20" 
-                        : "bg-gradient-to-br from-primary/10 to-primary/5"
+                        ? "!bg-primary/10" 
+                        : ""
                     }`}>
-                      <update.icon className="w-6 h-6 text-primary" />
+                      <update.icon className="w-5 h-5 text-primary" />
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full ${
                       update.isUpcoming 
@@ -1046,9 +1048,44 @@ const Landing = () => {
             <Activity className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold">MEDMIND</span>
           </div>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-muted-foreground mb-6">
             La plataforma médica más avanzada de Latinoamérica
           </p>
+          
+          {/* Social Icons con hover-social-icon effect */}
+          <div className="flex justify-center gap-4 mb-8">
+            <a 
+              href="https://twitter.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover-social-icon w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center text-muted-foreground"
+            >
+              <Twitter className="w-5 h-5" />
+            </a>
+            <a 
+              href="https://linkedin.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover-social-icon w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center text-muted-foreground"
+            >
+              <Linkedin className="w-5 h-5" />
+            </a>
+            <a 
+              href="https://instagram.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover-social-icon w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center text-muted-foreground"
+            >
+              <Instagram className="w-5 h-5" />
+            </a>
+            <a 
+              href="mailto:contacto@medmind.co"
+              className="hover-social-icon w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center text-muted-foreground"
+            >
+              <Mail className="w-5 h-5" />
+            </a>
+          </div>
+
           <div className="flex flex-wrap justify-center gap-6 mb-6 text-sm">
             <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
               Política de Privacidad
