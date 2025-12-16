@@ -3,90 +3,90 @@
 @tailwind utilities;
 
 /* ============================================
-   MEDMIND - PROFESSIONAL TEAL MEDICAL THEME
-   Style-Only: No structural changes
+   MEDMIND AI COMMAND CENTER - DESIGN SYSTEM
+   Deep Space Theme with AI Glow Effects
    ============================================ */
 
 @layer base {
   :root {
-    /* === TEAL MEDICAL PALETTE === */
-    /* Background: Deep Navy #0B1120 */
-    --background: 222 47% 8%;
+    /* === DEEP SPACE COLOR PALETTE === */
+    /* Surface-0: Rich near-black slate */
+    --background: 222 47% 3%;
     --foreground: 0 0% 100%;
     
-    /* Cards: #1E293B with teal tint */
-    --card: 217 33% 17%;
+    /* Surface-1: Deep Navy/Slate for panels */
+    --card: 222 47% 7%;
     --card-foreground: 0 0% 100%;
-    --popover: 217 33% 17%;
+    --popover: 222 47% 7%;
     --popover-foreground: 0 0% 100%;
     
-    /* Primary: Teal #0D9488 */
-    --primary: 174 84% 32%;
+    /* Primary - Logo Blue as light source */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 174 84% 42%;
+    --primary-glow: 187 100% 50%;
     
-    /* Secondary: Teal lighter variant */
-    --secondary: 174 60% 45%;
+    /* Secondary - AI Neural Processing Violet */
+    --secondary: 263 70% 50%;
     --secondary-foreground: 0 0% 100%;
     
-    /* Muted */
-    --muted: 217 33% 22%;
+    /* Muted - Slate tones */
+    --muted: 222 47% 11%;
     --muted-foreground: 215 20% 65%;
     
-    /* Accent: Emerald #10B981 */
-    --accent: 160 84% 39%;
+    /* Accent - Cyan light */
+    --accent: 187 100% 42%;
     --accent-foreground: 0 0% 100%;
     
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    /* Borders: Teal-tinted */
-    --border: 174 30% 20%;
-    --input: 217 33% 20%;
-    --ring: 174 84% 32%;
+    /* Borders & Inputs */
+    --border: 222 47% 14%;
+    --input: 222 47% 11%;
+    --ring: 217 91% 60%;
     
-    /* Success: Emerald */
-    --success: 160 84% 39%;
+    /* Success - Luminescent Green */
+    --success: 142 76% 45%;
     --success-foreground: 0 0% 100%;
     
-    /* Warning */
+    /* Warning - Amber glow */
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
     
-    /* Info: Teal light */
-    --info: 174 84% 42%;
+    /* Info - Cyan */
+    --info: 187 100% 50%;
     --info-foreground: 0 0% 100%;
     
-    /* Charts: Teal spectrum */
-    --chart-1: 174 84% 32%;
-    --chart-2: 174 84% 42%;
-    --chart-3: 160 84% 39%;
-    --chart-4: 174 60% 50%;
-    --chart-5: 160 60% 45%;
+    /* Charts - Luminescent colors */
+    --chart-1: 217 91% 60%;
+    --chart-2: 187 100% 50%;
+    --chart-3: 263 70% 50%;
+    --chart-4: 142 76% 45%;
+    --chart-5: 38 92% 50%;
     
     --radius: 1rem;
     
-    /* === TEAL GRADIENTS === */
-    --gradient-primary: linear-gradient(135deg, hsl(174 84% 36%), hsl(174 84% 42%));
-    --gradient-secondary: linear-gradient(135deg, hsl(174 60% 40%), hsl(160 84% 39%));
-    --gradient-hero: linear-gradient(135deg, hsl(174 84% 32%) 0%, hsl(174 84% 42%) 50%, hsl(160 84% 39%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(217 33% 19%), hsl(222 47% 8%));
-    --gradient-neural: linear-gradient(135deg, hsl(174 84% 32%), hsl(160 84% 39%));
-    --gradient-glow: radial-gradient(ellipse at center, hsl(174 84% 32% / 0.3), transparent 70%);
+    /* === ADVANCED GRADIENTS === */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
+    --gradient-secondary: linear-gradient(135deg, hsl(263 70% 50%), hsl(217 91% 60%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(263 70% 50%) 50%, hsl(187 100% 50%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(222 47% 9%), hsl(222 47% 5%));
+    --gradient-neural: linear-gradient(135deg, hsl(263 70% 50%), hsl(187 100% 50%));
+    --gradient-glow: radial-gradient(ellipse at center, hsl(217 91% 60% / 0.3), transparent 70%);
     
-    /* === TEAL GLOW SHADOWS === */
-    --shadow-sm: 0 1px 3px 0 hsl(174 84% 32% / 0.08);
-    --shadow-md: 0 4px 12px -2px hsl(174 84% 32% / 0.15);
-    --shadow-lg: 0 12px 24px -5px hsl(174 84% 32% / 0.2);
-    --shadow-xl: 0 20px 40px -8px hsl(174 84% 32% / 0.25);
-    --shadow-glow: 0 0 40px hsl(174 84% 32% / 0.4), 0 0 80px hsl(174 84% 42% / 0.2);
-    --shadow-glow-intense: 0 0 60px hsl(174 84% 32% / 0.6), 0 0 120px hsl(174 84% 42% / 0.3);
-    --shadow-neural: 0 0 30px hsl(160 84% 39% / 0.4);
+    /* === AI GLOW SHADOWS === */
+    --shadow-sm: 0 1px 3px 0 hsl(217 91% 60% / 0.08);
+    --shadow-md: 0 4px 12px -2px hsl(217 91% 60% / 0.15);
+    --shadow-lg: 0 12px 24px -5px hsl(217 91% 60% / 0.2);
+    --shadow-xl: 0 20px 40px -8px hsl(217 91% 60% / 0.25);
+    --shadow-glow: 0 0 40px hsl(217 91% 60% / 0.4), 0 0 80px hsl(187 100% 50% / 0.2);
+    --shadow-glow-intense: 0 0 60px hsl(217 91% 60% / 0.6), 0 0 120px hsl(187 100% 50% / 0.3);
+    --shadow-neural: 0 0 30px hsl(263 70% 50% / 0.4);
     
     /* === GLASSMORPHISM === */
-    --glass-bg: hsl(217 33% 17% / 0.8);
-    --glass-border: hsl(174 30% 30% / 0.3);
+    --glass-bg: hsl(222 47% 7% / 0.8);
+    --glass-border: hsl(0 0% 100% / 0.1);
     
     /* === TRANSITIONS === */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -94,54 +94,55 @@
     --transition-glow: all 0.5s ease-in-out;
 
     /* === SIDEBAR === */
-    --sidebar-background: 222 47% 6%;
+    --sidebar-background: 222 47% 5%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 174 84% 32%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 22%;
+    --sidebar-accent: 222 47% 11%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 174 30% 20%;
-    --sidebar-ring: 174 84% 32%;
+    --sidebar-border: 222 47% 14%;
+    --sidebar-ring: 217 91% 60%;
   }
   
   .dark {
-    --background: 222 47% 8%;
+    /* Dark mode uses same values - already dark theme */
+    --background: 222 47% 3%;
     --foreground: 0 0% 100%;
-    --card: 217 33% 17%;
+    --card: 222 47% 7%;
     --card-foreground: 0 0% 100%;
-    --popover: 217 33% 17%;
+    --popover: 222 47% 7%;
     --popover-foreground: 0 0% 100%;
-    --primary: 174 84% 32%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 174 84% 42%;
-    --secondary: 174 60% 45%;
+    --primary-glow: 187 100% 50%;
+    --secondary: 263 70% 50%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 217 33% 22%;
+    --muted: 222 47% 11%;
     --muted-foreground: 215 20% 65%;
-    --accent: 160 84% 39%;
+    --accent: 187 100% 42%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 174 30% 20%;
-    --input: 217 33% 20%;
-    --ring: 174 84% 32%;
-    --success: 160 84% 39%;
+    --border: 222 47% 14%;
+    --input: 222 47% 11%;
+    --ring: 217 91% 60%;
+    --success: 142 76% 45%;
     --warning: 38 92% 55%;
-    --info: 174 84% 42%;
-    --chart-1: 174 84% 32%;
-    --chart-2: 174 84% 42%;
-    --chart-3: 160 84% 39%;
-    --chart-4: 174 60% 50%;
-    --chart-5: 160 60% 45%;
-    --shadow-glow: 0 0 40px hsl(174 84% 32% / 0.5);
-    --sidebar-background: 222 47% 6%;
+    --info: 187 100% 50%;
+    --chart-1: 217 91% 60%;
+    --chart-2: 187 100% 50%;
+    --chart-3: 263 70% 50%;
+    --chart-4: 142 76% 45%;
+    --chart-5: 38 92% 50%;
+    --shadow-glow: 0 0 40px hsl(217 91% 60% / 0.5);
+    --sidebar-background: 222 47% 5%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 174 84% 32%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 22%;
+    --sidebar-accent: 222 47% 11%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 174 30% 20%;
-    --sidebar-ring: 174 84% 32%;
+    --sidebar-border: 222 47% 14%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
@@ -155,6 +156,7 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
+  /* Typography - Clean Sans-Serif */
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight text-foreground;
   }
@@ -195,7 +197,7 @@
   .glass-modal {
     @apply backdrop-blur-2xl border border-border/20;
     background: hsl(var(--card) / 0.9);
-    box-shadow: 0 25px 50px -12px hsl(174 84% 32% / 0.25);
+    box-shadow: 0 25px 50px -12px hsl(217 91% 60% / 0.25);
   }
 }
 
@@ -214,28 +216,28 @@
   
   .bento-card:hover {
     @apply border-primary/30;
-    box-shadow: 0 0 30px hsl(174 84% 32% / 0.15), 0 0 60px hsl(174 84% 42% / 0.08);
+    box-shadow: 0 0 30px hsl(217 91% 60% / 0.15), 0 0 60px hsl(187 100% 50% / 0.08);
   }
 }
 
 /* ============================================
-   TEAL GLOW EFFECTS
+   AI GLOW EFFECTS
    ============================================ */
 @layer components {
   .glow-primary {
-    box-shadow: 0 0 20px hsl(174 84% 32% / 0.3), 0 0 40px hsl(174 84% 42% / 0.15);
+    box-shadow: 0 0 20px hsl(217 91% 60% / 0.3), 0 0 40px hsl(187 100% 50% / 0.15);
   }
   
   .glow-primary-intense {
-    box-shadow: 0 0 40px hsl(174 84% 32% / 0.5), 0 0 80px hsl(174 84% 42% / 0.25);
+    box-shadow: 0 0 40px hsl(217 91% 60% / 0.5), 0 0 80px hsl(187 100% 50% / 0.25);
   }
   
   .glow-neural {
-    box-shadow: 0 0 30px hsl(160 84% 39% / 0.4), 0 0 60px hsl(174 84% 32% / 0.2);
+    box-shadow: 0 0 30px hsl(263 70% 50% / 0.4), 0 0 60px hsl(217 91% 60% / 0.2);
   }
   
   .glow-success {
-    box-shadow: 0 0 20px hsl(160 84% 39% / 0.4);
+    box-shadow: 0 0 20px hsl(142 76% 45% / 0.4);
   }
   
   .hover-glow {
@@ -243,36 +245,37 @@
   }
   
   .hover-glow:hover {
-    box-shadow: 0 0 25px hsl(174 84% 32% / 0.3), 0 0 50px hsl(174 84% 42% / 0.15);
-    border-color: hsl(174 84% 32% / 0.3);
+    box-shadow: 0 0 25px hsl(217 91% 60% / 0.3), 0 0 50px hsl(187 100% 50% / 0.15);
+    border-color: hsl(217 91% 60% / 0.3);
   }
   
+  /* EKG Monitor Effect for charts */
   .chart-glow line,
   .chart-glow path {
-    filter: drop-shadow(0 0 4px hsl(174 84% 42% / 0.8));
+    filter: drop-shadow(0 0 4px hsl(187 100% 50% / 0.8));
   }
 }
 
 /* ============================================
-   BUTTONS - TEAL GRADIENT
+   BUTTONS - GRADIENT & PULSE
    ============================================ */
 @layer components {
   .btn-gradient-primary {
     @apply relative overflow-hidden font-semibold;
-    background: linear-gradient(135deg, hsl(174 84% 36%), hsl(174 84% 42%));
-    box-shadow: 0 0 20px hsl(174 84% 32% / 0.4);
+    background: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
+    box-shadow: 0 0 20px hsl(217 91% 60% / 0.4);
     transition: all 0.3s ease;
   }
   
   .btn-gradient-primary:hover {
-    box-shadow: 0 0 40px hsl(174 84% 32% / 0.6), 0 0 80px hsl(174 84% 42% / 0.3);
+    box-shadow: 0 0 40px hsl(217 91% 60% / 0.6), 0 0 80px hsl(187 100% 50% / 0.3);
     transform: translateY(-2px);
   }
   
   .btn-gradient-secondary {
     @apply relative overflow-hidden font-semibold;
-    background: linear-gradient(135deg, hsl(174 60% 40%), hsl(160 84% 39%));
-    box-shadow: 0 0 20px hsl(160 84% 39% / 0.4);
+    background: linear-gradient(135deg, hsl(263 70% 50%), hsl(217 91% 60%));
+    box-shadow: 0 0 20px hsl(263 70% 50% / 0.4);
   }
   
   .btn-outline-glow {
@@ -282,12 +285,12 @@
   
   .btn-outline-glow:hover {
     @apply border-primary bg-primary/10;
-    box-shadow: 0 0 20px hsl(174 84% 32% / 0.3);
+    box-shadow: 0 0 20px hsl(217 91% 60% / 0.3);
   }
 }
 
 /* ============================================
-   LOADING ANIMATIONS
+   LOADING ANIMATIONS - NEURAL NETWORK
    ============================================ */
 @layer components {
   .loader-neural {
@@ -299,20 +302,20 @@
     content: '';
     @apply absolute inset-0 rounded-full;
     border: 2px solid transparent;
-    border-top-color: hsl(174 84% 32%);
+    border-top-color: hsl(217 91% 60%);
     animation: neural-spin 1.2s linear infinite;
   }
   
   .loader-neural::after {
     @apply inset-2;
-    border-top-color: hsl(174 84% 42%);
+    border-top-color: hsl(187 100% 50%);
     animation-duration: 0.8s;
     animation-direction: reverse;
   }
   
   .loader-pulse {
     @apply w-3 h-3 rounded-full;
-    background: linear-gradient(135deg, hsl(174 84% 32%), hsl(174 84% 42%));
+    background: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
     animation: pulse-glow 1.5s ease-in-out infinite;
   }
   
@@ -322,7 +325,7 @@
   
   .loader-wave span {
     @apply w-1 h-4 rounded-full;
-    background: linear-gradient(180deg, hsl(174 84% 32%), hsl(174 84% 42%));
+    background: linear-gradient(180deg, hsl(217 91% 60%), hsl(187 100% 50%));
     animation: wave 1s ease-in-out infinite;
   }
   
@@ -339,11 +342,11 @@
 @keyframes pulse-glow {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 10px hsl(174 84% 32% / 0.5);
+    box-shadow: 0 0 10px hsl(217 91% 60% / 0.5);
   }
   50% {
     transform: scale(1.2);
-    box-shadow: 0 0 30px hsl(174 84% 32% / 0.8), 0 0 60px hsl(174 84% 42% / 0.4);
+    box-shadow: 0 0 30px hsl(217 91% 60% / 0.8), 0 0 60px hsl(187 100% 50% / 0.4);
   }
 }
 
@@ -369,40 +372,40 @@
   }
   
   .bg-glow-top {
-    background: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(174 84% 32% / 0.15), transparent);
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(217 91% 60% / 0.15), transparent);
   }
   
   .bg-glow-center {
-    background: radial-gradient(ellipse at center, hsl(174 84% 32% / 0.1), transparent 70%);
+    background: radial-gradient(ellipse at center, hsl(217 91% 60% / 0.1), transparent 70%);
   }
 }
 
 /* ============================================
-   TEXT EFFECTS - TEAL
+   TEXT EFFECTS
    ============================================ */
 @layer utilities {
   .text-gradient-primary {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(174 84% 42%), hsl(174 84% 52%));
+    background-image: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
   }
   
   .text-gradient-secondary {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(160 84% 39%), hsl(174 84% 42%));
+    background-image: linear-gradient(135deg, hsl(263 70% 50%), hsl(217 91% 60%));
   }
   
   .text-gradient-hero {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(174 84% 42%), hsl(160 84% 45%), hsl(174 84% 52%));
+    background-image: linear-gradient(135deg, hsl(217 91% 60%), hsl(263 70% 50%), hsl(187 100% 50%));
   }
   
   .text-glow {
-    text-shadow: 0 0 20px hsl(174 84% 32% / 0.5);
+    text-shadow: 0 0 20px hsl(217 91% 60% / 0.5);
   }
 }
 
 /* ============================================
-   REACT BIG CALENDAR - TEAL THEME
+   REACT BIG CALENDAR - AI THEME
    ============================================ */
 .appointment-calendar .rbc-calendar {
   font-family: inherit;
@@ -417,7 +420,7 @@
 }
 
 .appointment-calendar .rbc-today {
-  background-color: hsl(174 84% 32% / 0.08);
+  background-color: hsl(217 91% 60% / 0.08);
 }
 
 .appointment-calendar .rbc-event {
@@ -425,13 +428,13 @@
   font-size: 0.85rem;
   cursor: pointer;
   border-radius: 6px;
-  background: linear-gradient(135deg, hsl(174 84% 36%), hsl(174 84% 42%));
+  background: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
   border: none;
-  box-shadow: 0 2px 8px hsl(174 84% 32% / 0.3);
+  box-shadow: 0 2px 8px hsl(217 91% 60% / 0.3);
 }
 
 .appointment-calendar .rbc-event:hover {
-  box-shadow: 0 4px 16px hsl(174 84% 32% / 0.5);
+  box-shadow: 0 4px 16px hsl(217 91% 60% / 0.5);
   transform: translateY(-1px);
 }
 
@@ -447,14 +450,14 @@
 
 .appointment-calendar .rbc-toolbar button:hover {
   background: hsl(var(--muted));
-  border-color: hsl(174 84% 32% / 0.5);
+  border-color: hsl(var(--primary) / 0.5);
 }
 
 .appointment-calendar .rbc-toolbar button.rbc-active {
-  background: linear-gradient(135deg, hsl(174 84% 36%), hsl(174 84% 42%));
+  background: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 100% 50%));
   color: white;
   border-color: transparent;
-  box-shadow: 0 0 20px hsl(174 84% 32% / 0.4);
+  box-shadow: 0 0 20px hsl(217 91% 60% / 0.4);
 }
 
 .appointment-calendar .rbc-month-view {
@@ -472,7 +475,7 @@
 }
 
 /* ============================================
-   SCROLLBAR - TEAL
+   SCROLLBAR - FUTURISTIC
    ============================================ */
 ::-webkit-scrollbar {
   width: 8px;
@@ -484,18 +487,18 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, hsl(174 84% 32% / 0.5), hsl(174 84% 42% / 0.3));
+  background: linear-gradient(180deg, hsl(217 91% 60% / 0.5), hsl(187 100% 50% / 0.3));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, hsl(174 84% 32% / 0.7), hsl(174 84% 42% / 0.5));
+  background: linear-gradient(180deg, hsl(217 91% 60% / 0.7), hsl(187 100% 50% / 0.5));
 }
 
 /* ============================================
-   SELECTION - TEAL
+   SELECTION
    ============================================ */
 ::selection {
-  background: hsl(174 84% 32% / 0.3);
+  background: hsl(217 91% 60% / 0.3);
   color: hsl(var(--foreground));
 }
