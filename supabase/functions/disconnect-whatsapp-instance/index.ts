@@ -20,7 +20,8 @@ serve(async (req) => {
 
     const evolutionConfigured = Boolean(evolutionApiUrl && evolutionApiKey);
     if (!evolutionConfigured) {
-      console.warn('Missing Evolution API configuration (will still clear profile link)');
+      // Requisito: SI o SI debe enviar la desconexión a Evolution API
+      throw new Error('Evolution API configuration not found');
     }
 
     if (!supabaseUrl || !supabaseServiceKey) {
@@ -54,32 +55,44 @@ serve(async (req) => {
 
     const instanceName = profile?.whatsapp_instance_name;
 
-    if (instanceName && evolutionConfigured) {
-      console.log(`Attempting to delete instance: ${instanceName}`);
+    if (!instanceName) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'No hay una instancia vinculada para desconectar',
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-      // Try to delete from Evolution API
-      try {
-        const deleteResponse = await fetch(`${evolutionApiUrl!}/instance/delete/${instanceName}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': evolutionApiKey!,
-          },
-        });
+    console.log(`Attempting to delete instance in Evolution API: ${instanceName}`);
 
-        if (deleteResponse.ok) {
-          console.log(`Successfully deleted instance ${instanceName} from Evolution API`);
-        } else {
-          const errorText = await deleteResponse.text();
-          console.log(`Evolution API delete response: ${deleteResponse.status} - ${errorText}`);
-          // Continue anyway to clear the profile
-        }
-      } catch (apiError) {
-        console.error('Error deleting from Evolution API:', apiError);
-        // Continue anyway to clear the profile
-      }
-    } else if (instanceName) {
-      console.warn(`Evolution API not configured; skipping remote delete for instance ${instanceName}`);
+    // Try to delete from Evolution API
+    const deleteResponse = await fetch(`${evolutionApiUrl!}/instance/delete/${instanceName}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': evolutionApiKey!,
+      },
+    });
+
+    if (deleteResponse.ok) {
+      console.log(`Successfully deleted instance ${instanceName} from Evolution API`);
+    } else if (deleteResponse.status === 404) {
+      // Si ya no existe en Evolution, consideramos desconectado y limpiamos perfil.
+      console.warn(`Instance ${instanceName} not found in Evolution API (404). Clearing profile link anyway.`);
+    } else {
+      const errorText = await deleteResponse.text();
+      console.error(`Evolution API delete failed: ${deleteResponse.status} - ${errorText}`);
+      // Requisito: no limpiar el perfil si Evolution no confirmó la desconexión
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `No se pudo desconectar en Evolution API (${deleteResponse.status})`,
+          details: errorText,
+        }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Clear the instance name from profile
