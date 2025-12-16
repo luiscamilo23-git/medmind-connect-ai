@@ -57,50 +57,70 @@ serve(async (req) => {
       throw new Error('No WhatsApp instance found for this user');
     }
 
-    console.log(`Resetting instance via logout+connect: ${instanceName}`);
+    console.log(`Restarting instance (no logout) for: ${instanceName}`);
 
-    // Step 1: Logout the instance
-    const logoutUrl = `${evolutionApiUrl}/instance/logout/${instanceName}`;
-    console.log(`Calling logout: ${logoutUrl}`);
-    
-    const logoutResponse = await fetch(logoutUrl, {
-      method: 'DELETE',
-      headers: {
-        'apikey': evolutionApiKey,
-      },
-    });
+    // Evolution API deployments differ (reverse proxies / method). Try a small set of known variants.
+    const candidates: Array<{ method: 'PUT' | 'POST'; path: string }> = [
+      { method: 'PUT', path: `/instance/restart/${instanceName}` },
+      { method: 'POST', path: `/instance/restart/${instanceName}` },
+      // Some setups mount API under /api
+      { method: 'PUT', path: `/api/instance/restart/${instanceName}` },
+      { method: 'POST', path: `/api/instance/restart/${instanceName}` },
+      // Some setups expose v2 under /v2
+      { method: 'PUT', path: `/v2/instance/restart/${instanceName}` },
+      { method: 'POST', path: `/v2/instance/restart/${instanceName}` },
+    ];
 
-    const logoutText = await logoutResponse.text();
-    console.log(`Logout response: ${logoutResponse.status} - ${logoutText}`);
+    let lastErrorText = '';
+    let lastStatus = 0;
 
-    // Wait a moment for logout to complete
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    for (const c of candidates) {
+      const url = `${evolutionApiUrl}${c.path}`;
+      console.log(`Trying restart: ${c.method} ${url}`);
 
-    // Step 2: Reconnect the instance to get new QR
-    const connectUrl = `${evolutionApiUrl}/instance/connect/${instanceName}`;
-    console.log(`Calling connect: ${connectUrl}`);
-    
-    const connectResponse = await fetch(connectUrl, {
-      method: 'GET',
-      headers: {
-        'apikey': evolutionApiKey,
-      },
-    });
+      const res = await fetch(url, {
+        method: c.method,
+        headers: { apikey: evolutionApiKey },
+      });
 
-    if (!connectResponse.ok) {
-      const errorText = await connectResponse.text();
-      console.error(`Connect error: ${connectResponse.status} - ${errorText}`);
-      // Even if connect fails, the logout succeeded, so we consider it a partial success
+      lastStatus = res.status;
+      const text = await res.text();
+      lastErrorText = text;
+      console.log(`Restart attempt result: ${res.status} - ${text}`);
+
+      if (res.ok) {
+        // Many deployments return JSON, but keep it safe.
+        let parsed: unknown = null;
+        try {
+          parsed = text ? JSON.parse(text) : null;
+        } catch {
+          parsed = text;
+        }
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: 'Instancia reiniciada sin cerrar sesión.',
+            data: parsed,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
-    const connectData = await connectResponse.json().catch(() => ({}));
-    console.log('Connect response:', JSON.stringify(connectData));
+    console.error(`All restart attempts failed. Last: ${lastStatus} - ${lastErrorText}`);
+    throw new Error(
+      `No se pudo reiniciar la instancia sin cerrar sesión (HTTP ${lastStatus}). ` +
+        `Tu servidor no expone el endpoint de restart en esa ruta. Revisa el base path (p.ej. /api) y/o método (PUT/POST).`
+    );
+
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Instancia reiniciada. Escanea el nuevo código QR.',
-        qrCode: connectData?.base64 || connectData?.qrcode?.base64 || null
+        message: 'Instancia reiniciada.',
+        qrCode: null,
+        data: null
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
