@@ -116,15 +116,6 @@ export const HeartbeatLine = ({
             filter={`url(#${uniqueId}-glow)`}
           />
         </g>
-        
-        {/* Leading bright light */}
-        <circle r={intensityCfg.strokeWidth * 3} fill="#ffffff" filter={`url(#${uniqueId}-bright)`}>
-          <animateMotion
-            dur={duration}
-            repeatCount="indefinite"
-            path={ekgPath}
-          />
-        </circle>
       </svg>
     </div>
   );
