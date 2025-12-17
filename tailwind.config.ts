@@ -64,6 +64,11 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
+        purple: {
+          DEFAULT: "hsl(var(--purple))",
+          foreground: "hsl(var(--purple-foreground))",
+          glow: "hsl(var(--purple-glow))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -82,6 +87,9 @@ export default {
         'gradient-card': 'var(--gradient-card)',
         'gradient-glow': 'var(--gradient-glow)',
         'gradient-cta': 'var(--gradient-cta)',
+        'gradient-purple': 'var(--gradient-purple)',
+        'gradient-purple-blue': 'var(--gradient-purple-blue)',
+        'gradient-banner': 'var(--gradient-banner)',
       },
       boxShadow: {
         'sm': 'var(--shadow-sm)',
@@ -90,6 +98,7 @@ export default {
         'xl': 'var(--shadow-xl)',
         'glow': 'var(--shadow-glow)',
         'teal': 'var(--shadow-teal)',
+        'purple': '0 0 30px rgba(168, 85, 247, 0.4)',
         'cta-glow': '0 0 30px rgba(74, 144, 217, 0.4), 0 0 60px rgba(20, 184, 166, 0.2)',
       },
       transitionTimingFunction: {

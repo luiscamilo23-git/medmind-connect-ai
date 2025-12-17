@@ -57,6 +57,11 @@ All colors MUST be HSL.
     --info: 211 63% 52%;
     --info-foreground: 0 0% 100%;
     
+    /* Purple/Violet Accent - #A855F7 */
+    --purple: 271 91% 65%;
+    --purple-foreground: 0 0% 100%;
+    --purple-glow: 271 91% 75%;
+    
     /* Charts - Using the 60-30-10 palette */
     --chart-1: 211 63% 57%;
     --chart-2: 173 80% 40%;
@@ -73,6 +78,11 @@ All colors MUST be HSL.
     --gradient-card: linear-gradient(180deg, hsl(222 47% 11%), hsl(224 71% 4%));
     --gradient-glow: linear-gradient(135deg, hsl(211 63% 57% / 0.15), hsl(173 80% 40% / 0.15));
     --gradient-cta: linear-gradient(135deg, hsl(211 63% 45%), hsl(173 80% 35%));
+    
+    /* Purple Gradients */
+    --gradient-purple: linear-gradient(135deg, hsl(271 91% 65%), hsl(330 81% 60%));
+    --gradient-purple-blue: linear-gradient(135deg, hsl(271 91% 60%), hsl(211 63% 50%));
+    --gradient-banner: linear-gradient(90deg, hsl(271 91% 55%), hsl(330 81% 55%));
     
     /* Shadows - Using Logo Blue for glow effects */
     --shadow-sm: 0 1px 3px 0 hsl(211 63% 57% / 0.08);
@@ -133,6 +143,11 @@ All colors MUST be HSL.
     --success: 142 76% 45%;
     --warning: 38 92% 55%;
     --info: 211 63% 52%;
+    
+    /* Purple/Violet Accent */
+    --purple: 271 91% 65%;
+    --purple-foreground: 0 0% 100%;
+    --purple-glow: 271 91% 75%;
     
     --chart-1: 211 63% 57%;
     --chart-2: 173 80% 40%;
