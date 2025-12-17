@@ -283,61 +283,61 @@ const SmartNotes = () => {
         <div className="flex-1 flex flex-col min-h-screen">
           {/* Header */}
           <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-            <div className="flex h-16 items-center gap-4 px-6">
-              <SidebarTrigger className="-ml-2" />
-              <div className="flex items-center gap-3 flex-1">
-                <div className="w-10 h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-md">
-                  <BrainCircuit className="w-5 h-5 text-white" />
+            <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-4 px-3 sm:px-6">
+              <SidebarTrigger className="-ml-1 sm:-ml-2" />
+              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                  <BrainCircuit className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <div>
-                  <h1 className="text-lg font-bold">
+                <div className="min-w-0">
+                  <h1 className="text-sm sm:text-lg font-bold truncate">
                     <span className="bg-gradient-purple-blue bg-clip-text text-transparent">Notas Inteligentes</span>
                   </h1>
-                  <p className="text-xs text-muted-foreground">Análisis con IA</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">Análisis con IA</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                 <NotificationBell />
-                <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil">
-                  <UserIcon className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => navigate("/profile")} title="Mi Perfil">
+                  <UserIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </div>
             </div>
           </header>
 
           <main className="flex-1 overflow-auto">
-            <div className="container mx-auto px-6 py-8 max-w-7xl">
+            <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
               {/* Hero Banner */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-purple via-purple-glow to-primary rounded-2xl p-6 text-white mb-8">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -mr-24 -mt-24" />
+              <div className="relative overflow-hidden bg-gradient-to-br from-purple via-purple-glow to-primary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white mb-4 sm:mb-8">
+                <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/5 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24" />
                 <HeartbeatLine color="muted" position="bottom" opacity={0.2} speed="slow" />
                 <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Sparkles className="w-6 h-6" />
-                    <h2 className="text-xl font-bold">Análisis Inteligente de Notas</h2>
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                    <h2 className="text-base sm:text-xl font-bold">Análisis Inteligente de Notas</h2>
                   </div>
-                  <p className="text-white/80 text-sm max-w-2xl">
+                  <p className="text-white/80 text-xs sm:text-sm max-w-2xl leading-relaxed">
                     Utiliza IA para extraer tareas, ideas principales y recordatorios de tus notas clínicas
                   </p>
                 </div>
               </div>
 
               {/* Main Content */}
-              <Card className="mb-8 border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/5 rounded-full blur-3xl" />
-                <CardHeader className="relative">
-                  <div className="flex items-start gap-4">
-                    <div className="p-4 rounded-2xl bg-gradient-purple shadow-lg shadow-purple/20">
-                      <Sparkles className="h-8 w-8 text-white" />
+              <Card className="mb-4 sm:mb-8 border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-primary/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-32 sm:w-48 h-32 sm:h-48 bg-secondary/5 rounded-full blur-3xl" />
+                <CardHeader className="relative p-4 sm:p-6">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="p-2 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-purple shadow-lg shadow-purple/20 flex-shrink-0">
+                      <Sparkles className="h-5 w-5 sm:h-8 sm:w-8 text-white" />
                     </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-2xl mb-2">
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-lg sm:text-2xl mb-1 sm:mb-2">
                         <span className="bg-gradient-purple-blue bg-clip-text text-transparent">Ingresa tu Nota</span>
                       </CardTitle>
-                      <CardDescription className="text-base">
-                        Graba por voz o escribe directamente para analizar con inteligencia artificial
+                      <CardDescription className="text-xs sm:text-base">
+                        Graba por voz o escribe directamente para analizar con IA
                 </CardDescription>
               </div>
             </div>
@@ -345,90 +345,90 @@ const SmartNotes = () => {
         </Card>
 
         <Tabs defaultValue="voice" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8 h-14 p-1.5 bg-muted/50 rounded-2xl">
+          <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-8 h-12 sm:h-14 p-1 sm:p-1.5 bg-muted/50 rounded-xl sm:rounded-2xl">
             <TabsTrigger 
               value="voice" 
-              className="text-base rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300"
+              className="text-xs sm:text-base rounded-lg sm:rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300"
             >
-              <Mic className="mr-2 h-5 w-5" />
-              Grabar por Voz
+              <Mic className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden xs:inline">Grabar por </span>Voz
             </TabsTrigger>
             <TabsTrigger 
               value="text" 
-              className="text-base rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300"
+              className="text-xs sm:text-base rounded-lg sm:rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300"
             >
-              <BrainCircuit className="mr-2 h-5 w-5" />
-              Notas Escritas
+              <BrainCircuit className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden xs:inline">Notas </span>Escritas
             </TabsTrigger>
           </TabsList>
 
           {/* Voice Tab */}
-          <TabsContent value="voice" className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
+          <TabsContent value="voice" className="space-y-4 sm:space-y-6">
+            <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Voice Recording Section */}
               <div>
                 <Card className="border-border/50 bg-gradient-to-br from-card via-card to-primary/5 shadow-xl">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Mic className="w-5 h-5 text-primary" />
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                      <Mic className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                       Graba tus Notas
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs sm:text-sm">
                       Graba en tiempo real o sube un archivo de audio para transcripción con IA.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0 sm:pt-0">
                     {/* Real-time recording */}
                     <div className="space-y-3">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <Mic className="w-4 h-4 text-primary" />
+                      <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                        <Mic className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                         Grabación en tiempo real
                       </Label>
-                      <div className={`relative flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-2xl transition-all duration-500 ${
+                      <div className={`relative flex flex-col items-center justify-center p-4 sm:p-8 border-2 border-dashed rounded-xl sm:rounded-2xl transition-all duration-500 ${
                         isRecording 
                           ? "border-destructive bg-destructive/5" 
                           : "border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-primary/5"
                       }`}>
                         {isRecording ? (
-                          <div className="text-center space-y-5 w-full">
+                          <div className="text-center space-y-4 sm:space-y-5 w-full">
                             <div className="relative inline-block">
-                              <div className="w-24 h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
-                                <Mic className="h-12 w-12 text-white animate-pulse" />
+                              <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
+                                <Mic className="h-8 w-8 sm:h-12 sm:w-12 text-white animate-pulse" />
                               </div>
                               <div className="absolute inset-0 rounded-full border-4 border-destructive/50 animate-ping" />
-                              <div className="absolute inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
+                              <div className="absolute inset-[-6px] sm:inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
                             </div>
                             
                             {/* Audio Waveform Visualization */}
-                            <div className="w-full px-4">
-                              <AudioWaveform isRecording={isRecording} mediaStream={mediaStream} barCount={48} className="h-20" />
+                            <div className="w-full px-2 sm:px-4">
+                              <AudioWaveform isRecording={isRecording} mediaStream={mediaStream} barCount={32} className="h-14 sm:h-20" />
                             </div>
                             
                             <div className="space-y-1">
-                              <p className="text-lg font-semibold text-destructive">Grabando...</p>
-                              <p className="text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>
+                              <p className="text-base sm:text-lg font-semibold text-destructive">Grabando...</p>
+                              <p className="text-xs sm:text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>
                             </div>
                             <Button
                               onClick={stopRecording}
                               variant="destructive"
-                              size="lg"
-                              className="shadow-lg shadow-destructive/25"
+                              size="default"
+                              className="shadow-lg shadow-destructive/25 text-sm sm:text-base"
                             >
                               <Square className="mr-2 h-4 w-4" />
                               Detener Grabación
                             </Button>
                           </div>
                         ) : (
-                          <div className="text-center space-y-5">
-                            <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                              <Mic className="h-10 w-10 text-primary" />
+                          <div className="text-center space-y-3 sm:space-y-5">
+                            <div className="w-14 h-14 sm:w-20 sm:h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                              <Mic className="h-7 w-7 sm:h-10 sm:w-10 text-primary" />
                             </div>
                             <Button
                               onClick={startRecording}
-                              size="lg"
-                              className="bg-gradient-to-r from-destructive to-destructive/80 hover:from-destructive/90 hover:to-destructive/70 shadow-lg shadow-destructive/25"
+                              size="default"
+                              className="bg-gradient-to-r from-destructive to-destructive/80 hover:from-destructive/90 hover:to-destructive/70 shadow-lg shadow-destructive/25 text-sm sm:text-base"
                             >
-                              <Mic className="mr-2 h-5 w-5" />
+                              <Mic className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                               Iniciar Grabación
                             </Button>
                           </div>

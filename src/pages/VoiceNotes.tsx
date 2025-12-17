@@ -694,23 +694,23 @@ const VoiceNotes = () => {
         <div className="flex-1 flex flex-col min-h-screen">
           {/* Header */}
           <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-            <div className="flex h-16 items-center gap-4 px-6">
-              <SidebarTrigger className="-ml-2" />
-              <div className="flex items-center gap-3 flex-1">
-                <div className="w-10 h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-md">
-                  <Activity className="w-5 h-5 text-white" />
+            <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-4 px-3 sm:px-6">
+              <SidebarTrigger className="-ml-1 sm:-ml-2" />
+              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                  <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <div>
-                  <h1 className="text-lg font-bold">
+                <div className="min-w-0">
+                  <h1 className="text-sm sm:text-lg font-bold truncate">
                     <span className="bg-gradient-purple-blue bg-clip-text text-transparent">VoiceNotes MD</span>
                   </h1>
-                  <p className="text-xs text-muted-foreground">Historia Clínica con IA</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">Historia Clínica con IA</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                 {savedRecordId && savedMedicalRecord && patientName && (
-                  <>
+                  <div className="hidden sm:flex items-center gap-2">
                     <ExportMedicalRecordPDF
                       medicalRecord={savedMedicalRecord}
                       patientName={patientName}
@@ -725,99 +725,99 @@ const VoiceNotes = () => {
                       doctorLicense={doctorProfile?.license_number || undefined}
                       doctorSignature={doctorSignature || undefined}
                     />
-                  </>
+                  </div>
                 )}
                 <NotificationBell />
-                <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil">
-                  <UserIcon className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => navigate("/profile")} title="Mi Perfil">
+                  <UserIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </div>
             </div>
           </header>
 
           <main className="flex-1 overflow-auto">
-            <div className="container mx-auto px-6 py-8 max-w-6xl space-y-6">
+            <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-6xl space-y-4 sm:space-y-6">
               {/* Hero Banner */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-purple via-purple-glow to-primary rounded-2xl p-6 text-white">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -mr-24 -mt-24" />
+              <div className="relative overflow-hidden bg-gradient-to-br from-purple via-purple-glow to-primary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
+                <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/5 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24" />
                 <HeartbeatLine color="muted" position="bottom" opacity={0.2} speed="slow" />
                 <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Sparkles className="w-6 h-6" />
-                    <h2 className="text-xl font-bold">Historia Clínica Completa</h2>
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                    <h2 className="text-base sm:text-xl font-bold">Historia Clínica Completa</h2>
                   </div>
-                  <p className="text-white/80 text-sm">
+                  <p className="text-white/80 text-xs sm:text-sm leading-relaxed">
                     Cumple con normativa colombiana (Resolución 1995/1999) • Transcripción con IA
                   </p>
                 </div>
               </div>
         {/* Recording Card */}
         <Card className={`bg-gradient-to-br from-card via-card to-primary/5 shadow-xl border-border/50 overflow-hidden relative ${isRecording && !recordingField ? "border-destructive/50" : ""}`}>
-          <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
-          <CardHeader className="relative">
-            <CardTitle className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Mic className="w-5 h-5 text-primary" />
+          <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-primary/5 rounded-full blur-3xl" />
+          <CardHeader className="relative p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                <Mic className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              Grabación de Consulta Completa
+              <span className="leading-tight">Grabación de Consulta</span>
             </CardTitle>
-            <CardDescription>
-              Paso 1: Graba en tiempo real o sube un archivo de audio para transcripción con IA
+            <CardDescription className="text-xs sm:text-sm mt-1">
+              Graba en tiempo real o sube un archivo de audio para transcripción con IA
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6 relative">
+          <CardContent className="space-y-4 sm:space-y-6 relative p-4 sm:p-6 pt-0 sm:pt-0">
             {/* Real-time recording buttons */}
             <div className="space-y-3">
-              <Label className="text-sm font-medium flex items-center gap-2">
-                <Mic className="w-4 h-4 text-primary" />
+              <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                <Mic className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                 Grabación en tiempo real
               </Label>
-              <div className={`flex items-center justify-center gap-4 flex-wrap p-8 border-2 border-dashed rounded-2xl transition-all duration-500 ${
+              <div className={`flex items-center justify-center gap-3 sm:gap-4 flex-wrap p-4 sm:p-8 border-2 border-dashed rounded-xl sm:rounded-2xl transition-all duration-500 ${
                 isRecording && !recordingField 
                   ? "border-destructive bg-destructive/5" 
                   : "border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-primary/5"
               }`}>
                 {!isRecording || recordingField ? (
-                  <div className="text-center space-y-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                      <Mic className="h-8 w-8 text-primary" />
+                  <div className="text-center space-y-3 sm:space-y-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                      <Mic className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                     </div>
                     <Button
-                      size="lg"
+                      size="default"
                       onClick={() => startRecording()}
-                      className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
+                      className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 text-sm sm:text-base"
                       disabled={isRecording && recordingField !== null}
                     >
-                      <Mic className="w-5 h-5" />
+                      <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
                       Iniciar Grabación Completa
                     </Button>
                   </div>
                 ) : (
-                  <div className="text-center space-y-5 w-full">
+                  <div className="text-center space-y-4 sm:space-y-5 w-full">
                     <div className="relative inline-block">
-                      <div className="w-24 h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
-                        <Mic className="h-12 w-12 text-white animate-pulse" />
+                      <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
+                        <Mic className="h-8 w-8 sm:h-12 sm:w-12 text-white animate-pulse" />
                       </div>
                       <div className="absolute inset-0 rounded-full border-4 border-destructive/50 animate-ping" />
-                      <div className="absolute inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
+                      <div className="absolute inset-[-6px] sm:inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
                     </div>
                     
                     {/* Audio Waveform Visualization */}
-                    <div className="w-full px-4">
-                      <AudioWaveform isRecording={isRecording && !recordingField} mediaStream={mediaStream} barCount={48} className="h-20" />
+                    <div className="w-full px-2 sm:px-4">
+                      <AudioWaveform isRecording={isRecording && !recordingField} mediaStream={mediaStream} barCount={32} className="h-14 sm:h-20" />
                     </div>
                     
                     <div className="space-y-1">
-                      <p className="text-lg font-semibold text-destructive">Grabando consulta...</p>
-                      <p className="text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>
+                      <p className="text-base sm:text-lg font-semibold text-destructive">Grabando consulta...</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>
                     </div>
                     <Button
-                      size="lg"
+                      size="default"
                       variant="destructive"
                       onClick={stopRecording}
-                      className="gap-2 shadow-lg shadow-destructive/25"
+                      className="gap-2 shadow-lg shadow-destructive/25 text-sm sm:text-base"
                     >
-                      <Square className="w-5 h-5" />
+                      <Square className="w-4 h-4 sm:w-5 sm:h-5" />
                       Detener Grabación
                     </Button>
                   </div>
@@ -825,12 +825,12 @@ const VoiceNotes = () => {
                 
                 {audioBlob && !isRecording && (
                   <Button
-                    size="lg"
+                    size="default"
                     variant="outline"
                     onClick={downloadAudio}
-                    className="gap-2 border-border/50 hover:bg-primary/10 hover:border-primary/50"
+                    className="gap-2 border-border/50 hover:bg-primary/10 hover:border-primary/50 text-sm sm:text-base"
                   >
-                    <Download className="w-5 h-5" />
+                    <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                     Descargar Audio
                   </Button>
                 )}
