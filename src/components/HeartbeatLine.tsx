@@ -13,9 +13,9 @@ interface HeartbeatLineProps {
 }
 
 const intensityConfig: Record<Intensity, { opacity: number; strokeWidth: number; glowBlur: number }> = {
-  low: { opacity: 0.25, strokeWidth: 1.5, glowBlur: 2 },
-  medium: { opacity: 0.4, strokeWidth: 2, glowBlur: 4 },
-  high: { opacity: 0.6, strokeWidth: 2.5, glowBlur: 6 },
+  low: { opacity: 0.3, strokeWidth: 1.5, glowBlur: 3 },
+  medium: { opacity: 0.5, strokeWidth: 2, glowBlur: 5 },
+  high: { opacity: 0.7, strokeWidth: 2.5, glowBlur: 8 },
 };
 
 const variantConfig: Record<Variant, { height: string; viewBox: string; defaultIntensity: Intensity }> = {
@@ -33,7 +33,7 @@ const colorMap: Record<Color, string> = {
   muted: "hsl(215, 20%, 65%)",
 };
 
-const speedMap = { slow: "12s", normal: "8s", fast: "5s" };
+const speedMap = { slow: "6s", normal: "4s", fast: "2.5s" };
 
 // Simple EKG paths
 const ekgPathLarge = "M0,50 L100,50 L120,50 L130,48 L140,52 L150,50 L200,50 L220,50 L235,45 L245,55 L255,25 L265,75 L275,20 L285,80 L295,50 L350,50 L400,50 L450,50 L470,48 L480,52 L490,50 L540,50 L560,50 L575,45 L585,55 L595,25 L605,75 L615,20 L625,80 L635,50 L700,50 L750,50 L800,50 L820,48 L830,52 L840,50 L890,50 L910,50 L925,45 L935,55 L945,25 L955,75 L965,20 L975,80 L985,50 L1050,50 L1100,50 L1150,50 L1200,50";
@@ -53,6 +53,7 @@ export const HeartbeatLine = ({
   const isLarge = variant === "hero" || variant === "background";
   const ekgPath = isLarge ? ekgPathLarge : ekgPathSmall;
   const uniqueId = `ekg-${Math.random().toString(36).substr(2, 9)}`;
+  const pathLength = isLarge ? 1200 : 400;
 
   return (
     <div
@@ -70,6 +71,7 @@ export const HeartbeatLine = ({
         fill="none"
       >
         <defs>
+          {/* Glow filter for base line */}
           <filter id={`${uniqueId}-glow`} x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation={intensityCfg.glowBlur} result="blur" />
             <feMerge>
@@ -77,9 +79,30 @@ export const HeartbeatLine = ({
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          
+          {/* Traveling light gradient */}
+          <linearGradient id={`${uniqueId}-traveling`} gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor={colorMap[color]} stopOpacity="0" />
+            <stop offset="40%" stopColor={colorMap[color]} stopOpacity="0" />
+            <stop offset="50%" stopColor="#ffffff" stopOpacity="1" />
+            <stop offset="60%" stopColor={colorMap[color]} stopOpacity="0" />
+            <stop offset="100%" stopColor={colorMap[color]} stopOpacity="0" />
+            <animate
+              attributeName="x1"
+              values={`-${pathLength * 0.3};${pathLength * 1.3}`}
+              dur={speedMap[speed]}
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="x2"
+              values={`0;${pathLength * 1.6}`}
+              dur={speedMap[speed]}
+              repeatCount="indefinite"
+            />
+          </linearGradient>
         </defs>
 
-        {/* Single clean EKG line with glow */}
+        {/* Base EKG line */}
         <path
           d={ekgPath}
           stroke={colorMap[color]}
@@ -88,26 +111,23 @@ export const HeartbeatLine = ({
           strokeLinejoin="round"
           fill="none"
           filter={`url(#${uniqueId}-glow)`}
-          style={{
-            animation: `ekg-pulse ${speedMap[speed]} ease-in-out infinite`,
-          }}
+          opacity="0.6"
+        />
+        
+        {/* Traveling light effect */}
+        <path
+          d={ekgPath}
+          stroke={`url(#${uniqueId}-traveling)`}
+          strokeWidth={intensityCfg.strokeWidth + 1}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          filter={`url(#${uniqueId}-glow)`}
         />
       </svg>
-
-      <style>{`
-        @keyframes ekg-pulse {
-          0%, 100% { 
-            opacity: 0.5;
-          }
-          50% { 
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 };
-
 // Compact version for cards
 export const HeartbeatLineCompact = ({
   className,
