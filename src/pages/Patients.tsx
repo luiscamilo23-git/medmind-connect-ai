@@ -208,7 +208,7 @@ const Patients = () => {
 
           {/* Main Content */}
           <main className="flex-1 overflow-auto relative">
-            <HeartbeatLine color="primary" position="bottom" opacity={0.15} speed="slow" className="fixed bottom-0" />
+            <HeartbeatLine color="primary" variant="subtle" intensity="low" speed="slow" className="fixed bottom-0" />
             <div className="container mx-auto px-6 py-8 max-w-6xl">
               <Card>
                 <CardHeader>
