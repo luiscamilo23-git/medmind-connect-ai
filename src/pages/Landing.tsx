@@ -191,33 +191,33 @@ const Landing = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative bg-background py-40 px-4 overflow-hidden">
+      <section className="relative bg-background py-16 sm:py-24 md:py-32 lg:py-40 px-4 overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-40 left-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
-          <div className="absolute bottom-40 right-20 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
+          <div className="absolute top-20 left-10 md:top-40 md:left-20 w-48 h-48 md:w-96 md:h-96 bg-primary/10 rounded-full blur-[80px] md:blur-[120px] animate-pulse-slow" />
+          <div className="absolute bottom-20 right-10 md:bottom-40 md:right-20 w-64 h-64 md:w-[500px] md:h-[500px] bg-secondary/10 rounded-full blur-[80px] md:blur-[120px] animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 md:w-[600px] md:h-[600px] bg-primary/5 rounded-full blur-[100px] md:blur-[150px]" />
         </div>
         
-        {/* Heartbeat line at the bottom of hero */}
-        <HeartbeatLine color="primary" position="bottom" opacity={0.12} speed="slow" />
+        {/* Heartbeat line at the bottom of hero - More visible */}
+        <HeartbeatLine color="primary" position="bottom" opacity={0.5} speed="slow" />
 
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center space-y-12">
-            {/* Main Title - Estilo bold y grande */}
-            <div className="space-y-6 animate-fade-in-up opacity-0" style={{ animationDelay: "0.2s" }}>
-              <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-foreground leading-[0.9] tracking-tight">
+            {/* Main Title - Responsive */}
+            <div className="space-y-4 sm:space-y-6 animate-fade-in-up opacity-0" style={{ animationDelay: "0.2s" }}>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-foreground leading-[0.9] tracking-tight">
                 MEDMIND
               </h1>
             </div>
 
-            {/* Subtitle */}
-            <div className="space-y-4 animate-fade-in opacity-0" style={{ animationDelay: "0.4s" }}>
-              <p className="text-3xl md:text-4xl lg:text-5xl text-foreground max-w-5xl mx-auto font-bold leading-tight">
+            {/* Subtitle - Responsive */}
+            <div className="space-y-3 sm:space-y-4 animate-fade-in opacity-0" style={{ animationDelay: "0.4s" }}>
+              <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-foreground max-w-5xl mx-auto font-bold leading-tight px-2">
                 Automatiza tu Práctica Médica con Inteligencia Artificial
               </p>
-              <p className="text-xl md:text-2xl lg:text-2xl text-muted-foreground max-w-4xl mx-auto font-light">
-                Reduce <span className="font-bold text-primary px-2 py-1 bg-primary/10 rounded">85%</span> de tareas administrativas y aumenta <span className="font-bold text-primary px-2 py-1 bg-primary/10 rounded">40%</span> tu productividad. 
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-muted-foreground max-w-4xl mx-auto font-light px-4">
+                Reduce <span className="font-bold text-primary px-1 sm:px-2 py-0.5 sm:py-1 bg-primary/10 rounded">85%</span> de tareas administrativas y aumenta <span className="font-bold text-primary px-1 sm:px-2 py-0.5 sm:py-1 bg-primary/10 rounded">40%</span> tu productividad. 
                 Enfócate en lo que realmente importa: <span className="font-bold text-foreground">tus pacientes</span>.
               </p>
             </div>
@@ -262,20 +262,19 @@ const Landing = () => {
               </Link>
             </div>
 
-            {/* Stats Row - Con efectos hover */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto pt-20 animate-fade-in opacity-0" style={{ animationDelay: "1s" }}>
+            {/* Stats Row - Responsive */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-4 lg:gap-8 max-w-6xl mx-auto pt-12 md:pt-20 animate-fade-in opacity-0" style={{ animationDelay: "1s" }}>
               {stats.map((stat, index) => (
                 <div 
                   key={index} 
-                  className="group relative p-8 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 hover:bg-card/50 transition-all duration-500 hover-float-glow"
+                  className="group relative p-4 sm:p-6 md:p-8 rounded-xl md:rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 hover:bg-card/50 transition-colors duration-200"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
-                  <div className="relative space-y-3">
-                    <div className="hover-icon-circle w-12 h-12 mx-auto mb-4">
-                      <stat.icon className="h-5 w-5 text-primary" />
+                  <div className="relative space-y-2 sm:space-y-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 mx-auto mb-2 sm:mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                      <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     </div>
-                    <div className="text-5xl font-black text-foreground tracking-tight">{stat.value}</div>
-                    <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
+                    <div className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight">{stat.value}</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">{stat.label}</div>
                   </div>
                 </div>
               ))}

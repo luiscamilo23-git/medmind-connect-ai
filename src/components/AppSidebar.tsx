@@ -31,126 +31,36 @@ import {
 } from "@/components/ui/sidebar";
 
 const mainItems = [
-  { 
-    title: "Dashboard", 
-    url: "/dashboard", 
-    icon: Home,
-    color: "text-primary"
-  },
-  { 
-    title: "Pacientes", 
-    url: "/patients", 
-    icon: Users,
-    color: "text-secondary"
-  },
+  { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Pacientes", url: "/patients", icon: Users },
 ];
 
 const modulesItems = [
-  { 
-    title: "Mi Agente IA", 
-    url: "/my-agent", 
-    icon: Bot,
-    color: "text-purple"
-  },
-  { 
-    title: "VoiceNotes MD", 
-    url: "/voicenotes", 
-    icon: Brain,
-    color: "text-primary"
-  },
-  { 
-    title: "Notas Inteligentes", 
-    url: "/smart-notes", 
-    icon: BrainCircuit,
-    color: "text-purple"
-  },
-  { 
-    title: "SupplyLens", 
-    url: "/supplylens", 
-    icon: Package,
-    color: "text-secondary"
-  },
-  { 
-    title: "SmartScheduler", 
-    url: "/scheduler", 
-    icon: Calendar,
-    color: "text-primary"
-  },
+  { title: "Mi Agente IA", url: "/my-agent", icon: Bot },
+  { title: "VoiceNotes MD", url: "/voicenotes", icon: Brain },
+  { title: "Notas Inteligentes", url: "/smart-notes", icon: BrainCircuit },
+  { title: "SupplyLens", url: "/supplylens", icon: Package },
+  { title: "SmartScheduler", url: "/scheduler", icon: Calendar },
 ];
 
 const analyticsItems = [
-  { 
-    title: "Análisis Predictivo", 
-    url: "/predictive", 
-    icon: TrendingUp,
-    color: "text-purple"
-  },
-  { 
-    title: "Inteligencia Operativa", 
-    url: "/analytics", 
-    icon: LineChart,
-    color: "text-secondary"
-  },
+  { title: "Análisis Predictivo", url: "/predictive", icon: TrendingUp },
+  { title: "Inteligencia Operativa", url: "/analytics", icon: LineChart },
 ];
 
 const billingItems = [
-  { 
-    title: "Servicios", 
-    url: "/billing/services", 
-    icon: Receipt,
-    color: "text-secondary"
-  },
-  { 
-    title: "Facturas", 
-    url: "/billing/invoices", 
-    icon: FileText,
-    color: "text-primary"
-  },
-  { 
-    title: "RIPS", 
-    url: "/billing/rips", 
-    icon: FileText,
-    color: "text-purple"
-  },
-  { 
-    title: "Pagos", 
-    url: "/billing/payments", 
-    icon: Receipt,
-    color: "text-secondary"
-  },
-  { 
-    title: "Emisión DIAN", 
-    url: "/billing/dian", 
-    icon: Send,
-    color: "text-primary"
-  },
-  { 
-    title: "Monitoreo DIAN", 
-    url: "/billing/monitoring", 
-    icon: BarChart3,
-    color: "text-purple"
-  },
-  { 
-    title: "Configuración", 
-    url: "/billing/settings", 
-    icon: Settings,
-    color: "text-muted-foreground"
-  },
+  { title: "Servicios", url: "/billing/services", icon: Receipt },
+  { title: "Facturas", url: "/billing/invoices", icon: FileText },
+  { title: "RIPS", url: "/billing/rips", icon: FileText },
+  { title: "Pagos", url: "/billing/payments", icon: Receipt },
+  { title: "Emisión DIAN", url: "/billing/dian", icon: Send },
+  { title: "Monitoreo DIAN", url: "/billing/monitoring", icon: BarChart3 },
+  { title: "Configuración", url: "/billing/settings", icon: Settings },
 ];
 
 const socialItems = [
-  { 
-    title: "Red Social Médica", 
-    url: "/social", 
-    icon: Share2,
-    color: "text-purple"
-  },
-  { 
-    title: "Programa de Referidos", 
-    url: "/referrals", 
-    icon: UserCircle,
-    color: "text-secondary"
-  },
+  { title: "Red Social Médica", url: "/social", icon: Share2 },
+  { title: "Programa de Referidos", url: "/referrals", icon: UserCircle },
 ];
 
 export function AppSidebar() {
@@ -162,7 +72,7 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Principal */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-primary">Principal</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase text-xs tracking-wider">Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
@@ -171,10 +81,10 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       end 
-                      className="flex items-center gap-2 hover:bg-accent transition-colors"
-                      activeClassName="bg-accent text-accent-foreground font-medium"
+                      className="flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
                     >
-                      <item.icon className={`h-4 w-4 ${item.color}`} />
+                      <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -186,7 +96,7 @@ export function AppSidebar() {
 
         {/* Módulos de Consulta */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-purple">Módulos de Consulta</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase text-xs tracking-wider">Módulos de Consulta</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {modulesItems.map((item) => (
@@ -194,10 +104,10 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url}
-                      className="flex items-center gap-2 hover:bg-accent transition-colors"
-                      activeClassName="bg-accent text-accent-foreground font-medium"
+                      className="flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
                     >
-                      <item.icon className={`h-4 w-4 ${item.color}`} />
+                      <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -209,7 +119,7 @@ export function AppSidebar() {
 
         {/* Analytics */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-purple">Análisis</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase text-xs tracking-wider">Análisis</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {analyticsItems.map((item) => (
@@ -217,10 +127,10 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url}
-                      className="flex items-center gap-2 hover:bg-accent transition-colors"
-                      activeClassName="bg-accent text-accent-foreground font-medium"
+                      className="flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
                     >
-                      <item.icon className={`h-4 w-4 ${item.color}`} />
+                      <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -232,7 +142,7 @@ export function AppSidebar() {
 
         {/* Facturación */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-secondary">Facturación</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase text-xs tracking-wider">Facturación</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {billingItems.map((item) => (
@@ -240,10 +150,10 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url}
-                      className="flex items-center gap-2 hover:bg-accent transition-colors"
-                      activeClassName="bg-accent text-accent-foreground font-medium"
+                      className="flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
                     >
-                      <item.icon className={`h-4 w-4 ${item.color}`} />
+                      <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -255,7 +165,7 @@ export function AppSidebar() {
 
         {/* Social */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-purple">Comunidad</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase text-xs tracking-wider">Comunidad</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {socialItems.map((item) => (
@@ -263,10 +173,10 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url}
-                      className="flex items-center gap-2 hover:bg-accent transition-colors"
-                      activeClassName="bg-accent text-accent-foreground font-medium"
+                      className="flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
                     >
-                      <item.icon className={`h-4 w-4 ${item.color}`} />
+                      <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>

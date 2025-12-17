@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { 
   Activity,
-  ArrowLeft,
   Search,
   UserPlus,
   Users,
@@ -19,6 +18,10 @@ import { useToast } from "@/hooks/use-toast";
 import { PatientDialog } from "@/components/PatientDialog";
 import { PatientMedicalHistory } from "@/components/PatientMedicalHistory";
 import { PatientDocuments } from "@/components/PatientDocuments";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { NotificationBell } from "@/components/NotificationBell";
+import { HeartbeatLine } from "@/components/HeartbeatLine";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -175,148 +178,154 @@ const Patients = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-purple">
-                  <Users className="w-6 h-6 text-white" />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AppSidebar />
+        
+        <div className="flex-1 flex flex-col min-h-screen">
+          {/* Header */}
+          <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+            <div className="flex h-16 items-center gap-4 px-6">
+              <SidebarTrigger className="-ml-2" />
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-9 h-9 bg-gradient-purple rounded-lg flex items-center justify-center shadow-purple">
+                  <Users className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-purple-blue bg-clip-text text-transparent">Gestión de Pacientes</h1>
-                  <p className="text-sm text-muted-foreground">{patients.length} pacientes registrados</p>
+                  <h1 className="text-xl font-bold bg-gradient-purple-blue bg-clip-text text-transparent">Gestión de Pacientes</h1>
+                  <p className="text-xs text-muted-foreground">{patients.length} pacientes registrados</p>
                 </div>
               </div>
-            </div>
-            <Button onClick={() => { setSelectedPatient(null); setDialogOpen(true); }}>
-              <UserPlus className="w-4 h-4 mr-2" />
-              Nuevo Paciente
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Lista de Pacientes</CardTitle>
-            <div className="relative mt-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Buscar por nombre, teléfono o email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </CardHeader>
-          <CardContent>
-            {filteredPatients.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                {searchQuery ? "No se encontraron pacientes" : "No hay pacientes registrados"}
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <Button onClick={() => { setSelectedPatient(null); setDialogOpen(true); }} size="sm">
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Nuevo Paciente
+                </Button>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredPatients.map((patient) => (
-                  <div
-                    key={patient.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{patient.full_name}</h3>
-                      <div className="text-sm text-muted-foreground space-y-1 mt-1">
-                        <p>📞 {patient.phone}</p>
-                        {patient.email && <p>📧 {patient.email}</p>}
-                        {patient.date_of_birth && (
-                          <p>🎂 {new Date(patient.date_of_birth).toLocaleDateString()}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleViewHistory(patient)}
-                        title="Ver historial médico"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleViewDocuments(patient)}
-                        title="Ver documentos médicos"
-                      >
-                        <FileText className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleEdit(patient)}
-                        title="Editar paciente"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleDeleteClick(patient)}
-                        title="Eliminar paciente"
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
+            </div>
+          </header>
+
+          {/* Main Content */}
+          <main className="flex-1 overflow-auto relative">
+            <HeartbeatLine color="primary" position="bottom" opacity={0.15} speed="slow" className="fixed bottom-0" />
+            <div className="container mx-auto px-6 py-8 max-w-6xl">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Lista de Pacientes</CardTitle>
+                  <div className="relative mt-4">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder="Buscar por nombre, teléfono o email..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </main>
+                </CardHeader>
+                <CardContent>
+                  {filteredPatients.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      {searchQuery ? "No se encontraron pacientes" : "No hay pacientes registrados"}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {filteredPatients.map((patient) => (
+                        <div
+                          key={patient.id}
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg">{patient.full_name}</h3>
+                            <div className="text-sm text-muted-foreground space-y-1 mt-1">
+                              <p>📞 {patient.phone}</p>
+                              {patient.email && <p>📧 {patient.email}</p>}
+                              {patient.date_of_birth && (
+                                <p>🎂 {new Date(patient.date_of_birth).toLocaleDateString()}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleViewHistory(patient)}
+                              title="Ver historial médico"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleViewDocuments(patient)}
+                              title="Ver documentos médicos"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleEdit(patient)}
+                              title="Editar paciente"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleDeleteClick(patient)}
+                              title="Eliminar paciente"
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+        </div>
 
-      <PatientDialog
-        open={dialogOpen}
-        onOpenChange={handleDialogClose}
-        patient={selectedPatient}
-      />
+        <PatientDialog
+          open={dialogOpen}
+          onOpenChange={handleDialogClose}
+          patient={selectedPatient}
+        />
 
-      <PatientMedicalHistory
-        open={historyOpen}
-        onOpenChange={setHistoryOpen}
-        patient={selectedPatient}
-      />
+        <PatientMedicalHistory
+          open={historyOpen}
+          onOpenChange={setHistoryOpen}
+          patient={selectedPatient}
+        />
 
-      <PatientDocuments
-        open={documentsOpen}
-        onOpenChange={setDocumentsOpen}
-        patient={selectedPatient}
-      />
+        <PatientDocuments
+          open={documentsOpen}
+          onOpenChange={setDocumentsOpen}
+          patient={selectedPatient}
+        />
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar paciente?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se eliminará permanentemente el paciente
-              <strong> {patientToDelete?.full_name}</strong> y todos sus registros médicos asociados.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Eliminar paciente?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Se eliminará permanentemente el paciente
+                <strong> {patientToDelete?.full_name}</strong> y todos sus registros médicos asociados.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </SidebarProvider>
   );
 };
 
