@@ -163,7 +163,7 @@ export default function BillingServices() {
         <div className="flex-1 flex flex-col">
           {/* Header */}
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-6">
-            <h1 className="text-2xl font-bold">Servicios Médicos</h1>
+            <h1 className="text-2xl font-bold bg-gradient-purple-blue bg-clip-text text-transparent">Servicios Médicos</h1>
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
@@ -214,9 +214,9 @@ export default function BillingServices() {
 
               {/* Import suggestion banner when no services */}
               {hasNoServices && hasKnowledgeBaseServices && !isLoading && (
-                <Alert className="border-primary/30 bg-primary/5">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  <AlertTitle className="text-primary">¡Ahorra tiempo!</AlertTitle>
+                <Alert className="border-purple/30 bg-purple/5">
+                  <Sparkles className="h-4 w-4 text-purple" />
+                  <AlertTitle className="text-purple">¡Ahorra tiempo!</AlertTitle>
                   <AlertDescription className="flex items-center justify-between">
                     <span>
                       Tienes {knowledgeBaseServices.length} servicio(s) configurado(s) en tu Base de Conocimiento.

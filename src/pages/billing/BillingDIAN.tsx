@@ -52,7 +52,7 @@ export default function BillingDIAN() {
         <div className="flex-1 flex flex-col">
           {/* Header */}
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-6">
-            <h1 className="text-2xl font-bold">Configuración DIAN</h1>
+            <h1 className="text-2xl font-bold bg-gradient-purple-blue bg-clip-text text-transparent">Configuración DIAN</h1>
             <div className="flex items-center gap-4">
               <Button variant="outline" onClick={() => navigate("/billing/monitoring")}>
                 <Send className="h-4 w-4 mr-2" />

@@ -22,27 +22,27 @@ import { NavLink } from "@/components/NavLink";
 import { Badge } from "@/components/ui/badge";
 
 const mainItems = [
-  { title: "Dashboard Global", url: "/moderator", icon: LayoutDashboard },
+  { title: "Dashboard Global", url: "/moderator", icon: LayoutDashboard, color: "text-orange-500" },
 ];
 
 const clinicalItems = [
-  { title: "Pacientes", url: "/moderator/patients", icon: Users },
-  { title: "Historias Clínicas", url: "/moderator/records", icon: FileText },
-  { title: "Citas", url: "/moderator/appointments", icon: Calendar },
+  { title: "Pacientes", url: "/moderator/patients", icon: Users, color: "text-secondary" },
+  { title: "Historias Clínicas", url: "/moderator/records", icon: FileText, color: "text-primary" },
+  { title: "Citas", url: "/moderator/appointments", icon: Calendar, color: "text-purple" },
 ];
 
 const operationalItems = [
-  { title: "Inventario", url: "/moderator/inventory", icon: Package },
-  { title: "Facturas", url: "/moderator/invoices", icon: FileText },
+  { title: "Inventario", url: "/moderator/inventory", icon: Package, color: "text-secondary" },
+  { title: "Facturas", url: "/moderator/invoices", icon: FileText, color: "text-purple" },
 ];
 
 const communityItems = [
-  { title: "Red Social", url: "/moderator/social", icon: Globe },
+  { title: "Red Social", url: "/moderator/social", icon: Globe, color: "text-purple" },
 ];
 
 const systemItems = [
-  { title: "Usuarios & Roles", url: "/moderator/users", icon: Users },
-  { title: "Logs de Auditoría", url: "/moderator/audit-logs", icon: ClipboardList },
+  { title: "Usuarios & Roles", url: "/moderator/users", icon: Users, color: "text-primary" },
+  { title: "Logs de Auditoría", url: "/moderator/audit-logs", icon: ClipboardList, color: "text-secondary" },
 ];
 
 export function ModeratorSidebar() {
@@ -83,7 +83,7 @@ export function ModeratorSidebar() {
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <NavLink to={item.url} className="flex items-center gap-2">
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className={`w-4 h-4 ${item.color}`} />
                     {!isCollapsed && <span>{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -93,13 +93,13 @@ export function ModeratorSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-orange-400">Clínico</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-purple">Clínico</SidebarGroupLabel>
           <SidebarMenu>
             {clinicalItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <NavLink to={item.url} className="flex items-center gap-2">
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className={`w-4 h-4 ${item.color}`} />
                     {!isCollapsed && <span>{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -109,13 +109,13 @@ export function ModeratorSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-orange-400">Operativo</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-secondary">Operativo</SidebarGroupLabel>
           <SidebarMenu>
             {operationalItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <NavLink to={item.url} className="flex items-center gap-2">
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className={`w-4 h-4 ${item.color}`} />
                     {!isCollapsed && <span>{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -125,13 +125,13 @@ export function ModeratorSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-orange-400">Comunidad</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-purple">Comunidad</SidebarGroupLabel>
           <SidebarMenu>
             {communityItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <NavLink to={item.url} className="flex items-center gap-2">
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className={`w-4 h-4 ${item.color}`} />
                     {!isCollapsed && <span>{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -147,7 +147,7 @@ export function ModeratorSidebar() {
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <NavLink to={item.url} className="flex items-center gap-2">
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className={`w-4 h-4 ${item.color}`} />
                     {!isCollapsed && <span>{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
