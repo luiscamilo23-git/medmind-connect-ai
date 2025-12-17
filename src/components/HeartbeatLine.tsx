@@ -33,7 +33,7 @@ const colorMap: Record<Color, string> = {
   muted: "hsl(215, 20%, 65%)",
 };
 
-const speedMap = { slow: "6s", normal: "4.5s", fast: "2s" };
+const speedMap = { slow: "6s", normal: "4.5s", fast: "3s" };
 
 // EKG paths
 const ekgPathLarge =
