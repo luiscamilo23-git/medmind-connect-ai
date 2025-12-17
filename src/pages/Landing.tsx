@@ -175,7 +175,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen overflow-hidden">
       {/* Promo Banner */}
-      <div className="bg-gradient-to-r from-primary via-secondary to-primary text-primary-foreground py-3 px-4 text-center relative overflow-hidden">
+      <div className="bg-gradient-banner text-white py-3 px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMCAwaDIwdjIwSDB6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
         <div className="container mx-auto flex items-center justify-center gap-3 flex-wrap relative z-10">
           <Gift className="w-5 h-5 animate-bounce" />
@@ -183,7 +183,7 @@ const Landing = () => {
           <span className="hidden sm:inline">•</span>
           <span className="text-sm sm:text-base">Primeros 3 meses con <span className="font-black text-xl">50% OFF</span></span>
           <span className="hidden sm:inline">•</span>
-          <Link to="/auth" className="bg-white text-primary px-4 py-1 rounded-full font-bold text-sm hover:scale-105 transition-transform">
+          <Link to="/auth" className="bg-white text-purple px-4 py-1 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-purple">
             ¡Aprovechar Ahora!
           </Link>
         </div>
@@ -290,7 +290,7 @@ const Landing = () => {
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className={`text-center mb-20 space-y-6 transition-all duration-1000 ${isVisible["why-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
             <h2 className="text-5xl lg:text-7xl font-black mb-6 text-foreground">
-              ¿Por Qué <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">MEDMIND</span>?
+              ¿Por Qué <span className="bg-gradient-purple bg-clip-text text-transparent">MEDMIND</span>?
             </h2>
             <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
               No somos solo otro software médico.<br/>
@@ -406,7 +406,7 @@ const Landing = () => {
                   
                   {(feature as any).isNew && (
                     <div className="absolute top-4 right-4 z-10">
-                      <span className="bg-gradient-to-r from-primary to-secondary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full animate-pulse">
+                      <span className="bg-gradient-purple text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-purple">
                         ✨ NUEVO
                       </span>
                     </div>
@@ -423,7 +423,7 @@ const Landing = () => {
                   </CardHeader>
                   <CardContent className="space-y-3 relative">
                     <div className="bg-muted/50 p-4 rounded-lg group-hover:bg-muted/70 transition-colors border border-border/50">
-                      <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-primary flex items-center gap-2">
+                      <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-purple flex items-center gap-2">
                         <Zap className="h-3 w-3" />
                         Cómo Funciona
                       </h4>
@@ -591,19 +591,22 @@ const Landing = () => {
               </div>
               
               {/* Special Offer */}
-              <div className="mt-6 p-6 bg-gradient-to-r from-secondary to-primary rounded-xl text-primary-foreground text-center animate-pulse">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Percent className="w-6 h-6" />
-                  <span className="font-black text-2xl">OFERTA DE LANZAMIENTO</span>
+              <div className="mt-6 p-6 bg-gradient-banner rounded-xl text-white text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple/20 to-transparent" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Percent className="w-6 h-6" />
+                    <span className="font-black text-2xl">OFERTA DE LANZAMIENTO</span>
+                  </div>
+                  <p className="text-lg mb-3">
+                    <span className="line-through opacity-70">$99/mes</span> → <span className="font-black text-3xl">$49/mes</span> los primeros 3 meses
+                  </p>
+                  <Link to="/auth">
+                    <Button size="lg" className="bg-white text-purple hover:bg-white/90 font-bold shadow-purple">
+                      ¡Aprovechar Ahora!
+                    </Button>
+                  </Link>
                 </div>
-                <p className="text-lg mb-3">
-                  <span className="line-through opacity-70">$99/mes</span> → <span className="font-black text-3xl">$49/mes</span> los primeros 3 meses
-                </p>
-                <Link to="/auth">
-                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold">
-                    ¡Aprovechar Ahora!
-                  </Button>
-                </Link>
               </div>
             </CardContent>
           </Card>
