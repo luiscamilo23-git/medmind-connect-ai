@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play, Gift, Percent, FileText, Bell, Twitter, Linkedin, Instagram, Mail } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { HeartbeatLine } from "@/components/HeartbeatLine";
 
 const Landing = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
@@ -197,6 +198,9 @@ const Landing = () => {
           <div className="absolute bottom-40 right-20 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
         </div>
+        
+        {/* Heartbeat line at the bottom of hero */}
+        <HeartbeatLine color="primary" position="bottom" opacity={0.12} speed="slow" />
 
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center space-y-12">
@@ -450,6 +454,7 @@ const Landing = () => {
         ref={(el) => (observerRefs.current["benefits-section"] = el)}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(var(--primary-glow),0.08),transparent_50%)]" />
+        <HeartbeatLine color="secondary" position="top" opacity={0.1} speed="normal" />
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className={`text-center mb-20 transition-all duration-1000 ${isVisible["benefits-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
@@ -737,10 +742,11 @@ const Landing = () => {
 
       {/* Testimonials Section */}
       <section 
-        className="py-24 px-4 bg-background"
+        className="py-24 px-4 bg-background relative overflow-hidden"
         id="testimonials-section"
         ref={(el) => (observerRefs.current["testimonials-section"] = el)}
       >
+        <HeartbeatLine color="purple" position="bottom" opacity={0.08} speed="slow" />
         <div className="container mx-auto max-w-7xl">
           <div className={`text-center mb-20 transition-all duration-1000 ${isVisible["testimonials-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
             <h2 className="text-5xl lg:text-6xl font-bold mb-6">
