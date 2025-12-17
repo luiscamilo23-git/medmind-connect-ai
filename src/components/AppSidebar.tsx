@@ -171,7 +171,7 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       end 
-                      className="flex items-center gap-2 hover:bg-accent hover-heartbeat-underline"
+                      className="flex items-center gap-2 hover:bg-accent transition-colors"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
                       <item.icon className={`h-4 w-4 ${item.color}`} />
@@ -194,7 +194,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url}
-                      className="flex items-center gap-2 hover:bg-accent hover-heartbeat-underline-purple"
+                      className="flex items-center gap-2 hover:bg-accent transition-colors"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
                       <item.icon className={`h-4 w-4 ${item.color}`} />
@@ -217,7 +217,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url}
-                      className="flex items-center gap-2 hover:bg-accent hover-heartbeat-underline-teal"
+                      className="flex items-center gap-2 hover:bg-accent transition-colors"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
                       <item.icon className={`h-4 w-4 ${item.color}`} />
@@ -240,7 +240,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url}
-                      className="flex items-center gap-2 hover:bg-accent hover-heartbeat-underline-teal"
+                      className="flex items-center gap-2 hover:bg-accent transition-colors"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
                       <item.icon className={`h-4 w-4 ${item.color}`} />
@@ -263,7 +263,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url}
-                      className="flex items-center gap-2 hover:bg-accent hover-heartbeat-underline-purple"
+                      className="flex items-center gap-2 hover:bg-accent transition-colors"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
                       <item.icon className={`h-4 w-4 ${item.color}`} />
