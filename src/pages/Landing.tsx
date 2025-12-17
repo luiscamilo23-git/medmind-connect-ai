@@ -200,7 +200,7 @@ const Landing = () => {
         </div>
         
         {/* Heartbeat line at the bottom of hero - More visible */}
-        <HeartbeatLine color="primary" position="bottom" opacity={0.5} speed="slow" />
+        <HeartbeatLine color="primary" variant="hero" intensity="high" speed="slow" />
 
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center space-y-12">
@@ -453,7 +453,7 @@ const Landing = () => {
         ref={(el) => (observerRefs.current["benefits-section"] = el)}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(var(--primary-glow),0.08),transparent_50%)]" />
-        <HeartbeatLine color="secondary" position="top" opacity={0.1} speed="normal" />
+        <HeartbeatLine color="secondary" variant="background" intensity="low" speed="normal" />
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className={`text-center mb-20 transition-all duration-1000 ${isVisible["benefits-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
@@ -745,7 +745,7 @@ const Landing = () => {
         id="testimonials-section"
         ref={(el) => (observerRefs.current["testimonials-section"] = el)}
       >
-        <HeartbeatLine color="purple" position="bottom" opacity={0.08} speed="slow" />
+        <HeartbeatLine color="purple" variant="subtle" intensity="low" speed="slow" />
         <div className="container mx-auto max-w-7xl">
           <div className={`text-center mb-20 transition-all duration-1000 ${isVisible["testimonials-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
             <h2 className="text-5xl lg:text-6xl font-bold mb-6">

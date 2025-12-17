@@ -319,7 +319,7 @@ const Dashboard = () => {
               <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-glow to-secondary rounded-2xl p-6 md:p-8 text-white">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32" />
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
-                <HeartbeatLine color="muted" position="bottom" opacity={0.25} speed="slow" />
+                <HeartbeatLine color="muted" variant="card" intensity="low" speed="slow" />
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-3">
                     <Sparkles className="w-7 h-7 animate-pulse" />

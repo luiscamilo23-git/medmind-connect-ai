@@ -161,6 +161,34 @@ export default {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-20px)" }
         },
+        // Clinical / Medical Animations
+        "clinical-heartbeat": {
+          "0%, 100%": { transform: "scale(1)" },
+          "14%": { transform: "scale(1.3)" },
+          "28%": { transform: "scale(1)" },
+          "42%": { transform: "scale(1.3)" },
+          "70%": { transform: "scale(1)" }
+        },
+        "clinical-pulse": {
+          "0%, 100%": { opacity: "0.4", filter: "drop-shadow(0 0 2px currentColor)" },
+          "50%": { opacity: "1", filter: "drop-shadow(0 0 8px currentColor)" }
+        },
+        "clinical-ring": {
+          "0%": { transform: "scale(1)", opacity: "0.6" },
+          "100%": { transform: "scale(2.5)", opacity: "0" }
+        },
+        "clinical-scan": {
+          "0%": { top: "0%", opacity: "1" },
+          "100%": { top: "100%", opacity: "0.3" }
+        },
+        "clinical-blink": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.3" }
+        },
+        "clinical-wave": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -175,6 +203,13 @@ export default {
         "bounce-in": "bounce-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards",
         "pulse-slow": "pulse-slow 3s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
+        // Clinical animations
+        "clinical-heartbeat": "clinical-heartbeat 1.2s ease-in-out infinite",
+        "clinical-pulse": "clinical-pulse 2s ease-in-out infinite",
+        "clinical-ring": "clinical-ring 1.5s ease-out infinite",
+        "clinical-scan": "clinical-scan 3s linear infinite",
+        "clinical-blink": "clinical-blink 1s ease-in-out infinite",
+        "clinical-wave": "clinical-wave 4s linear infinite",
       },
     },
   },

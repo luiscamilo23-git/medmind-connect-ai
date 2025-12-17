@@ -740,7 +740,7 @@ const VoiceNotes = () => {
               {/* Hero Banner */}
               <div className="relative overflow-hidden bg-gradient-to-br from-purple via-purple-glow to-primary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
                 <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/5 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24" />
-                <HeartbeatLine color="muted" position="bottom" opacity={0.2} speed="slow" />
+                <HeartbeatLine color="muted" variant="card" intensity="low" speed="slow" />
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 sm:gap-3 mb-2">
                     <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
