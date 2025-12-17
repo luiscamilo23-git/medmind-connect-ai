@@ -33,11 +33,13 @@ const colorMap: Record<Color, string> = {
   muted: "hsl(215, 20%, 65%)",
 };
 
-const speedMap = { slow: "6s", normal: "3.5s", fast: "2s" };
+const speedMap = { slow: "6s", normal: "4.5s", fast: "2s" };
 
 // EKG paths
-const ekgPathLarge = "M0,50 L100,50 L130,48 L140,52 L150,50 L220,50 L235,45 L245,55 L255,25 L265,75 L275,20 L285,80 L295,50 L400,50 L470,48 L480,52 L490,50 L560,50 L575,45 L585,55 L595,25 L605,75 L615,20 L625,80 L635,50 L750,50 L820,48 L830,52 L840,50 L910,50 L925,45 L935,55 L945,25 L955,75 L965,20 L975,80 L985,50 L1100,50 L1200,50";
-const ekgPathSmall = "M0,20 L50,20 L80,18 L90,22 L100,20 L145,17 L155,23 L165,10 L175,30 L185,8 L195,32 L205,20 L310,20 L330,18 L340,22 L350,20 L400,20";
+const ekgPathLarge =
+  "M0,50 L100,50 L130,48 L140,52 L150,50 L220,50 L235,45 L245,55 L255,25 L265,75 L275,20 L285,80 L295,50 L400,50 L470,48 L480,52 L490,50 L560,50 L575,45 L585,55 L595,25 L605,75 L615,20 L625,80 L635,50 L750,50 L820,48 L830,52 L840,50 L910,50 L925,45 L935,55 L945,25 L955,75 L965,20 L975,80 L985,50 L1100,50 L1200,50";
+const ekgPathSmall =
+  "M0,20 L50,20 L80,18 L90,22 L100,20 L145,17 L155,23 L165,10 L175,30 L185,8 L195,32 L205,20 L310,20 L330,18 L340,22 L350,20 L400,20";
 
 export const HeartbeatLine = ({
   className,
@@ -49,7 +51,7 @@ export const HeartbeatLine = ({
   const variantCfg = variantConfig[variant];
   const intensity = intensityProp || variantCfg.defaultIntensity;
   const intensityCfg = intensityConfig[intensity];
-  
+
   const isLarge = variant === "hero" || variant === "background";
   const ekgPath = isLarge ? ekgPathLarge : ekgPathSmall;
   const uniqueId = `ekg-${Math.random().toString(36).substr(2, 9)}`;
@@ -61,16 +63,11 @@ export const HeartbeatLine = ({
       className={cn(
         "absolute left-0 right-0 bottom-0 pointer-events-none overflow-hidden",
         variantCfg.height,
-        className
+        className,
       )}
       style={{ opacity: intensityCfg.opacity }}
     >
-      <svg
-        className="w-full h-full"
-        viewBox={variantCfg.viewBox}
-        preserveAspectRatio="none"
-        fill="none"
-      >
+      <svg className="w-full h-full" viewBox={variantCfg.viewBox} preserveAspectRatio="none" fill="none">
         <defs>
           {/* Glow filter */}
           <filter id={`${uniqueId}-glow`} x="-20%" y="-50%" width="140%" height="200%">
@@ -80,7 +77,7 @@ export const HeartbeatLine = ({
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          
+
           {/* Bright leading light filter */}
           <filter id={`${uniqueId}-bright`} x="-50%" y="-100%" width="200%" height="300%">
             <feGaussianBlur stdDeviation={intensityCfg.glowBlur * 3} result="blur" />
@@ -94,12 +91,7 @@ export const HeartbeatLine = ({
           {/* Clip path that reveals the line progressively */}
           <clipPath id={`${uniqueId}-clip`}>
             <rect x={-width} y="0" width={width} height="100">
-              <animate
-                attributeName="x"
-                values={`${-width};${width}`}
-                dur={duration}
-                repeatCount="indefinite"
-              />
+              <animate attributeName="x" values={`${-width};${width}`} dur={duration} repeatCount="indefinite" />
             </rect>
           </clipPath>
         </defs>
