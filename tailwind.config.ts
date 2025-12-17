@@ -164,14 +164,14 @@ export default {
         // Clinical / Medical Animations
         "clinical-heartbeat": {
           "0%, 100%": { transform: "scale(1)" },
-          "14%": { transform: "scale(1.3)" },
+          "14%": { transform: "scale(1.08)" },
           "28%": { transform: "scale(1)" },
-          "42%": { transform: "scale(1.3)" },
+          "42%": { transform: "scale(1.08)" },
           "70%": { transform: "scale(1)" }
         },
         "clinical-pulse": {
-          "0%, 100%": { opacity: "0.4", filter: "drop-shadow(0 0 2px currentColor)" },
-          "50%": { opacity: "1", filter: "drop-shadow(0 0 8px currentColor)" }
+          "0%, 100%": { opacity: "0.85" },
+          "50%": { opacity: "1" }
         },
         "clinical-ring": {
           "0%": { transform: "scale(1)", opacity: "0.6" },
@@ -183,7 +183,7 @@ export default {
         },
         "clinical-blink": {
           "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.3" }
+          "50%": { opacity: "0.6" }
         },
         "clinical-wave": {
           "0%": { transform: "translateX(-100%)" },
