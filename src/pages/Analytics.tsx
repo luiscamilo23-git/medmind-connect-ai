@@ -237,7 +237,7 @@ const Analytics = () => {
               </div>
             </div>
           </div>
-          <Button onClick={generateInsights} disabled={insightsLoading}>
+          <Button onClick={generateInsights} disabled={insightsLoading} className="bg-gradient-purple hover:opacity-90 shadow-purple">
             <Sparkles className="w-4 h-4 mr-2" />
             {insightsLoading ? "Generando..." : "Generar Insights con IA"}
           </Button>

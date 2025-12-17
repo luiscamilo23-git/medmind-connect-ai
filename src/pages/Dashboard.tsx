@@ -246,7 +246,7 @@ const Dashboard = () => {
       title: "Notas Inteligentes",
       description: "Analiza notas y extrae tareas e ideas",
       icon: BrainCircuit,
-      color: "bg-secondary",
+      color: "bg-purple",
       path: "/smart-notes"
     },
     {
@@ -392,10 +392,10 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+              <Card className="bg-gradient-to-br from-purple/5 to-primary/5 border-purple/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-primary" />
+                    <Sparkles className="w-5 h-5 text-purple" />
                     Tip del Día
                   </CardTitle>
                 </CardHeader>
@@ -412,7 +412,7 @@ const Dashboard = () => {
           {!showAIAssistant && (
             <Button
               onClick={() => setShowAIAssistant(true)}
-              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl bg-gradient-to-br from-primary to-primary/80 hover:scale-110 transition-transform z-50"
+              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl bg-gradient-purple hover:scale-110 transition-transform z-50 shadow-purple"
               size="icon"
             >
               <Bot className="w-6 h-6" />

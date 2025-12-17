@@ -842,10 +842,10 @@ const VoiceNotes = () => {
 
                 {/* Suggestions while recording */}
                 {suggestions.length > 0 && (
-                  <Card className="bg-primary/5 border-primary/20">
+                  <Card className="bg-purple/5 border-purple/20">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-primary" />
+                        <Sparkles className="w-4 h-4 text-purple" />
                         Sugerencias de IA en tiempo real
                         {isAnalyzing && <Loader2 className="w-3 h-3 animate-spin ml-auto" />}
                       </CardTitle>

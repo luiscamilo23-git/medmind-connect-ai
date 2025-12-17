@@ -102,11 +102,11 @@ const Referrals = () => {
       <header className="border-b border-border/40 bg-card/30 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-primary-foreground" />
+            <div className="w-10 h-10 rounded-lg bg-gradient-purple flex items-center justify-center shadow-purple">
+              <Gift className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              MEDMIND
+            <span className="text-2xl font-bold bg-gradient-purple bg-clip-text text-transparent">
+              Referidos
             </span>
           </Link>
           <Link to="/auth">
@@ -127,7 +127,7 @@ const Referrals = () => {
             <h1 className="text-5xl md:text-6xl font-bold">
               Comparte MEDMIND,
               <br />
-              <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+              <span className="bg-gradient-purple bg-clip-text text-transparent">
                 Ahorra hasta 100%
               </span>
             </h1>
