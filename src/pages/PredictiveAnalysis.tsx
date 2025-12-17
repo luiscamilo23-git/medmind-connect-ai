@@ -134,11 +134,16 @@ const PredictiveAnalysis = () => {
               <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <div>
-                <h1 className="text-2xl font-bold">Análisis Predictivo de Demanda</h1>
-                <p className="text-sm text-muted-foreground">
-                  Proyecciones basadas en temporada, clima y tendencias de salud
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-purple flex items-center justify-center shadow-purple">
+                  <TrendingUp className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold">Análisis Predictivo de Demanda</h1>
+                  <p className="text-sm text-muted-foreground">
+                    Proyecciones basadas en temporada, clima y tendencias de salud
+                  </p>
+                </div>
               </div>
             </div>
           </div>
