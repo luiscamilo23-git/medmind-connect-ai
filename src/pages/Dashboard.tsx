@@ -371,12 +371,12 @@ const Dashboard = () => {
                   {quickActions.map((action, index) => (
                     <Card 
                       key={index} 
-                      className="group cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                      className="group cursor-pointer transition-colors duration-100 hover:border-primary/50 hover:bg-card/80"
                       onClick={() => navigate(action.path)}
                     >
                       <CardHeader className="pb-3">
                         <div className="flex items-start gap-3">
-                          <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}>
+                          <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center shadow-md`}>
                             <action.icon className="w-5 h-5 text-white" />
                           </div>
                           <div className="flex-1">
