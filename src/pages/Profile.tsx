@@ -166,11 +166,11 @@ const Profile = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-purple">
                 <Activity className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">Mi Perfil</h1>
+                <h1 className="text-2xl font-bold bg-gradient-purple-blue bg-clip-text text-transparent">Mi Perfil</h1>
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
               </div>
             </div>

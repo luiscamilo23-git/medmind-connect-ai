@@ -113,7 +113,7 @@ export default function BillingPayments() {
         <div className="flex-1 flex flex-col">
           {/* Header */}
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-6">
-            <h1 className="text-2xl font-bold">Pagos y Transacciones</h1>
+            <h1 className="text-2xl font-bold bg-gradient-purple-blue bg-clip-text text-transparent">Pagos y Transacciones</h1>
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />

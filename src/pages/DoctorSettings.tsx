@@ -109,11 +109,11 @@ const DoctorSettings = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Bot className="h-6 w-6 text-primary" />
+              <div className="p-2 rounded-lg bg-purple/10 shadow-purple">
+                <Bot className="h-6 w-6 text-purple" />
               </div>
               <div>
-                <CardTitle>Configuración de IA del Doctor</CardTitle>
+                <CardTitle className="bg-gradient-purple-blue bg-clip-text text-transparent">Configuración de IA del Doctor</CardTitle>
                 <CardDescription>
                   Personaliza cómo la IA interactúa con tus pacientes
                 </CardDescription>

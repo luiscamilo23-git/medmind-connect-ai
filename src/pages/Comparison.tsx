@@ -71,12 +71,12 @@ const Comparison = () => {
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-6">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Comparativa de Sistemas</span>
+          <div className="inline-flex items-center gap-2 bg-purple/10 px-4 py-2 rounded-full mb-6">
+            <Sparkles className="h-4 w-4 text-purple" />
+            <span className="text-sm font-medium text-purple">Comparativa de Sistemas</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-purple-blue bg-clip-text text-transparent">
             MEDMIND vs EMR Tradicionales
           </h1>
           
@@ -85,7 +85,7 @@ const Comparison = () => {
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center">
-            <Button onClick={() => navigate("/auth")} size="lg" className="gap-2">
+            <Button onClick={() => navigate("/auth")} size="lg" className="gap-2 bg-gradient-purple hover:opacity-90 shadow-purple">
               <Sparkles className="h-4 w-4" />
               Probar MEDMIND Gratis
             </Button>

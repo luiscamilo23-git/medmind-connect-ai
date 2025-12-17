@@ -34,12 +34,14 @@ const mainItems = [
   { 
     title: "Dashboard", 
     url: "/dashboard", 
-    icon: Home 
+    icon: Home,
+    color: "text-primary"
   },
   { 
     title: "Pacientes", 
     url: "/patients", 
-    icon: Users 
+    icon: Users,
+    color: "text-secondary"
   },
 ];
 
@@ -47,27 +49,32 @@ const modulesItems = [
   { 
     title: "Mi Agente IA", 
     url: "/my-agent", 
-    icon: Bot 
+    icon: Bot,
+    color: "text-purple"
   },
   { 
     title: "VoiceNotes MD", 
     url: "/voicenotes", 
-    icon: Brain 
+    icon: Brain,
+    color: "text-primary"
   },
   { 
     title: "Notas Inteligentes", 
     url: "/smart-notes", 
-    icon: BrainCircuit 
+    icon: BrainCircuit,
+    color: "text-purple"
   },
   { 
     title: "SupplyLens", 
     url: "/supplylens", 
-    icon: Package 
+    icon: Package,
+    color: "text-secondary"
   },
   { 
     title: "SmartScheduler", 
     url: "/scheduler", 
-    icon: Calendar 
+    icon: Calendar,
+    color: "text-primary"
   },
 ];
 
@@ -75,12 +82,14 @@ const analyticsItems = [
   { 
     title: "Análisis Predictivo", 
     url: "/predictive", 
-    icon: TrendingUp 
+    icon: TrendingUp,
+    color: "text-purple"
   },
   { 
     title: "Inteligencia Operativa", 
     url: "/analytics", 
-    icon: LineChart 
+    icon: LineChart,
+    color: "text-secondary"
   },
 ];
 
@@ -88,37 +97,44 @@ const billingItems = [
   { 
     title: "Servicios", 
     url: "/billing/services", 
-    icon: Receipt 
+    icon: Receipt,
+    color: "text-secondary"
   },
   { 
     title: "Facturas", 
     url: "/billing/invoices", 
-    icon: FileText 
+    icon: FileText,
+    color: "text-primary"
   },
   { 
     title: "RIPS", 
     url: "/billing/rips", 
-    icon: FileText 
+    icon: FileText,
+    color: "text-purple"
   },
   { 
     title: "Pagos", 
     url: "/billing/payments", 
-    icon: Receipt 
+    icon: Receipt,
+    color: "text-secondary"
   },
   { 
     title: "Emisión DIAN", 
     url: "/billing/dian", 
-    icon: Send 
+    icon: Send,
+    color: "text-primary"
   },
   { 
     title: "Monitoreo DIAN", 
     url: "/billing/monitoring", 
-    icon: BarChart3 
+    icon: BarChart3,
+    color: "text-purple"
   },
   { 
     title: "Configuración", 
     url: "/billing/settings", 
-    icon: Settings 
+    icon: Settings,
+    color: "text-muted-foreground"
   },
 ];
 
@@ -126,12 +142,14 @@ const socialItems = [
   { 
     title: "Red Social Médica", 
     url: "/social", 
-    icon: Share2 
+    icon: Share2,
+    color: "text-purple"
   },
   { 
     title: "Programa de Referidos", 
     url: "/referrals", 
-    icon: UserCircle 
+    icon: UserCircle,
+    color: "text-secondary"
   },
 ];
 
@@ -144,7 +162,7 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Principal */}
         <SidebarGroup>
-          <SidebarGroupLabel>Principal</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-primary">Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
@@ -156,7 +174,7 @@ export function AppSidebar() {
                       className="flex items-center gap-2 hover:bg-accent"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className={`h-4 w-4 ${item.color}`} />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -168,7 +186,7 @@ export function AppSidebar() {
 
         {/* Módulos de Consulta */}
         <SidebarGroup>
-          <SidebarGroupLabel>Módulos de Consulta</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-purple">Módulos de Consulta</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {modulesItems.map((item) => (
@@ -179,7 +197,7 @@ export function AppSidebar() {
                       className="flex items-center gap-2 hover:bg-accent"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className={`h-4 w-4 ${item.color}`} />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -191,7 +209,7 @@ export function AppSidebar() {
 
         {/* Analytics */}
         <SidebarGroup>
-          <SidebarGroupLabel>Análisis</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-purple">Análisis</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {analyticsItems.map((item) => (
@@ -202,7 +220,7 @@ export function AppSidebar() {
                       className="flex items-center gap-2 hover:bg-accent"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className={`h-4 w-4 ${item.color}`} />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -214,7 +232,7 @@ export function AppSidebar() {
 
         {/* Facturación */}
         <SidebarGroup>
-          <SidebarGroupLabel>Facturación</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-secondary">Facturación</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {billingItems.map((item) => (
@@ -225,7 +243,7 @@ export function AppSidebar() {
                       className="flex items-center gap-2 hover:bg-accent"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className={`h-4 w-4 ${item.color}`} />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -237,7 +255,7 @@ export function AppSidebar() {
 
         {/* Social */}
         <SidebarGroup>
-          <SidebarGroupLabel>Comunidad</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-purple">Comunidad</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {socialItems.map((item) => (
@@ -248,7 +266,7 @@ export function AppSidebar() {
                       className="flex items-center gap-2 hover:bg-accent"
                       activeClassName="bg-accent text-accent-foreground font-medium"
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className={`h-4 w-4 ${item.color}`} />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
