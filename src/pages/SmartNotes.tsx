@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  ArrowLeft,
   Sparkles,
   CheckCircle2,
   Lightbulb,
@@ -17,7 +16,9 @@ import {
   Square,
   X,
   Upload,
-  FileText
+  FileText,
+  LogOut,
+  User as UserIcon
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -25,6 +26,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AudioFileUpload } from "@/components/AudioFileUpload";
 import AudioWaveform from "@/components/AudioWaveform";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { NotificationBell } from "@/components/NotificationBell";
+import { HeartbeatLine } from "@/components/HeartbeatLine";
 
 const SmartNotes = () => {
   const [notes, setNotes] = useState("");
@@ -271,53 +276,68 @@ const SmartNotes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/dashboard")}
-                className="hover:bg-primary/10"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 shadow-lg shadow-primary/10">
-                  <BrainCircuit className="h-6 w-6 text-primary" />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AppSidebar />
+        
+        <div className="flex-1 flex flex-col min-h-screen">
+          {/* Header */}
+          <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+            <div className="flex h-16 items-center gap-4 px-6">
+              <SidebarTrigger className="-ml-2" />
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-10 h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-md">
+                  <BrainCircuit className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                    Notas Inteligentes
+                  <h1 className="text-lg font-bold">
+                    <span className="bg-gradient-purple-blue bg-clip-text text-transparent">Notas Inteligentes</span>
                   </h1>
-                  <p className="text-sm text-muted-foreground">Analiza y organiza tus notas con IA</p>
+                  <p className="text-xs text-muted-foreground">Análisis con IA</p>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Hero Section */}
-        <Card className="mb-8 border-primary/20 bg-gradient-to-br from-primary/5 via-card to-secondary/5 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/5 rounded-full blur-3xl" />
-          <CardHeader className="relative">
-            <div className="flex items-start gap-4">
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 shadow-xl shadow-primary/20">
-                <Sparkles className="h-8 w-8 text-primary" />
+              
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil">
+                  <UserIcon className="w-5 h-5" />
+                </Button>
               </div>
-              <div className="flex-1">
-                <CardTitle className="text-3xl mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                  Análisis Inteligente de Notas
-                </CardTitle>
-                <CardDescription className="text-base max-w-2xl">
-                  Utiliza inteligencia artificial para extraer automáticamente tareas, ideas principales 
-                  y recordatorios de tus notas clínicas. Graba por voz o escríbelas directamente.
+            </div>
+          </header>
+
+          <main className="flex-1 overflow-auto">
+            <div className="container mx-auto px-6 py-8 max-w-7xl">
+              {/* Hero Banner */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-purple via-purple-glow to-primary rounded-2xl p-6 text-white mb-8">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -mr-24 -mt-24" />
+                <HeartbeatLine color="muted" position="bottom" opacity={0.2} speed="slow" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Sparkles className="w-6 h-6" />
+                    <h2 className="text-xl font-bold">Análisis Inteligente de Notas</h2>
+                  </div>
+                  <p className="text-white/80 text-sm max-w-2xl">
+                    Utiliza IA para extraer tareas, ideas principales y recordatorios de tus notas clínicas
+                  </p>
+                </div>
+              </div>
+
+              {/* Main Content */}
+              <Card className="mb-8 border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/5 rounded-full blur-3xl" />
+                <CardHeader className="relative">
+                  <div className="flex items-start gap-4">
+                    <div className="p-4 rounded-2xl bg-gradient-purple shadow-lg shadow-purple/20">
+                      <Sparkles className="h-8 w-8 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-2xl mb-2">
+                        <span className="bg-gradient-purple-blue bg-clip-text text-transparent">Ingresa tu Nota</span>
+                      </CardTitle>
+                      <CardDescription className="text-base">
+                        Graba por voz o escribe directamente para analizar con inteligencia artificial
                 </CardDescription>
               </div>
             </div>
@@ -742,8 +762,11 @@ const SmartNotes = () => {
             </div>
           </CardContent>
         </Card>
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

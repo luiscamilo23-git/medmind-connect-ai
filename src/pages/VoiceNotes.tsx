@@ -15,11 +15,12 @@ import {
   Square, 
   FileText, 
   Loader2,
-  ArrowLeft,
   Save,
   Sparkles,
   Download,
-  Upload
+  Upload,
+  LogOut,
+  User as UserIcon
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -28,8 +29,11 @@ import { SignaturePad } from "@/components/SignaturePad";
 import { MedicalDocumentGenerator } from "@/components/MedicalDocumentGenerator";
 import { AudioFileUpload } from "@/components/AudioFileUpload";
 import AudioWaveform from "@/components/AudioWaveform";
-
 import { ExportMedicalRecordPDF } from "@/components/ExportMedicalRecordPDF";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { NotificationBell } from "@/components/NotificationBell";
+import { HeartbeatLine } from "@/components/HeartbeatLine";
 
 interface Suggestion {
   question: string;
@@ -683,50 +687,70 @@ const VoiceNotes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')} className="hover:bg-primary/10">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center shadow-lg shadow-primary/10">
-                <Activity className="w-7 h-7 text-primary" />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AppSidebar />
+        
+        <div className="flex-1 flex flex-col min-h-screen">
+          {/* Header */}
+          <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+            <div className="flex h-16 items-center gap-4 px-6">
+              <SidebarTrigger className="-ml-2" />
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-10 h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-md">
+                  <Activity className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold">
+                    <span className="bg-gradient-purple-blue bg-clip-text text-transparent">VoiceNotes MD</span>
+                  </h1>
+                  <p className="text-xs text-muted-foreground">Historia Clínica con IA</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                  Historia Clínica Completa
-                </h1>
-                <p className="text-sm text-muted-foreground">Cumple con normativa colombiana (Resolución 1995/1999)</p>
+              
+              <div className="flex items-center gap-2">
+                {savedRecordId && savedMedicalRecord && patientName && (
+                  <>
+                    <ExportMedicalRecordPDF
+                      medicalRecord={savedMedicalRecord}
+                      patientName={patientName}
+                      doctorName={doctorProfile?.full_name || 'Doctor'}
+                      doctorLicense={doctorProfile?.license_number || undefined}
+                      doctorSignature={doctorSignature || undefined}
+                    />
+                    <MedicalDocumentGenerator
+                      medicalRecordId={savedRecordId}
+                      patientName={patientName}
+                      doctorName={doctorProfile?.full_name || 'Doctor'}
+                      doctorLicense={doctorProfile?.license_number || undefined}
+                      doctorSignature={doctorSignature || undefined}
+                    />
+                  </>
+                )}
+                <NotificationBell />
+                <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Mi Perfil">
+                  <UserIcon className="w-5 h-5" />
+                </Button>
               </div>
             </div>
-          </div>
-          
-          <div className="flex gap-2">
-            {savedRecordId && savedMedicalRecord && patientName && (
-              <>
-                <ExportMedicalRecordPDF
-                  medicalRecord={savedMedicalRecord}
-                  patientName={patientName}
-                  doctorName={doctorProfile?.full_name || 'Doctor'}
-                  doctorLicense={doctorProfile?.license_number || undefined}
-                  doctorSignature={doctorSignature || undefined}
-                />
-                <MedicalDocumentGenerator
-                  medicalRecordId={savedRecordId}
-                  patientName={patientName}
-                  doctorName={doctorProfile?.full_name || 'Doctor'}
-                  doctorLicense={doctorProfile?.license_number || undefined}
-                  doctorSignature={doctorSignature || undefined}
-                />
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+          </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-6xl space-y-6">
+          <main className="flex-1 overflow-auto">
+            <div className="container mx-auto px-6 py-8 max-w-6xl space-y-6">
+              {/* Hero Banner */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-purple via-purple-glow to-primary rounded-2xl p-6 text-white">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -mr-24 -mt-24" />
+                <HeartbeatLine color="muted" position="bottom" opacity={0.2} speed="slow" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Sparkles className="w-6 h-6" />
+                    <h2 className="text-xl font-bold">Historia Clínica Completa</h2>
+                  </div>
+                  <p className="text-white/80 text-sm">
+                    Cumple con normativa colombiana (Resolución 1995/1999) • Transcripción con IA
+                  </p>
+                </div>
+              </div>
         {/* Recording Card */}
         <Card className={`bg-gradient-to-br from-card via-card to-primary/5 shadow-xl border-border/50 overflow-hidden relative ${isRecording && !recordingField ? "border-destructive/50" : ""}`}>
           <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
@@ -1115,7 +1139,6 @@ const VoiceNotes = () => {
             </Button>
           </CardContent>
         </Card>
-      </main>
 
       {/* Export Dialog after saving */}
       <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
@@ -1161,7 +1184,11 @@ const VoiceNotes = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
