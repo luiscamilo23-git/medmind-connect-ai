@@ -356,7 +356,7 @@ const Landing = () => {
               {[
                 { icon: Brain, title: "VoiceNotes MD", description: "Transcripción automática", color: "from-blue-500 to-cyan-500" },
                 { icon: Package, title: "SupplyLens", description: "Gestión de inventario", color: "from-emerald-500 to-teal-500" },
-                { icon: Calendar, title: "SmartScheduler", description: "Agenda optimizada", color: "from-purple-500 to-pink-500" }
+                { icon: Calendar, title: "SmartScheduler", description: "Agenda optimizada", color: "from-primary to-secondary" }
               ].map((feature, index) => (
                 <Card 
                   key={index} 
@@ -606,7 +606,7 @@ const Landing = () => {
                     <span className="line-through opacity-70">$99/mes</span> → <span className="font-black text-3xl">$49/mes</span> los primeros 3 meses
                   </p>
                   <Link to="/auth">
-                    <Button size="lg" className="bg-white text-purple hover:bg-white/90 font-bold shadow-purple">
+                    <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold shadow-md">
                       ¡Aprovechar Ahora!
                     </Button>
                   </Link>

@@ -37,7 +37,7 @@ const operationalItems = [
 ];
 
 const communityItems = [
-  { title: "Red Social", url: "/moderator/social", icon: Globe, color: "text-purple" },
+  { title: "Red Social", url: "/moderator/social", icon: Globe, color: "text-secondary" },
 ];
 
 const systemItems = [
@@ -93,7 +93,7 @@ export function ModeratorSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-purple">Clínico</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-primary">Clínico</SidebarGroupLabel>
           <SidebarMenu>
             {clinicalItems.map((item) => (
               <SidebarMenuItem key={item.title}>
@@ -125,7 +125,7 @@ export function ModeratorSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-purple">Comunidad</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-secondary">Comunidad</SidebarGroupLabel>
           <SidebarMenu>
             {communityItems.map((item) => (
               <SidebarMenuItem key={item.title}>
