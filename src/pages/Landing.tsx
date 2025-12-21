@@ -51,7 +51,7 @@ const Landing = () => {
       icon: Calendar,
       title: "SmartScheduler",
       description: "Agenda predictiva que optimiza tus citas y reduce cancelaciones",
-      color: "from-purple-500 to-pink-500",
+      color: "from-primary to-secondary",
       howItWorks: "Gestiona citas con recordatorios automáticos, visualiza tu agenda semanal con indicadores de citas en el calendario.",
       savings: "Reduce cancelaciones en 40% y optimiza tu agenda",
       isNew: true
@@ -184,7 +184,7 @@ const Landing = () => {
           <span className="hidden sm:inline">•</span>
           <span className="text-sm sm:text-base">Primeros 3 meses con <span className="font-black text-xl">50% OFF</span></span>
           <span className="hidden sm:inline">•</span>
-          <Link to="/auth" className="bg-white text-purple px-4 py-1 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-purple">
+          <Link to="/auth" className="bg-white text-primary px-4 py-1 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-feature">
             ¡Aprovechar Ahora!
           </Link>
         </div>
@@ -293,7 +293,7 @@ const Landing = () => {
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className={`text-center mb-20 space-y-6 transition-all duration-1000 ${isVisible["why-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
             <h2 className="text-5xl lg:text-7xl font-black mb-6 text-foreground">
-              ¿Por Qué <span className="bg-gradient-purple bg-clip-text text-transparent">MEDMIND</span>?
+              ¿Por Qué <span className="bg-gradient-feature bg-clip-text text-transparent">MEDMIND</span>?
             </h2>
             <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
               No somos solo otro software médico.<br/>
@@ -409,7 +409,7 @@ const Landing = () => {
                   
                   {(feature as any).isNew && (
                     <div className="absolute top-4 right-4 z-10">
-                      <span className="bg-gradient-purple text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-purple">
+                      <span className="bg-gradient-feature text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-feature">
                         ✨ NUEVO
                       </span>
                     </div>
@@ -426,7 +426,7 @@ const Landing = () => {
                   </CardHeader>
                   <CardContent className="space-y-3 relative">
                     <div className="bg-muted/50 p-4 rounded-lg group-hover:bg-muted/70 transition-colors border border-border/50">
-                      <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-purple flex items-center gap-2">
+                      <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-primary flex items-center gap-2">
                         <Zap className="h-3 w-3" />
                         Cómo Funciona
                       </h4>
@@ -596,7 +596,7 @@ const Landing = () => {
               
               {/* Special Offer */}
               <div className="mt-6 p-6 bg-gradient-banner rounded-xl text-white text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent" />
                 <div className="relative z-10">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Percent className="w-6 h-6" />
@@ -745,7 +745,7 @@ const Landing = () => {
         id="testimonials-section"
         ref={(el) => (observerRefs.current["testimonials-section"] = el)}
       >
-        <HeartbeatLine color="purple" variant="subtle" intensity="low" speed="slow" />
+        <HeartbeatLine color="secondary" variant="subtle" intensity="low" speed="slow" />
         <div className="container mx-auto max-w-7xl">
           <div className={`text-center mb-20 transition-all duration-1000 ${isVisible["testimonials-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
             <h2 className="text-5xl lg:text-6xl font-bold mb-6">

@@ -356,10 +356,10 @@ const SmartScheduler = () => {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-purple flex items-center justify-center shadow-purple">
+            <div className="w-7 h-7 rounded-lg bg-gradient-feature flex items-center justify-center shadow-feature">
               <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
             </div>
-            <span className="font-semibold bg-gradient-purple-blue bg-clip-text text-transparent">SmartScheduler</span>
+            <span className="font-semibold bg-gradient-feature-soft bg-clip-text text-transparent">SmartScheduler</span>
           </div>
         </div>
 
@@ -496,8 +496,8 @@ const SmartScheduler = () => {
 
             {/* AI Assistant */}
             <div className="space-y-2">
-              <p className="text-[10px] font-semibold text-purple uppercase tracking-wider px-1 flex items-center gap-1.5">
-                <Brain className="w-3 h-3 text-purple" />
+              <p className="text-[10px] font-semibold text-primary uppercase tracking-wider px-1 flex items-center gap-1.5">
+                <Brain className="w-3 h-3 text-primary" />
                 IA Asistente
               </p>
               <div className="space-y-0.5">

@@ -187,7 +187,7 @@ export default function MyAgentAI() {
             <div className="flex h-14 items-center gap-4 px-6">
               <SidebarTrigger />
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-gradient-purple flex items-center justify-center shadow-md shadow-purple/30">
+                <div className="h-9 w-9 rounded-lg bg-gradient-feature flex items-center justify-center shadow-md shadow-primary/30">
                   <Bot className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -195,7 +195,7 @@ export default function MyAgentAI() {
                   <p className="text-xs text-muted-foreground">Configura tu asistente de WhatsApp</p>
                 </div>
               </div>
-              <Badge variant="purple" className="ml-auto gap-1.5">
+              <Badge variant="secondary" className="ml-auto gap-1.5">
                 <Sparkles className="h-3 w-3" />
                 Potenciado por IA
               </Badge>

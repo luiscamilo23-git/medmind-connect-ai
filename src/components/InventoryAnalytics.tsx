@@ -187,7 +187,7 @@ const InventoryAnalytics = ({ items, loading }: InventoryAnalyticsProps) => {
                 <XAxis type="number" />
                 <YAxis dataKey="name" type="category" width={150} />
                 <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
-                <Bar dataKey="value" fill="#8b5cf6" name="Valor Total ($)" />
+                <Bar dataKey="value" fill="#4A90D9" name="Valor Total ($)" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

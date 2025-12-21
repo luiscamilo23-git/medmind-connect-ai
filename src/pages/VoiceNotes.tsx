@@ -697,12 +697,12 @@ const VoiceNotes = () => {
             <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-4 px-3 sm:px-6">
               <SidebarTrigger className="-ml-1 sm:-ml-2" />
               <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-feature rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
                   <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div className="min-w-0">
                   <h1 className="text-sm sm:text-lg font-bold truncate">
-                    <span className="bg-gradient-purple-blue bg-clip-text text-transparent">VoiceNotes MD</span>
+                    <span className="bg-gradient-feature-soft bg-clip-text text-transparent">VoiceNotes MD</span>
                   </h1>
                   <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">Historia Clínica con IA</p>
                 </div>
@@ -738,7 +738,7 @@ const VoiceNotes = () => {
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-6xl space-y-4 sm:space-y-6">
               {/* Hero Banner */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-purple via-purple-glow to-primary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
+              <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-glow to-secondary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
                 <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/5 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24" />
                 <HeartbeatLine color="muted" variant="card" intensity="low" speed="slow" />
                 <div className="relative z-10">
@@ -866,10 +866,10 @@ const VoiceNotes = () => {
 
                 {/* Suggestions while recording */}
                 {suggestions.length > 0 && (
-                  <Card className="bg-purple/5 border-purple/20">
+                  <Card className="bg-primary/5 border-primary/20">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-purple" />
+                        <Sparkles className="w-4 h-4 text-primary" />
                         Sugerencias de IA en tiempo real
                         {isAnalyzing && <Loader2 className="w-3 h-3 animate-spin ml-auto" />}
                       </CardTitle>

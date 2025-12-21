@@ -286,12 +286,12 @@ const SmartNotes = () => {
             <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-4 px-3 sm:px-6">
               <SidebarTrigger className="-ml-1 sm:-ml-2" />
               <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-feature rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
                   <BrainCircuit className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div className="min-w-0">
                   <h1 className="text-sm sm:text-lg font-bold truncate">
-                    <span className="bg-gradient-purple-blue bg-clip-text text-transparent">Notas Inteligentes</span>
+                    <span className="bg-gradient-feature-soft bg-clip-text text-transparent">Notas Inteligentes</span>
                   </h1>
                   <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">Análisis con IA</p>
                 </div>
@@ -309,7 +309,7 @@ const SmartNotes = () => {
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
               {/* Hero Banner */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-purple via-purple-glow to-primary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white mb-4 sm:mb-8">
+              <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-glow to-secondary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white mb-4 sm:mb-8">
                 <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/5 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24" />
                 <HeartbeatLine color="muted" variant="card" intensity="low" speed="slow" />
                 <div className="relative z-10">
@@ -329,12 +329,12 @@ const SmartNotes = () => {
                 <div className="absolute bottom-0 left-0 w-32 sm:w-48 h-32 sm:h-48 bg-secondary/5 rounded-full blur-3xl" />
                 <CardHeader className="relative p-4 sm:p-6">
                   <div className="flex items-start gap-3 sm:gap-4">
-                    <div className="p-2 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-purple shadow-lg shadow-purple/20 flex-shrink-0">
+                    <div className="p-2 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-feature shadow-lg shadow-primary/20 flex-shrink-0">
                       <Sparkles className="h-5 w-5 sm:h-8 sm:w-8 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-lg sm:text-2xl mb-1 sm:mb-2">
-                        <span className="bg-gradient-purple-blue bg-clip-text text-transparent">Ingresa tu Nota</span>
+                        <span className="bg-gradient-feature-soft bg-clip-text text-transparent">Ingresa tu Nota</span>
                       </CardTitle>
                       <CardDescription className="text-xs sm:text-base">
                         Graba por voz o escribe directamente para analizar con IA

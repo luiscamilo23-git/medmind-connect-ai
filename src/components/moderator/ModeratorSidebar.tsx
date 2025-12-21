@@ -28,12 +28,12 @@ const mainItems = [
 const clinicalItems = [
   { title: "Pacientes", url: "/moderator/patients", icon: Users, color: "text-secondary" },
   { title: "Historias Clínicas", url: "/moderator/records", icon: FileText, color: "text-primary" },
-  { title: "Citas", url: "/moderator/appointments", icon: Calendar, color: "text-purple" },
+  { title: "Citas", url: "/moderator/appointments", icon: Calendar, color: "text-primary" },
 ];
 
 const operationalItems = [
   { title: "Inventario", url: "/moderator/inventory", icon: Package, color: "text-secondary" },
-  { title: "Facturas", url: "/moderator/invoices", icon: FileText, color: "text-purple" },
+  { title: "Facturas", url: "/moderator/invoices", icon: FileText, color: "text-primary" },
 ];
 
 const communityItems = [

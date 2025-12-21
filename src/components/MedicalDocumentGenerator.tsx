@@ -46,7 +46,7 @@ interface MedicalDocumentGeneratorProps {
 
 const documentTypes = [
   { id: "prescription", label: "Fórmula Médica", icon: FileText, color: "text-blue-600" },
-  { id: "lab_order", label: "Orden de Laboratorio", icon: Microscope, color: "text-purple-600" },
+  { id: "lab_order", label: "Orden de Laboratorio", icon: Microscope, color: "text-primary" },
   { id: "image_order", label: "Orden de Imágenes", icon: Camera, color: "text-green-600" },
   { id: "certificate", label: "Certificado Médico", icon: FileCheck, color: "text-orange-600" },
   { id: "referral", label: "Remisión", icon: UserCheck, color: "text-pink-600" },
