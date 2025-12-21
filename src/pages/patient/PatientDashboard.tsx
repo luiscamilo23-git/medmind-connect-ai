@@ -87,7 +87,7 @@ const PatientDashboard = () => {
       description: "Gestiona tus próximas consultas",
       icon: Calendar,
       path: "/patient/appointments",
-      color: "from-purple to-purple-glow",
+      color: "from-primary to-primary-glow",
     },
     {
       title: "Bienestar IA",
@@ -109,7 +109,7 @@ const PatientDashboard = () => {
       description: "Consulta con profesionales",
       icon: MessageSquare,
       path: "/patient/chat",
-      color: "from-purple to-primary",
+      color: "from-secondary to-primary",
       badge: stats.unreadMessages,
     },
   ];
@@ -121,7 +121,7 @@ const PatientDashboard = () => {
       <div className="container mx-auto p-6 space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-purple-blue bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-feature-soft bg-clip-text text-transparent">
               Portal del Paciente
             </h1>
             <p className="text-muted-foreground mt-2">

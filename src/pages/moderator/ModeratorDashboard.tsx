@@ -174,7 +174,7 @@ export default function ModeratorDashboard() {
               <Card className="border-orange-500/20">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Publicaciones</CardTitle>
-                  <Globe className="h-4 w-4 text-purple-500" />
+                  <Globe className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats?.totalPosts || 0}</div>

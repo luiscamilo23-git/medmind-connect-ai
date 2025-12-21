@@ -167,15 +167,15 @@ export const DoctorAIAssistant = ({
 
   return (
     <Card className={`flex flex-col border-border/50 bg-card/80 backdrop-blur ${expanded ? 'h-[80vh]' : 'h-[400px]'}`}>
-      <CardHeader className="border-b border-purple/20 py-3 px-4 bg-gradient-to-r from-purple/5 to-transparent">
+      <CardHeader className="border-b border-primary/20 py-3 px-4 bg-gradient-to-r from-primary/5 to-transparent">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-foreground text-base">
-            <div className="p-1.5 rounded-full bg-gradient-purple shadow-purple">
+            <div className="p-1.5 rounded-full bg-gradient-feature shadow-feature">
               <Bot className="w-4 h-4 text-white" />
             </div>
             <span className="flex items-center gap-1.5">
               Asistente MED
-              <Sparkles className="w-3.5 h-3.5 text-purple" />
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
             </span>
           </CardTitle>
           <div className="flex items-center gap-1">
@@ -203,7 +203,7 @@ export const DoctorAIAssistant = ({
               }`}
             >
               {message.role === "assistant" && (
-                <div className="w-7 h-7 rounded-full bg-gradient-purple flex items-center justify-center shrink-0 shadow-purple">
+                <div className="w-7 h-7 rounded-full bg-gradient-feature flex items-center justify-center shrink-0 shadow-feature">
                   <Bot className="w-3.5 h-3.5 text-white" />
                 </div>
               )}

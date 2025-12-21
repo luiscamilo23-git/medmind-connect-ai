@@ -321,11 +321,11 @@ const SocialNetwork = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-purple rounded-lg flex items-center justify-center shadow-purple">
+              <div className="w-10 h-10 bg-gradient-feature rounded-lg flex items-center justify-center shadow-feature">
                 <Activity className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-purple-blue bg-clip-text text-transparent">Red Social Médica</h1>
+                <h1 className="text-2xl font-bold bg-gradient-feature-soft bg-clip-text text-transparent">Red Social Médica</h1>
                 <p className="text-sm text-muted-foreground">Comparte conocimiento con la comunidad</p>
               </div>
             </div>

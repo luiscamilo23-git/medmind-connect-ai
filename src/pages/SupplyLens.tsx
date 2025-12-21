@@ -164,7 +164,7 @@ const SupplyLens = () => {
             <div>
               <h1 className="text-3xl font-bold flex items-center gap-2">
                 <Package className="h-8 w-8 text-secondary" />
-                <span className="bg-gradient-purple-blue bg-clip-text text-transparent">SupplyLens</span>
+                <span className="bg-gradient-feature-soft bg-clip-text text-transparent">SupplyLens</span>
               </h1>
               <p className="text-muted-foreground">
                 Gestión inteligente de inventario médico

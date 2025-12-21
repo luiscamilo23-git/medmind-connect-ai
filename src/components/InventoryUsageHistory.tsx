@@ -101,7 +101,7 @@ const InventoryUsageHistory = ({ loading: parentLoading }: InventoryUsageHistory
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       medication: "bg-blue-500/10 text-blue-500",
-      equipment: "bg-purple-500/10 text-purple-500",
+      equipment: "bg-primary/10 text-primary",
       surgical: "bg-red-500/10 text-red-500",
       diagnostic: "bg-cyan-500/10 text-cyan-500",
       disposable: "bg-green-500/10 text-green-500",

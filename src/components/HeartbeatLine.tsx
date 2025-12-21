@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 type Variant = "hero" | "background" | "separator" | "card" | "subtle";
 type Intensity = "low" | "medium" | "high";
-type Color = "primary" | "secondary" | "purple" | "muted";
+type Color = "primary" | "secondary" | "muted";
 
 interface HeartbeatLineProps {
   className?: string;
@@ -29,7 +29,6 @@ const variantConfig: Record<Variant, { height: string; viewBox: string; defaultI
 const colorMap: Record<Color, string> = {
   primary: "hsl(211, 63%, 57%)",
   secondary: "hsl(173, 80%, 40%)",
-  purple: "hsl(271, 91%, 65%)",
   muted: "hsl(215, 20%, 65%)",
 };
 
