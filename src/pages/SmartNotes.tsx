@@ -652,10 +652,10 @@ const SmartNotes = () => {
             </Card>
 
             {/* Main Ideas */}
-            <Card className="border-purple/30 bg-card">
+            <Card className="border-secondary/30 bg-card">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-purple" />
+                  <Lightbulb className="h-5 w-5 text-secondary" />
                   <CardTitle className="text-foreground">Ideas Principales</CardTitle>
                 </div>
                 <CardDescription>
@@ -666,8 +666,8 @@ const SmartNotes = () => {
                 {analysis.mainIdeas.length > 0 ? (
                   <ul className="space-y-3">
                     {analysis.mainIdeas.map((idea, index) => (
-                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-purple/10 border border-purple/30 group">
-                        <Lightbulb className="h-4 w-4 text-purple mt-0.5 flex-shrink-0" />
+                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-secondary/10 border border-secondary/30 group">
+                        <Lightbulb className="h-4 w-4 text-secondary mt-0.5 flex-shrink-0" />
                         <span className="text-sm font-medium text-foreground flex-1">{idea}</span>
                         <button
                           onClick={() => deleteIdea(index)}
