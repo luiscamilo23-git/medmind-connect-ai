@@ -58,7 +58,7 @@ REGLAS CRÍTICAS:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Analiza esta transcripción de consulta médica y extrae la información clínica estructurada:\n\n${transcript}` }
