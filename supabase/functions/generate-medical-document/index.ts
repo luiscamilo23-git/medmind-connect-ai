@@ -133,171 +133,172 @@ INFORMACIÓN DEL PACIENTE:
 - Alergias: ${record.patients?.allergies?.join(', ') || 'No registradas'}
 `;
 
-  const prompts: Record<string, string> = {
-    prescription: `Genera una FÓRMULA MÉDICA profesional completa basada en esta historia clínica.
+  // Incluir la transcripción original si existe - ES CLAVE para que la IA extraiga los datos exactos
+  const transcriptContext = record.voice_transcript 
+    ? `\n\nTRANSCRIPCIÓN ORIGINAL DE LA CONSULTA (usa esta información como fuente principal):\n"""${record.voice_transcript}"""\n`
+    : '';
 
-${patientInfo}
-
-HISTORIA CLÍNICA:
+  const medicalContext = `
+HISTORIA CLÍNICA ESTRUCTURADA:
+- Motivo de consulta: ${record.chief_complaint || 'No especificado'}
+- Enfermedad actual: ${record.current_illness || 'No especificado'}
 - Diagnóstico: ${record.diagnosis || 'No especificado'}
 - Código CIE-10: ${record.cie10_code || 'No especificado'}
+- Examen físico: ${record.physical_exam || 'No especificado'}
 - Plan de tratamiento: ${record.treatment || 'No especificado'}
-- Medicamentos mencionados: ${record.medications?.join(', ') || 'No especificado'}
+- Medicamentos: ${record.medications?.join(', ') || 'No especificados'}
+- Ayudas diagnósticas: ${record.diagnostic_aids || 'No especificado'}
 - Educación: ${record.education || 'No especificado'}
+- Seguimiento: ${record.followup || 'No especificado'}
+`;
+
+  const prompts: Record<string, string> = {
+    prescription: `Genera una FÓRMULA MÉDICA profesional completa.
+
+INSTRUCCIÓN CRÍTICA: Extrae TODOS los medicamentos que el médico mencionó en la transcripción o historia. Incluye dosis, frecuencia y duración EXACTAMENTE como fueron dictados.
+
+${patientInfo}
+${transcriptContext}
+${medicalContext}
 
 Genera un JSON con esta estructura exacta:
 {
   "medications": [
     {
-      "name": "Nombre genérico y comercial completo del medicamento",
-      "presentation": "Presentación (tabletas, jarabe, etc)",
-      "dose": "Dosis exacta (ej: 500mg, 5ml)",
-      "frequency": "Frecuencia completa (ej: Cada 8 horas, 3 veces al día)",
-      "duration": "Duración del tratamiento (ej: 7 días, 2 semanas)",
-      "route": "Vía de administración (oral, intramuscular, tópica)",
-      "instructions": "Instrucciones detalladas (con alimentos, ayuno, antes de dormir, etc)"
+      "name": "Nombre del medicamento (genérico y/o comercial)",
+      "presentation": "Presentación (tabletas 500mg, jarabe 5ml, etc)",
+      "dose": "Dosis exacta como la dictó el médico",
+      "frequency": "Frecuencia exacta (cada 8 horas, 2 veces al día, etc)",
+      "duration": "Duración exacta (7 días, 2 semanas, etc)",
+      "route": "Vía de administración",
+      "instructions": "Instrucciones especiales (con alimentos, antes de dormir, etc)"
     }
   ],
-  "generalInstructions": "Recomendaciones generales detalladas sobre el tratamiento",
-  "warnings": ["Advertencias importantes específicas"],
-  "followUpDate": "Fecha sugerida de control"
+  "generalInstructions": "Recomendaciones generales del médico",
+  "warnings": ["Advertencias mencionadas"],
+  "followUpDate": "Fecha de control si se mencionó"
 }`,
 
-    lab_order: `Genera una ORDEN DE LABORATORIO profesional detallada.
+    lab_order: `Genera una ORDEN DE LABORATORIO profesional.
+
+INSTRUCCIÓN CRÍTICA: Extrae TODOS los exámenes de laboratorio que el médico solicitó en la transcripción. Incluye los nombres exactos de los exámenes.
 
 ${patientInfo}
-
-HISTORIA CLÍNICA:
-- Motivo de consulta: ${record.chief_complaint || 'No especificado'}
-- Diagnóstico: ${record.diagnosis || 'No especificado'}
-- CIE-10: ${record.cie10_code || 'No especificado'}
-- Ayudas diagnósticas solicitadas: ${record.diagnostic_aids || 'No especificado'}
-- Enfermedad actual: ${record.current_illness || 'No especificado'}
+${transcriptContext}
+${medicalContext}
 
 Genera un JSON profesional:
 {
   "tests": [
     {
-      "name": "Nombre completo del examen de laboratorio",
+      "name": "Nombre exacto del examen solicitado",
       "code": "Código CUPS si aplica",
       "type": "LABORATORIO CLÍNICO",
-      "urgency": "RUTINA o URGENTE con justificación",
-      "specialInstructions": "Preparación requerida (ayuno, hora específica, medicamentos a suspender)",
-      "expectedUse": "Para qué se solicita este examen"
+      "urgency": "RUTINA o URGENTE",
+      "specialInstructions": "Preparación requerida",
+      "expectedUse": "Para qué se solicita"
     }
   ],
-  "clinicalIndication": "Indicación clínica completa y detallada que justifica los exámenes",
-  "relevantHistory": "Antecedentes relevantes para interpretación de resultados",
-  "urgency": "Nivel de urgencia general de la orden"
+  "clinicalIndication": "Indicación clínica que justifica los exámenes",
+  "relevantHistory": "Antecedentes relevantes",
+  "urgency": "Nivel de urgencia general"
 }`,
 
-    image_order: `Genera una ORDEN DE IMÁGENES DIAGNÓSTICAS profesional completa.
+    image_order: `Genera una ORDEN DE IMÁGENES DIAGNÓSTICAS profesional.
+
+INSTRUCCIÓN CRÍTICA: Extrae TODOS los estudios de imagen que el médico solicitó en la transcripción (radiografías, ecografías, TAC, resonancia, etc).
 
 ${patientInfo}
-
-HISTORIA CLÍNICA:
-- Motivo: ${record.chief_complaint || 'No especificado'}
-- Diagnóstico: ${record.diagnosis || 'No especificado'}
-- CIE-10: ${record.cie10_code || 'No especificado'}
-- Examen físico: ${record.physical_exam || 'No especificado'}
-- Ayudas diagnósticas: ${record.diagnostic_aids || 'No especificado'}
+${transcriptContext}
+${medicalContext}
 
 Genera un JSON profesional:
 {
   "studies": [
     {
-      "name": "Nombre completo del estudio (ej: Radiografía simple de tórax PA y lateral)",
+      "name": "Nombre exacto del estudio solicitado",
       "code": "Código CUPS si aplica",
       "modality": "Modalidad (Rayos X, TAC, RMN, Ecografía, etc)",
-      "bodyPart": "Región anatómica específica",
-      "projection": "Proyecciones o secuencias requeridas",
-      "contrast": "Con/sin contraste y tipo",
+      "bodyPart": "Región anatómica",
+      "projection": "Proyecciones requeridas",
+      "contrast": "Con/sin contraste",
       "urgency": "RUTINA o URGENTE",
       "specialInstructions": "Preparación necesaria",
-      "clinicalQuestion": "Pregunta clínica específica a resolver"
+      "clinicalQuestion": "Pregunta clínica a resolver"
     }
   ],
-  "clinicalIndication": "Indicación clínica detallada que justifica los estudios",
-  "relevantFindings": "Hallazgos al examen físico que motivan el estudio",
-  "urgency": "Nivel de urgencia y justificación"
+  "clinicalIndication": "Indicación clínica detallada",
+  "relevantFindings": "Hallazgos que motivan el estudio",
+  "urgency": "Nivel de urgencia"
 }`,
 
-    certificate: `Genera un CERTIFICADO MÉDICO profesional oficial.
+    certificate: `Genera un CERTIFICADO MÉDICO profesional.
+
+INSTRUCCIÓN CRÍTICA: Usa la información de la consulta para generar un certificado apropiado según el propósito mencionado.
 
 ${patientInfo}
-
-HISTORIA CLÍNICA:
-- Motivo de consulta: ${record.chief_complaint || 'No especificado'}
-- Diagnóstico: ${record.diagnosis || 'No especificado'}
-- CIE-10: ${record.cie10_code || 'No especificado'}
-- Examen físico: ${record.physical_exam || 'No especificado'}
-- Tratamiento: ${record.treatment || 'No especificado'}
+${transcriptContext}
+${medicalContext}
 
 Genera un JSON profesional:
 {
-  "purpose": "Propósito específico del certificado (trabajo, estudios, deporte, etc)",
-  "consultationDate": "Fecha de la consulta",
-  "findings": "Hallazgos relevantes encontrados en la evaluación médica",
-  "diagnosis": "Diagnóstico completo con CIE-10",
-  "currentCondition": "Estado de salud actual del paciente",
-  "limitations": "Limitaciones o restricciones si aplican",
-  "recommendations": "Recomendaciones médicas específicas",
-  "conclusion": "Conclusión médica formal y profesional",
-  "validity": "Validez del certificado (tiempo)"
+  "purpose": "Propósito del certificado (trabajo, estudios, deporte, etc)",
+  "consultationDate": "${new Date().toISOString().split('T')[0]}",
+  "findings": "Hallazgos relevantes de la evaluación",
+  "diagnosis": "Diagnóstico con CIE-10",
+  "currentCondition": "Estado de salud actual",
+  "limitations": "Limitaciones si aplican",
+  "recommendations": "Recomendaciones médicas",
+  "conclusion": "Conclusión médica formal",
+  "validity": "Validez del certificado"
 }`,
 
-    referral: `Genera una REMISIÓN MÉDICA profesional a especialista.
+    referral: `Genera una REMISIÓN MÉDICA profesional.
+
+INSTRUCCIÓN CRÍTICA: Extrae la especialidad a la que se remite y el motivo EXACTO mencionado en la consulta.
 
 ${patientInfo}
-
-HISTORIA CLÍNICA:
-- Motivo: ${record.chief_complaint || 'No especificado'}
-- Enfermedad actual: ${record.current_illness || 'No especificado'}
-- Diagnóstico: ${record.diagnosis || 'No especificado'}
-- CIE-10: ${record.cie10_code || 'No especificado'}
-- Examen físico: ${record.physical_exam || 'No especificado'}
-- Ayudas diagnósticas: ${record.diagnostic_aids || 'No especificado'}
-- Plan: ${record.treatment_plan || record.treatment || 'No especificado'}
+${transcriptContext}
+${medicalContext}
 
 Genera un JSON profesional:
 {
-  "specialty": "Especialidad médica específica requerida",
-  "subspecialty": "Subespecialidad si es necesaria",
-  "reason": "Motivo detallado de la remisión",
-  "urgency": "RUTINA, PREFERENTE o URGENTE con justificación",
-  "clinicalSummary": "Resumen clínico completo del caso",
-  "relevantHistory": "Antecedentes relevantes para el especialista",
-  "currentTreatment": "Tratamiento actual que recibe el paciente",
-  "diagnosticTests": "Exámenes realizados y resultados relevantes",
-  "specificQuestions": "Preguntas específicas para el especialista",
-  "requestedActions": "Acciones específicas solicitadas al especialista"
+  "specialty": "Especialidad a la que se remite (la que mencionó el médico)",
+  "subspecialty": "Subespecialidad si aplica",
+  "reason": "Motivo exacto de la remisión como lo explicó el médico",
+  "urgency": "RUTINA, PREFERENTE o URGENTE",
+  "clinicalSummary": "Resumen clínico del caso",
+  "relevantHistory": "Antecedentes relevantes",
+  "currentTreatment": "Tratamiento actual",
+  "diagnosticTests": "Exámenes realizados",
+  "specificQuestions": "Preguntas para el especialista",
+  "requestedActions": "Acciones solicitadas"
 }`,
 
     disability: `Genera un CERTIFICADO DE INCAPACIDAD MÉDICA profesional.
 
-${patientInfo}
+INSTRUCCIÓN CRÍTICA: Extrae los DÍAS DE INCAPACIDAD y las FECHAS exactas que el médico mencionó en la consulta. Si dijo "5 días de incapacidad" o "incapacidad del 8 al 12 de enero", usa esos datos exactos.
 
-HISTORIA CLÍNICA:
-- Diagnóstico: ${record.diagnosis || 'No especificado'}
-- CIE-10: ${record.cie10_code || 'No especificado'}
-- Enfermedad actual: ${record.current_illness || 'No especificado'}
-- Tratamiento: ${record.treatment || 'No especificado'}
-- Examen físico: ${record.physical_exam || 'No especificado'}
+${patientInfo}
+${transcriptContext}
+${medicalContext}
+
+La fecha de hoy es: ${new Date().toISOString().split('T')[0]}
 
 Genera un JSON profesional y legal:
 {
-  "startDate": "Fecha de inicio de incapacidad",
-  "days": "Número de días de incapacidad (número)",
+  "startDate": "Fecha de inicio (la que mencionó el médico o fecha de hoy si no especificó)",
+  "days": número_de_días_de_incapacidad,
   "endDate": "Fecha de finalización calculada",
-  "diagnosis": "Diagnóstico completo que justifica la incapacidad",
+  "diagnosis": "Diagnóstico que justifica la incapacidad",
   "cie10Code": "Código CIE-10",
-  "type": "Tipo de incapacidad (enfermedad general, accidente de trabajo, etc)",
-  "justification": "Justificación médica detallada de la incapacidad",
+  "type": "Tipo de incapacidad (enfermedad general, accidente laboral, etc)",
+  "justification": "Justificación médica detallada basada en lo que dijo el médico",
   "severity": "Gravedad y limitaciones funcionales",
-  "restrictions": ["Lista detallada de restricciones y actividades que no puede realizar"],
-  "treatment": "Tratamiento prescrito durante la incapacidad",
-  "prognosis": "Pronóstico y evolución esperada",
-  "requiresExtension": "Si es probable que requiera extensión y por qué",
+  "restrictions": ["Lista de restricciones y actividades que no puede realizar"],
+  "treatment": "Tratamiento durante la incapacidad",
+  "prognosis": "Pronóstico esperado",
+  "requiresExtension": "Si es probable extensión",
   "workLimitations": "Limitaciones laborales específicas"
 }`,
   };
@@ -325,10 +326,18 @@ Genera un JSON profesional y legal:
       messages: [
         { 
           role: 'system', 
-          content: 'Eres un médico colombiano experto en documentación clínica. Generas documentos médicos profesionales, completos y conformes a las normas colombianas. Responde SOLO con JSON válido estructurado, sin texto adicional antes o después.' 
+          content: `Eres un médico colombiano experto en documentación clínica. Tu tarea es generar documentos médicos profesionales y completos.
+
+REGLAS CRÍTICAS:
+1. USA LA TRANSCRIPCIÓN ORIGINAL como fuente principal de información - contiene lo que el médico dictó
+2. Extrae datos EXACTOS: medicamentos, dosis, días de incapacidad, exámenes, etc.
+3. Si el médico dijo "5 días de incapacidad", pon 5 días, no inventes otro número
+4. Si el médico recetó Acetaminofén 500mg cada 8 horas por 5 días, esos son los datos exactos
+5. Responde SOLO con JSON válido estructurado, sin texto adicional` 
         },
         { role: 'user', content: prompt }
       ],
+      temperature: 0.2, // Baja temperatura para mayor precisión
     }),
   });
 
@@ -346,7 +355,10 @@ Genera un JSON profesional y legal:
   const content = data.choices?.[0]?.message?.content || '{}';
   
   try {
-    return JSON.parse(content);
+    // Extraer JSON si viene envuelto en markdown
+    const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
+    const jsonString = jsonMatch ? jsonMatch[1] : content;
+    return JSON.parse(jsonString.trim());
   } catch (e) {
     console.error('Error parsing AI response:', content);
     return { error: 'No se pudo generar el documento', rawContent: content };
