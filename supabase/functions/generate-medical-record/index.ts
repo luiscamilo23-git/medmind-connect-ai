@@ -131,8 +131,8 @@ Genera la historia clínica en formato JSON identificando claramente quién dice
       medicalRecord = JSON.parse(jsonString.trim());
 
       // --- Normalización defensiva ---
-      // A veces el modelo pone los signos vitales dentro de "physical_exam".
-      // Si vital_signs viene vacío, extraemos métricas comunes de manera determinística.
+      // El modelo a veces repite signos vitales dentro de "physical_exam".
+      // Regla: los signos vitales deben vivir en vital_signs; en physical_exam solo hallazgos descriptivos.
       const ensureVitalSigns = () => {
         const vs = (medicalRecord?.vital_signs && typeof medicalRecord.vital_signs === 'object')
           ? medicalRecord.vital_signs
@@ -162,62 +162,70 @@ Genera la historia clínica en formato JSON identificando claramente quién dice
       const isEmpty = (v: unknown) => typeof v !== 'string' || v.trim() === '';
       const vs = ensureVitalSigns();
 
-      const physicalExamText = typeof medicalRecord?.physical_exam === 'string'
+      let physicalExamText = typeof medicalRecord?.physical_exam === 'string'
         ? medicalRecord.physical_exam
         : '';
 
-      const vitalSignsAllEmpty = [
-        vs.blood_pressure,
-        vs.heart_rate,
-        vs.respiratory_rate,
-        vs.temperature,
-        vs.spo2,
-        vs.weight,
-        vs.height,
-      ].every(isEmpty);
-
-      if (vitalSignsAllEmpty && physicalExamText) {
-        const removals: string[] = [];
-
-        const tryMatch = (re: RegExp) => {
-          const m = physicalExamText.match(re);
-          if (!m) return null;
-          removals.push(m[0]);
-          return m;
+      if (physicalExamText) {
+        const removeAll = (re: RegExp) => {
+          // Fuerza global + unicode + insensitive (sin duplicar flags)
+          const flags = Array.from(new Set((re.flags + 'g').split(''))).join('');
+          physicalExamText = physicalExamText.replace(new RegExp(re.source, flags), ' ');
         };
 
-        const bp = tryMatch(/(Presi[oó]n\s*Arterial|TA)\s*[:\-]?\s*([0-9]{2,3}\/[0-9]{2,3})\s*mmHg/iu);
-        if (bp && isEmpty(vs.blood_pressure)) vs.blood_pressure = `${bp[2]} mmHg`;
-
-        const hr = tryMatch(/(Pulso|FC|Frecuencia\s*Card[ií]aca)\s*[:\-]?\s*([0-9]{2,3})\s*(lpm|bpm)?/iu);
-        if (hr && isEmpty(vs.heart_rate)) vs.heart_rate = `${hr[2]}${hr[3] ? ` ${hr[3]}` : ' lpm'}`;
-
-        const spo2 = tryMatch(/(Saturaci[oó]n(?:\s*de\s*Ox[ií]geno)?|SpO2)\s*[:\-]?\s*([0-9]{2,3})\s*%/iu);
-        if (spo2 && isEmpty(vs.spo2)) vs.spo2 = `${spo2[2]}%`;
-
-        const temp = tryMatch(/(Temperatura|Temp)\s*[:\-]?\s*([0-9]{2}(?:[\.,][0-9])?)\s*°?\s*C/iu);
-        if (temp && isEmpty(vs.temperature)) vs.temperature = `${temp[2].replace(',', '.')} °C`;
-
-        const rr = tryMatch(/(Frecuencia\s*Respiratoria|FR)\s*[:\-]?\s*([0-9]{1,3})\s*(rpm)?/iu);
-        if (rr && isEmpty(vs.respiratory_rate)) vs.respiratory_rate = `${rr[2]}${rr[3] ? ` ${rr[3]}` : ' rpm'}`;
-
-        const wt = tryMatch(/(Peso)\s*[:\-]?\s*([0-9]{2,3}(?:[\.,][0-9])?)\s*kg/iu);
-        if (wt && isEmpty(vs.weight)) vs.weight = `${wt[2].replace(',', '.')} kg`;
-
-        const ht = tryMatch(/(Talla|Altura)\s*[:\-]?\s*([0-9]{1,3}(?:[\.,][0-9])?)\s*(cm|m)/iu);
-        if (ht && isEmpty(vs.height)) vs.height = `${ht[2].replace(',', '.')} ${ht[3]}`;
-
-        // Limpia "physical_exam" quitando el bloque de signos vitales si venían al inicio.
-        let cleaned = physicalExamText;
-        for (const r of removals) cleaned = cleaned.replace(r, '');
-        cleaned = cleaned
-          .replace(/^\s*[,;-]+\s*/u, '')
+        const cleanup = (s: string) => s
           .replace(/\s{2,}/g, ' ')
+          .replace(/\s*,\s*/g, ', ')
+          .replace(/\s*;\s*/g, '; ')
+          .replace(/^[\s,;:-]+/u, '')
+          .replace(/[\s,;:-]+$/u, '')
           .trim();
 
-        // Solo reemplazar si realmente quedó algo distinto
-        if (cleaned && cleaned !== physicalExamText) {
-          medicalRecord.physical_exam = cleaned;
+        // 1) Presión arterial
+        const bpRe = /(Presi[oó]n\s*Arterial|TA)\s*[:\-]?\s*([0-9]{2,3}\s*\/\s*[0-9]{2,3})(?:\s*mmHg)?/iu;
+        const bp = physicalExamText.match(bpRe);
+        if (bp && isEmpty(vs.blood_pressure)) vs.blood_pressure = bp[2].replace(/\s+/g, '');
+        if (bp) removeAll(bpRe);
+
+        // 2) Frecuencia cardiaca
+        const hrRe = /(Pulso|FC|Frecuencia\s*Card[ií]aca)\s*[:\-]?\s*([0-9]{2,3})(?:\s*(lpm|bpm))?/iu;
+        const hr = physicalExamText.match(hrRe);
+        if (hr && isEmpty(vs.heart_rate)) vs.heart_rate = `${hr[2]}${hr[3] ? ` ${hr[3]}` : ' lpm'}`;
+        if (hr) removeAll(hrRe);
+
+        // 3) Frecuencia respiratoria
+        const rrRe = /(Frecuencia\s*Respiratoria|FR)\s*[:\-]?\s*([0-9]{1,3})(?:\s*(rpm|resp\/?min))?/iu;
+        const rr = physicalExamText.match(rrRe);
+        if (rr && isEmpty(vs.respiratory_rate)) vs.respiratory_rate = `${rr[2]}${rr[3] ? ` ${rr[3]}` : ' rpm'}`;
+        if (rr) removeAll(rrRe);
+
+        // 4) Temperatura
+        const tempRe = /(Temperatura|Temp)\s*[:\-]?\s*([0-9]{2}(?:[\.,][0-9])?)(?:\s*(?:°?\s*C|Celsius|grados?\s*Celsius|grados?\s*C))?/iu;
+        const temp = physicalExamText.match(tempRe);
+        if (temp && isEmpty(vs.temperature)) vs.temperature = `${temp[2].replace(',', '.')} °C`;
+        if (temp) removeAll(tempRe);
+
+        // 5) SpO2
+        const spo2Re = /(Saturaci[oó]n(?:\s*de\s*Ox[ií]geno)?|SpO2|s\s*&\s*p\s*o2)\s*[:\-]?\s*([0-9]{2,3})(?:\s*%|\s*por\s*ciento)?/iu;
+        const spo2 = physicalExamText.match(spo2Re);
+        if (spo2 && isEmpty(vs.spo2)) vs.spo2 = `${spo2[2]}%`;
+        if (spo2) removeAll(spo2Re);
+
+        // 6) Peso
+        const wtRe = /(Peso)\s*[:\-]?\s*([0-9]{1,3}(?:[\.,][0-9])?)(?:\s*kg)?/iu;
+        const wt = physicalExamText.match(wtRe);
+        if (wt && isEmpty(vs.weight)) vs.weight = `${wt[2].replace(',', '.')} kg`;
+        if (wt) removeAll(wtRe);
+
+        // 7) Talla/altura
+        const htRe = /(Talla|Altura)\s*[:\-]?\s*([0-9]{1,3}(?:[\.,][0-9])?)(?:\s*(cm|m))?/iu;
+        const ht = physicalExamText.match(htRe);
+        if (ht && isEmpty(vs.height)) vs.height = `${ht[2].replace(',', '.')} ${ht[3] ?? 'cm'}`;
+        if (ht) removeAll(htRe);
+
+        const cleaned = cleanup(physicalExamText);
+        if (cleaned !== medicalRecord.physical_exam) {
+          medicalRecord.physical_exam = cleaned; // puede quedar "" si solo había signos vitales
         }
       }
     } catch (parseError) {
