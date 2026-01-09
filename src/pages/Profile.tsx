@@ -10,15 +10,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Activity, ArrowLeft, Camera, Save, Volume2, VolumeX } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
+import { SpecialtySelector } from "@/components/SpecialtySelector";
+import { MedicalSpecialty } from "@/config/medicalSpecialties";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [originalSpecialty, setOriginalSpecialty] = useState<string>("");
   const [profile, setProfile] = useState({
     full_name: "",
-    specialty: "",
+    specialty: "" as MedicalSpecialty | "",
     bio: "",
     phone: "",
     license_number: "",
@@ -53,9 +56,11 @@ const Profile = () => {
       if (error && error.code !== "PGRST116") throw error;
 
       if (data) {
+        const specialtyValue = data.specialty || "";
+        setOriginalSpecialty(specialtyValue);
         setProfile({
           full_name: data.full_name || "",
-          specialty: data.specialty || "",
+          specialty: specialtyValue as MedicalSpecialty | "",
           bio: data.bio || "",
           phone: data.phone || "",
           license_number: data.license_number || "",
@@ -229,15 +234,12 @@ const Profile = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="specialty">Especialidad *</Label>
-                <Input
-                  id="specialty"
-                  value={profile.specialty}
-                  onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
-                  placeholder="Cardiología, Odontología, etc."
-                />
-              </div>
+              <SpecialtySelector
+                value={profile.specialty}
+                onChange={(value) => setProfile({ ...profile, specialty: value })}
+                showDescription
+                showWarning={originalSpecialty !== "" && profile.specialty !== originalSpecialty}
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="license_number">Número de Licencia</Label>

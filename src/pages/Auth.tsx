@@ -12,6 +12,8 @@ import { Activity, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import MFASetup from "@/components/auth/MFASetup";
 import MFAVerification from "@/components/auth/MFAVerification";
+import { SpecialtySelector } from "@/components/SpecialtySelector";
+import { MedicalSpecialty } from "@/config/medicalSpecialties";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -20,6 +22,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [userRole, setUserRole] = useState<"doctor" | "patient">("patient");
+  const [specialty, setSpecialty] = useState<MedicalSpecialty | "">("");
   const [showPassword, setShowPassword] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showMFASetup, setShowMFASetup] = useState(false);
@@ -53,6 +56,17 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validar especialidad para médicos
+    if (userRole === "doctor" && !specialty) {
+      toast({
+        title: "Especialidad requerida",
+        description: "Por favor selecciona tu especialidad médica para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -69,11 +83,20 @@ const Auth = () => {
           data: {
             role: userRole,
             full_name: displayName,
+            specialty: userRole === "doctor" ? specialty : null,
           },
         },
       });
 
       if (error) throw error;
+
+      // Si es médico, actualizar el perfil con la especialidad
+      if (data.user && userRole === "doctor" && specialty) {
+        await supabase
+          .from("profiles")
+          .update({ specialty })
+          .eq("id", data.user.id);
+      }
 
       toast({
         title: "Registro exitoso",
@@ -410,7 +433,10 @@ const Auth = () => {
                 </div>
                 <div className="space-y-3">
                   <Label>Tipo de cuenta</Label>
-                  <RadioGroup value={userRole} onValueChange={(value: "doctor" | "patient") => setUserRole(value)}>
+                  <RadioGroup value={userRole} onValueChange={(value: "doctor" | "patient") => {
+                    setUserRole(value);
+                    if (value === "patient") setSpecialty("");
+                  }}>
                     <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-secondary/50 cursor-pointer">
                       <RadioGroupItem value="patient" id="patient" />
                       <Label htmlFor="patient" className="cursor-pointer flex-1">
@@ -427,7 +453,18 @@ const Auth = () => {
                     </div>
                   </RadioGroup>
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                
+                {/* Selector de especialidad para médicos */}
+                {userRole === "doctor" && (
+                  <SpecialtySelector
+                    value={specialty}
+                    onChange={setSpecialty}
+                    required
+                    showDescription
+                  />
+                )}
+                
+                <Button type="submit" className="w-full" disabled={loading || (userRole === "doctor" && !specialty)}>
                   {loading ? "Cargando..." : "Crear Cuenta"}
                 </Button>
 
