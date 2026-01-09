@@ -19,7 +19,6 @@ import {
   Sparkles,
   Download,
   Upload,
-  LogOut,
   User as UserIcon
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +33,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
+import { SpecialtyFields } from "@/components/SpecialtyFields";
+import { MedicalSpecialty, SPECIALTY_CONFIGS, getFieldsForSpecialty } from "@/config/medicalSpecialties";
 
 interface Suggestion {
   question: string;
@@ -66,7 +67,10 @@ const VoiceNotes = () => {
   const [title, setTitle] = useState("");
   const [isAutocompleting, setIsAutocompleting] = useState(false);
   
-  // Required fields
+  // Dynamic specialty fields state
+  const [specialtyFieldsValues, setSpecialtyFieldsValues] = useState<Record<string, any>>({});
+  
+  // Required fields (base fields - still maintained for backwards compatibility)
   const [patientIdentification, setPatientIdentification] = useState("");
   const [chiefComplaint, setChiefComplaint] = useState("");
   const [currentIllness, setCurrentIllness] = useState("");
@@ -103,6 +107,10 @@ const VoiceNotes = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  // Get doctor specialty
+  const doctorSpecialty: MedicalSpecialty = (doctorProfile?.specialty as MedicalSpecialty) || "MEDICO_GENERAL";
+  const specialtyConfig = SPECIALTY_CONFIGS[doctorSpecialty];
+  
   // Load doctor profile
   useEffect(() => {
     const loadProfile = async () => {
@@ -134,7 +142,7 @@ const VoiceNotes = () => {
         const { data, error } = await supabase.functions.invoke('analyze-clinical-transcript', {
           body: { 
             transcript,
-            specialty: null
+            specialty: doctorSpecialty
           },
           headers: {
             Authorization: `Bearer ${session?.access_token}`
@@ -162,7 +170,7 @@ const VoiceNotes = () => {
     }
 
     return () => clearInterval(interval);
-  }, [isRecording, transcript]);
+  }, [isRecording, transcript, doctorSpecialty]);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -227,28 +235,39 @@ const VoiceNotes = () => {
   }, [recordingField]);
 
   const appendToField = (field: string, text: string) => {
+    // Check base fields first
     switch(field) {
-      case 'patientIdentification': setPatientIdentification(prev => prev + text); break;
-      case 'chiefComplaint': setChiefComplaint(prev => prev + text); break;
-      case 'currentIllness': setCurrentIllness(prev => prev + text); break;
-      case 'ros': setRos(prev => prev + text); break;
-      case 'medicalHistory': setMedicalHistory(prev => prev + text); break;
-      case 'physicalExam': setPhysicalExam(prev => prev + text); break;
-      case 'diagnosticAids': setDiagnosticAids(prev => prev + text); break;
-      case 'diagnosis': setDiagnosis(prev => prev + text); break;
-      case 'cie10Code': setCie10Code(prev => prev + text); break;
-      case 'treatment': setTreatment(prev => prev + text); break;
-      case 'education': setEducation(prev => prev + text); break;
-      case 'followup': setFollowup(prev => prev + text); break;
-      case 'consent': setConsent(prev => prev + text); break;
-      case 'evolutionNotes': setEvolutionNotes(prev => prev + text); break;
-      case 'notes': setNotes(prev => prev + text); break;
+      case 'patientIdentification': setPatientIdentification(prev => prev + text); return;
+      case 'chiefComplaint': setChiefComplaint(prev => prev + text); return;
+      case 'currentIllness': setCurrentIllness(prev => prev + text); return;
+      case 'ros': setRos(prev => prev + text); return;
+      case 'medicalHistory': setMedicalHistory(prev => prev + text); return;
+      case 'physicalExam': setPhysicalExam(prev => prev + text); return;
+      case 'diagnosticAids': setDiagnosticAids(prev => prev + text); return;
+      case 'diagnosis': setDiagnosis(prev => prev + text); return;
+      case 'cie10Code': setCie10Code(prev => prev + text); return;
+      case 'treatment': setTreatment(prev => prev + text); return;
+      case 'education': setEducation(prev => prev + text); return;
+      case 'followup': setFollowup(prev => prev + text); return;
+      case 'consent': setConsent(prev => prev + text); return;
+      case 'evolutionNotes': setEvolutionNotes(prev => prev + text); return;
+      case 'notes': setNotes(prev => prev + text); return;
     }
+    
+    // Check specialty fields
+    setSpecialtyFieldsValues(prev => ({
+      ...prev,
+      [field]: (prev[field] || '') + text
+    }));
   };
 
   const startFieldRecording = (field: string) => {
     setRecordingField(field);
     startRecording();
+  };
+
+  const stopFieldRecording = () => {
+    stopRecording();
   };
 
   const startRecording = async () => {
@@ -375,10 +394,16 @@ const VoiceNotes = () => {
       evolutionNotes: "Notas de evolución",
       notes: "Notas adicionales"
     };
+    
+    // Also check specialty fields
+    const specialtyFields = getFieldsForSpecialty(doctorSpecialty);
+    const specialtyField = specialtyFields.find(f => f.key === field);
+    if (specialtyField) {
+      return specialtyField.label;
+    }
+    
     return labels[field] || field;
   };
-
-  // Combined AI Assistant function removed - now using runAIAssistant
 
   const runAIAssistant = async () => {
     if (!transcript) {
@@ -393,9 +418,12 @@ const VoiceNotes = () => {
     setIsAutocompleting(true);
 
     try {
-      // Paso 1: Autocompletar campos vacíos
+      // Paso 1: Autocompletar campos vacíos con contexto de especialidad
       const { data: extractData, error: extractError } = await supabase.functions.invoke('extract-clinical-info', {
-        body: { transcript }
+        body: { 
+          transcript,
+          specialty: doctorSpecialty
+        }
       });
 
       if (extractError) throw extractError;
@@ -422,13 +450,39 @@ const VoiceNotes = () => {
       if (extracted.medications && Array.isArray(extracted.medications) && medications.length === 0) {
         setMedications(extracted.medications);
       }
+      
+      // Autocompletar signos vitales
+      if (extracted.vitalSigns) {
+        setVitalSigns(prev => ({
+          blood_pressure: extracted.vitalSigns.blood_pressure || prev.blood_pressure,
+          heart_rate: extracted.vitalSigns.heart_rate || prev.heart_rate,
+          respiratory_rate: extracted.vitalSigns.respiratory_rate || prev.respiratory_rate,
+          temperature: extracted.vitalSigns.temperature || prev.temperature,
+          spo2: extracted.vitalSigns.spo2 || prev.spo2,
+          weight: extracted.vitalSigns.weight || prev.weight,
+          height: extracted.vitalSigns.height || prev.height
+        }));
+      }
+      
+      // Autocompletar campos específicos de especialidad
+      if (extracted.specialtyFields) {
+        setSpecialtyFieldsValues(prev => {
+          const updated = { ...prev };
+          for (const [key, value] of Object.entries(extracted.specialtyFields)) {
+            if (value && !prev[key]) {
+              updated[key] = value;
+            }
+          }
+          return updated;
+        });
+      }
 
       // Paso 2: Analizar y sugerir preguntas faltantes
       setIsAnalyzing(true);
       const { data: suggestData, error: suggestError } = await supabase.functions.invoke('analyze-clinical-transcript', {
         body: { 
           transcript,
-          specialty: doctorProfile?.specialty || 'general'
+          specialty: doctorSpecialty
         }
       });
 
@@ -438,7 +492,7 @@ const VoiceNotes = () => {
 
       toast({
         title: "✨ Asistente IA completado",
-        description: "Campos autocompletados y sugerencias de preguntas generadas.",
+        description: `Campos autocompletados según tu especialidad: ${specialtyConfig?.name || doctorSpecialty}`,
       });
     } catch (error: any) {
       console.error('Error en asistente IA:', error);
@@ -451,6 +505,75 @@ const VoiceNotes = () => {
       setIsAutocompleting(false);
       setIsAnalyzing(false);
     }
+  };
+
+  // Handler para cambios en SpecialtyFields
+  const handleSpecialtyFieldChange = (key: string, value: any) => {
+    // Map specialty field keys to our state
+    if (key === 'patient_identification') {
+      setPatientIdentification(value);
+    } else if (key === 'patient_name') {
+      setPatientName(value);
+    } else if (key === 'chief_complaint') {
+      setChiefComplaint(value);
+    } else if (key === 'current_illness') {
+      setCurrentIllness(value);
+    } else if (key === 'personal_history' || key === 'family_history' || key === 'current_medications' || key === 'allergies') {
+      // Combine into medicalHistory
+      setSpecialtyFieldsValues(prev => ({ ...prev, [key]: value }));
+    } else if (key === 'blood_pressure') {
+      setVitalSigns(prev => ({ ...prev, blood_pressure: value }));
+    } else if (key === 'heart_rate') {
+      setVitalSigns(prev => ({ ...prev, heart_rate: value }));
+    } else if (key === 'respiratory_rate') {
+      setVitalSigns(prev => ({ ...prev, respiratory_rate: value }));
+    } else if (key === 'temperature') {
+      setVitalSigns(prev => ({ ...prev, temperature: value }));
+    } else if (key === 'spo2') {
+      setVitalSigns(prev => ({ ...prev, spo2: value }));
+    } else if (key === 'weight') {
+      setVitalSigns(prev => ({ ...prev, weight: value }));
+    } else if (key === 'height') {
+      setVitalSigns(prev => ({ ...prev, height: value }));
+    } else if (key === 'diagnosis') {
+      setDiagnosis(value);
+    } else if (key === 'cie10_code') {
+      setCie10Code(value);
+    } else if (key === 'treatment_plan') {
+      setTreatment(value);
+    } else if (key === 'consent') {
+      setConsent(value);
+    } else if (key === 'ros' || key === 'physical_exam') {
+      if (key === 'ros') setRos(value);
+      if (key === 'physical_exam') setPhysicalExam(value);
+    } else {
+      // Store in specialty fields
+      setSpecialtyFieldsValues(prev => ({ ...prev, [key]: value }));
+    }
+  };
+  
+  // Get combined values for SpecialtyFields component
+  const getSpecialtyFieldsValues = (): Record<string, any> => {
+    return {
+      patient_identification: patientIdentification,
+      patient_name: patientName,
+      chief_complaint: chiefComplaint,
+      current_illness: currentIllness,
+      blood_pressure: vitalSigns.blood_pressure,
+      heart_rate: vitalSigns.heart_rate,
+      respiratory_rate: vitalSigns.respiratory_rate,
+      temperature: vitalSigns.temperature,
+      spo2: vitalSigns.spo2,
+      weight: vitalSigns.weight,
+      height: vitalSigns.height,
+      diagnosis: diagnosis,
+      cie10_code: cie10Code,
+      treatment_plan: treatment,
+      consent: consent,
+      ros: ros,
+      physical_exam: physicalExam,
+      ...specialtyFieldsValues
+    };
   };
 
   const saveMedicalRecord = async () => {
@@ -537,7 +660,21 @@ const VoiceNotes = () => {
         }
       }
 
-      // Save complete medical record
+      // Combine medical history from specialty fields
+      const combinedMedicalHistory = [
+        medicalHistory,
+        specialtyFieldsValues.personal_history && `Antecedentes Personales: ${specialtyFieldsValues.personal_history}`,
+        specialtyFieldsValues.family_history && `Antecedentes Familiares: ${specialtyFieldsValues.family_history}`,
+        specialtyFieldsValues.current_medications && `Medicamentos Actuales: ${specialtyFieldsValues.current_medications}`,
+        specialtyFieldsValues.allergies && `Alergias: ${specialtyFieldsValues.allergies}`,
+      ].filter(Boolean).join('\n\n');
+
+      // Save complete medical record with specialty fields in notes
+      const specialtyNotes = Object.entries(specialtyFieldsValues)
+        .filter(([key, value]) => value && !['personal_history', 'family_history', 'current_medications', 'allergies'].includes(key))
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+
       const { data: savedRecord, error } = await supabase.from('medical_records')
         .insert([{
           doctor_id: user.id,
@@ -548,7 +685,7 @@ const VoiceNotes = () => {
           chief_complaint: chiefComplaint,
           current_illness: currentIllness,
           ros: ros,
-          medical_history: medicalHistory,
+          medical_history: combinedMedicalHistory || medicalHistory,
           vital_signs: vitalSigns,
           physical_exam: physicalExam,
           diagnostic_aids: diagnosticAids,
@@ -561,7 +698,7 @@ const VoiceNotes = () => {
           consent: consent,
           doctor_signature: doctorSignature,
           evolution_notes: evolutionNotes,
-          notes: notes,
+          notes: [notes, specialtyNotes].filter(Boolean).join('\n\n--- Campos Especializados ---\n'),
           voice_transcript: transcript,
         }])
         .select('*')
@@ -578,7 +715,7 @@ const VoiceNotes = () => {
 
       toast({
         title: "✅ Historia clínica guardada",
-        description: "Historia clínica completa guardada exitosamente.",
+        description: `Historia clínica de ${specialtyConfig?.name || 'Médico General'} guardada exitosamente.`,
       });
     } catch (error: any) {
       console.error('Error saving medical record:', error);
@@ -625,65 +762,9 @@ const VoiceNotes = () => {
     setEvolutionNotes("");
     setNotes("");
     setPatientName("");
+    setSpecialtyFieldsValues({});
     audioChunksRef.current = [];
     setAudioBlob(null);
-  };
-
-  const renderFieldWithMic = (
-    label: string,
-    value: string,
-    onChange: (value: string) => void,
-    fieldKey: string,
-    isTextarea: boolean = true
-  ) => {
-    const isRecordingThis = isRecording && recordingField === fieldKey;
-    
-    return (
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>{label}</Label>
-          <Button
-            size="sm"
-            variant={isRecordingThis ? "destructive" : "outline"}
-            onClick={() => isRecordingThis ? stopRecording() : startFieldRecording(fieldKey)}
-            className="gap-2"
-          >
-            {isRecordingThis ? (
-              <>
-                <Square className="w-4 h-4" />
-                Detener
-              </>
-            ) : (
-              <>
-                <Mic className="w-4 h-4" />
-                Transcribir
-              </>
-            )}
-          </Button>
-        </div>
-        {isTextarea ? (
-          <Textarea
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={`Escribe o transcribe ${label.toLowerCase()}`}
-            rows={3}
-            className={isRecordingThis ? "border-destructive animate-pulse" : ""}
-          />
-        ) : (
-          <Input
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={`Escribe o transcribe ${label.toLowerCase()}`}
-            className={isRecordingThis ? "border-destructive animate-pulse" : ""}
-          />
-        )}
-        {isRecordingThis && interimTranscript && (
-          <p className="text-sm text-muted-foreground italic">
-            Transcribiendo: {interimTranscript}
-          </p>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -704,7 +785,9 @@ const VoiceNotes = () => {
                   <h1 className="text-sm sm:text-lg font-bold truncate">
                     <span className="bg-gradient-feature-soft bg-clip-text text-transparent">VoiceNotes MD</span>
                   </h1>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">Historia Clínica con IA</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">
+                    {specialtyConfig?.name || 'Médico General'} • Historia Clínica con IA
+                  </p>
                 </div>
               </div>
               
@@ -744,446 +827,371 @@ const VoiceNotes = () => {
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 sm:gap-3 mb-2">
                     <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                    <h2 className="text-base sm:text-xl font-bold">Historia Clínica Completa</h2>
+                    <h2 className="text-base sm:text-xl font-bold">
+                      Historia Clínica - {specialtyConfig?.name || 'Médico General'}
+                    </h2>
                   </div>
                   <p className="text-white/80 text-xs sm:text-sm leading-relaxed">
-                    Cumple con normativa colombiana (Resolución 1995/1999) • Transcripción con IA
+                    {specialtyConfig?.description || 'Atención primaria y medicina familiar'} • Cumple con normativa colombiana (Resolución 1995/1999)
                   </p>
                 </div>
               </div>
-        {/* Recording Card */}
-        <Card className={`bg-gradient-to-br from-card via-card to-primary/5 shadow-xl border-border/50 overflow-hidden relative ${isRecording && !recordingField ? "border-destructive/50" : ""}`}>
-          <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-primary/5 rounded-full blur-3xl" />
-          <CardHeader className="relative p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg">
-              <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 flex-shrink-0">
-                <Mic className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              </div>
-              <span className="leading-tight">Grabación de Consulta</span>
-            </CardTitle>
-            <CardDescription className="text-xs sm:text-sm mt-1">
-              Graba en tiempo real o sube un archivo de audio para transcripción con IA
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 sm:space-y-6 relative p-4 sm:p-6 pt-0 sm:pt-0">
-            {/* Real-time recording buttons */}
-            <div className="space-y-3">
-              <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
-                <Mic className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                Grabación en tiempo real
-              </Label>
-              <div className={`flex items-center justify-center gap-3 sm:gap-4 flex-wrap p-4 sm:p-8 border-2 border-dashed rounded-xl sm:rounded-2xl transition-all duration-500 ${
-                isRecording && !recordingField 
-                  ? "border-destructive bg-destructive/5" 
-                  : "border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-primary/5"
-              }`}>
-                {!isRecording || recordingField ? (
-                  <div className="text-center space-y-3 sm:space-y-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                      <Mic className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+
+              {/* Recording Card */}
+              <Card className={`bg-gradient-to-br from-card via-card to-primary/5 shadow-xl border-border/50 overflow-hidden relative ${isRecording && !recordingField ? "border-destructive/50" : ""}`}>
+                <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-primary/5 rounded-full blur-3xl" />
+                <CardHeader className="relative p-4 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg">
+                    <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                      <Mic className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     </div>
-                    <Button
-                      size="default"
-                      onClick={() => startRecording()}
-                      className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 text-sm sm:text-base"
-                      disabled={isRecording && recordingField !== null}
-                    >
-                      <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
-                      Iniciar Grabación Completa
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center space-y-4 sm:space-y-5 w-full">
-                    <div className="relative inline-block">
-                      <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
-                        <Mic className="h-8 w-8 sm:h-12 sm:w-12 text-white animate-pulse" />
-                      </div>
-                      <div className="absolute inset-0 rounded-full border-4 border-destructive/50 animate-ping" />
-                      <div className="absolute inset-[-6px] sm:inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
-                    </div>
-                    
-                    {/* Audio Waveform Visualization */}
-                    <div className="w-full px-2 sm:px-4">
-                      <AudioWaveform isRecording={isRecording && !recordingField} mediaStream={mediaStream} barCount={32} className="h-14 sm:h-20" />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <p className="text-base sm:text-lg font-semibold text-destructive">Grabando consulta...</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>
-                    </div>
-                    <Button
-                      size="default"
-                      variant="destructive"
-                      onClick={stopRecording}
-                      className="gap-2 shadow-lg shadow-destructive/25 text-sm sm:text-base"
-                    >
-                      <Square className="w-4 h-4 sm:w-5 sm:h-5" />
-                      Detener Grabación
-                    </Button>
-                  </div>
-                )}
-                
-                {audioBlob && !isRecording && (
-                  <Button
-                    size="default"
-                    variant="outline"
-                    onClick={downloadAudio}
-                    className="gap-2 border-border/50 hover:bg-primary/10 hover:border-primary/50 text-sm sm:text-base"
-                  >
-                    <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                    Descargar Audio
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="relative py-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border/50" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-card px-4 text-sm text-muted-foreground font-medium">o</span>
-              </div>
-            </div>
-
-            {/* Audio file upload */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium flex items-center gap-2">
-                <Upload className="w-4 h-4 text-primary" />
-                Subir archivo de audio
-              </Label>
-              <AudioFileUpload 
-                onTranscriptionComplete={(text) => setTranscript(text)}
-              />
-            </div>
-
-            {isRecording && !recordingField && (
-              <div className="space-y-4">
-                <Badge variant="destructive" className="animate-pulse text-base py-2.5 px-5 w-full justify-center rounded-xl shadow-lg shadow-destructive/25">
-                  ● GRABANDO CONSULTA COMPLETA
-                </Badge>
-
-                {/* Suggestions while recording */}
-                {suggestions.length > 0 && (
-                  <Card className="bg-primary/5 border-primary/20">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-primary" />
-                        Sugerencias de IA en tiempo real
-                        {isAnalyzing && <Loader2 className="w-3 h-3 animate-spin ml-auto" />}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {suggestions.map((suggestion, idx) => (
-                        <div key={idx} className="bg-card p-3 rounded-lg border">
-                          <div className="flex items-start gap-2">
-                            <Badge variant={
-                              suggestion.priority === 'high' ? 'destructive' :
-                              suggestion.priority === 'medium' ? 'default' : 'secondary'
-                            } className="shrink-0 mt-1">
-                              {suggestion.priority}
-                            </Badge>
-                            <div className="flex-1 space-y-1">
-                              <p className="text-sm font-medium">{suggestion.question}</p>
-                              <p className="text-xs text-muted-foreground">{suggestion.reason}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Literal Transcript */}
-        {transcript && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-primary" />
-                    Transcripción Literal
+                    <span className="leading-tight">Grabación de Consulta</span>
                   </CardTitle>
-                  <CardDescription>
-                    Paso 2: Organiza con IA o llena manualmente los campos
+                  <CardDescription className="text-xs sm:text-sm mt-1">
+                    Graba en tiempo real o sube un archivo de audio para transcripción con IA
                   </CardDescription>
-                </div>
-                <Button
-                  onClick={runAIAssistant}
-                  disabled={isAutocompleting || isAnalyzing}
-                  className="gap-2"
-                >
-                  {isAutocompleting || isAnalyzing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Procesando con IA...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 w-4" />
-                      Asistente IA
-                    </>
+                </CardHeader>
+                <CardContent className="space-y-4 sm:space-y-6 relative p-4 sm:p-6 pt-0 sm:pt-0">
+                  {/* Real-time recording buttons */}
+                  <div className="space-y-3">
+                    <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                      <Mic className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+                      Grabación en tiempo real
+                    </Label>
+                    <div className={`flex items-center justify-center gap-3 sm:gap-4 flex-wrap p-4 sm:p-8 border-2 border-dashed rounded-xl sm:rounded-2xl transition-all duration-500 ${
+                      isRecording && !recordingField 
+                        ? "border-destructive bg-destructive/5" 
+                        : "border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-primary/5"
+                    }`}>
+                      {!isRecording || recordingField ? (
+                        <div className="text-center space-y-3 sm:space-y-4">
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                            <Mic className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                          </div>
+                          <Button
+                            size="default"
+                            onClick={() => startRecording()}
+                            className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 text-sm sm:text-base"
+                            disabled={isRecording && recordingField !== null}
+                          >
+                            <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
+                            Iniciar Grabación Completa
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="text-center space-y-4 sm:space-y-5 w-full">
+                          <div className="relative inline-block">
+                            <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-destructive to-destructive/80 rounded-full flex items-center justify-center shadow-2xl shadow-destructive/40">
+                              <Mic className="h-8 w-8 sm:h-12 sm:w-12 text-white animate-pulse" />
+                            </div>
+                            <div className="absolute inset-0 rounded-full border-4 border-destructive/50 animate-ping" />
+                            <div className="absolute inset-[-6px] sm:inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
+                          </div>
+                          
+                          {/* Audio Waveform Visualization */}
+                          <div className="w-full px-2 sm:px-4">
+                            <AudioWaveform isRecording={isRecording && !recordingField} mediaStream={mediaStream} barCount={32} className="h-14 sm:h-20" />
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <p className="text-base sm:text-lg font-semibold text-destructive">Grabando consulta...</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">Habla claramente cerca del micrófono</p>
+                          </div>
+                          <Button
+                            size="default"
+                            variant="destructive"
+                            onClick={stopRecording}
+                            className="gap-2 shadow-lg shadow-destructive/25 text-sm sm:text-base"
+                          >
+                            <Square className="w-4 h-4 sm:w-5 sm:h-5" />
+                            Detener Grabación
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {audioBlob && !isRecording && (
+                        <Button
+                          size="default"
+                          variant="outline"
+                          onClick={downloadAudio}
+                          className="gap-2 border-border/50 hover:bg-primary/10 hover:border-primary/50 text-sm sm:text-base"
+                        >
+                          <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+                          Descargar Audio
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="relative py-2">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-border/50" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-card px-4 text-sm text-muted-foreground font-medium">o</span>
+                    </div>
+                  </div>
+
+                  {/* Audio file upload */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Upload className="w-4 h-4 text-primary" />
+                      Subir archivo de audio
+                    </Label>
+                    <AudioFileUpload 
+                      onTranscriptionComplete={(text) => setTranscript(text)}
+                    />
+                  </div>
+
+                  {isRecording && !recordingField && (
+                    <div className="space-y-4">
+                      <Badge variant="destructive" className="animate-pulse text-base py-2.5 px-5 w-full justify-center rounded-xl shadow-lg shadow-destructive/25">
+                        ● GRABANDO CONSULTA COMPLETA
+                      </Badge>
+
+                      {/* Suggestions while recording */}
+                      {suggestions.length > 0 && (
+                        <Card className="bg-primary/5 border-primary/20">
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-sm flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-primary" />
+                              Sugerencias de IA para {specialtyConfig?.name || 'Médico General'}
+                              {isAnalyzing && <Loader2 className="w-3 h-3 animate-spin ml-auto" />}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-2">
+                            {suggestions.map((suggestion, idx) => (
+                              <div key={idx} className="bg-card p-3 rounded-lg border">
+                                <div className="flex items-start gap-2">
+                                  <Badge variant={
+                                    suggestion.priority === 'high' ? 'destructive' :
+                                    suggestion.priority === 'medium' ? 'default' : 'secondary'
+                                  } className="shrink-0 mt-1">
+                                    {suggestion.priority}
+                                  </Badge>
+                                  <div className="flex-1 space-y-1">
+                                    <p className="text-sm font-medium">{suggestion.question}</p>
+                                    <p className="text-xs text-muted-foreground">{suggestion.reason}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
                   )}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted/50 p-4 rounded-lg max-h-96 overflow-y-auto">
-                <p className="text-sm whitespace-pre-wrap">{transcript}</p>
-                {interimTranscript && !recordingField && (
-                  <p className="text-sm text-muted-foreground italic mt-2">
-                    {interimTranscript}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                </CardContent>
+              </Card>
 
-
-        {/* Complete Medical Record Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Historia Clínica Completa</CardTitle>
-            <CardDescription>
-              Completa todos los campos requeridos. Puedes escribir o usar el micrófono en cada campo.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Basic Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Paciente</Label>
-                <Input
-                  value={patientName}
-                  onChange={(e) => setPatientName(e.target.value)}
-                  placeholder="Nombre completo del paciente"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Tipo de Registro</Label>
-                <Select value={recordType} onValueChange={setRecordType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="consultation">Consulta</SelectItem>
-                    <SelectItem value="procedure">Procedimiento</SelectItem>
-                    <SelectItem value="diagnosis">Diagnóstico</SelectItem>
-                    <SelectItem value="prescription">Prescripción</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* 1. Identificación */}
-            {renderFieldWithMic("1. Identificación del Paciente", patientIdentification, setPatientIdentification, "patientIdentification")}
-
-            <Separator />
-
-            {/* 2-4. Motivo, Enfermedad, ROS */}
-            {renderFieldWithMic("2. Motivo de Consulta", chiefComplaint, setChiefComplaint, "chiefComplaint")}
-            {renderFieldWithMic("3. Enfermedad Actual", currentIllness, setCurrentIllness, "currentIllness")}
-            {renderFieldWithMic("4. Revisión por Sistemas (ROS)", ros, setRos, "ros")}
-
-            <Separator />
-
-            {/* 5. Antecedentes */}
-            {renderFieldWithMic("5. Antecedentes Médicos", medicalHistory, setMedicalHistory, "medicalHistory")}
-
-            <Separator />
-
-            {/* 6. Signos Vitales */}
-            <div className="space-y-4">
-              <Label className="text-base font-semibold">6. Signos Vitales</Label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm">Presión Arterial</Label>
-                  <Input
-                    value={vitalSigns.blood_pressure}
-                    onChange={(e) => setVitalSigns({...vitalSigns, blood_pressure: e.target.value})}
-                    placeholder="120/80"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">Frecuencia Cardíaca</Label>
-                  <Input
-                    value={vitalSigns.heart_rate}
-                    onChange={(e) => setVitalSigns({...vitalSigns, heart_rate: e.target.value})}
-                    placeholder="72 lpm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">Frecuencia Respiratoria</Label>
-                  <Input
-                    value={vitalSigns.respiratory_rate}
-                    onChange={(e) => setVitalSigns({...vitalSigns, respiratory_rate: e.target.value})}
-                    placeholder="16 rpm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">Temperatura</Label>
-                  <Input
-                    value={vitalSigns.temperature}
-                    onChange={(e) => setVitalSigns({...vitalSigns, temperature: e.target.value})}
-                    placeholder="36.5°C"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">SpO2</Label>
-                  <Input
-                    value={vitalSigns.spo2}
-                    onChange={(e) => setVitalSigns({...vitalSigns, spo2: e.target.value})}
-                    placeholder="98%"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">Peso</Label>
-                  <Input
-                    value={vitalSigns.weight}
-                    onChange={(e) => setVitalSigns({...vitalSigns, weight: e.target.value})}
-                    placeholder="70 kg"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">Talla</Label>
-                  <Input
-                    value={vitalSigns.height}
-                    onChange={(e) => setVitalSigns({...vitalSigns, height: e.target.value})}
-                    placeholder="170 cm"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* 7-8. Examen Físico y Ayudas */}
-            {renderFieldWithMic("7. Examen Físico", physicalExam, setPhysicalExam, "physicalExam")}
-            {renderFieldWithMic("8. Ayudas Diagnósticas", diagnosticAids, setDiagnosticAids, "diagnosticAids")}
-
-            <Separator />
-
-            {/* 9. Diagnóstico */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="md:col-span-2">
-                {renderFieldWithMic("9. Diagnóstico", diagnosis, setDiagnosis, "diagnosis")}
-              </div>
-              <div>
-                {renderFieldWithMic("Código CIE-10", cie10Code, setCie10Code, "cie10Code", false)}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* 10. Plan */}
-            <div className="space-y-4">
-              <Label className="text-base font-semibold">10. Plan de Manejo</Label>
-              {renderFieldWithMic("Tratamiento", treatment, setTreatment, "treatment")}
-              {renderFieldWithMic("Educación al Paciente", education, setEducation, "education")}
-              {renderFieldWithMic("Seguimiento", followup, setFollowup, "followup")}
-            </div>
-
-            <Separator />
-
-            {/* 11. Consentimiento */}
-            {renderFieldWithMic("11. Consentimiento Informado", consent, setConsent, "consent")}
-
-            <Separator />
-
-            {/* 12. Firma Médica */}
-            <SignaturePad
-              onSignatureChange={setDoctorSignature}
-              initialSignature={doctorSignature}
-            />
-
-            <Separator />
-
-            {/* 13. Notas de Evolución */}
-            {renderFieldWithMic("13. Notas de Evolución (SOAP)", evolutionNotes, setEvolutionNotes, "evolutionNotes")}
-
-            <Separator />
-
-            {/* Additional Notes */}
-            {renderFieldWithMic("Notas Adicionales", notes, setNotes, "notes")}
-          </CardContent>
-        </Card>
-
-        {/* Save Button */}
-        <Card className="bg-gradient-card">
-          <CardContent className="pt-6">
-            <Button
-              size="lg"
-              onClick={saveMedicalRecord}
-              disabled={isSaving}
-              className="w-full gap-2"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <Save className="w-5 h-5" />
-                  Guardar Historia Clínica Completa
-                </>
+              {/* Literal Transcript */}
+              {transcript && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-primary" />
+                          Transcripción Literal
+                        </CardTitle>
+                        <CardDescription>
+                          Paso 2: Organiza con IA ({specialtyConfig?.name}) o llena manualmente los campos
+                        </CardDescription>
+                      </div>
+                      <Button
+                        onClick={runAIAssistant}
+                        disabled={isAutocompleting || isAnalyzing}
+                        className="gap-2"
+                      >
+                        {isAutocompleting || isAnalyzing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Procesando con IA...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 w-4" />
+                            Asistente IA
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-muted/50 p-4 rounded-lg max-h-96 overflow-y-auto">
+                      <p className="text-sm whitespace-pre-wrap">{transcript}</p>
+                      {interimTranscript && !recordingField && (
+                        <p className="text-sm text-muted-foreground italic mt-2">
+                          {interimTranscript}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               )}
-            </Button>
-          </CardContent>
-        </Card>
 
-      {/* Export Dialog after saving */}
-      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>✅ Historia Clínica Guardada</DialogTitle>
-            <DialogDescription>
-              Tu historia clínica ha sido guardada exitosamente. ¿Qué deseas hacer ahora?
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-3 py-4">
-            {savedMedicalRecord && doctorProfile && (
-              <ExportMedicalRecordPDF
-                medicalRecord={savedMedicalRecord}
-                patientName={patientName}
-                doctorName={doctorProfile.full_name}
-                doctorLicense={doctorProfile.license_number}
-                doctorSignature={doctorSignature || undefined}
+              {/* Title Card */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base">Información Básica</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Título de la Historia</Label>
+                      <Input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Ej: Consulta por dolor abdominal"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Tipo de Registro</Label>
+                      <Select value={recordType} onValueChange={setRecordType}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="consultation">Consulta</SelectItem>
+                          <SelectItem value="procedure">Procedimiento</SelectItem>
+                          <SelectItem value="diagnosis">Diagnóstico</SelectItem>
+                          <SelectItem value="prescription">Prescripción</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Dynamic Specialty Fields */}
+              <SpecialtyFields
+                specialty={doctorSpecialty}
+                values={getSpecialtyFieldsValues()}
+                onChange={handleSpecialtyFieldChange}
+                isRecording={isRecording}
+                recordingField={recordingField}
+                onStartRecording={startFieldRecording}
+                onStopRecording={stopFieldRecording}
+                interimTranscript={interimTranscript}
               />
-            )}
-            
-            {savedRecordId && savedMedicalRecord && doctorProfile && (
-              <MedicalDocumentGenerator
-                medicalRecordId={savedRecordId}
-                patientName={patientName}
-                doctorName={doctorProfile.full_name}
-                doctorLicense={doctorProfile.license_number}
-                doctorSignature={doctorSignature || undefined}
-              />
-            )}
-            
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={() => {
-                setShowExportDialog(false);
-                resetForm();
-              }}
-            >
-              Crear Nueva Historia
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+
+              <Separator className="my-6" />
+
+              {/* Signature */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Firma Digital del Médico</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SignaturePad
+                    onSignatureChange={setDoctorSignature}
+                    initialSignature={doctorSignature}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Evolution Notes */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Notas de Evolución (SOAP)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label>Notas de Evolución</Label>
+                      <Button
+                        size="sm"
+                        variant={isRecording && recordingField === 'evolutionNotes' ? "destructive" : "outline"}
+                        onClick={() => isRecording && recordingField === 'evolutionNotes' ? stopRecording() : startFieldRecording('evolutionNotes')}
+                        className="gap-2"
+                      >
+                        {isRecording && recordingField === 'evolutionNotes' ? (
+                          <><Square className="w-4 h-4" />Detener</>
+                        ) : (
+                          <><Mic className="w-4 h-4" />Transcribir</>
+                        )}
+                      </Button>
+                    </div>
+                    <Textarea
+                      value={evolutionNotes}
+                      onChange={(e) => setEvolutionNotes(e.target.value)}
+                      placeholder="Subjective, Objective, Assessment, Plan"
+                      rows={4}
+                      className={isRecording && recordingField === 'evolutionNotes' ? "border-destructive animate-pulse" : ""}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Save Button */}
+              <Card className="bg-gradient-card">
+                <CardContent className="pt-6">
+                  <Button
+                    size="lg"
+                    onClick={saveMedicalRecord}
+                    disabled={isSaving}
+                    className="w-full gap-2"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        Guardar Historia Clínica - {specialtyConfig?.name || 'Médico General'}
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Export Dialog after saving */}
+              <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>✅ Historia Clínica Guardada</DialogTitle>
+                    <DialogDescription>
+                      Historia de {specialtyConfig?.name || 'Médico General'} guardada exitosamente. ¿Qué deseas hacer ahora?
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="space-y-3 py-4">
+                    {savedMedicalRecord && doctorProfile && (
+                      <ExportMedicalRecordPDF
+                        medicalRecord={savedMedicalRecord}
+                        patientName={patientName}
+                        doctorName={doctorProfile.full_name}
+                        doctorLicense={doctorProfile.license_number}
+                        doctorSignature={doctorSignature || undefined}
+                      />
+                    )}
+                    
+                    {savedRecordId && savedMedicalRecord && doctorProfile && (
+                      <MedicalDocumentGenerator
+                        medicalRecordId={savedRecordId}
+                        patientName={patientName}
+                        doctorName={doctorProfile.full_name}
+                        doctorLicense={doctorProfile.license_number}
+                        doctorSignature={doctorSignature || undefined}
+                      />
+                    )}
+                    
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => {
+                        setShowExportDialog(false);
+                        resetForm();
+                      }}
+                    >
+                      Crear Nueva Historia
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </main>
         </div>

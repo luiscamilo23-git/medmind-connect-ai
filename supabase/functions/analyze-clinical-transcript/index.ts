@@ -7,13 +7,58 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Specialty-specific question templates
+const SPECIALTY_QUESTIONS: Record<string, string[]> = {
+  MEDICO_GENERAL: [
+    "¿Ha tenido fiebre, escalofríos o sudoración nocturna?",
+    "¿Tiene alguna alergia a medicamentos o alimentos?",
+    "¿Cuántos días de incapacidad necesita?",
+    "¿Necesita remisión a algún especialista?"
+  ],
+  PEDIATRIA: [
+    "¿Cuál fue la edad gestacional al nacer?",
+    "¿Cómo ha sido el desarrollo del niño?",
+    "¿Tiene el esquema de vacunación al día?",
+    "¿Cuál es el tipo de alimentación actual?",
+    "¿Quién es el acompañante legal del menor?"
+  ],
+  GINECOLOGIA: [
+    "¿Cuál es la fecha de última menstruación?",
+    "¿Cuántos embarazos ha tenido? ¿Partos, cesáreas, abortos?",
+    "¿Utiliza algún método anticonceptivo?",
+    "¿Cuándo fue su última citología?",
+    "¿Tiene control prenatal? ¿De cuántas semanas está?"
+  ],
+  MEDICINA_INTERNA: [
+    "¿Qué patologías crónicas tiene diagnosticadas?",
+    "¿Ha tenido hospitalizaciones previas?",
+    "¿Qué medicamentos toma actualmente y en qué dosis?",
+    "¿Qué comorbilidades presenta?",
+    "¿Cuál es su clasificación funcional NYHA?"
+  ],
+  PSIQUIATRIA: [
+    "¿Cómo está su estado de ánimo actualmente?",
+    "¿Ha tenido pensamientos de hacerse daño o quitarse la vida?",
+    "¿Está en terapia psicológica? ¿De qué tipo?",
+    "¿Toma medicamentos psiquiátricos?",
+    "¿Cómo es su sueño y apetito?"
+  ],
+  CIRUGIA: [
+    "¿Qué procedimiento quirúrgico se realizará?",
+    "¿Se explicaron los riesgos quirúrgicos al paciente?",
+    "¿Firmó el consentimiento informado?",
+    "¿Qué tipo de anestesia se utilizará?",
+    "¿Cómo ha sido la evolución postoperatoria?"
+  ]
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { transcript, specialty } = await req.json();
+    const { transcript, specialty = 'MEDICO_GENERAL' } = await req.json();
     
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -37,12 +82,16 @@ serve(async (req) => {
       );
     }
 
-    console.log('Analyzing transcript for missing information...');
+    console.log(`Analyzing transcript for ${specialty}...`);
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
+
+    // Get specialty context
+    const specialtyContext = getSpecialtyContext(specialty);
+    const specialtyQuestions = SPECIALTY_QUESTIONS[specialty] || SPECIALTY_QUESTIONS['MEDICO_GENERAL'];
 
     // Obtener historial de sugerencias del doctor para aprender patrones
     let historicalContext = '';
@@ -51,6 +100,7 @@ serve(async (req) => {
         .from('suggestion_history')
         .select('question, suggested_count, used_count')
         .eq('doctor_id', doctorId)
+        .eq('specialty', specialty)
         .order('suggested_count', { ascending: false })
         .limit(10);
 
@@ -58,6 +108,7 @@ serve(async (req) => {
         .from('doctor_questions')
         .select('question_text, frequency')
         .eq('doctor_id', doctorId)
+        .eq('specialty', specialty)
         .order('frequency', { ascending: false })
         .limit(10);
 
@@ -72,18 +123,22 @@ serve(async (req) => {
       }
     }
 
-    const systemPrompt = `Eres un asistente médico experto especializado en el sistema de salud colombiano. Tu tarea es analizar transcripciones de consultas médicas y sugerir preguntas que el doctor podría hacer para completar la historia clínica.
+    const systemPrompt = `Eres un asistente médico experto especializado en ${specialtyContext.name} dentro del sistema de salud colombiano. Tu tarea es analizar transcripciones de consultas médicas y sugerir preguntas que el doctor debería hacer para completar la historia clínica.
+
+ESPECIALIDAD ACTIVA: ${specialtyContext.name}
+${specialtyContext.description}
 
 CONTEXTO: Sistema de salud colombiano (Resolución 1995/1999)
 
 IMPORTANTE:
 - NO modifiques la transcripción original
-- SOLO analiza qué información CRÍTICA falta
-- Sugiere preguntas ESPECÍFICAS y ACCIONABLES
+- SOLO analiza qué información CRÍTICA falta para esta especialidad
+- Sugiere preguntas ESPECÍFICAS y ACCIONABLES acordes a ${specialtyContext.name}
 - Máximo 4 sugerencias, priorizando información médica crítica
 - APRENDE de los patrones históricos del doctor
+- Usa lenguaje apropiado para ${specialtyContext.name}
 
-INFORMACIÓN ESENCIAL para una historia clínica colombiana completa:
+INFORMACIÓN ESENCIAL para historia clínica de ${specialtyContext.name}:
 
 1. **MOTIVO DE CONSULTA**
    - ¿Cuál es el síntoma principal?
@@ -112,22 +167,27 @@ INFORMACIÓN ESENCIAL para una historia clínica colombiana completa:
 5. **EXAMEN FÍSICO**
    - Hallazgos pertinentes al motivo de consulta
 
+${specialtyContext.additionalQuestions}
+
+PREGUNTAS TÍPICAS DE ${specialtyContext.name.toUpperCase()}:
+${specialtyQuestions.map(q => `- ${q}`).join('\n')}
+
 ${historicalContext}
 
 FORMATO DE RESPUESTA (SOLO JSON):
 {
   "suggestions": [
     {
-      "question": "Pregunta específica que el doctor debería hacer",
-      "reason": "Por qué es importante esta información",
+      "question": "Pregunta específica que el doctor debería hacer según ${specialtyContext.name}",
+      "reason": "Por qué es importante esta información para esta especialidad",
       "priority": "high/medium/low"
     }
   ]
 }
 
 PRIORIDADES:
-- high: Crítico para diagnóstico o seguridad del paciente
-- medium: Importante para completar la historia
+- high: Crítico para diagnóstico o seguridad del paciente en ${specialtyContext.name}
+- medium: Importante para completar la historia según la especialidad
 - low: Complementario pero útil
 
 RESPONDE SOLO con el objeto JSON.`;
@@ -147,7 +207,7 @@ RESPONDE SOLO con el objeto JSON.`;
           },
           {
             role: 'user',
-            content: 'Analiza esta transcripción literal de consulta médica y sugiere preguntas para completar la historia clínica:\n\n' + transcript + '\n\nResponde SOLO con el objeto JSON, sin bloques markdown.'
+            content: `Analiza esta transcripción de consulta de ${specialtyContext.name} y sugiere preguntas para completar la historia clínica:\n\n${transcript}\n\nResponde SOLO con el objeto JSON, sin bloques markdown.`
           }
         ],
         temperature: 0.3,
@@ -183,7 +243,7 @@ RESPONDE SOLO con el objeto JSON.`;
       parsed = { suggestions: [] };
     }
     
-    console.log('Analysis complete, suggestions:', parsed.suggestions?.length || 0);
+    console.log(`Analysis complete for ${specialty}, suggestions:`, parsed.suggestions?.length || 0);
 
     // Guardar sugerencias en el historial para aprendizaje
     if (doctorId && parsed.suggestions && parsed.suggestions.length > 0) {
@@ -211,7 +271,7 @@ RESPONDE SOLO con el objeto JSON.`;
             .from('suggestion_history')
             .insert({
               doctor_id: doctorId,
-              specialty: specialty || null,
+              specialty: specialty,
               question: suggestion.question,
               reason: suggestion.reason,
               priority: suggestion.priority,
@@ -240,3 +300,84 @@ RESPONDE SOLO con el objeto JSON.`;
     );
   }
 });
+
+function getSpecialtyContext(specialty: string): { name: string; description: string; additionalQuestions: string } {
+  const contexts: Record<string, { name: string; description: string; additionalQuestions: string }> = {
+    MEDICO_GENERAL: {
+      name: "Médico General",
+      description: "Atención primaria y medicina familiar. Enfoque integral del paciente.",
+      additionalQuestions: `
+CAMPOS ESPECÍFICOS DE MÉDICO GENERAL:
+- Revisión por sistemas completa
+- Clasificación de riesgo
+- Necesidad de remisiones
+- Incapacidad médica si aplica`
+    },
+    PEDIATRIA: {
+      name: "Pediatría",
+      description: "Atención médica de niños y adolescentes. Enfoque en crecimiento y desarrollo.",
+      additionalQuestions: `
+CAMPOS ESPECÍFICOS DE PEDIATRÍA - PRIORIDAD ALTA:
+- Edad gestacional al nacer
+- Hitos del desarrollo (motor, lenguaje, social)
+- Esquema de vacunación actualizado
+- Tipo de alimentación (lactancia materna, fórmula, complementaria)
+- Datos del acompañante legal
+- Antecedentes perinatales (peso al nacer, complicaciones)
+- Percentiles de crecimiento`
+    },
+    GINECOLOGIA: {
+      name: "Ginecología / Obstetricia",
+      description: "Salud femenina, embarazo y sistema reproductivo.",
+      additionalQuestions: `
+CAMPOS ESPECÍFICOS DE GINECOLOGÍA - PRIORIDAD ALTA:
+- Fórmula obstétrica (G P A C)
+- Fecha de última menstruación (FUM)
+- Características del ciclo menstrual
+- Método anticonceptivo
+- Citología cervical
+- Mamografía si aplica
+- Si está embarazada: controles prenatales, semanas de gestación`
+    },
+    MEDICINA_INTERNA: {
+      name: "Medicina Interna",
+      description: "Enfermedades de adultos y patologías complejas crónicas.",
+      additionalQuestions: `
+CAMPOS ESPECÍFICOS DE MEDICINA INTERNA - PRIORIDAD ALTA:
+- Patologías crónicas con tiempo de evolución
+- Medicamentos actuales con dosis exactas
+- Escalas clínicas (NYHA para ICC, CHA2DS2-VASc, etc.)
+- Comorbilidades
+- Hospitalizaciones previas y motivos
+- Control metabólico (HbA1c, perfil lipídico)`
+    },
+    PSIQUIATRIA: {
+      name: "Psiquiatría / Psicología Clínica",
+      description: "Salud mental y trastornos psiquiátricos.",
+      additionalQuestions: `
+CAMPOS ESPECÍFICOS DE PSIQUIATRÍA - PRIORIDAD ALTA:
+- Estado mental actual (orientación, afecto, pensamiento)
+- Evaluación de riesgo suicida (ideación, plan, acceso a medios)
+- Antecedentes psiquiátricos
+- Tipo de terapia en curso
+- Medicamentos psicotrópicos actuales con dosis
+- Red de apoyo familiar/social
+- Funcionamiento laboral/académico`
+    },
+    CIRUGIA: {
+      name: "Cirugía",
+      description: "Procedimientos quirúrgicos y atención perioperatoria.",
+      additionalQuestions: `
+CAMPOS ESPECÍFICOS DE CIRUGÍA - PRIORIDAD ALTA:
+- Diagnóstico quirúrgico preciso
+- Procedimiento planificado
+- Riesgos quirúrgicos explicados
+- Consentimiento informado firmado
+- Ayuno preoperatorio
+- Tipo de anestesia
+- Estado postoperatorio si aplica`
+    }
+  };
+  
+  return contexts[specialty] || contexts['MEDICO_GENERAL'];
+}
