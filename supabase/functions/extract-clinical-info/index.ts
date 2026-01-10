@@ -33,51 +33,45 @@ serve(async (req) => {
     
     const specialtyContext = getSpecialtyContext(specialty);
 
-    const systemPrompt = `Eres un asistente médico experto en el sistema de salud colombiano, especializado en ${specialtyContext.name}. Tu tarea es analizar transcripciones de consultas médicas y extraer información estructurada para llenar una historia clínica completa según la normativa colombiana (Resolución 1995/1999).
+    const systemPrompt = `Eres un asistente médico experto en el sistema de salud colombiano, especializado en ${specialtyContext.name}. Tu tarea es analizar transcripciones de consultas médicas y extraer TODA la información estructurada.
 
 ESPECIALIDAD ACTIVA: ${specialtyContext.name}
 ${specialtyContext.description}
 
-CONTEXTO MÉDICO COLOMBIANO:
-- Las historias clínicas deben cumplir con la normativa del Ministerio de Salud de Colombia
-- Los diagnósticos deben asociarse con códigos CIE-10 cuando sea posible
-- Los medicamentos deben incluir nombre genérico, dosis, vía y frecuencia
+INSTRUCCIONES CRÍTICAS DE EXTRACCIÓN - LEE CON CUIDADO:
 
-EXTRAE LA SIGUIENTE INFORMACIÓN (solo lo que esté EXPLÍCITAMENTE mencionado):
+1. **EDAD**: Busca patrones como "X años", "tengo X", "tiene X años", "de X años de edad". Ejemplo: "tengo 17 años" → "17 años"
 
-1. **IDENTIFICACIÓN**: Nombre completo del paciente, documento de identidad
-2. **MOTIVO DE CONSULTA**: Síntoma o queja principal en palabras del paciente
-3. **ENFERMEDAD ACTUAL**: Historia cronológica detallada del padecimiento actual
-4. **REVISIÓN POR SISTEMAS (ROS)**: Síntomas por sistemas (cardiovascular, respiratorio, digestivo, etc.)
-5. **ANTECEDENTES**: 
-   - Personales patológicos (enfermedades previas)
-   - Quirúrgicos (cirugías previas)
-   - Farmacológicos (medicamentos actuales)
-   - Alérgicos
-   - Familiares
-6. **SIGNOS VITALES**: Extrae TODOS los signos vitales mencionados:
-   - Presión arterial / tensión arterial (ej: 120/80)
-   - Frecuencia cardíaca / pulso (ej: 72 lpm)
-   - Frecuencia respiratoria (ej: 16 rpm)
-   - Temperatura (ej: 36.5°C)
-   - Saturación de oxígeno / SpO2 (ej: 98%)
-   - Peso (ej: 70 kg)
-   - Talla / altura (ej: 170 cm)
-7. **EXAMEN FÍSICO**: Hallazgos del examen físico organizado por sistemas
-8. **AYUDAS DIAGNÓSTICAS**: Resultados de laboratorios, imágenes u otros estudios
-9. **DIAGNÓSTICO**: Impresión diagnóstica con código CIE-10 si es posible
-10. **PLAN DE TRATAMIENTO**: Medicamentos, procedimientos, interconsultas
-11. **EDUCACIÓN**: Recomendaciones y educación al paciente
-12. **SEGUIMIENTO**: Plan de control y seguimiento
+2. **SEXO**: Busca "masculino", "femenino", "hombre", "mujer", "sexo masculino/femenino". Normaliza SIEMPRE a "masculino" o "femenino"
+
+3. **TELÉFONO**: Busca secuencias numéricas que sean teléfonos. Ejemplo: "el teléfono es 321" → "321"
+
+4. **ANTECEDENTES**: Busca TODOS los tipos:
+   - Personales: "antecedentes personales", "padece de", "tiene diagnóstico de"
+   - Familiares: "antecedentes familiares", "en la familia hay"
+   - Medicamentos: "medicamentos actuales", "toma", "actualmente usa"
+   - Alergias: "alergia", "alérgico a", "ninguna alergia", "niega alergias"
+   Si dice "ninguno" o "niega", extrae ese valor explícitamente.
+
+5. **SIGNOS VITALES**: Extrae TODOS los mencionados:
+   - Presión: "120/80", "TA 120 82", "presión arterial", "tensión arterial"
+   - FC: "frecuencia de 71", "pulso", "frecuencia cardíaca"
+   - FR: "frecuencia respiratoria 16", "respiraciones"
+   - Temperatura: "temperatura es 35", "temp"
+   - SPO2: "saturación", "SPO2", "oximetría"
+   - Peso/Talla: "peso", "talla", "altura"
+
+6. **CÓDIGO CIE-10**: Si mencionan "código", "CIE", extráelo. Si NO lo mencionan pero hay diagnóstico claro, SUGIERE el código apropiado (ej: R10.4 para dolor abdominal)
+
+7. **PLAN DE MANEJO**: Busca "plan de manejo", "tratamiento", "indicaciones", "seguir", "continuar", "formular". Extrae TODO lo mencionado.
 
 ${specialtyContext.additionalInstructions}
 
-REGLAS CRÍTICAS:
+REGLAS:
 - NUNCA inventes información que no esté en la transcripción
-- Si algo no se menciona, déjalo VACÍO (no pongas "No se menciona" o similar)
-- Sé PRECISO en la extracción, respeta las palabras exactas cuando sea posible
-- Para CIE-10, sugiere el código más probable basado en el diagnóstico mencionado
-- SIEMPRE extrae signos vitales si se mencionan, incluso parcialmente`;
+- Si algo se menciona como "ninguno", "no tiene", "niega", extrae ese valor
+- Sé PRECISO, respeta las palabras exactas cuando sea posible`;
+
 
     // Build specialty fields schema dynamically
     const specialtyFieldsSchema: Record<string, any> = {};
@@ -111,10 +105,18 @@ REGLAS CRÍTICAS:
                 properties: {
                   patientName: { type: "string", description: "Nombre completo del paciente" },
                   patientIdentification: { type: "string", description: "Número de identificación (CC, TI, etc.)" },
+                  patientAge: { type: "string", description: "Edad del paciente. Busca 'X años', 'tengo X', 'tiene X años'. Ejemplo: '17 años'" },
+                  patientSex: { type: "string", enum: ["masculino", "femenino"], description: "Sexo del paciente. Normaliza a 'masculino' o 'femenino'" },
+                  patientPhone: { type: "string", description: "Teléfono del paciente" },
+                  patientAddress: { type: "string", description: "Dirección del paciente" },
                   chiefComplaint: { type: "string", description: "Motivo principal de consulta en palabras del paciente" },
                   currentIllness: { type: "string", description: "Historia detallada cronológica de la enfermedad actual" },
                   ros: { type: "string", description: "Revisión por sistemas - síntomas por aparatos" },
-                  medicalHistory: { type: "string", description: "Antecedentes: personales, quirúrgicos, familiares, alérgicos, farmacológicos" },
+                  medicalHistory: { type: "string", description: "Antecedentes generales" },
+                  personalHistory: { type: "string", description: "Antecedentes personales patológicos. Si dice 'ninguno', extrae 'Ninguno'" },
+                  familyHistory: { type: "string", description: "Antecedentes familiares. Si dice 'ninguno', extrae 'Ninguno'" },
+                  currentMedications: { type: "string", description: "Medicamentos actuales. Si dice 'ninguno', extrae 'Ninguno'" },
+                  allergies: { type: "string", description: "Alergias. Si dice 'ninguna', extrae 'Ninguna conocida'" },
                   vitalSigns: {
                     type: "object",
                     description: "Signos vitales extraídos de la transcripción",
@@ -131,8 +133,9 @@ REGLAS CRÍTICAS:
                   physicalExam: { type: "string", description: "Hallazgos del examen físico por sistemas" },
                   diagnosticAids: { type: "string", description: "Resultados de laboratorios, imágenes u otros estudios" },
                   diagnosis: { type: "string", description: "Diagnóstico o impresión diagnóstica" },
-                  cie10Code: { type: "string", description: "Código CIE-10 correspondiente al diagnóstico" },
+                  cie10Code: { type: "string", description: "Código CIE-10. Si no se menciona pero hay diagnóstico, SUGIERE el código apropiado (ej: R10.4 para dolor abdominal)" },
                   treatment: { type: "string", description: "Plan de tratamiento: medicamentos con dosis, procedimientos" },
+                  treatmentPlan: { type: "string", description: "Plan de manejo completo incluyendo indicaciones, seguimiento" },
                   medications: { 
                     type: "array",
                     items: { type: "string" },

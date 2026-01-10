@@ -21,6 +21,7 @@ import {
   Upload,
   User as UserIcon
 } from "lucide-react";
+import RecordingTimer from "@/components/RecordingTimer";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
@@ -63,6 +64,10 @@ const VoiceNotes = () => {
   
   // Medical record fields - Complete Colombian compliance
   const [patientName, setPatientName] = useState("");
+  const [patientAge, setPatientAge] = useState("");
+  const [patientSex, setPatientSex] = useState("");
+  const [patientPhone, setPatientPhone] = useState("");
+  const [patientAddress, setPatientAddress] = useState("");
   const [recordType, setRecordType] = useState("consultation");
   const [title, setTitle] = useState("");
   const [isAutocompleting, setIsAutocompleting] = useState(false);
@@ -430,21 +435,41 @@ const VoiceNotes = () => {
 
       const extracted = extractData.extractedData;
       
+      console.log("Datos extraídos por IA:", extracted);
+      
       // Autocompletar solo campos vacíos con información detectada por la IA
       if (extracted.patientName && !patientName) setPatientName(extracted.patientName);
       if (extracted.patientIdentification && !patientIdentification) setPatientIdentification(extracted.patientIdentification);
+      if (extracted.patientAge && !patientAge) setPatientAge(extracted.patientAge);
+      if (extracted.patientSex && !patientSex) setPatientSex(extracted.patientSex);
+      if (extracted.patientPhone && !patientPhone) setPatientPhone(extracted.patientPhone);
+      if (extracted.patientAddress && !patientAddress) setPatientAddress(extracted.patientAddress);
       if (extracted.chiefComplaint && !chiefComplaint) {
         setChiefComplaint(extracted.chiefComplaint);
         if (!title) setTitle(extracted.chiefComplaint);
       }
       if (extracted.currentIllness && !currentIllness) setCurrentIllness(extracted.currentIllness);
       if (extracted.ros && !ros) setRos(extracted.ros);
-      if (extracted.medicalHistory && !medicalHistory) setMedicalHistory(extracted.medicalHistory);
+      
+      // Antecedentes - combinar todos los tipos
+      const antecedentesExtraidos = [
+        extracted.medicalHistory,
+        extracted.personalHistory && `Personales: ${extracted.personalHistory}`,
+        extracted.familyHistory && `Familiares: ${extracted.familyHistory}`,
+        extracted.currentMedications && `Medicamentos: ${extracted.currentMedications}`,
+        extracted.allergies && `Alergias: ${extracted.allergies}`
+      ].filter(Boolean).join('\n');
+      if (antecedentesExtraidos && !medicalHistory) setMedicalHistory(antecedentesExtraidos);
+      
       if (extracted.physicalExam && !physicalExam) setPhysicalExam(extracted.physicalExam);
       if (extracted.diagnosticAids && !diagnosticAids) setDiagnosticAids(extracted.diagnosticAids);
       if (extracted.diagnosis && !diagnosis) setDiagnosis(extracted.diagnosis);
       if (extracted.cie10Code && !cie10Code) setCie10Code(extracted.cie10Code);
-      if (extracted.treatment && !treatment) setTreatment(extracted.treatment);
+      
+      // Plan de manejo - combinar treatment y treatmentPlan
+      const planManejo = extracted.treatmentPlan || extracted.treatment;
+      if (planManejo && !treatment) setTreatment(planManejo);
+      
       if (extracted.education && !education) setEducation(extracted.education);
       if (extracted.followup && !followup) setFollowup(extracted.followup);
       if (extracted.medications && Array.isArray(extracted.medications) && medications.length === 0) {
@@ -887,6 +912,9 @@ const VoiceNotes = () => {
                             <div className="absolute inset-0 rounded-full border-4 border-destructive/50 animate-ping" />
                             <div className="absolute inset-[-6px] sm:inset-[-8px] rounded-full border-2 border-destructive/30 animate-pulse" />
                           </div>
+                          
+                          {/* Recording Timer */}
+                          <RecordingTimer isRecording={isRecording && !recordingField} className="mx-auto" />
                           
                           {/* Audio Waveform Visualization */}
                           <div className="w-full px-2 sm:px-4">
