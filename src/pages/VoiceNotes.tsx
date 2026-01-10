@@ -451,7 +451,7 @@ const VoiceNotes = () => {
       if (extracted.currentIllness && !currentIllness) setCurrentIllness(extracted.currentIllness);
       if (extracted.ros && !ros) setRos(extracted.ros);
       
-      // Antecedentes - combinar todos los tipos
+      // Antecedentes - combinar todos los tipos (y también mapear a campos visibles)
       const antecedentesExtraidos = [
         extracted.medicalHistory,
         extracted.personalHistory && `Personales: ${extracted.personalHistory}`,
@@ -460,6 +460,15 @@ const VoiceNotes = () => {
         extracted.allergies && `Alergias: ${extracted.allergies}`
       ].filter(Boolean).join('\n');
       if (antecedentesExtraidos && !medicalHistory) setMedicalHistory(antecedentesExtraidos);
+
+      // Estos son los campos que la UI realmente muestra en la sección "Antecedentes"
+      setSpecialtyFieldsValues(prev => ({
+        ...prev,
+        personal_history: (prev.personal_history || extracted.personalHistory || ""),
+        family_history: (prev.family_history || extracted.familyHistory || ""),
+        current_medications: (prev.current_medications || extracted.currentMedications || ""),
+        allergies: (prev.allergies || extracted.allergies || ""),
+      }));
       
       if (extracted.physicalExam && !physicalExam) setPhysicalExam(extracted.physicalExam);
       if (extracted.diagnosticAids && !diagnosticAids) setDiagnosticAids(extracted.diagnosticAids);
@@ -534,56 +543,135 @@ const VoiceNotes = () => {
 
   // Handler para cambios en SpecialtyFields
   const handleSpecialtyFieldChange = (key: string, value: any) => {
-    // Map specialty field keys to our state
+    // Map keys (config/medicalSpecialties.ts) to our local state
     if (key === 'patient_identification') {
       setPatientIdentification(value);
-    } else if (key === 'patient_name') {
-      setPatientName(value);
-    } else if (key === 'chief_complaint') {
-      setChiefComplaint(value);
-    } else if (key === 'current_illness') {
-      setCurrentIllness(value);
-    } else if (key === 'personal_history' || key === 'family_history' || key === 'current_medications' || key === 'allergies') {
-      // Combine into medicalHistory
-      setSpecialtyFieldsValues(prev => ({ ...prev, [key]: value }));
-    } else if (key === 'blood_pressure') {
-      setVitalSigns(prev => ({ ...prev, blood_pressure: value }));
-    } else if (key === 'heart_rate') {
-      setVitalSigns(prev => ({ ...prev, heart_rate: value }));
-    } else if (key === 'respiratory_rate') {
-      setVitalSigns(prev => ({ ...prev, respiratory_rate: value }));
-    } else if (key === 'temperature') {
-      setVitalSigns(prev => ({ ...prev, temperature: value }));
-    } else if (key === 'spo2') {
-      setVitalSigns(prev => ({ ...prev, spo2: value }));
-    } else if (key === 'weight') {
-      setVitalSigns(prev => ({ ...prev, weight: value }));
-    } else if (key === 'height') {
-      setVitalSigns(prev => ({ ...prev, height: value }));
-    } else if (key === 'diagnosis') {
-      setDiagnosis(value);
-    } else if (key === 'cie10_code') {
-      setCie10Code(value);
-    } else if (key === 'treatment_plan') {
-      setTreatment(value);
-    } else if (key === 'consent') {
-      setConsent(value);
-    } else if (key === 'ros' || key === 'physical_exam') {
-      if (key === 'ros') setRos(value);
-      if (key === 'physical_exam') setPhysicalExam(value);
-    } else {
-      // Store in specialty fields
-      setSpecialtyFieldsValues(prev => ({ ...prev, [key]: value }));
+      return;
     }
+    if (key === 'patient_name') {
+      setPatientName(value);
+      return;
+    }
+
+    // Datos del paciente (estos campos existen en BASE_FIELDS)
+    if (key === 'age') {
+      setPatientAge(value);
+      return;
+    }
+    if (key === 'sex') {
+      setPatientSex(value);
+      return;
+    }
+    if (key === 'phone') {
+      setPatientPhone(value);
+      return;
+    }
+    if (key === 'address') {
+      setPatientAddress(value);
+      return;
+    }
+
+    if (key === 'chief_complaint') {
+      setChiefComplaint(value);
+      return;
+    }
+    if (key === 'current_illness') {
+      setCurrentIllness(value);
+      return;
+    }
+
+    // Antecedentes (la UI los muestra como campos separados)
+    if (key === 'personal_history' || key === 'family_history' || key === 'current_medications' || key === 'allergies') {
+      setSpecialtyFieldsValues(prev => ({ ...prev, [key]: value }));
+      return;
+    }
+
+    // Signos vitales
+    if (key === 'blood_pressure') {
+      setVitalSigns(prev => ({ ...prev, blood_pressure: value }));
+      return;
+    }
+    if (key === 'heart_rate') {
+      setVitalSigns(prev => ({ ...prev, heart_rate: value }));
+      return;
+    }
+    if (key === 'respiratory_rate') {
+      setVitalSigns(prev => ({ ...prev, respiratory_rate: value }));
+      return;
+    }
+    if (key === 'temperature') {
+      setVitalSigns(prev => ({ ...prev, temperature: value }));
+      return;
+    }
+    if (key === 'spo2') {
+      setVitalSigns(prev => ({ ...prev, spo2: value }));
+      return;
+    }
+    if (key === 'weight') {
+      setVitalSigns(prev => ({ ...prev, weight: value }));
+      return;
+    }
+    if (key === 'height') {
+      setVitalSigns(prev => ({ ...prev, height: value }));
+      return;
+    }
+
+    // Examen
+    if (key === 'ros') {
+      setRos(value);
+      return;
+    }
+    if (key === 'physical_exam') {
+      setPhysicalExam(value);
+      return;
+    }
+
+    // Diagnóstico
+    if (key === 'diagnosis') {
+      setDiagnosis(value);
+      return;
+    }
+    if (key === 'cie10_code') {
+      setCie10Code(value);
+      return;
+    }
+
+    // Plan
+    if (key === 'treatment_plan') {
+      setTreatment(value);
+      return;
+    }
+    if (key === 'consent') {
+      setConsent(value);
+      return;
+    }
+
+    // Todo lo demás lo guardamos como campo especializado
+    setSpecialtyFieldsValues(prev => ({ ...prev, [key]: value }));
   };
-  
+
   // Get combined values for SpecialtyFields component
   const getSpecialtyFieldsValues = (): Record<string, any> => {
     return {
+      // Datos del paciente
       patient_identification: patientIdentification,
       patient_name: patientName,
+      age: patientAge,
+      sex: patientSex,
+      phone: patientPhone,
+      address: patientAddress,
+
+      // Encuentro
       chief_complaint: chiefComplaint,
       current_illness: currentIllness,
+
+      // Antecedentes (visibles en UI)
+      personal_history: specialtyFieldsValues.personal_history || "",
+      family_history: specialtyFieldsValues.family_history || "",
+      current_medications: specialtyFieldsValues.current_medications || "",
+      allergies: specialtyFieldsValues.allergies || "",
+
+      // Signos vitales
       blood_pressure: vitalSigns.blood_pressure,
       heart_rate: vitalSigns.heart_rate,
       respiratory_rate: vitalSigns.respiratory_rate,
@@ -591,13 +679,19 @@ const VoiceNotes = () => {
       spo2: vitalSigns.spo2,
       weight: vitalSigns.weight,
       height: vitalSigns.height,
+
+      // Examen
+      ros: ros,
+      physical_exam: physicalExam,
+
+      // Dx + plan
       diagnosis: diagnosis,
       cie10_code: cie10Code,
       treatment_plan: treatment,
       consent: consent,
-      ros: ros,
-      physical_exam: physicalExam,
-      ...specialtyFieldsValues
+
+      // Campos específicos
+      ...specialtyFieldsValues,
     };
   };
 
