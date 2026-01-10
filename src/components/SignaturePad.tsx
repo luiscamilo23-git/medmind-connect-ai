@@ -101,13 +101,13 @@ export const SignaturePad = ({ onSignatureChange, initialSignature }: SignatureP
       const fileName = `${user.id}/${Date.now()}_signature.png`;
 
       const { data, error } = await supabase.storage
-        .from('voice-recordings')
-        .upload(fileName, blob);
+        .from('avatars')
+        .upload(fileName, blob, { upsert: true });
 
       if (error) throw error;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('voice-recordings')
+        .from('avatars')
         .getPublicUrl(fileName);
 
       setSignatureUrl(publicUrl);
@@ -140,13 +140,13 @@ export const SignaturePad = ({ onSignatureChange, initialSignature }: SignatureP
       const fileName = `${user.id}/${Date.now()}_${file.name}`;
 
       const { data, error } = await supabase.storage
-        .from('voice-recordings')
-        .upload(fileName, file);
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
 
       if (error) throw error;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('voice-recordings')
+        .from('avatars')
         .getPublicUrl(fileName);
 
       setSignatureUrl(publicUrl);

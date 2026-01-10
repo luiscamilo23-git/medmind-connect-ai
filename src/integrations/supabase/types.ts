@@ -1308,6 +1308,7 @@ export type Database = {
           notifications_sound_enabled: boolean | null
           phone: string | null
           services_list: string | null
+          signature_url: string | null
           specialty: string | null
           updated_at: string
           whatsapp_instance_name: string | null
@@ -1335,6 +1336,7 @@ export type Database = {
           notifications_sound_enabled?: boolean | null
           phone?: string | null
           services_list?: string | null
+          signature_url?: string | null
           specialty?: string | null
           updated_at?: string
           whatsapp_instance_name?: string | null
@@ -1362,6 +1364,7 @@ export type Database = {
           notifications_sound_enabled?: boolean | null
           phone?: string | null
           services_list?: string | null
+          signature_url?: string | null
           specialty?: string | null
           updated_at?: string
           whatsapp_instance_name?: string | null
