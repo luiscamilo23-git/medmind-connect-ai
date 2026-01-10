@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { SpecialtySelector } from "@/components/SpecialtySelector";
 import { MedicalSpecialty } from "@/config/medicalSpecialties";
+import { SignaturePad } from "@/components/SignaturePad";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -26,6 +27,7 @@ const Profile = () => {
     phone: "",
     license_number: "",
     avatar_url: "",
+    signature_url: "",
     notifications_sound_enabled: true
   });
   const navigate = useNavigate();
@@ -65,6 +67,7 @@ const Profile = () => {
           phone: data.phone || "",
           license_number: data.license_number || "",
           avatar_url: data.avatar_url || "",
+          signature_url: data.signature_url || "",
           notifications_sound_enabled: data.notifications_sound_enabled ?? true
         });
       }
@@ -301,6 +304,17 @@ const Profile = () => {
                     setProfile({ ...profile, notifications_sound_enabled: checked })
                   }
                 />
+              </div>
+
+              {/* Firma Médica */}
+              <div className="pt-4 border-t">
+                <SignaturePad
+                  initialSignature={profile.signature_url}
+                  onSignatureChange={(url) => setProfile({ ...profile, signature_url: url || "" })}
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Esta firma aparecerá en todas tus historias clínicas y documentos médicos
+                </p>
               </div>
             </div>
           </CardContent>
