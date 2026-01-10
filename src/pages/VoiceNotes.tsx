@@ -734,13 +734,27 @@ const VoiceNotes = () => {
 
       if (existingPatients && existingPatients.length > 0) {
         patientId = existingPatients[0].id;
+        // Actualizar datos del paciente si la IA los extrajo
+        const updateData: Record<string, any> = {};
+        if (patientPhone && patientPhone !== 'Sin especificar') updateData.phone = patientPhone;
+        if (patientAddress) updateData.address = patientAddress;
+        if (patientSex) updateData.sex = patientSex;
+
+        if (Object.keys(updateData).length > 0) {
+          await supabase
+            .from('patients')
+            .update(updateData)
+            .eq('id', patientId);
+        }
       } else {
         const { data: newPatient, error: createError } = await supabase
           .from('patients')
           .insert([{
             doctor_id: user.id,
             full_name: patientName.trim(),
-            phone: 'Sin especificar',
+            phone: patientPhone || 'Sin especificar',
+            address: patientAddress || null,
+            sex: patientSex || null,
           }])
           .select('id')
           .single();
