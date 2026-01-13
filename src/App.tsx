@@ -46,7 +46,6 @@ import ModeratorInvoices from "./pages/moderator/ModeratorInvoices";
 import ModeratorSocial from "./pages/moderator/ModeratorSocial";
 import ModeratorUsers from "./pages/moderator/ModeratorUsers";
 import ModeratorInventory from "./pages/moderator/ModeratorInventory";
-import SystemStatus from "./pages/admin/SystemStatus";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -101,8 +100,6 @@ const App = () => (
           <Route path="/moderator/social" element={<ModeratorSocial />} />
           <Route path="/moderator/users" element={<ModeratorUsers />} />
           <Route path="/moderator/audit-logs" element={<ModeratorAuditLogs />} />
-          {/* Admin Routes */}
-          <Route path="/admin/status" element={<SystemStatus />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
