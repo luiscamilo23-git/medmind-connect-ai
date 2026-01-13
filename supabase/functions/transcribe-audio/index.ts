@@ -42,10 +42,22 @@ serve(async (req) => {
   }
 
   try {
-    const { audio } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { audio, healthCheck } = body;
+    
+    // Handle health check pings from system status page
+    if (healthCheck === true) {
+      return new Response(
+        JSON.stringify({ status: 'ok', message: 'Transcribe audio function is healthy' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     if (!audio) {
-      throw new Error('No audio data provided');
+      return new Response(
+        JSON.stringify({ error: 'No audio data provided' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('Received audio data, length:', audio.length);
