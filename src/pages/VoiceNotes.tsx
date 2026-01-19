@@ -36,6 +36,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
 import { SpecialtyFields } from "@/components/SpecialtyFields";
 import { MedicalSpecialty, SPECIALTY_CONFIGS, getFieldsForSpecialty } from "@/config/medicalSpecialties";
+import { ClinicalAlerts, ClinicalAlertsData } from "@/components/ClinicalAlerts";
 
 interface Suggestion {
   question: string;
@@ -108,6 +109,9 @@ const VoiceNotes = () => {
   const [savedMedicalRecord, setSavedMedicalRecord] = useState<any>(null);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
   const [showExportDialog, setShowExportDialog] = useState(false);
+  
+  // Clinical alerts state
+  const [clinicalAlerts, setClinicalAlerts] = useState<ClinicalAlertsData>({});
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -434,8 +438,27 @@ const VoiceNotes = () => {
       if (extractError) throw extractError;
 
       const extracted = extractData.extractedData;
+      const alerts = extractData.clinicalAlerts;
       
       console.log("Datos extraídos por IA:", extracted);
+      console.log("Alertas clínicas:", alerts);
+      
+      // Actualizar alertas clínicas
+      if (alerts) {
+        setClinicalAlerts(alerts);
+        
+        // Notificar al médico si hay alertas críticas
+        const criticalVitals = alerts.vitalSignAlerts?.filter((a: any) => a.status === 'critical') || [];
+        const severeInteractions = alerts.drugInteractions?.filter((d: any) => d.severity === 'severe') || [];
+        
+        if (criticalVitals.length > 0 || severeInteractions.length > 0) {
+          toast({
+            title: "⚠️ Alertas Críticas Detectadas",
+            description: `${criticalVitals.length} signos vitales críticos, ${severeInteractions.length} interacciones severas`,
+            variant: "destructive",
+          });
+        }
+      }
       
       // Autocompletar solo campos vacíos con información detectada por la IA
       if (extracted.patientName && !patientName) setPatientName(extracted.patientName);
@@ -539,6 +562,23 @@ const VoiceNotes = () => {
       setIsAutocompleting(false);
       setIsAnalyzing(false);
     }
+  };
+
+  // Handler para seleccionar código CIE-10 desde alertas
+  const handleSelectCIE10 = (code: string) => {
+    setCie10Code(code);
+    toast({
+      title: "Código CIE-10 seleccionado",
+      description: code,
+    });
+  };
+
+  // Handler para descartar interacción medicamentosa
+  const handleDismissInteraction = (index: number) => {
+    setClinicalAlerts(prev => ({
+      ...prev,
+      drugInteractions: prev.drugInteractions?.filter((_, i) => i !== index)
+    }));
   };
 
   // Handler para cambios en SpecialtyFields
@@ -1166,6 +1206,16 @@ const VoiceNotes = () => {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Clinical Alerts - Semi-automatic mode */}
+              {(clinicalAlerts.vitalSignAlerts?.length || clinicalAlerts.drugInteractions?.length || 
+                clinicalAlerts.cie10Suggestions?.length || clinicalAlerts.labResults?.length) ? (
+                <ClinicalAlerts 
+                  data={clinicalAlerts}
+                  onSelectCIE10={handleSelectCIE10}
+                  onDismissInteraction={handleDismissInteraction}
+                />
+              ) : null}
 
               {/* Title Card */}
               <Card>
