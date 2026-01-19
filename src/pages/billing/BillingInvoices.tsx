@@ -20,6 +20,7 @@ import { DIANEmissionLogsDialog } from "@/components/billing/DIANEmissionLogsDia
 import { DIANWebhookEventsDialog } from "@/components/billing/DIANWebhookEventsDialog";
 import { InvoiceReemissionDialog } from "@/components/billing/InvoiceReemissionDialog";
 import { DIANRealtimeNotifications } from "@/components/billing/DIANRealtimeNotifications";
+import { InvoiceDialog } from "@/components/billing/InvoiceDialog";
 import { generateInvoicePDF } from "@/utils/pdfGenerator";
 
 type Invoice = {
@@ -52,6 +53,7 @@ export default function BillingInvoices() {
   const [downloadingFormat, setDownloadingFormat] = useState<{ id: string; format: 'pdf' | 'xml' } | null>(null);
   const [reemissionDialogOpen, setReemissionDialogOpen] = useState(false);
   const [selectedInvoiceForReemission, setSelectedInvoiceForReemission] = useState<string | null>(null);
+  const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
 
   const { data: invoices, isLoading } = useQuery({
     queryKey: ["invoices"],
@@ -275,7 +277,7 @@ export default function BillingInvoices() {
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Monitoreo DIAN
                   </Button>
-                  <Button>
+                  <Button onClick={() => setInvoiceDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Nueva Factura
                   </Button>
@@ -542,7 +544,7 @@ export default function BillingInvoices() {
                         <p className="text-muted-foreground mb-4">
                           No hay facturas en esta categoría
                         </p>
-                        <Button>
+                        <Button onClick={() => setInvoiceDialogOpen(true)}>
                           <Plus className="h-4 w-4 mr-2" />
                           Crear Primera Factura
                         </Button>
@@ -579,6 +581,11 @@ export default function BillingInvoices() {
           onSuccess={handleReemissionSuccess}
         />
       )}
+
+      <InvoiceDialog
+        open={invoiceDialogOpen}
+        onOpenChange={setInvoiceDialogOpen}
+      />
     </SidebarProvider>
   );
 }
