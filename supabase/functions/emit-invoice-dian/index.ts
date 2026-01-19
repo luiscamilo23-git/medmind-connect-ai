@@ -49,6 +49,54 @@ interface Patient {
   address: string | null;
 }
 
+// Function to send email notification
+async function sendInvoiceEmail(
+  supabaseClient: any,
+  invoiceId: string,
+  patient: Patient,
+  numeroDian: string,
+  cufe: string,
+  total: number,
+  doctorName: string,
+  clinicName: string,
+  status: 'approved' | 'rejected',
+  errorMessage?: string
+) {
+  if (!patient.email) {
+    console.log('Patient has no email, skipping notification');
+    return;
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    
+    const response = await fetch(`${supabaseUrl}/functions/v1/send-invoice-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+      },
+      body: JSON.stringify({
+        invoiceId,
+        patientEmail: patient.email,
+        patientName: patient.full_name,
+        invoiceNumber: numeroDian || invoiceId.substring(0, 8).toUpperCase(),
+        invoiceStatus: status,
+        cufe,
+        errorMessage,
+        totalAmount: total,
+        doctorName,
+        clinicName,
+      }),
+    });
+
+    const result = await response.json();
+    console.log('Email notification result:', result);
+  } catch (error) {
+    console.error('Error sending email notification:', error);
+  }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -248,6 +296,20 @@ Deno.serve(async (req) => {
             .eq('id', logEntry.id);
         }
 
+        // Send rejection email
+        await sendInvoiceEmail(
+          supabaseClient,
+          invoiceId,
+          patient,
+          invoice.numero_factura_dian || invoiceId.substring(0, 8).toUpperCase(),
+          '',
+          invoice.total,
+          doctorProfile.full_name,
+          doctorProfile.clinic_name || '',
+          'rejected',
+          responseData.message || 'Error en la validación DIAN'
+        );
+
         return new Response(
           JSON.stringify({ 
             error: 'Error al emitir factura', 
@@ -290,6 +352,19 @@ Deno.serve(async (req) => {
           })
           .eq('id', logEntry.id);
       }
+
+      // Send success email notification
+      await sendInvoiceEmail(
+        supabaseClient,
+        invoiceId,
+        patient,
+        numeroDian || invoiceId.substring(0, 8).toUpperCase(),
+        cufe,
+        invoice.total,
+        doctorProfile.full_name,
+        doctorProfile.clinic_name || '',
+        'approved'
+      );
 
       return new Response(
         JSON.stringify({
