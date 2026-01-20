@@ -122,7 +122,7 @@ export function EmailPreviewDialog({
 
       toast({
         title: "¡Email enviado!",
-        description: `Factura enviada exitosamente a ${invoice.patients.email}`,
+        description: `Prefactura enviada exitosamente a ${invoice.patients.email}`,
       });
 
       onSuccess?.();
@@ -194,7 +194,7 @@ export function EmailPreviewDialog({
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-medium text-muted-foreground w-16">Asunto:</span>
                 <span>
-                  Factura {invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`} - {clinicOrDoctor}
+                  Prefactura {invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`} - {clinicOrDoctor}
                 </span>
               </div>
             </div>
@@ -210,7 +210,7 @@ export function EmailPreviewDialog({
                     className="text-center py-8 px-6"
                     style={{ background: 'linear-gradient(135deg, #0d9488 0%, #14B8A6 100%)' }}
                   >
-                    <h1 className="text-xl font-bold text-white mb-1">📄 Factura Electrónica</h1>
+                    <h1 className="text-xl font-bold text-white mb-1">📄 Prefactura</h1>
                     <p className="text-white/80 text-sm">{clinicOrDoctor}</p>
                   </div>
 
@@ -221,14 +221,14 @@ export function EmailPreviewDialog({
                     </p>
 
                     <p className="text-muted-foreground text-sm">
-                      Adjunto encontrarás tu factura electrónica correspondiente a los servicios de salud prestados. A continuación los detalles:
+                      Adjunto encontrarás tu prefactura correspondiente a los servicios prestados. A continuación los detalles:
                     </p>
 
                     {/* Invoice Details Box */}
                     <div className="bg-muted/30 rounded-xl p-5 border">
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <p className="text-xs text-muted-foreground uppercase">Número de Factura</p>
+                          <p className="text-xs text-muted-foreground uppercase">Número de Prefactura</p>
                           <p className="font-bold text-lg">
                             {invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`}
                           </p>
@@ -252,9 +252,9 @@ export function EmailPreviewDialog({
 
                     {/* Download button preview */}
                     <div className="text-center">
-                      <p className="text-muted-foreground text-sm mb-3">Descarga tu factura:</p>
+                      <p className="text-muted-foreground text-sm mb-3">Descarga tu prefactura:</p>
                       <div className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg text-sm font-semibold">
-                        📄 Descargar PDF
+                        📄 Descargar Prefactura PDF
                       </div>
                     </div>
 
@@ -276,7 +276,7 @@ export function EmailPreviewDialog({
                   {/* Footer bar */}
                   <div className="bg-slate-900 text-center py-4 px-6">
                     <p className="text-white text-sm font-medium">{clinicOrDoctor}</p>
-                    <p className="text-slate-400 text-xs">Facturación Electrónica · Colombia</p>
+                    <p className="text-slate-400 text-xs">Prefacturación · Colombia</p>
                   </div>
                 </div>
               </div>
