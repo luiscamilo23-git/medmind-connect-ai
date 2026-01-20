@@ -12,25 +12,28 @@ interface SendEmailRequest {
   patientEmail: string;
   patientName: string;
   invoiceNumber: string;
-  invoiceStatus?: 'approved' | 'rejected';
-  status?: 'approved' | 'rejected'; // Alternative field name from frontend
   cufe?: string;
-  errorMessage?: string;
   totalAmount?: number;
-  total?: number; // Alternative field name from frontend
+  total?: number;
   pdfUrl?: string;
   xmlUrl?: string;
   doctorName?: string;
   clinicName?: string;
+  fechaEmision?: string;
+  services?: Array<{ name: string; quantity: number; price: number }>;
 }
 
 const generateEmailHtml = (data: SendEmailRequest): string => {
-  const isApproved = (data.invoiceStatus || data.status) === 'approved';
   const amount = data.totalAmount ?? data.total ?? 0;
-  const formattedAmount = new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2 }).format(amount);
+  const formattedAmount = new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+  const clinicOrDoctor = data.clinicName || data.doctorName || 'Tu proveedor de salud';
   
-  if (isApproved) {
-    return `
+  // Format date
+  const fechaEmision = data.fechaEmision 
+    ? new Date(data.fechaEmision).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+    : new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,44 +47,63 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
         <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
           <!-- Header -->
           <tr>
-            <td style="background-color: #030712; padding: 24px 40px; text-align: center;">
-              <h1 style="color: #14B8A6; font-size: 28px; margin: 0;">💚 MEDMIND</h1>
-            </td>
-          </tr>
-          
-          <!-- Title -->
-          <tr>
-            <td style="padding: 32px 40px 16px; text-align: center;">
-              <h2 style="color: #1f2937; font-size: 22px; margin: 0;">✅ Factura Electrónica Aprobada</h2>
+            <td style="background: linear-gradient(135deg, #0d9488 0%, #14B8A6 100%); padding: 32px 40px; text-align: center;">
+              <h1 style="color: #ffffff; font-size: 24px; margin: 0 0 8px;">📄 Factura Electrónica</h1>
+              <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0;">${clinicOrDoctor}</p>
             </td>
           </tr>
           
           <!-- Greeting -->
           <tr>
-            <td style="padding: 16px 40px;">
-              <p style="color: #1f2937; font-size: 16px; margin: 0;">Hola ${data.patientName},</p>
+            <td style="padding: 32px 40px 16px;">
+              <p style="color: #1f2937; font-size: 16px; margin: 0;">Hola <strong>${data.patientName}</strong>,</p>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
-            <td style="padding: 16px 40px;">
-              <p style="color: #4b5563; font-size: 15px; line-height: 26px; margin: 0;">
-                Nos complace informarte que tu factura electrónica ha sido <strong style="color: #14B8A6;">aprobada exitosamente</strong> por la DIAN (Dirección de Impuestos y Aduanas Nacionales de Colombia).
+            <td style="padding: 8px 40px 24px;">
+              <p style="color: #4b5563; font-size: 15px; line-height: 24px; margin: 0;">
+                Adjunto encontrarás tu factura electrónica correspondiente a los servicios de salud prestados. A continuación los detalles:
               </p>
             </td>
           </tr>
           
           <!-- Invoice Details Box -->
           <tr>
-            <td style="padding: 24px 40px;">
-              <table width="100%" style="background-color: #f0fdfa; border: 1px solid #14B8A6; border-radius: 8px; padding: 20px;">
+            <td style="padding: 0 40px 24px;">
+              <table width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
                 <tr>
-                  <td style="padding: 20px;">
-                    <p style="color: #0d9488; font-size: 16px; font-weight: bold; margin: 0 0 16px;">📋 Detalles de la Factura</p>
-                    <p style="color: #1f2937; font-size: 14px; margin: 8px 0;"><strong>Número de Factura:</strong> ${data.invoiceNumber}</p>
-                    <p style="color: #1f2937; font-size: 14px; margin: 8px 0;"><strong>Valor Total:</strong> $${formattedAmount} COP</p>
-                    ${data.cufe ? `<p style="color: #1f2937; font-size: 14px; margin: 8px 0;"><strong>CUFE:</strong><br/><span style="font-size: 11px; word-break: break-all;">${data.cufe}</span></p>` : ''}
+                  <td style="padding: 24px;">
+                    <!-- Invoice Header -->
+                    <table width="100%" style="margin-bottom: 20px;">
+                      <tr>
+                        <td>
+                          <p style="color: #64748b; font-size: 12px; text-transform: uppercase; margin: 0 0 4px;">Número de Factura</p>
+                          <p style="color: #0f172a; font-size: 18px; font-weight: bold; margin: 0;">${data.invoiceNumber}</p>
+                        </td>
+                        <td style="text-align: right;">
+                          <p style="color: #64748b; font-size: 12px; text-transform: uppercase; margin: 0 0 4px;">Fecha</p>
+                          <p style="color: #0f172a; font-size: 14px; margin: 0;">${fechaEmision}</p>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <!-- Divider -->
+                    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 16px 0;">
+                    
+                    <!-- Total -->
+                    <table width="100%" style="margin-top: 16px;">
+                      <tr>
+                        <td>
+                          <p style="color: #64748b; font-size: 14px; margin: 0;">Total a Pagar</p>
+                        </td>
+                        <td style="text-align: right;">
+                          <p style="color: #0d9488; font-size: 28px; font-weight: bold; margin: 0;">$${formattedAmount}</p>
+                          <p style="color: #64748b; font-size: 12px; margin: 4px 0 0;">COP</p>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
@@ -90,23 +112,33 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
           
           <!-- Download Buttons -->
           <tr>
-            <td style="padding: 16px 40px; text-align: center;">
-              <p style="color: #4b5563; font-size: 15px; margin: 0 0 16px;">Puedes descargar tu factura en los siguientes formatos:</p>
-              ${data.pdfUrl ? `<a href="${data.pdfUrl}" style="display: inline-block; background-color: #14B8A6; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-right: 12px;">📄 Descargar PDF</a>` : ''}
-              ${data.xmlUrl ? `<a href="${data.xmlUrl}" style="display: inline-block; background-color: #1f2937; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold;">📁 Descargar XML</a>` : ''}
+            <td style="padding: 0 40px 32px; text-align: center;">
+              <p style="color: #4b5563; font-size: 14px; margin: 0 0 16px;">Descarga tu factura:</p>
+              <table align="center" cellpadding="0" cellspacing="0">
+                <tr>
+                  ${data.pdfUrl ? `
+                  <td style="padding-right: 12px;">
+                    <a href="${data.pdfUrl}" style="display: inline-block; background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">📄 Descargar PDF</a>
+                  </td>
+                  ` : `
+                  <td style="padding-right: 12px;">
+                    <span style="display: inline-block; background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 14px;">📄 PDF disponible en tu portal</span>
+                  </td>
+                  `}
+                </tr>
+              </table>
             </td>
           </tr>
           
-          <!-- Legal Info -->
+          <!-- Provider Info -->
           <tr>
-            <td style="padding: 24px 40px;">
-              <table width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <td style="padding: 24px 40px; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
+              <table width="100%">
                 <tr>
-                  <td style="padding: 16px 20px;">
-                    <p style="color: #475569; font-size: 13px; font-weight: bold; margin: 0 0 8px;">📌 Información Legal</p>
-                    <p style="color: #64748b; font-size: 12px; line-height: 18px; margin: 0;">
-                      Esta factura electrónica cumple con los requisitos establecidos por la DIAN según la Resolución 000042 de 2020 y sus modificaciones. El CUFE (Código Único de Factura Electrónica) permite verificar la autenticidad del documento ante la DIAN.
-                    </p>
+                  <td>
+                    <p style="color: #64748b; font-size: 12px; text-transform: uppercase; margin: 0 0 4px;">Emitido por</p>
+                    <p style="color: #0f172a; font-size: 15px; font-weight: 600; margin: 0;">${clinicOrDoctor}</p>
+                    ${data.doctorName && data.clinicName ? `<p style="color: #64748b; font-size: 13px; margin: 4px 0 0;">Dr(a). ${data.doctorName}</p>` : ''}
                   </td>
                 </tr>
               </table>
@@ -116,137 +148,30 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
           <!-- Divider -->
           <tr>
             <td style="padding: 0 40px;">
-              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;">
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0;">
             </td>
           </tr>
           
           <!-- Support Section -->
-          <tr>
-            <td style="padding: 20px 40px; background-color: #f8fafc;">
-              <p style="color: #1f2937; font-size: 14px; font-weight: bold; margin: 0 0 8px;">¿Tienes preguntas?</p>
-              <p style="color: #6b7280; font-size: 13px; margin: 0;">Si tienes alguna duda sobre tu factura o necesitas asistencia, no dudes en contactar directamente con tu proveedor de servicios de salud.</p>
-            </td>
-          </tr>
-          
-          <!-- Footer Note -->
-          <tr>
-            <td style="padding: 16px 40px; text-align: center;">
-              <p style="color: #9ca3af; font-size: 11px; margin: 0;">Este es un correo automático generado por el sistema de facturación electrónica MEDMIND. Por favor, no respondas directamente a este mensaje.</p>
-            </td>
-          </tr>
-          
-          <!-- Footer -->
-          <tr>
-            <td style="background-color: #030712; padding: 24px 40px; text-align: center;">
-              <p style="color: #ffffff; font-size: 14px; margin: 0 0 8px;"><strong>MEDMIND</strong><br/>Plataforma Inteligente para Médicos</p>
-              <p style="color: #14B8A6; font-size: 11px; margin: 0;">Colombia · Cumplimiento DIAN · Facturación Electrónica</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
-  } else {
-    // Rejected invoice email
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; background-color: #f4f7fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 0;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-          <!-- Header -->
-          <tr>
-            <td style="background-color: #030712; padding: 24px 40px; text-align: center;">
-              <h1 style="color: #14B8A6; font-size: 28px; margin: 0;">💚 MEDMIND</h1>
-            </td>
-          </tr>
-          
-          <!-- Title -->
-          <tr>
-            <td style="padding: 32px 40px 16px; text-align: center;">
-              <h2 style="color: #1f2937; font-size: 22px; margin: 0;">⚠️ Actualización de Factura</h2>
-            </td>
-          </tr>
-          
-          <!-- Greeting -->
-          <tr>
-            <td style="padding: 16px 40px;">
-              <p style="color: #1f2937; font-size: 16px; margin: 0;">Hola ${data.patientName},</p>
-            </td>
-          </tr>
-          
-          <!-- Content -->
-          <tr>
-            <td style="padding: 16px 40px;">
-              <p style="color: #4b5563; font-size: 15px; line-height: 26px; margin: 0;">
-                Queremos informarte que tu factura electrónica <strong>N° ${data.invoiceNumber}</strong> ha presentado un inconveniente en su validación ante la DIAN.
-              </p>
-            </td>
-          </tr>
-          
-          <!-- Error Box -->
-          ${data.errorMessage ? `
           <tr>
             <td style="padding: 24px 40px;">
-              <table width="100%" style="background-color: #fef2f2; border: 1px solid #f87171; border-radius: 8px;">
-                <tr>
-                  <td style="padding: 20px;">
-                    <p style="color: #dc2626; font-size: 16px; font-weight: bold; margin: 0 0 12px;">❌ Motivo del rechazo:</p>
-                    <p style="color: #991b1b; font-size: 14px; margin: 0;">${data.errorMessage}</p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          ` : ''}
-          
-          <!-- Resolution Message -->
-          <tr>
-            <td style="padding: 16px 40px;">
-              <p style="color: #4b5563; font-size: 15px; line-height: 26px; margin: 0 0 16px;">
-                Nuestro equipo está trabajando en corregir el problema. Te notificaremos por este medio cuando la factura sea reemitida y aprobada exitosamente.
-              </p>
-              <p style="color: #4b5563; font-size: 15px; line-height: 26px; margin: 0;">
-                <strong>No te preocupes:</strong> Este tipo de situaciones son comunes y se resuelven rápidamente. Tu atención médica y los servicios prestados no se ven afectados.
-              </p>
-            </td>
-          </tr>
-          
-          <!-- Divider -->
-          <tr>
-            <td style="padding: 0 40px;">
-              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
-            </td>
-          </tr>
-          
-          <!-- Support Section -->
-          <tr>
-            <td style="padding: 20px 40px; background-color: #f8fafc;">
-              <p style="color: #1f2937; font-size: 14px; font-weight: bold; margin: 0 0 8px;">¿Tienes preguntas?</p>
-              <p style="color: #6b7280; font-size: 13px; margin: 0;">Si tienes alguna duda sobre tu factura o necesitas asistencia, no dudes en contactar directamente con tu proveedor de servicios de salud.</p>
+              <p style="color: #1f2937; font-size: 14px; font-weight: 600; margin: 0 0 8px;">¿Tienes preguntas?</p>
+              <p style="color: #6b7280; font-size: 13px; line-height: 20px; margin: 0;">Si tienes alguna duda sobre esta factura o los servicios prestados, no dudes en contactar directamente con ${clinicOrDoctor}.</p>
             </td>
           </tr>
           
           <!-- Footer Note -->
           <tr>
-            <td style="padding: 16px 40px; text-align: center;">
-              <p style="color: #9ca3af; font-size: 11px; margin: 0;">Este es un correo automático generado por el sistema de facturación electrónica MEDMIND. Por favor, no respondas directamente a este mensaje.</p>
+            <td style="padding: 16px 40px 24px; text-align: center;">
+              <p style="color: #9ca3af; font-size: 11px; margin: 0;">Este es un correo automático. Por favor, no respondas directamente a este mensaje.</p>
             </td>
           </tr>
           
           <!-- Footer -->
           <tr>
-            <td style="background-color: #030712; padding: 24px 40px; text-align: center;">
-              <p style="color: #ffffff; font-size: 14px; margin: 0 0 8px;"><strong>MEDMIND</strong><br/>Plataforma Inteligente para Médicos</p>
-              <p style="color: #14B8A6; font-size: 11px; margin: 0;">Colombia · Cumplimiento DIAN · Facturación Electrónica</p>
+            <td style="background-color: #0f172a; padding: 24px 40px; text-align: center;">
+              <p style="color: #ffffff; font-size: 14px; margin: 0 0 4px;"><strong>${clinicOrDoctor}</strong></p>
+              <p style="color: #94a3b8; font-size: 12px; margin: 0;">Facturación Electrónica · Colombia</p>
             </td>
           </tr>
         </table>
@@ -255,7 +180,6 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
   </table>
 </body>
 </html>`;
-  }
 };
 
 const handler = async (req: Request): Promise<Response> => {
@@ -279,8 +203,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Received email request:", {
       invoiceId: requestData.invoiceId,
       patientEmail: requestData.patientEmail,
-      invoiceNumber: requestData.invoiceNumber,
-      invoiceStatus: requestData.invoiceStatus
+      invoiceNumber: requestData.invoiceNumber
     });
 
     // Validate required fields
@@ -291,13 +214,8 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate email HTML
     const emailHtml = generateEmailHtml(requestData);
 
-    // Determine status (support both field names)
-    const emailStatus = requestData.invoiceStatus || requestData.status || 'approved';
-
-    // Determine subject based on status
-    const subject = emailStatus === 'approved'
-      ? `✅ Factura ${requestData.invoiceNumber} - Aprobada por DIAN`
-      : `⚠️ Actualización de Factura ${requestData.invoiceNumber}`;
+    // Simple subject - just the invoice
+    const subject = `Factura ${requestData.invoiceNumber} - ${requestData.clinicName || requestData.doctorName || 'Tu proveedor de salud'}`;
 
     // Determine sender name
     const fromName = requestData.clinicName || requestData.doctorName || 'MEDMIND';
