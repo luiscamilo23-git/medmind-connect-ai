@@ -7,6 +7,13 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+interface ServiceItem {
+  descripcion: string;
+  cantidad: number;
+  precio_unitario: number;
+  total_linea: number;
+}
+
 interface SendEmailRequest {
   invoiceId: string;
   patientEmail: string;
@@ -15,12 +22,14 @@ interface SendEmailRequest {
   cufe?: string;
   totalAmount?: number;
   total?: number;
+  subtotal?: number;
+  impuestos?: number;
   pdfUrl?: string;
   xmlUrl?: string;
   doctorName?: string;
   clinicName?: string;
   fechaEmision?: string;
-  services?: Array<{ name: string; quantity: number; price: number }>;
+  services?: ServiceItem[];
 }
 
 const generateEmailHtml = (data: SendEmailRequest): string => {
@@ -28,10 +37,70 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
   const formattedAmount = new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   const clinicOrDoctor = data.clinicName || data.doctorName || 'Tu proveedor de salud';
   
-  // Format date
+  // Format date with time
   const fechaEmision = data.fechaEmision 
-    ? new Date(data.fechaEmision).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
-    : new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+    ? new Date(data.fechaEmision).toLocaleDateString('es-CO', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    : new Date().toLocaleDateString('es-CO', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+  // Generate services table HTML
+  const servicesHtml = data.services && data.services.length > 0 
+    ? `
+          <!-- Services Table -->
+          <tr>
+            <td style="padding: 0 40px 24px;">
+              <p style="color: #1f2937; font-size: 14px; font-weight: 600; margin: 0 0 12px;">Detalle de servicios:</p>
+              <table width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; border-collapse: collapse;">
+                <tr style="background-color: #0d9488;">
+                  <td style="padding: 10px 12px; color: white; font-size: 12px; font-weight: 600; text-transform: uppercase;">Servicio</td>
+                  <td style="padding: 10px 12px; color: white; font-size: 12px; font-weight: 600; text-align: center; text-transform: uppercase;">Cant.</td>
+                  <td style="padding: 10px 12px; color: white; font-size: 12px; font-weight: 600; text-align: right; text-transform: uppercase;">P. Unit.</td>
+                  <td style="padding: 10px 12px; color: white; font-size: 12px; font-weight: 600; text-align: right; text-transform: uppercase;">Total</td>
+                </tr>
+                ${data.services.map(service => `
+                <tr>
+                  <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #1f2937;">${service.descripcion}</td>
+                  <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #1f2937; text-align: center;">${service.cantidad}</td>
+                  <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #1f2937; text-align: right;">$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(service.precio_unitario)}</td>
+                  <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #0d9488; font-weight: 600; text-align: right;">$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(service.total_linea)}</td>
+                </tr>
+                `).join('')}
+              </table>
+            </td>
+          </tr>
+    `
+    : '';
+
+  // Subtotal and taxes if available
+  const subtotalHtml = data.subtotal !== undefined && data.impuestos !== undefined
+    ? `
+                    <tr>
+                      <td style="padding: 8px 0; border-top: 1px solid #e2e8f0;">
+                        <table width="100%">
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px;">Subtotal</td>
+                            <td style="text-align: right; color: #0f172a; font-size: 14px;">$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(data.subtotal)}</td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; padding-top: 4px;">IVA</td>
+                            <td style="text-align: right; color: #0f172a; font-size: 14px; padding-top: 4px;">$${new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(data.impuestos)}</td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+    `
+    : '';
 
   return `
 <!DOCTYPE html>
@@ -83,7 +152,7 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
                           <p style="color: #0f172a; font-size: 18px; font-weight: bold; margin: 0;">${data.invoiceNumber}</p>
                         </td>
                         <td style="text-align: right;">
-                          <p style="color: #64748b; font-size: 12px; text-transform: uppercase; margin: 0 0 4px;">Fecha</p>
+                          <p style="color: #64748b; font-size: 12px; text-transform: uppercase; margin: 0 0 4px;">Fecha y Hora</p>
                           <p style="color: #0f172a; font-size: 14px; margin: 0;">${fechaEmision}</p>
                         </td>
                       </tr>
@@ -91,6 +160,8 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
                     
                     <!-- Divider -->
                     <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 16px 0;">
+                    
+                    ${subtotalHtml}
                     
                     <!-- Total -->
                     <table width="100%" style="margin-top: 16px;">
@@ -109,6 +180,8 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
               </table>
             </td>
           </tr>
+          
+          ${servicesHtml}
           
           <!-- Download Buttons -->
           <tr>
@@ -203,12 +276,42 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Received email request:", {
       invoiceId: requestData.invoiceId,
       patientEmail: requestData.patientEmail,
-      invoiceNumber: requestData.invoiceNumber
+      invoiceNumber: requestData.invoiceNumber,
+      servicesCount: requestData.services?.length || 0
     });
 
     // Validate required fields
     if (!requestData.patientEmail || !requestData.invoiceNumber) {
       throw new Error('Missing required fields: patientEmail and invoiceNumber are required');
+    }
+
+    // If no services provided, fetch them from database
+    if (!requestData.services || requestData.services.length === 0) {
+      const { data: invoiceItems } = await supabase
+        .from('invoice_items')
+        .select('descripcion, cantidad, precio_unitario, total_linea')
+        .eq('invoice_id', requestData.invoiceId);
+      
+      if (invoiceItems && invoiceItems.length > 0) {
+        requestData.services = invoiceItems;
+      }
+    }
+
+    // Fetch subtotal and taxes if not provided
+    if (requestData.subtotal === undefined || requestData.impuestos === undefined) {
+      const { data: invoice } = await supabase
+        .from('invoices')
+        .select('subtotal, impuestos, pdf_url')
+        .eq('id', requestData.invoiceId)
+        .single();
+      
+      if (invoice) {
+        requestData.subtotal = invoice.subtotal || 0;
+        requestData.impuestos = invoice.impuestos || 0;
+        if (invoice.pdf_url && !requestData.pdfUrl) {
+          requestData.pdfUrl = invoice.pdf_url;
+        }
+      }
     }
 
     // Generate email HTML
