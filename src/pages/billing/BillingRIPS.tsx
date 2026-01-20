@@ -5,11 +5,12 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Download, Send, Eye, LogOut, Bell, User, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { Plus, Download, Send, Eye, LogOut, Bell, User, AlertCircle, CheckCircle, Clock, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { RIPSBatchDialog } from "@/components/billing/RIPSBatchDialog";
+import { AIRIPSAssistant } from "@/components/billing/AIRIPSAssistant";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type RIPSBatch = {
@@ -31,7 +32,8 @@ export default function BillingRIPS() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedBatch, setSelectedBatch] = useState<RIPSBatch | null>(null);
+  const [isAIOpen, setIsAIOpen] = useState(false);
+  const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null);
 
   const { data: batches, isLoading } = useQuery({
     queryKey: ["rips-batches"],
@@ -173,10 +175,16 @@ export default function BillingRIPS() {
                     Genera y valida tus archivos RIPS en formato JSON
                   </p>
                 </div>
-                <Button onClick={() => setIsDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nuevo Lote RIPS
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setIsAIOpen(true)}>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Asistente IA
+                  </Button>
+                  <Button onClick={() => setIsDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuevo Lote RIPS
+                  </Button>
+                </div>
               </div>
 
               {/* Statistics Cards */}
@@ -251,6 +259,17 @@ export default function BillingRIPS() {
                             </CardDescription>
                           </div>
                           <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedBatchId(batch.id);
+                                setIsAIOpen(true);
+                              }}
+                            >
+                              <Sparkles className="h-4 w-4 mr-2" />
+                              IA
+                            </Button>
                             {batch.estado === "DRAFT" && (
                               <Button
                                 size="sm"
@@ -343,6 +362,13 @@ export default function BillingRIPS() {
       <RIPSBatchDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+      />
+
+      <AIRIPSAssistant
+        open={isAIOpen}
+        onOpenChange={setIsAIOpen}
+        batchId={selectedBatchId || undefined}
+        onSuggestionsApplied={() => queryClient.invalidateQueries({ queryKey: ["rips-batches"] })}
       />
     </SidebarProvider>
   );
