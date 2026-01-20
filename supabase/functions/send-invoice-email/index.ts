@@ -12,10 +12,12 @@ interface SendEmailRequest {
   patientEmail: string;
   patientName: string;
   invoiceNumber: string;
-  invoiceStatus: 'approved' | 'rejected';
+  invoiceStatus?: 'approved' | 'rejected';
+  status?: 'approved' | 'rejected'; // Alternative field name from frontend
   cufe?: string;
   errorMessage?: string;
-  totalAmount: number;
+  totalAmount?: number;
+  total?: number; // Alternative field name from frontend
   pdfUrl?: string;
   xmlUrl?: string;
   doctorName?: string;
@@ -23,8 +25,9 @@ interface SendEmailRequest {
 }
 
 const generateEmailHtml = (data: SendEmailRequest): string => {
-  const isApproved = data.invoiceStatus === 'approved';
-  const formattedAmount = data.totalAmount.toLocaleString('es-CO', { minimumFractionDigits: 2 });
+  const isApproved = (data.invoiceStatus || data.status) === 'approved';
+  const amount = data.totalAmount ?? data.total ?? 0;
+  const formattedAmount = new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2 }).format(amount);
   
   if (isApproved) {
     return `
@@ -288,8 +291,11 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate email HTML
     const emailHtml = generateEmailHtml(requestData);
 
+    // Determine status (support both field names)
+    const emailStatus = requestData.invoiceStatus || requestData.status || 'approved';
+
     // Determine subject based on status
-    const subject = requestData.invoiceStatus === 'approved'
+    const subject = emailStatus === 'approved'
       ? `✅ Factura ${requestData.invoiceNumber} - Aprobada por DIAN`
       : `⚠️ Actualización de Factura ${requestData.invoiceNumber}`;
 
