@@ -48,7 +48,7 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(135deg, #0d9488 0%, #14B8A6 100%); padding: 32px 40px; text-align: center;">
-              <h1 style="color: #ffffff; font-size: 24px; margin: 0 0 8px;">📄 Factura Electrónica</h1>
+              <h1 style="color: #ffffff; font-size: 24px; margin: 0 0 8px;">📄 Prefactura</h1>
               <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0;">${clinicOrDoctor}</p>
             </td>
           </tr>
@@ -64,7 +64,7 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
           <tr>
             <td style="padding: 8px 40px 24px;">
               <p style="color: #4b5563; font-size: 15px; line-height: 24px; margin: 0;">
-                Adjunto encontrarás tu factura electrónica correspondiente a los servicios de salud prestados. A continuación los detalles:
+                Adjunto encontrarás tu prefactura correspondiente a los servicios prestados. A continuación los detalles:
               </p>
             </td>
           </tr>
@@ -79,7 +79,7 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
                     <table width="100%" style="margin-bottom: 20px;">
                       <tr>
                         <td>
-                          <p style="color: #64748b; font-size: 12px; text-transform: uppercase; margin: 0 0 4px;">Número de Factura</p>
+                          <p style="color: #64748b; font-size: 12px; text-transform: uppercase; margin: 0 0 4px;">Número de Prefactura</p>
                           <p style="color: #0f172a; font-size: 18px; font-weight: bold; margin: 0;">${data.invoiceNumber}</p>
                         </td>
                         <td style="text-align: right;">
@@ -113,16 +113,16 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
           <!-- Download Buttons -->
           <tr>
             <td style="padding: 0 40px 32px; text-align: center;">
-              <p style="color: #4b5563; font-size: 14px; margin: 0 0 16px;">Descarga tu factura:</p>
+              <p style="color: #4b5563; font-size: 14px; margin: 0 0 16px;">Descarga tu prefactura:</p>
               <table align="center" cellpadding="0" cellspacing="0">
                 <tr>
                   ${data.pdfUrl ? `
                   <td style="padding-right: 12px;">
-                    <a href="${data.pdfUrl}" style="display: inline-block; background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">📄 Descargar PDF</a>
+                    <a href="${data.pdfUrl}" style="display: inline-block; background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">📄 Descargar Prefactura PDF</a>
                   </td>
                   ` : `
                   <td style="padding-right: 12px;">
-                    <span style="display: inline-block; background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 14px;">📄 PDF disponible en tu portal</span>
+                    <span style="display: inline-block; background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 14px;">📄 Prefactura disponible en tu portal</span>
                   </td>
                   `}
                 </tr>
@@ -156,7 +156,7 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
           <tr>
             <td style="padding: 24px 40px;">
               <p style="color: #1f2937; font-size: 14px; font-weight: 600; margin: 0 0 8px;">¿Tienes preguntas?</p>
-              <p style="color: #6b7280; font-size: 13px; line-height: 20px; margin: 0;">Si tienes alguna duda sobre esta factura o los servicios prestados, no dudes en contactar directamente con ${clinicOrDoctor}.</p>
+              <p style="color: #6b7280; font-size: 13px; line-height: 20px; margin: 0;">Si tienes alguna duda sobre esta prefactura o los servicios prestados, no dudes en contactar directamente con ${clinicOrDoctor}.</p>
             </td>
           </tr>
           
@@ -171,7 +171,7 @@ const generateEmailHtml = (data: SendEmailRequest): string => {
           <tr>
             <td style="background-color: #0f172a; padding: 24px 40px; text-align: center;">
               <p style="color: #ffffff; font-size: 14px; margin: 0 0 4px;"><strong>${clinicOrDoctor}</strong></p>
-              <p style="color: #94a3b8; font-size: 12px; margin: 0;">Facturación Electrónica · Colombia</p>
+              <p style="color: #94a3b8; font-size: 12px; margin: 0;">Prefacturación · Colombia</p>
             </td>
           </tr>
         </table>
@@ -215,7 +215,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailHtml = generateEmailHtml(requestData);
 
     // Simple subject - just the invoice
-    const subject = `Factura ${requestData.invoiceNumber} - ${requestData.clinicName || requestData.doctorName || 'Tu proveedor de salud'}`;
+    const subject = `Prefactura ${requestData.invoiceNumber} - ${requestData.clinicName || requestData.doctorName || 'Tu proveedor de salud'}`;
 
     // Determine sender name
     const fromName = requestData.clinicName || requestData.doctorName || 'MEDMIND';
