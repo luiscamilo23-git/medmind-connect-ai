@@ -7,8 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Send, Eye, Mail, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Loader2, Send, Eye, Mail, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -113,8 +112,7 @@ export function EmailPreviewDialog({
           patientName: invoice.patients.full_name,
           invoiceNumber: invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`,
           total: invoice.total,
-          cufe: invoice.cufe,
-          status: invoice.estado === "EMITIDA" || invoice.estado === "VALIDADA" ? "approved" : "rejected",
+          fechaEmision: invoice.fecha_emision,
           doctorName: doctorInfo?.name || "Doctor",
           clinicName: doctorInfo?.clinic,
         },
@@ -145,6 +143,8 @@ export function EmailPreviewDialog({
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -156,7 +156,7 @@ export function EmailPreviewDialog({
     });
   };
 
-  const isApproved = invoice?.estado === "EMITIDA" || invoice?.estado === "VALIDADA";
+  const clinicOrDoctor = doctorInfo?.clinic || doctorInfo?.name || "Tu proveedor de salud";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -188,13 +188,13 @@ export function EmailPreviewDialog({
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-medium text-muted-foreground w-16">De:</span>
                 <span>
-                  {doctorInfo?.clinic || doctorInfo?.name || "MedMind"} &lt;facturacion@medmindsystem.com&gt;
+                  {clinicOrDoctor} &lt;facturacion@medmindsystem.com&gt;
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-medium text-muted-foreground w-16">Asunto:</span>
                 <span>
-                  {isApproved ? "✅" : "⚠️"} Factura {invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`} - {isApproved ? "Aprobada por DIAN" : "Actualización"}
+                  Factura {invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`} - {clinicOrDoctor}
                 </span>
               </div>
             </div>
@@ -203,106 +203,80 @@ export function EmailPreviewDialog({
 
             {/* Email preview */}
             <ScrollArea className="h-[400px] rounded-lg border">
-              <div className="p-6 bg-background">
-                {/* Header */}
-                <div 
-                  className="text-center py-8 rounded-t-lg mb-6"
-                  style={{ 
-                    background: isApproved 
-                      ? 'linear-gradient(135deg, #059669 0%, #10B981 100%)' 
-                      : 'linear-gradient(135deg, #D97706 0%, #F59E0B 100%)'
-                  }}
-                >
-                  <div className="mx-auto mb-4 flex justify-center">
-                    {isApproved ? (
-                      <CheckCircle2 className="h-16 w-16 text-white" />
-                    ) : (
-                      <AlertCircle className="h-16 w-16 text-white" />
-                    )}
+              <div className="bg-[#f4f7fa] p-6">
+                <div className="max-w-[500px] mx-auto bg-white rounded-xl overflow-hidden shadow-sm">
+                  {/* Header */}
+                  <div 
+                    className="text-center py-8 px-6"
+                    style={{ background: 'linear-gradient(135deg, #0d9488 0%, #14B8A6 100%)' }}
+                  >
+                    <h1 className="text-xl font-bold text-white mb-1">📄 Factura Electrónica</h1>
+                    <p className="text-white/80 text-sm">{clinicOrDoctor}</p>
                   </div>
-                  <h1 className="text-2xl font-bold text-white">
-                    {isApproved ? "¡Factura Aprobada!" : "Actualización de Factura"}
-                  </h1>
-                  <p className="text-white/80 mt-2">
-                    Factura {invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`}
-                  </p>
-                </div>
 
-                {/* Content */}
-                <div className="space-y-6">
-                  <p className="text-foreground">
-                    Hola <strong>{invoice.patients?.full_name}</strong>,
-                  </p>
-
-                  {isApproved ? (
-                    <p className="text-muted-foreground">
-                      Tu factura ha sido emitida y validada exitosamente por la DIAN. 
-                      A continuación encontrarás los detalles y enlaces para descargar los documentos.
+                  {/* Content */}
+                  <div className="p-6 space-y-5">
+                    <p className="text-foreground">
+                      Hola <strong>{invoice.patients?.full_name}</strong>,
                     </p>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      Hay una actualización importante sobre tu factura. 
-                      Por favor revisa los detalles a continuación.
-                    </p>
-                  )}
 
-                  {/* Invoice Details Box */}
-                  <div className="bg-muted/30 rounded-lg p-4 border">
-                    <h3 className="font-semibold mb-3">Detalles de la Factura</h3>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Número:</span>
-                        <p className="font-medium">
-                          {invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`}
-                        </p>
+                    <p className="text-muted-foreground text-sm">
+                      Adjunto encontrarás tu factura electrónica correspondiente a los servicios de salud prestados. A continuación los detalles:
+                    </p>
+
+                    {/* Invoice Details Box */}
+                    <div className="bg-muted/30 rounded-xl p-5 border">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase">Número de Factura</p>
+                          <p className="font-bold text-lg">
+                            {invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground uppercase">Fecha</p>
+                          <p className="text-sm">{formatDate(invoice.fecha_emision)}</p>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Fecha:</span>
-                        <p className="font-medium">{formatDate(invoice.fecha_emision)}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Total:</span>
-                        <p className="font-bold text-lg">{formatCurrency(invoice.total)}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Estado:</span>
-                        <div className="mt-1">
-                          <Badge variant={isApproved ? "default" : "secondary"}>
-                            {invoice.estado}
-                          </Badge>
+
+                      <Separator className="my-4" />
+
+                      <div className="flex justify-between items-center">
+                        <p className="text-muted-foreground text-sm">Total a Pagar</p>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-primary">{formatCurrency(invoice.total)}</p>
+                          <p className="text-xs text-muted-foreground">COP</p>
                         </div>
                       </div>
                     </div>
 
-                    {invoice.cufe && (
-                      <div className="mt-4 pt-3 border-t">
-                        <span className="text-muted-foreground text-sm">CUFE:</span>
-                        <p className="font-mono text-xs break-all mt-1 bg-muted p-2 rounded">
-                          {invoice.cufe}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {isApproved && (
-                    <div className="flex gap-3 justify-center">
-                      <div className="bg-primary/10 text-primary px-4 py-2 rounded-lg text-sm font-medium">
+                    {/* Download button preview */}
+                    <div className="text-center">
+                      <p className="text-muted-foreground text-sm mb-3">Descarga tu factura:</p>
+                      <div className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg text-sm font-semibold">
                         📄 Descargar PDF
                       </div>
-                      <div className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-medium">
-                        📋 Descargar XML
-                      </div>
                     </div>
-                  )}
 
-                  {/* Footer */}
-                  <div className="text-center text-sm text-muted-foreground pt-6 border-t">
-                    <p>
-                      Enviado por <strong>{doctorInfo?.clinic || doctorInfo?.name || "MedMind"}</strong>
-                    </p>
-                    <p className="mt-1">
-                      Este correo fue generado automáticamente por el sistema de facturación electrónica.
-                    </p>
+                    {/* Provider info */}
+                    <div className="bg-muted/30 rounded-lg p-4 border-t mt-4">
+                      <p className="text-xs text-muted-foreground uppercase mb-1">Emitido por</p>
+                      <p className="font-semibold">{clinicOrDoctor}</p>
+                      {doctorInfo?.name && doctorInfo?.clinic && (
+                        <p className="text-muted-foreground text-sm">Dr(a). {doctorInfo.name}</p>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="text-center text-xs text-muted-foreground pt-4 border-t">
+                      <p>¿Tienes preguntas? Contacta directamente con {clinicOrDoctor}</p>
+                    </div>
+                  </div>
+
+                  {/* Footer bar */}
+                  <div className="bg-slate-900 text-center py-4 px-6">
+                    <p className="text-white text-sm font-medium">{clinicOrDoctor}</p>
+                    <p className="text-slate-400 text-xs">Facturación Electrónica · Colombia</p>
                   </div>
                 </div>
               </div>
