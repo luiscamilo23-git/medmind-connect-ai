@@ -7,11 +7,19 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Send, Eye, Mail, X } from "lucide-react";
+import { Loader2, Send, Eye, Mail, X, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface EmailPreviewDialogProps {
   open: boolean;
@@ -20,17 +28,28 @@ interface EmailPreviewDialogProps {
   onSuccess?: () => void;
 }
 
+interface ServiceItem {
+  descripcion: string;
+  cantidad: number;
+  precio_unitario: number;
+  total_linea: number;
+}
+
 interface InvoiceData {
   id: string;
   numero_factura_dian: string | null;
   cufe: string | null;
   total: number;
+  subtotal: number;
+  impuestos: number;
   estado: string;
   fecha_emision: string;
+  pdf_url: string | null;
   patients: {
     full_name: string;
     email: string | null;
   };
+  invoice_items: ServiceItem[];
 }
 
 export function EmailPreviewDialog({ 
@@ -42,8 +61,10 @@ export function EmailPreviewDialog({
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const [invoice, setInvoice] = useState<InvoiceData | null>(null);
   const [doctorInfo, setDoctorInfo] = useState<{ name: string; clinic?: string } | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (open && invoiceId) {
@@ -53,11 +74,16 @@ export function EmailPreviewDialog({
 
   const loadInvoiceData = async () => {
     setLoading(true);
+    setPdfUrl(null);
     try {
-      // Fetch invoice with patient data
+      // Fetch invoice with patient data and items
       const { data: invoiceData, error: invoiceError } = await supabase
         .from("invoices")
-        .select("id, numero_factura_dian, cufe, total, estado, fecha_emision, patients(full_name, email)")
+        .select(`
+          id, numero_factura_dian, cufe, total, subtotal, impuestos, estado, fecha_emision, pdf_url,
+          patients(full_name, email),
+          invoice_items(descripcion, cantidad, precio_unitario, total_linea)
+        `)
         .eq("id", invoiceId)
         .single();
 
@@ -81,6 +107,11 @@ export function EmailPreviewDialog({
       }
 
       setInvoice(invoiceData);
+      
+      // If PDF already exists, use it
+      if (invoiceData.pdf_url) {
+        setPdfUrl(invoiceData.pdf_url);
+      }
     } catch (error) {
       console.error("Error loading invoice:", error);
       toast({
@@ -90,6 +121,35 @@ export function EmailPreviewDialog({
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generatePdf = async () => {
+    if (!invoice) return null;
+    
+    setGeneratingPdf(true);
+    try {
+      const response = await supabase.functions.invoke("generate-prefactura-pdf", {
+        body: { invoiceId: invoice.id },
+      });
+
+      if (response.error) throw response.error;
+      
+      if (response.data?.pdfUrl) {
+        setPdfUrl(response.data.pdfUrl);
+        return response.data.pdfUrl;
+      }
+      return null;
+    } catch (error: any) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo generar el PDF de la prefactura",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setGeneratingPdf(false);
     }
   };
 
@@ -105,6 +165,12 @@ export function EmailPreviewDialog({
 
     setSending(true);
     try {
+      // Generate PDF first if not already generated
+      let finalPdfUrl = pdfUrl;
+      if (!finalPdfUrl) {
+        finalPdfUrl = await generatePdf();
+      }
+
       const response = await supabase.functions.invoke("send-invoice-email", {
         body: {
           invoiceId: invoice.id,
@@ -112,9 +178,13 @@ export function EmailPreviewDialog({
           patientName: invoice.patients.full_name,
           invoiceNumber: invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`,
           total: invoice.total,
+          subtotal: invoice.subtotal,
+          impuestos: invoice.impuestos,
           fechaEmision: invoice.fecha_emision,
           doctorName: doctorInfo?.name || "Doctor",
           clinicName: doctorInfo?.clinic,
+          pdfUrl: finalPdfUrl,
+          services: invoice.invoice_items || [],
         },
       });
 
@@ -153,6 +223,8 @@ export function EmailPreviewDialog({
       year: "numeric",
       month: "long",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -160,11 +232,11 @@ export function EmailPreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+      <DialogContent className="max-w-3xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5" />
-            Vista Previa del Email
+            Vista Previa del Email - Prefactura
           </DialogTitle>
         </DialogHeader>
 
@@ -197,21 +269,30 @@ export function EmailPreviewDialog({
                   Prefactura {invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`} - {clinicOrDoctor}
                 </span>
               </div>
+              {pdfUrl && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-medium text-muted-foreground w-16">PDF:</span>
+                  <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                    <FileText className="h-4 w-4" />
+                    Ver prefactura PDF
+                  </a>
+                </div>
+              )}
             </div>
 
             <Separator />
 
             {/* Email preview */}
-            <ScrollArea className="h-[400px] rounded-lg border">
-              <div className="bg-[#f4f7fa] p-6">
-                <div className="max-w-[500px] mx-auto bg-white rounded-xl overflow-hidden shadow-sm">
+            <ScrollArea className="h-[450px] rounded-lg border">
+              <div className="bg-muted/30 p-6">
+                <div className="max-w-[550px] mx-auto bg-background rounded-xl overflow-hidden shadow-sm border">
                   {/* Header */}
                   <div 
                     className="text-center py-8 px-6"
-                    style={{ background: 'linear-gradient(135deg, #0d9488 0%, #14B8A6 100%)' }}
+                    style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)' }}
                   >
-                    <h1 className="text-xl font-bold text-white mb-1">📄 Prefactura</h1>
-                    <p className="text-white/80 text-sm">{clinicOrDoctor}</p>
+                    <h1 className="text-xl font-bold text-primary-foreground mb-1">📄 Prefactura</h1>
+                    <p className="text-primary-foreground/80 text-sm">{clinicOrDoctor}</p>
                   </div>
 
                   {/* Content */}
@@ -234,21 +315,61 @@ export function EmailPreviewDialog({
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs text-muted-foreground uppercase">Fecha</p>
+                          <p className="text-xs text-muted-foreground uppercase">Fecha y Hora</p>
                           <p className="text-sm">{formatDate(invoice.fecha_emision)}</p>
                         </div>
                       </div>
 
                       <Separator className="my-4" />
 
-                      <div className="flex justify-between items-center">
-                        <p className="text-muted-foreground text-sm">Total a Pagar</p>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-primary">{formatCurrency(invoice.total)}</p>
-                          <p className="text-xs text-muted-foreground">COP</p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Subtotal</span>
+                          <span>{formatCurrency(invoice.subtotal || 0)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">IVA</span>
+                          <span>{formatCurrency(invoice.impuestos || 0)}</span>
+                        </div>
+                        <Separator className="my-2" />
+                        <div className="flex justify-between items-center">
+                          <p className="text-muted-foreground text-sm font-medium">Total a Pagar</p>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-primary">{formatCurrency(invoice.total)}</p>
+                            <p className="text-xs text-muted-foreground">COP</p>
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    {/* Services Table */}
+                    {invoice.invoice_items && invoice.invoice_items.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold text-foreground">Detalle de servicios:</p>
+                        <div className="border rounded-lg overflow-hidden">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-primary/10">
+                                <TableHead className="text-xs">Servicio</TableHead>
+                                <TableHead className="text-xs text-center">Cant.</TableHead>
+                                <TableHead className="text-xs text-right">P. Unit.</TableHead>
+                                <TableHead className="text-xs text-right">Total</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {invoice.invoice_items.map((item, index) => (
+                                <TableRow key={index}>
+                                  <TableCell className="text-sm">{item.descripcion}</TableCell>
+                                  <TableCell className="text-sm text-center">{item.cantidad}</TableCell>
+                                  <TableCell className="text-sm text-right">{formatCurrency(item.precio_unitario)}</TableCell>
+                                  <TableCell className="text-sm text-right font-medium text-primary">{formatCurrency(item.total_linea)}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Download button preview */}
                     <div className="text-center">
@@ -274,9 +395,9 @@ export function EmailPreviewDialog({
                   </div>
 
                   {/* Footer bar */}
-                  <div className="bg-slate-900 text-center py-4 px-6">
-                    <p className="text-white text-sm font-medium">{clinicOrDoctor}</p>
-                    <p className="text-slate-400 text-xs">Prefacturación · Colombia</p>
+                  <div className="bg-card-foreground text-center py-4 px-6">
+                    <p className="text-card text-sm font-medium">{clinicOrDoctor}</p>
+                    <p className="text-card/60 text-xs">Prefacturación · Colombia</p>
                   </div>
                 </div>
               </div>
@@ -293,9 +414,28 @@ export function EmailPreviewDialog({
             <X className="h-4 w-4 mr-2" />
             Cancelar
           </Button>
+          {!pdfUrl && invoice && (
+            <Button 
+              variant="secondary"
+              onClick={generatePdf} 
+              disabled={generatingPdf}
+            >
+              {generatingPdf ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generando PDF...
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Generar PDF
+                </>
+              )}
+            </Button>
+          )}
           <Button 
             onClick={handleSendEmail} 
-            disabled={loading || sending || !invoice?.patients?.email}
+            disabled={loading || sending || generatingPdf || !invoice?.patients?.email}
           >
             {sending ? (
               <>
@@ -305,7 +445,7 @@ export function EmailPreviewDialog({
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />
-                Enviar Email
+                Enviar Prefactura
               </>
             )}
           </Button>
