@@ -21,6 +21,7 @@ import { DIANWebhookEventsDialog } from "@/components/billing/DIANWebhookEventsD
 import { InvoiceReemissionDialog } from "@/components/billing/InvoiceReemissionDialog";
 import { DIANRealtimeNotifications } from "@/components/billing/DIANRealtimeNotifications";
 import { InvoiceDialog } from "@/components/billing/InvoiceDialog";
+import { EmailPreviewDialog } from "@/components/billing/EmailPreviewDialog";
 import { generateInvoicePDF } from "@/utils/pdfGenerator";
 
 type Invoice = {
@@ -54,7 +55,8 @@ export default function BillingInvoices() {
   const [reemissionDialogOpen, setReemissionDialogOpen] = useState(false);
   const [selectedInvoiceForReemission, setSelectedInvoiceForReemission] = useState<string | null>(null);
   const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
-  const [sendingEmailInvoice, setSendingEmailInvoice] = useState<string | null>(null);
+  const [emailPreviewOpen, setEmailPreviewOpen] = useState(false);
+  const [selectedInvoiceForEmail, setSelectedInvoiceForEmail] = useState<string | null>(null);
 
   const { data: invoices, isLoading } = useQuery({
     queryKey: ["invoices"],
@@ -238,77 +240,9 @@ export default function BillingInvoices() {
     queryClient.invalidateQueries({ queryKey: ["invoices"] });
   };
 
-  const handleSendToClient = async (invoiceId: string) => {
-    setSendingEmailInvoice(invoiceId);
-    try {
-      // Get invoice details first
-      const invoice = invoices?.find(inv => inv.id === invoiceId);
-      if (!invoice) {
-        throw new Error("Factura no encontrada");
-      }
-
-      // Get patient email
-      const { data: patient, error: patientError } = await supabase
-        .from("patients")
-        .select("email, full_name")
-        .eq("id", invoice.patient_id)
-        .single();
-
-      if (patientError) throw patientError;
-      
-      if (!patient?.email) {
-        toast({
-          title: "Sin email",
-          description: "El paciente no tiene email registrado. Actualiza sus datos primero.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Get doctor profile
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No autenticado");
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, clinic_name")
-        .eq("id", user.id)
-        .single();
-
-      // Send email
-      const response = await supabase.functions.invoke("send-invoice-email", {
-        body: {
-          invoiceId,
-          patientEmail: patient.email,
-          patientName: patient.full_name,
-          invoiceNumber: invoice.numero_factura_dian || `#${invoice.id.slice(0, 8)}`,
-          total: invoice.total,
-          cufe: invoice.cufe,
-          status: invoice.estado === "EMITIDA" || invoice.estado === "VALIDADA" ? "approved" : "rejected",
-          doctorName: profile?.full_name || "Doctor",
-          clinicName: profile?.clinic_name,
-        },
-      });
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      toast({
-        title: "¡Email enviado!",
-        description: `Factura enviada a ${patient.email}`,
-      });
-
-    } catch (error: any) {
-      console.error("Error sending email:", error);
-      toast({
-        title: "Error al enviar",
-        description: error.message || "No se pudo enviar el email",
-        variant: "destructive",
-      });
-    } finally {
-      setSendingEmailInvoice(null);
-    }
+  const handleSendToClient = (invoiceId: string) => {
+    setSelectedInvoiceForEmail(invoiceId);
+    setEmailPreviewOpen(true);
   };
 
   const filteredInvoices = invoices?.filter((inv) => 
@@ -491,19 +425,9 @@ export default function BillingInvoices() {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleSendToClient(invoice.id)}
-                                        disabled={sendingEmailInvoice === invoice.id}
                                       >
-                                        {sendingEmailInvoice === invoice.id ? (
-                                          <>
-                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                            Enviando...
-                                          </>
-                                        ) : (
-                                          <>
-                                            <Mail className="h-4 w-4 mr-2" />
-                                            Enviar al Cliente
-                                          </>
-                                        )}
+                                        <Mail className="h-4 w-4 mr-2" />
+                                        Enviar al Cliente
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
@@ -688,6 +612,13 @@ export default function BillingInvoices() {
       <InvoiceDialog
         open={invoiceDialogOpen}
         onOpenChange={setInvoiceDialogOpen}
+      />
+
+      <EmailPreviewDialog
+        open={emailPreviewOpen}
+        onOpenChange={setEmailPreviewOpen}
+        invoiceId={selectedInvoiceForEmail}
+        onSuccess={() => queryClient.invalidateQueries({ queryKey: ["invoices"] })}
       />
     </SidebarProvider>
   );
