@@ -417,7 +417,7 @@ export default function BillingInvoices() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                {/* Enviar al Cliente - visible para todas las facturas */}
+                                {/* Enviar Prefactura - visible para todas las facturas */}
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -427,11 +427,11 @@ export default function BillingInvoices() {
                                         onClick={() => handleSendToClient(invoice.id)}
                                       >
                                         <Mail className="h-4 w-4 mr-2" />
-                                        Enviar al Cliente
+                                        Enviar Prefactura
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>Enviar factura por email al paciente</p>
+                                      <p>Enviar prefactura por email al paciente</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
