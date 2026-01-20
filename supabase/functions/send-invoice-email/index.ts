@@ -304,7 +304,7 @@ const handler = async (req: Request): Promise<Response> => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: `${fromName} <onboarding@resend.dev>`,
+        from: `${fromName} <facturacion@medmindsystem.com>`,
         to: [requestData.patientEmail],
         subject: subject,
         html: emailHtml,
