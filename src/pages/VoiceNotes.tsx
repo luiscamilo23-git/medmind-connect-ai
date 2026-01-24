@@ -61,6 +61,7 @@ const VoiceNotes = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTimeRef = useRef<number>(0);
+  const runAIAssistantRef = useRef<(() => void) | null>(null);
   const [interimTranscript, setInterimTranscript] = useState("");
   
   // Medical record fields - Complete Colombian compliance
@@ -328,6 +329,8 @@ const VoiceNotes = () => {
   };
 
   const stopRecording = () => {
+    const wasMainRecording = !recordingField; // Check if it was a full consultation recording
+    
     if (recognitionRef.current && isRecording) {
       recognitionRef.current.stop();
     }
@@ -356,8 +359,15 @@ const VoiceNotes = () => {
     
     toast({
       title: "✓ Grabación detenida",
-      description: "Transcripción completada. Puedes descargar el audio.",
+      description: wasMainRecording ? "Analizando con IA automáticamente..." : "Transcripción completada.",
     });
+    
+    // Auto-run AI assistant after main recording stops (with delay to allow transcript to update)
+    if (wasMainRecording) {
+      setTimeout(() => {
+        runAIAssistantRef.current?.();
+      }, 500);
+    }
   };
 
   const downloadAudio = () => {
@@ -563,6 +573,11 @@ const VoiceNotes = () => {
       setIsAnalyzing(false);
     }
   };
+
+  // Keep ref updated for auto-run after recording
+  useEffect(() => {
+    runAIAssistantRef.current = transcript ? runAIAssistant : null;
+  }, [transcript, runAIAssistant]);
 
   // Handler para seleccionar código CIE-10 desde alertas
   const handleSelectCIE10 = (code: string) => {
@@ -1088,9 +1103,9 @@ const VoiceNotes = () => {
                       {audioBlob && !isRecording && (
                         <Button
                           size="default"
-                          variant="outline"
+                          variant="secondary"
                           onClick={downloadAudio}
-                          className="gap-2 border-border/50 hover:bg-primary/10 hover:border-primary/50 text-sm sm:text-base"
+                          className="gap-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-md text-sm sm:text-base"
                         >
                           <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                           Descargar Audio
