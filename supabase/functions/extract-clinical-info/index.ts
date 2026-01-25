@@ -98,7 +98,15 @@ INSTRUCCIONES CRÍTICAS DE EXTRACCIÓN - LEE CON CUIDADO:
 
 1. **EDAD**: Busca patrones como "X años", "tengo X", "tiene X años", "de X años de edad". Ejemplo: "tengo 17 años" → "17 años"
 
-2. **SEXO**: Busca "masculino", "femenino", "hombre", "mujer", "sexo masculino/femenino". Normaliza SIEMPRE a "masculino" o "femenino"
+2. **SEXO - MUY IMPORTANTE**: 
+   - PRIMERO busca mención explícita: "masculino", "femenino", "hombre", "mujer", "sexo masculino/femenino"
+   - SI NO SE MENCIONA EXPLÍCITAMENTE, INFIERE del nombre del paciente usando tu conocimiento:
+     * Nombres típicamente masculinos (Juan, Carlos, Pedro, Miguel, Luis, Jorge, Mario, Diego, Andrés, José, David, Daniel, Fernando, Gabriel, Pablo, Alejandro, Santiago, Sebastián, Mateo, Nicolás, Tomás, Camilo, Julián, Felipe, Ricardo, Roberto, Rafael, Enrique, Francisco, Antonio, Manuel, Alberto, Eduardo, Ernesto, Héctor, Víctor, Oscar, Leonardo, Adrián, Iván, Bruno, Arturo, Fabián, Jeremy, etc.) → "masculino"
+     * Nombres típicamente femeninos (María, Ana, Laura, Carmen, Paula, Diana, Sandra, Andrea, Mónica, Patricia, Claudia, Natalia, Valentina, Carolina, Daniela, Gabriela, Isabella, Sofía, Camila, Mariana, Lucía, Alejandra, Fernanda, Valeria, Sara, Victoria, Rosa, Gloria, Teresa, Martha, etc.) → "femenino"
+   - También infiere del contexto médico:
+     * "dolor en el pene", "dolor testicular", "próstata" → "masculino"
+     * "dolor menstrual", "embarazo", "ovarios", "útero", "menstruación" → "femenino"
+   - Normaliza SIEMPRE a "masculino" o "femenino"
 
 3. **TELÉFONO**: Busca secuencias numéricas que sean teléfonos. Ejemplo: "el teléfono es 321" → "321"
 
@@ -117,14 +125,22 @@ INSTRUCCIONES CRÍTICAS DE EXTRACCIÓN - LEE CON CUIDADO:
    - SPO2: "saturación", "SPO2", "oximetría"
    - Peso/Talla: "peso", "talla", "altura"
 
-6. **CÓDIGO CIE-10**: Proporciona MÚLTIPLES códigos posibles con nivel de confianza:
+6. **DIAGNÓSTICO - MUY IMPORTANTE**:
+   - Busca cuando el doctor DICE o MENCIONA un diagnóstico:
+     * "El diagnóstico es...", "Se diagnostica...", "Diagnóstico:", "Impresión diagnóstica:"
+     * "Considero que tiene...", "Parece ser...", "Es un cuadro de..."
+     * "Balanitis", "Fimosis", "Infección urinaria", etc. (cualquier diagnóstico mencionado)
+   - Extrae el diagnóstico EXACTO que dice el doctor
+   - Si hay múltiples diagnósticos, incluye todos separados por coma
+
+7. **CÓDIGO CIE-10**: Proporciona MÚLTIPLES códigos posibles con nivel de confianza:
    - Si se menciona explícitamente un código, ponlo con 100% confianza
-   - Si hay diagnóstico claro, sugiere el código apropiado con 85-95% confianza
+   - Si hay diagnóstico claro mencionado por el doctor, sugiere el código apropiado con 90-95% confianza
    - Si hay síntomas pero diagnóstico no definido, sugiere códigos probables con 60-80% confianza
 
-7. **PLAN DE MANEJO**: Busca "plan de manejo", "tratamiento", "indicaciones", "seguir", "continuar", "formular". Extrae TODO lo mencionado.
+8. **PLAN DE MANEJO**: Busca "plan de manejo", "tratamiento", "indicaciones", "seguir", "continuar", "formular". Extrae TODO lo mencionado.
 
-8. **RESULTADOS DE LABORATORIO**: Extrae CUALQUIER resultado de laboratorio mencionado:
+9. **RESULTADOS DE LABORATORIO**: Extrae CUALQUIER resultado de laboratorio mencionado:
    - Hemoglobina, glucemia, creatinina, colesterol, triglicéridos, TSH, etc.
    - Incluye el valor y unidades si se mencionan
    - Marca si está alterado según contexto
@@ -132,9 +148,10 @@ INSTRUCCIONES CRÍTICAS DE EXTRACCIÓN - LEE CON CUIDADO:
 ${specialtyContext.additionalInstructions}
 
 REGLAS:
-- NUNCA inventes información que no esté en la transcripción
+- NUNCA inventes información que no esté en la transcripción, EXCEPTO el sexo que puedes inferir del nombre
 - Si algo se menciona como "ninguno", "no tiene", "niega", extrae ese valor
-- Sé PRECISO, respeta las palabras exactas cuando sea posible`;
+- Sé PRECISO, respeta las palabras exactas cuando sea posible
+- Para el diagnóstico, captura EXACTAMENTE lo que dice el doctor`;
 
 
     // Build specialty fields schema dynamically
