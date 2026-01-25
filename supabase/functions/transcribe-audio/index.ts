@@ -93,12 +93,16 @@ LO QUE NO DEBES HACER:
 
 Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambiar NADA.`;
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 55_000);
+
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${lovableApiKey}`,
       'Content-Type': 'application/json',
     },
+    signal: controller.signal,
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
@@ -114,6 +118,8 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
       temperature: 0.0,
     }),
   });
+
+  clearTimeout(timeout);
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -149,7 +155,25 @@ serve(async (req) => {
 
     const inferred = guessAudioFormat(mimeType, fileName);
 
-    // Try OpenAI Whisper first if available (best for file uploads)
+    // Prefer Lovable AI for reliability (OpenAI key may be out of quota)
+    if (LOVABLE_API_KEY) {
+      try {
+        const transcribedText = await transcribeWithLovableAI({
+          audioBase64: audio,
+          lovableFormat: inferred.lovableFormat,
+          lovableApiKey: LOVABLE_API_KEY,
+        });
+        return new Response(
+          JSON.stringify({ success: true, text: transcribedText }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (e) {
+        console.error('Lovable AI transcription failed, falling back to Whisper if available:', e);
+        // continue to Whisper fallback below
+      }
+    }
+
+    // Fallback to OpenAI Whisper if available
     if (OPENAI_API_KEY) {
       console.log('Using OpenAI Whisper for transcription...');
       
@@ -225,18 +249,7 @@ serve(async (req) => {
       }
     }
 
-    // Fallback to Lovable AI if no OpenAI key
-    if (LOVABLE_API_KEY) {
-      const transcribedText = await transcribeWithLovableAI({
-        audioBase64: audio,
-        lovableFormat: inferred.lovableFormat,
-        lovableApiKey: LOVABLE_API_KEY,
-      });
-      return new Response(
-        JSON.stringify({ success: true, text: transcribedText }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // If Lovable AI failed above and Whisper isn't available
 
     return new Response(
       JSON.stringify({ success: false, error: 'No API key configured for transcription (OPENAI_API_KEY or LOVABLE_API_KEY)' }),
