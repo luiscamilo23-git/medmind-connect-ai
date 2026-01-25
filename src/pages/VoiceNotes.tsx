@@ -66,6 +66,7 @@ const VoiceNotes = () => {
   const [pendingAutoAnalyze, setPendingAutoAnalyze] = useState(false);
   const transcriptRef = useRef<string>("");
   const interimTranscriptRef = useRef<string>("");
+  const [isTranscribingAudio, setIsTranscribingAudio] = useState(false);
   
   // Medical record fields - Complete Colombian compliance
   const [patientName, setPatientName] = useState("");
@@ -316,8 +317,10 @@ const VoiceNotes = () => {
       mediaRecorder.start();
       if (!recordingField) {
         setTranscript("");
+        transcriptRef.current = "";
       }
       setInterimTranscript("");
+      interimTranscriptRef.current = "";
       recognitionRef.current.start();
       setIsRecording(true);
       
@@ -388,6 +391,39 @@ const VoiceNotes = () => {
         title: "✓ Grabación detenida",
         description: "Transcripción completada.",
       });
+    }
+  };
+
+  const transcribeAudioBlob = async (blob: Blob) => {
+    setIsTranscribingAudio(true);
+    try {
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+        body: {
+          audio: base64Audio,
+          mimeType: blob.type || 'audio/webm',
+          fileName: 'consulta.webm',
+        }
+      });
+
+      if (error) throw error;
+      if (data?.success === false) throw new Error(data.error || 'No se pudo transcribir el audio');
+      if (!data?.text) throw new Error('No se recibió transcripción');
+
+      setTranscript(data.text);
+      transcriptRef.current = data.text;
+      return data.text as string;
+    } finally {
+      setIsTranscribingAudio(false);
     }
   };
 
@@ -595,17 +631,37 @@ const VoiceNotes = () => {
     }
   };
 
-  // Auto-run AI analysis when recording stops and transcript is ready
+  // If speech recognition produced no transcript, transcribe from the recorded audio
   useEffect(() => {
-    if (pendingAutoAnalyze && !isRecording && transcript && transcript.length > 20) {
-      setPendingAutoAnalyze(false);
-      // Small delay to ensure UI updates
-      const timer = setTimeout(() => {
-        runAIAssistant();
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [pendingAutoAnalyze, isRecording, transcript]);
+    if (!pendingAutoAnalyze) return;
+    if (isRecording) return;
+    if (!audioBlob) return;
+    if ((transcriptRef.current || transcript || '').length > 20) return;
+    if (isTranscribingAudio) return;
+
+    transcribeAudioBlob(audioBlob).catch((err: any) => {
+      console.error('Error transcribing recorded audio:', err);
+      toast({
+        title: 'Error de transcripción',
+        description: err?.message || 'No se pudo transcribir la grabación.',
+        variant: 'destructive',
+      });
+    });
+  }, [pendingAutoAnalyze, isRecording, audioBlob, transcript, isTranscribingAudio]);
+
+  // Auto-run AI analysis when transcript is ready
+  useEffect(() => {
+    if (!pendingAutoAnalyze) return;
+    if (isRecording) return;
+    if (!transcript || transcript.length <= 20) return;
+    if (isTranscribingAudio) return;
+
+    setPendingAutoAnalyze(false);
+    const timer = setTimeout(() => {
+      runAIAssistant();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [pendingAutoAnalyze, isRecording, transcript, isTranscribingAudio]);
 
   // Handler para seleccionar código CIE-10 desde alertas
   const handleSelectCIE10 = (code: string) => {
@@ -1166,7 +1222,11 @@ const VoiceNotes = () => {
                       Subir archivo de audio
                     </Label>
                     <AudioFileUpload 
-                      onTranscriptionComplete={(text) => setTranscript(text)}
+                      onTranscriptionComplete={(text) => {
+                        setTranscript(text);
+                        transcriptRef.current = text;
+                        setPendingAutoAnalyze(true);
+                      }}
                     />
                   </div>
 

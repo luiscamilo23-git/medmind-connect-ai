@@ -90,10 +90,18 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
       const base64Audio = await base64Promise;
 
       const { data, error } = await supabase.functions.invoke('transcribe-audio', {
-        body: { audio: base64Audio }
+        body: { 
+          audio: base64Audio,
+          mimeType: selectedFile.type,
+          fileName: selectedFile.name,
+        }
       });
 
       if (error) throw error;
+
+      if (data?.success === false) {
+        throw new Error(data.error || 'No se pudo transcribir el audio');
+      }
 
       if (data?.text) {
         onTranscriptionComplete(data.text);
