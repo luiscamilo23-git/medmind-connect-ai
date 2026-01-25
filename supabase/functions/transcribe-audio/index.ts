@@ -96,30 +96,39 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 55_000);
 
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${lovableApiKey}`,
-      'Content-Type': 'application/json',
-    },
-    signal: controller.signal,
-    body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: 'Transcribe este audio PALABRA POR PALABRA sin cambiar nada:' },
-            { type: 'audio', audio: audioBase64, format: lovableFormat },
-          ],
-        },
-      ],
-      temperature: 0.0,
-    }),
-  });
-
-  clearTimeout(timeout);
+  let response: Response;
+  try {
+    response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: 'Transcribe este audio PALABRA POR PALABRA sin cambiar nada:' },
+              { type: 'audio', audio: audioBase64, format: lovableFormat },
+            ],
+          },
+        ],
+        temperature: 0.0,
+      }),
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.toLowerCase().includes('aborted') || msg.toLowerCase().includes('abort')) {
+      throw new Error('Timeout transcribiendo con IA (intenta de nuevo).');
+    }
+    throw e;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -155,8 +164,11 @@ serve(async (req) => {
 
     const inferred = guessAudioFormat(mimeType, fileName);
 
-    // Prefer Lovable AI for reliability (OpenAI key may be out of quota)
+    let triedLovable = false;
+
+    // Prefer Lovable AI first (avoid OpenAI quota issues)
     if (LOVABLE_API_KEY) {
+      triedLovable = true;
       try {
         const transcribedText = await transcribeWithLovableAI({
           audioBase64: audio,
@@ -168,8 +180,8 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       } catch (e) {
-        console.error('Lovable AI transcription failed, falling back to Whisper if available:', e);
-        // continue to Whisper fallback below
+        console.error('Lovable AI transcription failed:', e);
+        // fallback to Whisper below if configured
       }
     }
 
@@ -202,7 +214,15 @@ serve(async (req) => {
           const errorText = await response.text();
           console.error('OpenAI Whisper error:', response.status, errorText);
 
-          // If OpenAI fails (quota, rate limit, etc.), fallback to Lovable AI when available
+          // No back-and-forth: if we already tried Lovable, return the Whisper error
+          if (triedLovable) {
+            return new Response(
+              JSON.stringify({ success: false, error: `Whisper API error: ${errorText}` }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Otherwise, try Lovable once as fallback
           if (LOVABLE_API_KEY) {
             console.log('Falling back to Lovable AI after Whisper failure...');
             const text = await transcribeWithLovableAI({
@@ -231,7 +251,8 @@ serve(async (req) => {
         );
       } catch (err) {
         console.error('Whisper transcription threw error:', err);
-        if (LOVABLE_API_KEY) {
+        // Avoid retry loop: only fallback to Lovable if we haven't tried it yet
+        if (LOVABLE_API_KEY && !triedLovable) {
           const text = await transcribeWithLovableAI({
             audioBase64: audio,
             lovableFormat: inferred.lovableFormat,
