@@ -4,72 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, FileAudio, Loader2, X, Waves, Music } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-
-function arrayBufferToBase64(buffer: ArrayBuffer) {
-  const bytes = new Uint8Array(buffer);
-  let binary = "";
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-  return btoa(binary);
-}
-
-function encodeWavFromAudioBuffer(audioBuffer: AudioBuffer) {
-  const numChannels = audioBuffer.numberOfChannels;
-  const sampleRate = audioBuffer.sampleRate;
-  const format = 1; // PCM
-  const bitDepth = 16;
-
-  const numFrames = audioBuffer.length;
-  const bytesPerSample = bitDepth / 8;
-  const blockAlign = numChannels * bytesPerSample;
-  const byteRate = sampleRate * blockAlign;
-  const dataSize = numFrames * blockAlign;
-
-  const buffer = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(buffer);
-
-  const writeString = (offset: number, str: string) => {
-    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-  };
-
-  writeString(0, "RIFF");
-  view.setUint32(4, 36 + dataSize, true);
-  writeString(8, "WAVE");
-  writeString(12, "fmt ");
-  view.setUint32(16, 16, true);
-  view.setUint16(20, format, true);
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, byteRate, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, bitDepth, true);
-  writeString(36, "data");
-  view.setUint32(40, dataSize, true);
-
-  // Interleave and write PCM
-  let offset = 44;
-  for (let i = 0; i < numFrames; i++) {
-    for (let ch = 0; ch < numChannels; ch++) {
-      const sample = audioBuffer.getChannelData(ch)[i] ?? 0;
-      const s = Math.max(-1, Math.min(1, sample));
-      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-      offset += 2;
-    }
-  }
-
-  return buffer;
-}
-
-async function blobToWavBase64(blob: Blob) {
-  const arrayBuffer = await blob.arrayBuffer();
-  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-  const decoded = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
-  const wavBuffer = encodeWavFromAudioBuffer(decoded);
-  await audioCtx.close();
-  return arrayBufferToBase64(wavBuffer);
-}
+import { blobToWavBase64 } from "@/utils/audioWav";
 
 interface AudioFileUploadProps {
   onTranscriptionComplete: (transcript: string) => void;
@@ -141,7 +76,7 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
 
     setIsTranscribing(true);
     try {
-      // Convert to WAV for maximum compatibility with transcription models.
+      // Convert to WAV (16-bit PCM, mono) for maximum compatibility + smaller payload.
       const base64Audio = await blobToWavBase64(selectedFile);
 
       const invokePromise = supabase.functions.invoke('transcribe-audio', {
