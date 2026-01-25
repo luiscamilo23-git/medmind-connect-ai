@@ -63,6 +63,9 @@ const VoiceNotes = () => {
   const recordingStartTimeRef = useRef<number>(0);
   const runAIAssistantRef = useRef<(() => void) | null>(null);
   const [interimTranscript, setInterimTranscript] = useState("");
+  const [pendingAutoAnalyze, setPendingAutoAnalyze] = useState(false);
+  const transcriptRef = useRef<string>("");
+  const interimTranscriptRef = useRef<string>("");
   
   // Medical record fields - Complete Colombian compliance
   const [patientName, setPatientName] = useState("");
@@ -209,10 +212,15 @@ const VoiceNotes = () => {
             // Append to specific field
             appendToField(recordingField, final);
           } else {
-            setTranscript(prev => prev + final);
+            setTranscript(prev => {
+              const newTranscript = prev + final;
+              transcriptRef.current = newTranscript;
+              return newTranscript;
+            });
           }
         }
         
+        interimTranscriptRef.current = interim;
         setInterimTranscript(interim);
       };
 
@@ -331,6 +339,17 @@ const VoiceNotes = () => {
   const stopRecording = () => {
     const wasMainRecording = !recordingField; // Check if it was a full consultation recording
     
+    // Capture any remaining interim text before stopping
+    if (wasMainRecording && interimTranscriptRef.current) {
+      setTranscript(prev => {
+        const newTranscript = prev + interimTranscriptRef.current + ' ';
+        transcriptRef.current = newTranscript;
+        return newTranscript;
+      });
+      interimTranscriptRef.current = '';
+      setInterimTranscript('');
+    }
+    
     if (recognitionRef.current && isRecording) {
       recognitionRef.current.stop();
     }
@@ -357,16 +376,18 @@ const VoiceNotes = () => {
     setIsRecording(false);
     setRecordingField(null);
     
-    toast({
-      title: "✓ Grabación detenida",
-      description: wasMainRecording ? "Analizando con IA automáticamente..." : "Transcripción completada.",
-    });
-    
-    // Auto-run AI assistant after main recording stops (with delay to allow transcript to update)
+    // Trigger auto-analysis for main recording
     if (wasMainRecording) {
-      setTimeout(() => {
-        runAIAssistantRef.current?.();
-      }, 500);
+      setPendingAutoAnalyze(true);
+      toast({
+        title: "✓ Grabación detenida",
+        description: "Procesando transcripción con IA...",
+      });
+    } else {
+      toast({
+        title: "✓ Grabación detenida",
+        description: "Transcripción completada.",
+      });
     }
   };
 
@@ -574,10 +595,17 @@ const VoiceNotes = () => {
     }
   };
 
-  // Keep ref updated for auto-run after recording
+  // Auto-run AI analysis when recording stops and transcript is ready
   useEffect(() => {
-    runAIAssistantRef.current = transcript ? runAIAssistant : null;
-  }, [transcript, runAIAssistant]);
+    if (pendingAutoAnalyze && !isRecording && transcript && transcript.length > 20) {
+      setPendingAutoAnalyze(false);
+      // Small delay to ensure UI updates
+      const timer = setTimeout(() => {
+        runAIAssistant();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [pendingAutoAnalyze, isRecording, transcript]);
 
   // Handler para seleccionar código CIE-10 desde alertas
   const handleSelectCIE10 = (code: string) => {
@@ -1056,15 +1084,34 @@ const VoiceNotes = () => {
                           <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mx-auto shadow-lg">
                             <Mic className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                           </div>
-                          <Button
-                            size="default"
-                            onClick={() => startRecording()}
-                            className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 text-sm sm:text-base"
-                            disabled={isRecording && recordingField !== null}
-                          >
-                            <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
-                            Iniciar Grabación Completa
-                          </Button>
+                          <div className="flex items-center justify-center gap-3 flex-wrap">
+                            <Button
+                              size="default"
+                              onClick={() => startRecording()}
+                              className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 text-sm sm:text-base"
+                              disabled={isRecording && recordingField !== null}
+                            >
+                              <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
+                              Iniciar Grabación Completa
+                            </Button>
+                            {audioBlob && (
+                              <Button
+                                size="default"
+                                variant="secondary"
+                                onClick={downloadAudio}
+                                className="gap-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-md text-sm sm:text-base"
+                              >
+                                <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+                                Descargar Audio
+                              </Button>
+                            )}
+                          </div>
+                          {(isAutocompleting || isAnalyzing) && (
+                            <div className="flex items-center justify-center gap-2 text-primary animate-pulse">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span className="text-sm font-medium">Analizando con IA...</span>
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="text-center space-y-4 sm:space-y-5 w-full">
@@ -1098,18 +1145,6 @@ const VoiceNotes = () => {
                             Detener Grabación
                           </Button>
                         </div>
-                      )}
-                      
-                      {audioBlob && !isRecording && (
-                        <Button
-                          size="default"
-                          variant="secondary"
-                          onClick={downloadAudio}
-                          className="gap-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-md text-sm sm:text-base"
-                        >
-                          <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                          Descargar Audio
-                        </Button>
                       )}
                     </div>
                   </div>
