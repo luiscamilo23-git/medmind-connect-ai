@@ -68,8 +68,9 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
           {
             role: 'user',
             content: [
+              // OpenAI-compatible multimodal format expected by the gateway
               { type: 'text', text: 'Transcribe este audio PALABRA POR PALABRA sin cambiar nada:' },
-              { type: 'audio', audio: audioBase64, format },
+              { type: 'input_audio', input_audio: { data: audioBase64, format } },
             ],
           },
         ],
@@ -97,6 +98,18 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
   const result = await response.json();
   const transcribedText = result?.choices?.[0]?.message?.content;
   if (!transcribedText) throw new Error('No se recibió transcripción del modelo.');
+
+  // Guardrail: if the model replies asking for audio/text, it means it didn't receive/understand the audio payload.
+  const normalized = String(transcribedText).toLowerCase();
+  const looksLikeNoAudio =
+    normalized.includes('proporciona el audio') ||
+    normalized.includes('proporciona el texto') ||
+    normalized.includes('envíame el audio') ||
+    normalized.includes('enviame el audio') ||
+    normalized.includes('no recib') && normalized.includes('audio');
+  if (looksLikeNoAudio) {
+    throw new Error('No se pudo procesar el audio (formato no soportado o audio vacío). Intenta con WAV/MP3 o vuelve a grabar.');
+  }
   
   console.log('Gemini transcription successful, length:', transcribedText.length);
   return transcribedText;

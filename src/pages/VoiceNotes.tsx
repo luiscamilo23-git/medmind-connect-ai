@@ -38,6 +38,71 @@ import { SpecialtyFields } from "@/components/SpecialtyFields";
 import { MedicalSpecialty, SPECIALTY_CONFIGS, getFieldsForSpecialty } from "@/config/medicalSpecialties";
 import { ClinicalAlerts, ClinicalAlertsData } from "@/components/ClinicalAlerts";
 
+function arrayBufferToBase64(buffer: ArrayBuffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function encodeWavFromAudioBuffer(audioBuffer: AudioBuffer) {
+  const numChannels = audioBuffer.numberOfChannels;
+  const sampleRate = audioBuffer.sampleRate;
+  const format = 1; // PCM
+  const bitDepth = 16;
+
+  const numFrames = audioBuffer.length;
+  const bytesPerSample = bitDepth / 8;
+  const blockAlign = numChannels * bytesPerSample;
+  const byteRate = sampleRate * blockAlign;
+  const dataSize = numFrames * blockAlign;
+
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+
+  const writeString = (offset: number, str: string) => {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  };
+
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, format, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitDepth, true);
+  writeString(36, "data");
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let i = 0; i < numFrames; i++) {
+    for (let ch = 0; ch < numChannels; ch++) {
+      const sample = audioBuffer.getChannelData(ch)[i] ?? 0;
+      const s = Math.max(-1, Math.min(1, sample));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+      offset += 2;
+    }
+  }
+
+  return buffer;
+}
+
+async function blobToWavBase64(blob: Blob) {
+  const arrayBuffer = await blob.arrayBuffer();
+  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const decoded = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+  const wavBuffer = encodeWavFromAudioBuffer(decoded);
+  await audioCtx.close();
+  return arrayBufferToBase64(wavBuffer);
+}
+
 interface Suggestion {
   question: string;
   reason: string;
@@ -397,21 +462,14 @@ const VoiceNotes = () => {
   const transcribeAudioBlob = async (blob: Blob) => {
     setIsTranscribingAudio(true);
     try {
-      const base64Audio = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          resolve(result.split(',')[1]);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
+      // Convert recorded WebM to WAV for better compatibility.
+      const base64Audio = await blobToWavBase64(blob);
 
       const invokePromise = supabase.functions.invoke('transcribe-audio', {
         body: {
           audio: base64Audio,
-          mimeType: blob.type || 'audio/webm',
-          fileName: 'consulta.webm',
+          mimeType: 'audio/wav',
+          fileName: 'consulta.wav',
         },
       });
 
