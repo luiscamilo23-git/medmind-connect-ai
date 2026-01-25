@@ -6,68 +6,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Process base64 in chunks to prevent memory issues
-function processBase64Chunks(base64String: string, chunkSize = 32768): Uint8Array {
-  const chunks: Uint8Array[] = [];
-  let position = 0;
-  
-  while (position < base64String.length) {
-    const chunk = base64String.slice(position, position + chunkSize);
-    const binaryChunk = atob(chunk);
-    const bytes = new Uint8Array(binaryChunk.length);
-    
-    for (let i = 0; i < binaryChunk.length; i++) {
-      bytes[i] = binaryChunk.charCodeAt(i);
-    }
-    
-    chunks.push(bytes);
-    position += chunkSize;
-  }
-
-  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-  const result = new Uint8Array(totalLength);
-  let offset = 0;
-
-  for (const chunk of chunks) {
-    result.set(chunk, offset);
-    offset += chunk.length;
-  }
-
-  return result;
-}
-
-function guessAudioFormat(mimeType?: string, fileName?: string): {
-  mimeType: string;
-  fileName: string;
-  lovableFormat: 'webm' | 'wav' | 'mp3' | 'm4a' | 'ogg';
-} {
+function guessAudioFormat(mimeType?: string, fileName?: string): 'webm' | 'wav' | 'mp3' | 'm4a' | 'ogg' {
   const name = (fileName || 'audio.webm').toLowerCase();
   const mime = (mimeType || '').toLowerCase();
 
-  const byExt = () => {
-    if (name.endsWith('.wav')) return { mimeType: mimeType || 'audio/wav', fileName: fileName || 'audio.wav', lovableFormat: 'wav' as const };
-    if (name.endsWith('.mp3')) return { mimeType: mimeType || 'audio/mpeg', fileName: fileName || 'audio.mp3', lovableFormat: 'mp3' as const };
-    if (name.endsWith('.m4a') || name.endsWith('.mp4')) return { mimeType: mimeType || 'audio/mp4', fileName: fileName || 'audio.m4a', lovableFormat: 'm4a' as const };
-    if (name.endsWith('.ogg')) return { mimeType: mimeType || 'audio/ogg', fileName: fileName || 'audio.ogg', lovableFormat: 'ogg' as const };
-    return { mimeType: mimeType || 'audio/webm', fileName: fileName || 'audio.webm', lovableFormat: 'webm' as const };
-  };
-
-  // Prefer mime when present
-  if (mime.includes('wav')) return { mimeType: mimeType || 'audio/wav', fileName: fileName || 'audio.wav', lovableFormat: 'wav' };
-  if (mime.includes('mpeg') || mime.includes('mp3')) return { mimeType: mimeType || 'audio/mpeg', fileName: fileName || 'audio.mp3', lovableFormat: 'mp3' };
-  if (mime.includes('mp4') || mime.includes('m4a')) return { mimeType: mimeType || 'audio/mp4', fileName: fileName || 'audio.m4a', lovableFormat: 'm4a' };
-  if (mime.includes('ogg')) return { mimeType: mimeType || 'audio/ogg', fileName: fileName || 'audio.ogg', lovableFormat: 'ogg' };
-  if (mime.includes('webm')) return { mimeType: mimeType || 'audio/webm', fileName: fileName || 'audio.webm', lovableFormat: 'webm' };
-  return byExt();
+  if (mime.includes('wav') || name.endsWith('.wav')) return 'wav';
+  if (mime.includes('mpeg') || mime.includes('mp3') || name.endsWith('.mp3')) return 'mp3';
+  if (mime.includes('mp4') || mime.includes('m4a') || name.endsWith('.m4a') || name.endsWith('.mp4')) return 'm4a';
+  if (mime.includes('ogg') || name.endsWith('.ogg')) return 'ogg';
+  return 'webm';
 }
 
-async function transcribeWithLovableAI(params: {
+async function transcribeWithGemini(params: {
   audioBase64: string;
-  lovableFormat: 'webm' | 'wav' | 'mp3' | 'm4a' | 'ogg';
-  lovableApiKey: string;
+  format: 'webm' | 'wav' | 'mp3' | 'm4a' | 'ogg';
+  apiKey: string;
 }): Promise<string> {
-  const { audioBase64, lovableFormat, lovableApiKey } = params;
-  console.log('Using Lovable AI (Gemini) for transcription...');
+  const { audioBase64, format, apiKey } = params;
+  console.log('Transcribing with Gemini (google/gemini-3-flash-preview)...');
 
   const systemPrompt = `Eres una máquina de transcripción de audio LITERAL.
 
@@ -101,19 +57,19 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
     response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       signal: controller.signal,
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: systemPrompt },
           {
             role: 'user',
             content: [
               { type: 'text', text: 'Transcribe este audio PALABRA POR PALABRA sin cambiar nada:' },
-              { type: 'audio', audio: audioBase64, format: lovableFormat },
+              { type: 'audio', audio: audioBase64, format },
             ],
           },
         ],
@@ -122,8 +78,8 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    if (msg.toLowerCase().includes('aborted') || msg.toLowerCase().includes('abort')) {
-      throw new Error('Timeout transcribiendo con IA (intenta de nuevo).');
+    if (msg.toLowerCase().includes('abort')) {
+      throw new Error('Timeout transcribiendo audio. Intenta de nuevo.');
     }
     throw e;
   } finally {
@@ -132,16 +88,17 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Lovable AI error:', response.status, errorText);
+    console.error('Gemini API error:', response.status, errorText);
     if (response.status === 429) throw new Error('Límite de uso excedido. Por favor intenta más tarde.');
-    if (response.status === 402) throw new Error('Créditos agotados.');
-    throw new Error(`AI gateway error: ${errorText}`);
+    if (response.status === 402) throw new Error('Créditos agotados. Agrega créditos en Settings → Workspace → Usage.');
+    throw new Error(`Error de transcripción: ${errorText}`);
   }
 
   const result = await response.json();
   const transcribedText = result?.choices?.[0]?.message?.content;
-  if (!transcribedText) throw new Error('Respuesta inválida del modelo de transcripción.');
-  console.log('Lovable AI transcription successful');
+  if (!transcribedText) throw new Error('No se recibió transcripción del modelo.');
+  
+  console.log('Gemini transcription successful, length:', transcribedText.length);
   return transcribedText;
 }
 
@@ -154,136 +111,41 @@ serve(async (req) => {
     const { audio, mimeType, fileName } = await req.json();
     
     if (!audio) {
-      throw new Error('No audio data provided');
+      return new Response(
+        JSON.stringify({ success: false, error: 'No se recibió audio' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('Received audio data, length:', audio.length);
 
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
-    const inferred = guessAudioFormat(mimeType, fileName);
-
-    let triedLovable = false;
-
-    // Prefer Lovable AI first (avoid OpenAI quota issues)
-    if (LOVABLE_API_KEY) {
-      triedLovable = true;
-      try {
-        const transcribedText = await transcribeWithLovableAI({
-          audioBase64: audio,
-          lovableFormat: inferred.lovableFormat,
-          lovableApiKey: LOVABLE_API_KEY,
-        });
-        return new Response(
-          JSON.stringify({ success: true, text: transcribedText }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      } catch (e) {
-        console.error('Lovable AI transcription failed:', e);
-        // fallback to Whisper below if configured
-      }
+    if (!LOVABLE_API_KEY) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'LOVABLE_API_KEY no configurada' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Fallback to OpenAI Whisper if available
-    if (OPENAI_API_KEY) {
-      console.log('Using OpenAI Whisper for transcription...');
-      
-      try {
-        // Process base64 audio in chunks
-        const binaryAudio = processBase64Chunks(audio);
-        
-        // Prepare form data for Whisper
-        const formData = new FormData();
-        const arrayBuffer = binaryAudio.buffer.slice(binaryAudio.byteOffset, binaryAudio.byteOffset + binaryAudio.byteLength) as ArrayBuffer;
-        const blob = new Blob([arrayBuffer], { type: inferred.mimeType });
-        formData.append('file', blob, inferred.fileName);
-        formData.append('model', 'whisper-1');
-        formData.append('language', 'es');
-        formData.append('response_format', 'text');
-
-        const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          },
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('OpenAI Whisper error:', response.status, errorText);
-
-          // No back-and-forth: if we already tried Lovable, return the Whisper error
-          if (triedLovable) {
-            return new Response(
-              JSON.stringify({ success: false, error: `Whisper API error: ${errorText}` }),
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
-          }
-
-          // Otherwise, try Lovable once as fallback
-          if (LOVABLE_API_KEY) {
-            console.log('Falling back to Lovable AI after Whisper failure...');
-            const text = await transcribeWithLovableAI({
-              audioBase64: audio,
-              lovableFormat: inferred.lovableFormat,
-              lovableApiKey: LOVABLE_API_KEY,
-            });
-            return new Response(
-              JSON.stringify({ success: true, text }),
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
-          }
-
-          return new Response(
-            JSON.stringify({ success: false, error: `Whisper API error: ${errorText}` }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        const transcribedText = await response.text();
-        console.log('Whisper transcription successful');
-
-        return new Response(
-          JSON.stringify({ success: true, text: transcribedText }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      } catch (err) {
-        console.error('Whisper transcription threw error:', err);
-        // Avoid retry loop: only fallback to Lovable if we haven't tried it yet
-        if (LOVABLE_API_KEY && !triedLovable) {
-          const text = await transcribeWithLovableAI({
-            audioBase64: audio,
-            lovableFormat: inferred.lovableFormat,
-            lovableApiKey: LOVABLE_API_KEY,
-          });
-          return new Response(
-            JSON.stringify({ success: true, text }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-        return new Response(
-          JSON.stringify({ success: false, error: err instanceof Error ? err.message : 'Unknown error' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    // If Lovable AI failed above and Whisper isn't available
+    const format = guessAudioFormat(mimeType, fileName);
+    
+    const transcribedText = await transcribeWithGemini({
+      audioBase64: audio,
+      format,
+      apiKey: LOVABLE_API_KEY,
+    });
 
     return new Response(
-      JSON.stringify({ success: false, error: 'No API key configured for transcription (OPENAI_API_KEY or LOVABLE_API_KEY)' }),
+      JSON.stringify({ success: true, text: transcribedText }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Error in transcribe-audio:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Error desconocido' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
