@@ -120,13 +120,19 @@ export const DoctorAIAssistant = ({
     setIsLoading(true);
 
     try {
+      // Filter out the welcome message and only send real conversation history
+      const conversationHistory = messages
+        .filter((m) => m.id !== "welcome")
+        .slice(-10)
+        .map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
+
       const { data, error } = await supabase.functions.invoke("doctor-ai-assistant", {
         body: {
           message: userMessage.content,
-          history: messages.slice(-10).map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
+          history: conversationHistory,
           doctorName,
           specialty,
         },
