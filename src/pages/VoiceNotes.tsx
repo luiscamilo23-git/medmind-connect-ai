@@ -407,13 +407,19 @@ const VoiceNotes = () => {
         reader.readAsDataURL(blob);
       });
 
-      const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+      const invokePromise = supabase.functions.invoke('transcribe-audio', {
         body: {
           audio: base64Audio,
           mimeType: blob.type || 'audio/webm',
           fileName: 'consulta.webm',
-        }
+        },
       });
+
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('La transcripción está tardando demasiado. Intenta de nuevo.')), 75_000)
+      );
+
+      const { data, error } = await Promise.race([invokePromise, timeoutPromise]);
 
       if (error) throw error;
       if (data?.success === false) throw new Error(data.error || 'No se pudo transcribir el audio');
