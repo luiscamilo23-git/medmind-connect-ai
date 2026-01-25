@@ -416,7 +416,7 @@ const VoiceNotes = () => {
       });
 
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('La transcripción está tardando demasiado. Intenta de nuevo.')), 75_000)
+        setTimeout(() => reject(new Error('La transcripción está tardando demasiado (timeout). Intenta de nuevo.')), 60_000)
       );
 
       const { data, error } = await Promise.race([invokePromise, timeoutPromise]);
