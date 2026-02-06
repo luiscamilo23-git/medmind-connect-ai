@@ -18,6 +18,7 @@ type Service = {
   codigo_cups: string | null;
   precio_unitario: number;
   tipo_servicio: string;
+  modalidad: string;
   impuestos_aplican: boolean;
   porcentaje_impuesto: number;
   activo: boolean;
@@ -43,7 +44,7 @@ export default function BillingServices() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("services")
-        .select("*")
+        .select("id, nombre_servicio, codigo_cups, precio_unitario, tipo_servicio, modalidad, impuestos_aplican, porcentaje_impuesto, activo, descripcion")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -266,9 +267,14 @@ export default function BillingServices() {
                           <CardTitle className="text-lg">
                             {service.nombre_servicio}
                           </CardTitle>
-                          <Badge variant={service.activo ? "default" : "secondary"}>
-                            {service.activo ? "Activo" : "Inactivo"}
-                          </Badge>
+                          <div className="flex gap-2 flex-wrap">
+                            <Badge variant={service.activo ? "default" : "secondary"}>
+                              {service.activo ? "Activo" : "Inactivo"}
+                            </Badge>
+                            <Badge variant={service.modalidad === "eps_aseguradora" ? "outline" : "secondary"}>
+                              {service.modalidad === "eps_aseguradora" ? "EPS" : "Particular"}
+                            </Badge>
+                          </div>
                         </div>
                         <div className="flex gap-2">
                           <Button
@@ -310,6 +316,11 @@ export default function BillingServices() {
                               <span className="text-muted-foreground">IVA:</span>
                               <span>{service.porcentaje_impuesto}%</span>
                             </div>
+                          )}
+                          {service.modalidad === "eps_aseguradora" && (
+                            <p className="text-xs text-primary mt-2">
+                              📋 Genera RIPS automáticamente
+                            </p>
                           )}
                           {service.descripcion && (
                             <p className="text-sm text-muted-foreground mt-2">

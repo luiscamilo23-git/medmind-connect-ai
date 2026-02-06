@@ -45,6 +45,7 @@ const serviceSchema = z.object({
     "MEDICAMENTO",
     "OTRO",
   ]),
+  modalidad: z.enum(["particular", "eps_aseguradora"]).default("particular"),
   impuestos_aplican: z.boolean().default(false),
   porcentaje_impuesto: z.coerce.number().min(0).max(100).default(0),
   activo: z.boolean().default(true),
@@ -62,6 +63,7 @@ type ServiceDialogProps = {
     codigo_cups: string | null;
     precio_unitario: number;
     tipo_servicio: string;
+    modalidad?: string;
     impuestos_aplican: boolean;
     porcentaje_impuesto: number;
     activo: boolean;
@@ -79,6 +81,7 @@ export function ServiceDialog({ open, onOpenChange, service }: ServiceDialogProp
       codigo_cups: "",
       precio_unitario: 0,
       tipo_servicio: "CONSULTA",
+      modalidad: "particular",
       impuestos_aplican: false,
       porcentaje_impuesto: 0,
       activo: true,
@@ -93,6 +96,7 @@ export function ServiceDialog({ open, onOpenChange, service }: ServiceDialogProp
         codigo_cups: service.codigo_cups || "",
         precio_unitario: service.precio_unitario,
         tipo_servicio: service.tipo_servicio as any,
+        modalidad: (service.modalidad as "particular" | "eps_aseguradora") || "particular",
         impuestos_aplican: service.impuestos_aplican,
         porcentaje_impuesto: service.porcentaje_impuesto,
         activo: service.activo,
@@ -104,6 +108,7 @@ export function ServiceDialog({ open, onOpenChange, service }: ServiceDialogProp
         codigo_cups: "",
         precio_unitario: 0,
         tipo_servicio: "CONSULTA",
+        modalidad: "particular",
         impuestos_aplican: false,
         porcentaje_impuesto: 0,
         activo: true,
@@ -122,6 +127,7 @@ export function ServiceDialog({ open, onOpenChange, service }: ServiceDialogProp
         codigo_cups: data.codigo_cups || null,
         precio_unitario: data.precio_unitario,
         tipo_servicio: data.tipo_servicio,
+        modalidad: data.modalidad,
         impuestos_aplican: data.impuestos_aplican,
         porcentaje_impuesto: data.porcentaje_impuesto,
         activo: data.activo,
@@ -223,6 +229,34 @@ export function ServiceDialog({ open, onOpenChange, service }: ServiceDialogProp
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="modalidad"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Modalidad de Pago</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="particular">Particular (Pago Directo)</SelectItem>
+                      <SelectItem value="eps_aseguradora">EPS / Aseguradora</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {field.value === "eps_aseguradora" 
+                      ? "⚠️ Requiere código CUPS para generar RIPS automáticamente"
+                      : "ℹ️ No se generarán RIPS automáticamente para servicios particulares"
+                    }
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
