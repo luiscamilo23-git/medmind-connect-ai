@@ -7,12 +7,12 @@ const corsHeaders = {
 
 // Specialty-specific field mappings
 const SPECIALTY_FIELDS: Record<string, string[]> = {
-  MEDICO_GENERAL: ['ros', 'physical_exam', 'risk_classification', 'referrals', 'disability_days'],
-  PEDIATRIA: ['gestational_age', 'growth_development', 'vaccination_scheme', 'weight_percentile', 'height_percentile', 'head_circumference', 'legal_guardian', 'perinatal_history', 'feeding_type'],
-  GINECOLOGIA: ['gesta', 'para', 'abortos', 'cesareas', 'fum', 'menstrual_cycle', 'contraceptive_method', 'prenatal_control', 'gestational_weeks', 'cytology', 'mammography'],
-  MEDICINA_INTERNA: ['chronic_pathologies', 'clinical_scales', 'deep_clinical_analysis', 'longitudinal_followup', 'comorbidities', 'hospitalization_history'],
-  PSIQUIATRIA: ['mental_state_exam', 'diagnostic_scales', 'suicide_risk', 'emotional_followup', 'therapy_type', 'psychotropic_medications'],
-  CIRUGIA: ['surgical_diagnosis', 'procedure', 'surgical_risks', 'surgical_consent', 'postop_evolution', 'anesthesia_type', 'surgical_time', 'bleeding'],
+  MEDICO_GENERAL: ['ros_general', 'ros_cardiovascular', 'ros_respiratorio', 'ros_digestivo', 'ros_genitourinario', 'ros_musculoesqueletico', 'ros_neurologico', 'ros_piel', 'ros_endocrino', 'ros_psiquiatrico', 'physical_exam', 'risk_classification', 'referrals', 'disability_days'],
+  PEDIATRIA: ['ros_general', 'ros_cardiovascular', 'ros_respiratorio', 'ros_digestivo', 'ros_neurologico', 'gestational_age', 'growth_development', 'vaccination_scheme', 'weight_percentile', 'height_percentile', 'head_circumference', 'perinatal_history', 'feeding_type', 'physical_exam'],
+  GINECOLOGIA: ['ros_general', 'ros_cardiovascular', 'ros_respiratorio', 'ros_digestivo', 'ros_genitourinario', 'gesta', 'para', 'abortos', 'cesareas', 'fum', 'menstrual_cycle', 'contraceptive_method', 'prenatal_control', 'gestational_weeks', 'cytology', 'mammography', 'physical_exam'],
+  MEDICINA_INTERNA: ['ros_general', 'ros_cardiovascular', 'ros_respiratorio', 'ros_digestivo', 'ros_genitourinario', 'ros_musculoesqueletico', 'ros_neurologico', 'ros_endocrino', 'chronic_pathologies', 'clinical_scales', 'deep_clinical_analysis', 'longitudinal_followup', 'comorbidities', 'hospitalization_history', 'physical_exam'],
+  PSIQUIATRIA: ['ros_general', 'ros_cardiovascular', 'ros_psiquiatrico', 'mental_state_exam', 'diagnostic_scales', 'suicide_risk', 'emotional_followup', 'therapy_type', 'psychotropic_medications'],
+  CIRUGIA: ['ros_cardiovascular', 'ros_respiratorio', 'ros_digestivo', 'surgical_area_exam', 'preoperative_diagnosis', 'proposed_surgery', 'surgical_indication', 'asa_classification', 'surgical_risks', 'anesthesia_type', 'surgical_technique', 'surgical_findings', 'estimated_blood_loss', 'postoperative_diagnosis', 'physical_exam'],
 };
 
 // Common drug interactions database (simplified)
@@ -110,14 +110,35 @@ INSTRUCCIONES CRÍTICAS DE EXTRACCIÓN - LEE CON CUIDADO:
 
 3. **TELÉFONO**: Busca secuencias numéricas que sean teléfonos. Ejemplo: "el teléfono es 321" → "321"
 
-4. **ANTECEDENTES**: Busca TODOS los tipos:
+4. **ACOMPAÑANTE - MUY IMPORTANTE**: 
+   - Busca si alguien acompaña al paciente: "viene con su mamá", "lo trae el papá", "acompañado por", "con el esposo"
+   - Extrae: nombre del acompañante, parentesco, teléfono si se menciona
+   - En pediatría el acompañante es OBLIGATORIO
+
+5. **ANTECEDENTES**: Busca TODOS los tipos:
    - Personales: "antecedentes personales", "padece de", "tiene diagnóstico de"
    - Familiares: "antecedentes familiares", "en la familia hay"
+   - Quirúrgicos: "cirugías previas", "operaciones", "antecedentes quirúrgicos"
    - Medicamentos: "medicamentos actuales", "toma", "actualmente usa"
    - Alergias: "alergia", "alérgico a", "ninguna alergia", "niega alergias"
    Si dice "ninguno" o "niega", extrae ese valor explícitamente.
 
-5. **SIGNOS VITALES**: Extrae TODOS los mencionados:
+6. **REVISIÓN POR SISTEMAS (ROS) - OBLIGATORIO PARA RIPS**:
+   Extrae síntomas SEPARADOS por cada sistema corporal:
+   - ros_general: fiebre, malestar, fatiga, pérdida de peso
+   - ros_cardiovascular: dolor torácico, palpitaciones, disnea de esfuerzo, edema
+   - ros_respiratorio: tos, expectoración, disnea, sibilancias
+   - ros_digestivo: náuseas, vómito, diarrea, estreñimiento, dolor abdominal
+   - ros_genitourinario: disuria, polaquiuria, hematuria, incontinencia
+   - ros_musculoesqueletico: artralgias, mialgias, rigidez, debilidad
+   - ros_neurologico: cefalea, mareo, parestesias, pérdida de fuerza
+   - ros_piel: lesiones, prurito, erupciones
+   - ros_endocrino: polidipsia, poliuria, intolerancia al frío/calor
+   - ros_psiquiatrico: ansiedad, depresión, insomnio
+   
+   Si el paciente NIEGA síntomas en un sistema, pon "Sin alteraciones" o "Niega síntomas"
+
+7. **SIGNOS VITALES**: Extrae TODOS los mencionados:
    - Presión: "120/80", "TA 120 82", "presión arterial", "tensión arterial"
    - FC: "frecuencia de 71", "pulso", "frecuencia cardíaca"
    - FR: "frecuencia respiratoria 16", "respiraciones"
@@ -125,25 +146,24 @@ INSTRUCCIONES CRÍTICAS DE EXTRACCIÓN - LEE CON CUIDADO:
    - SPO2: "saturación", "SPO2", "oximetría"
    - Peso/Talla: "peso", "talla", "altura"
 
-6. **DIAGNÓSTICO - MUY IMPORTANTE**:
+8. **DIAGNÓSTICO - MUY IMPORTANTE**:
    - Busca cuando el doctor DICE o MENCIONA un diagnóstico:
      * "El diagnóstico es...", "Se diagnostica...", "Diagnóstico:", "Impresión diagnóstica:"
      * "Considero que tiene...", "Parece ser...", "Es un cuadro de..."
-     * "Balanitis", "Fimosis", "Infección urinaria", etc. (cualquier diagnóstico mencionado)
    - Extrae el diagnóstico EXACTO que dice el doctor
    - Si hay múltiples diagnósticos, incluye todos separados por coma
 
-7. **CÓDIGO CIE-10**: Proporciona MÚLTIPLES códigos posibles con nivel de confianza:
+9. **CÓDIGO CIE-10**: Proporciona MÚLTIPLES códigos posibles con nivel de confianza:
    - Si se menciona explícitamente un código, ponlo con 100% confianza
    - Si hay diagnóstico claro mencionado por el doctor, sugiere el código apropiado con 90-95% confianza
    - Si hay síntomas pero diagnóstico no definido, sugiere códigos probables con 60-80% confianza
 
-8. **PLAN DE MANEJO**: Busca "plan de manejo", "tratamiento", "indicaciones", "seguir", "continuar", "formular". Extrae TODO lo mencionado.
+10. **PLAN DE MANEJO**: Busca "plan de manejo", "tratamiento", "indicaciones", "seguir", "continuar", "formular". Extrae TODO lo mencionado.
 
-9. **RESULTADOS DE LABORATORIO**: Extrae CUALQUIER resultado de laboratorio mencionado:
-   - Hemoglobina, glucemia, creatinina, colesterol, triglicéridos, TSH, etc.
-   - Incluye el valor y unidades si se mencionan
-   - Marca si está alterado según contexto
+11. **RESULTADOS DE LABORATORIO**: Extrae CUALQUIER resultado de laboratorio mencionado:
+    - Hemoglobina, glucemia, creatinina, colesterol, triglicéridos, TSH, etc.
+    - Incluye el valor y unidades si se mencionan
+    - Marca si está alterado según contexto
 
 ${specialtyContext.additionalInstructions}
 
@@ -151,7 +171,8 @@ REGLAS:
 - NUNCA inventes información que no esté en la transcripción, EXCEPTO el sexo que puedes inferir del nombre
 - Si algo se menciona como "ninguno", "no tiene", "niega", extrae ese valor
 - Sé PRECISO, respeta las palabras exactas cuando sea posible
-- Para el diagnóstico, captura EXACTAMENTE lo que dice el doctor`;
+- Para el diagnóstico, captura EXACTAMENTE lo que dice el doctor
+- El ROS debe estar ESTRUCTURADO por sistemas, no en un solo campo`;
 
 
     // Build specialty fields schema dynamically
@@ -190,9 +211,30 @@ REGLAS:
                   patientSex: { type: "string", enum: ["masculino", "femenino"], description: "Sexo del paciente. Normaliza a 'masculino' o 'femenino'" },
                   patientPhone: { type: "string", description: "Teléfono del paciente" },
                   patientAddress: { type: "string", description: "Dirección del paciente" },
+                  hasCompanion: { type: "string", enum: ["si", "no"], description: "Si el paciente viene con acompañante" },
+                  companionName: { type: "string", description: "Nombre del acompañante" },
+                  companionRelationship: { type: "string", description: "Parentesco del acompañante (padre, madre, esposo, etc.)" },
+                  companionPhone: { type: "string", description: "Teléfono del acompañante" },
+                  companionId: { type: "string", description: "Identificación del acompañante" },
                   chiefComplaint: { type: "string", description: "Motivo principal de consulta en palabras del paciente" },
                   currentIllness: { type: "string", description: "Historia detallada cronológica de la enfermedad actual" },
-                  ros: { type: "string", description: "Revisión por sistemas - síntomas por aparatos" },
+                  rosStructured: {
+                    type: "object",
+                    description: "Revisión por sistemas estructurada - OBLIGATORIO separar por sistemas",
+                    properties: {
+                      ros_general: { type: "string", description: "Síntomas generales: fiebre, malestar, fatiga, pérdida de peso" },
+                      ros_cardiovascular: { type: "string", description: "Cardiovascular: dolor torácico, palpitaciones, disnea, edema" },
+                      ros_respiratorio: { type: "string", description: "Respiratorio: tos, expectoración, disnea, sibilancias" },
+                      ros_digestivo: { type: "string", description: "Digestivo: náuseas, vómito, diarrea, estreñimiento, dolor abdominal" },
+                      ros_genitourinario: { type: "string", description: "Genitourinario: disuria, polaquiuria, hematuria" },
+                      ros_musculoesqueletico: { type: "string", description: "Musculoesquelético: artralgias, mialgias, rigidez" },
+                      ros_neurologico: { type: "string", description: "Neurológico: cefalea, mareo, parestesias" },
+                      ros_piel: { type: "string", description: "Piel y faneras: lesiones, prurito, erupciones" },
+                      ros_endocrino: { type: "string", description: "Endocrino: polidipsia, poliuria, intolerancia térmica" },
+                      ros_psiquiatrico: { type: "string", description: "Psiquiátrico: ansiedad, depresión, insomnio" }
+                    }
+                  },
+                  ros: { type: "string", description: "Revisión por sistemas - síntomas por aparatos (legacy, usar rosStructured preferiblemente)" },
                   medicalHistory: { type: "string", description: "Antecedentes generales" },
                   personalHistory: { type: "string", description: "Antecedentes personales patológicos. Si dice 'ninguno', extrae 'Ninguno'" },
                   familyHistory: { type: "string", description: "Antecedentes familiares. Si dice 'ninguno', extrae 'Ninguno'" },
