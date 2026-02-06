@@ -12,13 +12,28 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, Square, Stethoscope, Baby, Heart, Brain, Scissors, Sparkles } from "lucide-react";
+import { 
+  Mic, 
+  Square, 
+  Stethoscope, 
+  Baby, 
+  Heart, 
+  Brain, 
+  Scissors, 
+  Sparkles, 
+  Users, 
+  Activity,
+  Clipboard,
+  ChevronDown,
+  ChevronUp
+} from "lucide-react";
 import { 
   MedicalSpecialty, 
   SpecialtyField,
   getFieldsForSpecialty,
   SPECIALTY_CONFIGS 
 } from "@/config/medicalSpecialties";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface SpecialtyFieldsProps {
   specialty: MedicalSpecialty;
@@ -31,13 +46,15 @@ interface SpecialtyFieldsProps {
   interimTranscript?: string;
 }
 
-const sectionLabels: Record<string, { title: string; icon: React.ReactNode }> = {
-  datos_paciente: { title: "Datos del Paciente y Encuentro", icon: <Stethoscope className="w-4 h-4" /> },
+const sectionLabels: Record<string, { title: string; icon: React.ReactNode; description?: string }> = {
+  datos_paciente: { title: "Datos del Paciente y Encuentro", icon: <Users className="w-4 h-4" /> },
   antecedentes: { title: "Antecedentes", icon: <Heart className="w-4 h-4" /> },
-  examen: { title: "Examen Físico y Signos Vitales", icon: <Brain className="w-4 h-4" /> },
+  ros: { title: "Revisión por Sistemas (ROS)", icon: <Activity className="w-4 h-4" />, description: "Síntomas por cada sistema corporal - Obligatorio para RIPS completos" },
+  examen: { title: "Examen Físico y Signos Vitales", icon: <Stethoscope className="w-4 h-4" /> },
   diagnostico: { title: "Diagnóstico", icon: <Sparkles className="w-4 h-4" /> },
-  plan: { title: "Plan de Manejo", icon: <Scissors className="w-4 h-4" /> },
-  especializado: { title: "Campos Especializados", icon: <Baby className="w-4 h-4" /> },
+  plan: { title: "Plan de Manejo", icon: <Brain className="w-4 h-4" /> },
+  quirurgico: { title: "Información Quirúrgica", icon: <Scissors className="w-4 h-4" />, description: "Datos preoperatorios, intraoperatorios y postoperatorios" },
+  especializado: { title: "Campos Especializados", icon: <Clipboard className="w-4 h-4" /> },
 };
 
 export const SpecialtyFields = ({
@@ -51,11 +68,35 @@ export const SpecialtyFields = ({
   interimTranscript = "",
 }: SpecialtyFieldsProps) => {
   const [fields, setFields] = useState<SpecialtyField[]>([]);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    datos_paciente: true,
+    antecedentes: true,
+    ros: true,
+    examen: true,
+    diagnostico: true,
+    plan: true,
+    quirurgico: true,
+    especializado: true,
+  });
   const config = SPECIALTY_CONFIGS[specialty];
 
   useEffect(() => {
     setFields(getFieldsForSpecialty(specialty));
   }, [specialty]);
+
+  // Check if companion fields should be visible
+  const showCompanionFields = values.has_companion === "si";
+
+  // Filter fields based on companion visibility
+  const getVisibleFields = (sectionFields: SpecialtyField[]) => {
+    return sectionFields.filter(field => {
+      // Hide companion detail fields if no companion
+      if (['companion_name', 'companion_relationship', 'companion_phone', 'companion_id'].includes(field.key)) {
+        return showCompanionFields;
+      }
+      return true;
+    });
+  };
 
   // Agrupar campos por sección
   const groupedFields = fields.reduce((acc, field) => {
@@ -65,6 +106,10 @@ export const SpecialtyFields = ({
     acc[field.section].push(field);
     return acc;
   }, {} as Record<string, SpecialtyField[]>);
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   const renderField = (field: SpecialtyField) => {
     const isRecordingThis = isRecording && recordingField === field.key;
@@ -222,10 +267,10 @@ export const SpecialtyFields = ({
     }
   };
 
-  const sectionOrder = ["datos_paciente", "antecedentes", "examen", "diagnostico", "plan", "especializado"];
+  const sectionOrder = ["datos_paciente", "antecedentes", "ros", "examen", "diagnostico", "plan", "quirurgico", "especializado"];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header con info de especialidad */}
       <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 rounded-lg border border-primary/20">
         <div className="flex items-center gap-2 mb-1">
@@ -245,22 +290,54 @@ export const SpecialtyFields = ({
         const sectionFields = groupedFields[section];
         if (!sectionFields || sectionFields.length === 0) return null;
 
+        const visibleFields = getVisibleFields(sectionFields);
+        if (visibleFields.length === 0) return null;
+
         const sectionInfo = sectionLabels[section];
+        const isOpen = openSections[section];
+
+        // ROS section gets special styling
+        const isRosSection = section === "ros";
+        const isQuirurgicoSection = section === "quirurgico";
 
         return (
-          <Card key={section} className="border-border/50">
-            <CardHeader className="py-3 px-4">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                {sectionInfo.icon}
-                {sectionInfo.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sectionFields.map(renderField)}
-              </div>
-            </CardContent>
-          </Card>
+          <Collapsible 
+            key={section} 
+            open={isOpen} 
+            onOpenChange={() => toggleSection(section)}
+          >
+            <Card className={`border-border/50 ${isRosSection ? 'border-blue-500/30 bg-blue-500/5' : ''} ${isQuirurgicoSection ? 'border-orange-500/30 bg-orange-500/5' : ''}`}>
+              <CollapsibleTrigger asChild>
+                <CardHeader className="py-3 px-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <CardTitle className="text-sm font-medium flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {sectionInfo.icon}
+                      <div>
+                        <span>{sectionInfo.title}</span>
+                        {sectionInfo.description && (
+                          <p className="text-xs text-muted-foreground font-normal mt-0.5">
+                            {sectionInfo.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {isOpen ? (
+                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </CardTitle>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="px-4 pb-4">
+                  <div className={`grid gap-4 ${isRosSection ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2'}`}>
+                    {visibleFields.map(renderField)}
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
         );
       })}
     </div>

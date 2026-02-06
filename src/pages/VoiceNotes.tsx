@@ -545,11 +545,41 @@ const VoiceNotes = () => {
       if (extracted.currentIllness && !currentIllness) setCurrentIllness(extracted.currentIllness);
       if (extracted.ros && !ros) setRos(extracted.ros);
       
+      // Handle structured ROS from AI
+      if (extracted.rosStructured) {
+        setSpecialtyFieldsValues(prev => ({
+          ...prev,
+          ros_general: prev.ros_general || extracted.rosStructured.ros_general || "",
+          ros_cardiovascular: prev.ros_cardiovascular || extracted.rosStructured.ros_cardiovascular || "",
+          ros_respiratorio: prev.ros_respiratorio || extracted.rosStructured.ros_respiratorio || "",
+          ros_digestivo: prev.ros_digestivo || extracted.rosStructured.ros_digestivo || "",
+          ros_genitourinario: prev.ros_genitourinario || extracted.rosStructured.ros_genitourinario || "",
+          ros_musculoesqueletico: prev.ros_musculoesqueletico || extracted.rosStructured.ros_musculoesqueletico || "",
+          ros_neurologico: prev.ros_neurologico || extracted.rosStructured.ros_neurologico || "",
+          ros_piel: prev.ros_piel || extracted.rosStructured.ros_piel || "",
+          ros_endocrino: prev.ros_endocrino || extracted.rosStructured.ros_endocrino || "",
+          ros_psiquiatrico: prev.ros_psiquiatrico || extracted.rosStructured.ros_psiquiatrico || "",
+        }));
+      }
+      
+      // Handle companion info
+      if (extracted.hasCompanion) {
+        setSpecialtyFieldsValues(prev => ({
+          ...prev,
+          has_companion: extracted.hasCompanion || prev.has_companion || "no",
+          companion_name: prev.companion_name || extracted.companionName || "",
+          companion_relationship: prev.companion_relationship || extracted.companionRelationship || "",
+          companion_phone: prev.companion_phone || extracted.companionPhone || "",
+          companion_id: prev.companion_id || extracted.companionId || "",
+        }));
+      }
+      
       // Antecedentes - combinar todos los tipos (y también mapear a campos visibles)
       const antecedentesExtraidos = [
         extracted.medicalHistory,
         extracted.personalHistory && `Personales: ${extracted.personalHistory}`,
         extracted.familyHistory && `Familiares: ${extracted.familyHistory}`,
+        extracted.surgicalHistory && `Quirúrgicos: ${extracted.surgicalHistory}`,
         extracted.currentMedications && `Medicamentos: ${extracted.currentMedications}`,
         extracted.allergies && `Alergias: ${extracted.allergies}`
       ].filter(Boolean).join('\n');
@@ -1422,8 +1452,32 @@ const VoiceNotes = () => {
 
               {/* Signature */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Firma Digital del Médico</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center justify-between">
+                    <span>Firma Digital del Médico</span>
+                    {doctorProfile?.signature_url && !doctorSignature && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setDoctorSignature(doctorProfile.signature_url);
+                          toast({
+                            title: "✓ Firma importada",
+                            description: "Se ha cargado tu firma guardada en el perfil",
+                          });
+                        }}
+                        className="gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        Importar Firma del Perfil
+                      </Button>
+                    )}
+                  </CardTitle>
+                  {!doctorProfile?.signature_url && (
+                    <p className="text-xs text-muted-foreground">
+                      💡 Tip: Guarda tu firma en <a href="/profile" className="text-primary underline">tu perfil</a> para importarla automáticamente
+                    </p>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <SignaturePad
