@@ -735,7 +735,9 @@ export type Database = {
           patient_identification: string | null
           physical_exam: string | null
           record_type: Database["public"]["Enums"]["record_type"]
+          rips_status: string | null
           ros: string | null
+          service_id: string | null
           symptoms: string[] | null
           title: string
           treatment: string | null
@@ -767,7 +769,9 @@ export type Database = {
           patient_identification?: string | null
           physical_exam?: string | null
           record_type: Database["public"]["Enums"]["record_type"]
+          rips_status?: string | null
           ros?: string | null
+          service_id?: string | null
           symptoms?: string[] | null
           title: string
           treatment?: string | null
@@ -799,7 +803,9 @@ export type Database = {
           patient_identification?: string | null
           physical_exam?: string | null
           record_type?: Database["public"]["Enums"]["record_type"]
+          rips_status?: string | null
           ros?: string | null
+          service_id?: string | null
           symptoms?: string[] | null
           title?: string
           treatment?: string | null
@@ -821,6 +827,13 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_records_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
             referencedColumns: ["id"]
           },
         ]
@@ -1577,6 +1590,7 @@ export type Database = {
           doctor_id: string
           id: string
           impuestos_aplican: boolean | null
+          modalidad: string
           nombre_servicio: string
           porcentaje_impuesto: number | null
           precio_unitario: number
@@ -1591,6 +1605,7 @@ export type Database = {
           doctor_id: string
           id?: string
           impuestos_aplican?: boolean | null
+          modalidad?: string
           nombre_servicio: string
           porcentaje_impuesto?: number | null
           precio_unitario: number
@@ -1605,6 +1620,7 @@ export type Database = {
           doctor_id?: string
           id?: string
           impuestos_aplican?: boolean | null
+          modalidad?: string
           nombre_servicio?: string
           porcentaje_impuesto?: number | null
           precio_unitario?: number
