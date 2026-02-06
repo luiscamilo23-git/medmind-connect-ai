@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, LogOut, Bell, User, Bot, ArrowRight, Sparkles, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, LogOut, Bell, User, Bot, ArrowRight, Sparkles, Loader2, AlertTriangle, Building2, Wallet, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -213,7 +213,44 @@ export default function BillingServices() {
                 </div>
               </div>
 
-              {/* Import suggestion banner when no services */}
+              {/* Educational Alert - Modalidad y RIPS */}
+              <Alert className="border-amber-500/30 bg-amber-500/5">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertTitle className="text-amber-700">Importante: Modalidad y Generación de RIPS</AlertTitle>
+                <AlertDescription className="text-amber-600/90 mt-2 space-y-3">
+                  <p>
+                    <strong>No mezcles servicios Particulares con EPS/Aseguradora.</strong> Cada servicio debe tener una única modalidad de pago.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <Wallet className="h-5 w-5 text-green-600 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-green-700">Particular</p>
+                        <p className="text-sm text-green-600">
+                          No genera RIPS. El código CUPS es opcional. Ideal para consultas privadas sin intermediarios.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <Building2 className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-blue-700">EPS / Aseguradora</p>
+                        <p className="text-sm text-blue-600">
+                          <strong>Genera RIPS automáticamente</strong> según Resolución 2275/2023. El código CUPS es obligatorio.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 p-2 rounded bg-background/50">
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Al crear una historia clínica, seleccionarás el servicio y el sistema determinará automáticamente si genera RIPS.
+                    </p>
+                  </div>
+                </AlertDescription>
+              </Alert>
+
+
               {hasNoServices && hasKnowledgeBaseServices && !isLoading && (
                 <Alert className="border-primary/30 bg-primary/5">
                   <Sparkles className="h-4 w-4 text-primary" />
