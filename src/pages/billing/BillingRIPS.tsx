@@ -5,13 +5,15 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Download, Send, Eye, LogOut, Bell, User, AlertCircle, CheckCircle, Clock, Sparkles } from "lucide-react";
+import { Plus, Download, Send, Eye, LogOut, Bell, User, AlertCircle, CheckCircle, Clock, Sparkles, Filter, Building2, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { RIPSBatchDialog } from "@/components/billing/RIPSBatchDialog";
 import { AIRIPSAssistant } from "@/components/billing/AIRIPSAssistant";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type RIPSBatch = {
   id: string;
@@ -26,6 +28,7 @@ type RIPSBatch = {
   errores_validacion: any;
   fecha_envio: string | null;
   created_at: string;
+  modalidad?: string;
 };
 
 export default function BillingRIPS() {
@@ -34,6 +37,7 @@ export default function BillingRIPS() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null);
+  const [modalidadFilter, setModalidadFilter] = useState<string>("all");
 
   const { data: batches, isLoading } = useQuery({
     queryKey: ["rips-batches"],
@@ -46,6 +50,19 @@ export default function BillingRIPS() {
       if (error) throw error;
       return data as RIPSBatch[];
     },
+  });
+
+  // Filtrar batches por modalidad
+  const filteredBatches = batches?.filter(batch => {
+    if (modalidadFilter === "all") return true;
+    // Determinar modalidad basado en si tiene NIT o nombre de EPS
+    const isEPS = batch.nit_pagador || batch.pagador?.toLowerCase().includes("eps") || 
+                  batch.pagador?.toLowerCase().includes("nueva") || 
+                  batch.pagador?.toLowerCase().includes("sura") ||
+                  batch.pagador?.toLowerCase().includes("salud");
+    if (modalidadFilter === "eps") return isEPS;
+    if (modalidadFilter === "particular") return !isEPS;
+    return true;
   });
 
   const generateRIPSMutation = useMutation({
@@ -122,6 +139,28 @@ export default function BillingRIPS() {
     );
   };
 
+  const getModalidadBadge = (batch: RIPSBatch) => {
+    const isEPS = batch.nit_pagador || batch.pagador?.toLowerCase().includes("eps") || 
+                  batch.pagador?.toLowerCase().includes("nueva") || 
+                  batch.pagador?.toLowerCase().includes("sura") ||
+                  batch.pagador?.toLowerCase().includes("salud");
+    
+    if (isEPS) {
+      return (
+        <Badge variant="outline" className="gap-1 bg-blue-500/10 text-blue-600 border-blue-500/30">
+          <Building2 className="h-3 w-3" />
+          EPS
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="gap-1 bg-green-500/10 text-green-600 border-green-500/30">
+        <Wallet className="h-3 w-3" />
+        Particular
+      </Badge>
+    );
+  };
+
   const handleGenerateRIPS = (batchId: string) => {
     if (confirm("¿Generar archivo RIPS en formato JSON según Resolución 2275/2023?")) {
       generateRIPSMutation.mutate(batchId);
@@ -133,6 +172,43 @@ export default function BillingRIPS() {
       validateRIPSMutation.mutate(batchId);
     }
   };
+
+  const handleDownloadFiltered = (modalidad: "eps" | "particular" | "all") => {
+    const batchesToDownload = batches?.filter(batch => {
+      if (batch.estado !== "GENERADO" && batch.estado !== "VALIDADO") return false;
+      if (modalidad === "all") return true;
+      
+      const isEPS = batch.nit_pagador || batch.pagador?.toLowerCase().includes("eps") || 
+                    batch.pagador?.toLowerCase().includes("nueva") || 
+                    batch.pagador?.toLowerCase().includes("sura") ||
+                    batch.pagador?.toLowerCase().includes("salud");
+      if (modalidad === "eps") return isEPS;
+      if (modalidad === "particular") return !isEPS;
+      return true;
+    });
+
+    if (!batchesToDownload || batchesToDownload.length === 0) {
+      toast.error("No hay RIPS generados para descargar con ese filtro");
+      return;
+    }
+
+    // Descargar cada archivo
+    batchesToDownload.forEach(batch => {
+      if (batch.archivo_rips_url) {
+        window.open(batch.archivo_rips_url, "_blank");
+      }
+    });
+    
+    toast.success(`Descargando ${batchesToDownload.length} archivo(s) RIPS`);
+  };
+
+  // Stats por modalidad
+  const epsCount = batches?.filter(b => {
+    const isEPS = b.nit_pagador || b.pagador?.toLowerCase().includes("eps");
+    return isEPS;
+  }).length || 0;
+  
+  const particularCount = (batches?.length || 0) - epsCount;
 
   return (
     <SidebarProvider>
@@ -165,17 +241,17 @@ export default function BillingRIPS() {
                 <AlertDescription>
                   Los RIPS son documentos obligatorios que soportan la prestación de servicios de salud.
                   Este módulo cumple con la Resolución 2275/2023 (formato JSON) y la Resolución 558/2024 
-                  (Mecanismo Único de Validación).
+                  (Mecanismo Único de Validación). <strong>Los servicios Particulares no generan RIPS obligatorios.</strong>
                 </AlertDescription>
               </Alert>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
                   <p className="text-muted-foreground">
                     Genera y valida tus archivos RIPS en formato JSON
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button variant="outline" onClick={() => setIsAIOpen(true)}>
                     <Sparkles className="h-4 w-4 mr-2" />
                     Asistente IA
@@ -188,13 +264,36 @@ export default function BillingRIPS() {
               </div>
 
               {/* Statistics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Lotes</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{batches?.length || 0}</div>
+                  </CardContent>
+                </Card>
+                <Card className="border-blue-500/30 bg-blue-500/5">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-blue-600" />
+                      EPS/Aseguradoras
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-blue-600">{epsCount}</div>
+                  </CardContent>
+                </Card>
+                <Card className="border-green-500/30 bg-green-500/5">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Wallet className="h-4 w-4 text-green-600" />
+                      Particulares
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-600">{particularCount}</div>
+                    <p className="text-xs text-muted-foreground">No requieren RIPS</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -204,16 +303,6 @@ export default function BillingRIPS() {
                   <CardContent>
                     <div className="text-2xl font-bold text-green-600">
                       {batches?.filter((b) => b.estado === "VALIDADO").length || 0}
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Pendientes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-orange-600">
-                      {batches?.filter((b) => b.estado === "DRAFT" || b.estado === "GENERADO").length || 0}
                     </div>
                   </CardContent>
                 </Card>
@@ -229,131 +318,232 @@ export default function BillingRIPS() {
                 </Card>
               </div>
 
-              {/* Batches List */}
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <Card key={i} className="animate-pulse">
-                      <CardContent className="p-6">
-                        <div className="space-y-2">
-                          <div className="h-4 bg-muted rounded w-3/4"></div>
-                          <div className="h-3 bg-muted rounded w-1/2"></div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : batches && batches.length > 0 ? (
-                <div className="space-y-4">
-                  {batches.map((batch) => (
-                    <Card key={batch.id} className="hover:bg-accent/50 transition-colors">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <CardTitle className="flex items-center gap-2">
-                              Lote RIPS - {batch.pagador}
-                              {getStatusBadge(batch.estado)}
-                            </CardTitle>
-                            <CardDescription>
-                              Período: {formatDate(batch.fecha_inicio)} - {formatDate(batch.fecha_fin)}
-                            </CardDescription>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedBatchId(batch.id);
-                                setIsAIOpen(true);
-                              }}
-                            >
-                              <Sparkles className="h-4 w-4 mr-2" />
-                              IA
-                            </Button>
-                            {batch.estado === "DRAFT" && (
-                              <Button
-                                size="sm"
-                                onClick={() => handleGenerateRIPS(batch.id)}
-                                disabled={generateRIPSMutation.isPending}
-                              >
-                                <Download className="h-4 w-4 mr-2" />
-                                Generar JSON
-                              </Button>
-                            )}
-                            {batch.estado === "GENERADO" && (
-                              <Button
-                                size="sm"
-                                onClick={() => handleValidateRIPS(batch.id)}
-                                disabled={validateRIPSMutation.isPending}
-                              >
-                                <Send className="h-4 w-4 mr-2" />
-                                Validar
-                              </Button>
-                            )}
-                            {batch.archivo_rips_url && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => window.open(batch.archivo_rips_url!, "_blank")}
-                              >
-                                <Download className="h-4 w-4 mr-2" />
-                                Descargar
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <p className="text-muted-foreground">Registros</p>
-                            <p className="font-semibold text-lg">{batch.total_registros}</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground">Valor Total</p>
-                            <p className="font-semibold text-lg">{formatCurrency(batch.total_valor)}</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground">NIT Pagador</p>
-                            <p className="font-medium">{batch.nit_pagador || "N/A"}</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground">Fecha Creación</p>
-                            <p className="font-medium">{formatDate(batch.created_at)}</p>
-                          </div>
-                        </div>
+              {/* Filtros y Descarga */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Filter className="h-5 w-5" />
+                    Filtrar y Descargar RIPS
+                  </CardTitle>
+                  <CardDescription>
+                    Filtra los lotes por modalidad y descarga solo los que necesites
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-4 items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Filtrar por:</span>
+                      <Select value={modalidadFilter} onValueChange={setModalidadFilter}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Todas las modalidades" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todas</SelectItem>
+                          <SelectItem value="eps">Solo EPS/Aseguradoras</SelectItem>
+                          <SelectItem value="particular">Solo Particulares</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex gap-2 ml-auto">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDownloadFiltered("eps")}
+                        className="border-blue-500/30 text-blue-600 hover:bg-blue-500/10"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Descargar EPS
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDownloadFiltered("particular")}
+                        className="border-green-500/30 text-green-600 hover:bg-green-500/10"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Descargar Particulares
+                      </Button>
+                      <Button 
+                        size="sm"
+                        onClick={() => handleDownloadFiltered("all")}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Descargar Todos
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                        {batch.errores_validacion && (
-                          <Alert variant="destructive" className="mt-4">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>Errores de Validación</AlertTitle>
-                            <AlertDescription>
-                              <ul className="list-disc list-inside mt-2">
-                                {Object.entries(batch.errores_validacion).map(([key, value]: [string, any]) => (
-                                  <li key={key}>{value}</li>
-                                ))}
-                              </ul>
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <Card>
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-4">
-                      No tienes lotes RIPS generados
-                    </p>
-                    <Button onClick={() => setIsDialogOpen(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Crear Primer Lote RIPS
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Tabs por Modalidad */}
+              <Tabs defaultValue="all" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 max-w-md">
+                  <TabsTrigger value="all">Todos</TabsTrigger>
+                  <TabsTrigger value="eps" className="gap-2">
+                    <Building2 className="h-4 w-4" />
+                    EPS
+                  </TabsTrigger>
+                  <TabsTrigger value="particular" className="gap-2">
+                    <Wallet className="h-4 w-4" />
+                    Particular
+                  </TabsTrigger>
+                </TabsList>
+
+                {["all", "eps", "particular"].map((tab) => (
+                  <TabsContent key={tab} value={tab} className="space-y-4 mt-4">
+                    {isLoading ? (
+                      <div className="space-y-4">
+                        {[1, 2, 3].map((i) => (
+                          <Card key={i} className="animate-pulse">
+                            <CardContent className="p-6">
+                              <div className="space-y-2">
+                                <div className="h-4 bg-muted rounded w-3/4"></div>
+                                <div className="h-3 bg-muted rounded w-1/2"></div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      (() => {
+                        const tabFilteredBatches = batches?.filter(batch => {
+                          if (tab === "all") return true;
+                          const isEPS = batch.nit_pagador || batch.pagador?.toLowerCase().includes("eps") || 
+                                        batch.pagador?.toLowerCase().includes("nueva") || 
+                                        batch.pagador?.toLowerCase().includes("sura") ||
+                                        batch.pagador?.toLowerCase().includes("salud");
+                          if (tab === "eps") return isEPS;
+                          if (tab === "particular") return !isEPS;
+                          return true;
+                        });
+
+                        if (!tabFilteredBatches || tabFilteredBatches.length === 0) {
+                          return (
+                            <Card>
+                              <CardContent className="flex flex-col items-center justify-center py-12">
+                                <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+                                <p className="text-muted-foreground mb-4">
+                                  {tab === "eps" && "No tienes lotes RIPS de EPS/Aseguradoras"}
+                                  {tab === "particular" && "No tienes lotes de servicios particulares"}
+                                  {tab === "all" && "No tienes lotes RIPS generados"}
+                                </p>
+                                {tab !== "particular" && (
+                                  <Button onClick={() => setIsDialogOpen(true)}>
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Crear Lote RIPS
+                                  </Button>
+                                )}
+                                {tab === "particular" && (
+                                  <p className="text-sm text-muted-foreground text-center max-w-md">
+                                    Los servicios particulares no requieren generación obligatoria de RIPS según la normativa colombiana.
+                                  </p>
+                                )}
+                              </CardContent>
+                            </Card>
+                          );
+                        }
+
+                        return tabFilteredBatches.map((batch) => (
+                          <Card key={batch.id} className="hover:bg-accent/50 transition-colors">
+                            <CardHeader>
+                              <div className="flex items-center justify-between flex-wrap gap-2">
+                                <div>
+                                  <CardTitle className="flex items-center gap-2 flex-wrap">
+                                    Lote RIPS - {batch.pagador}
+                                    {getStatusBadge(batch.estado)}
+                                    {getModalidadBadge(batch)}
+                                  </CardTitle>
+                                  <CardDescription>
+                                    Período: {formatDate(batch.fecha_inicio)} - {formatDate(batch.fecha_fin)}
+                                  </CardDescription>
+                                </div>
+                                <div className="flex gap-2 flex-wrap">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setSelectedBatchId(batch.id);
+                                      setIsAIOpen(true);
+                                    }}
+                                  >
+                                    <Sparkles className="h-4 w-4 mr-2" />
+                                    IA
+                                  </Button>
+                                  {batch.estado === "DRAFT" && (
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleGenerateRIPS(batch.id)}
+                                      disabled={generateRIPSMutation.isPending}
+                                    >
+                                      <Download className="h-4 w-4 mr-2" />
+                                      Generar JSON
+                                    </Button>
+                                  )}
+                                  {batch.estado === "GENERADO" && (
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleValidateRIPS(batch.id)}
+                                      disabled={validateRIPSMutation.isPending}
+                                    >
+                                      <Send className="h-4 w-4 mr-2" />
+                                      Validar
+                                    </Button>
+                                  )}
+                                  {batch.archivo_rips_url && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => window.open(batch.archivo_rips_url!, "_blank")}
+                                    >
+                                      <Download className="h-4 w-4 mr-2" />
+                                      Descargar
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                  <p className="text-muted-foreground">Registros</p>
+                                  <p className="font-semibold text-lg">{batch.total_registros}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground">Valor Total</p>
+                                  <p className="font-semibold text-lg">{formatCurrency(batch.total_valor)}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground">NIT Pagador</p>
+                                  <p className="font-medium">{batch.nit_pagador || "N/A"}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground">Fecha Creación</p>
+                                  <p className="font-medium">{formatDate(batch.created_at)}</p>
+                                </div>
+                              </div>
+
+                              {batch.errores_validacion && (
+                                <Alert variant="destructive" className="mt-4">
+                                  <AlertCircle className="h-4 w-4" />
+                                  <AlertTitle>Errores de Validación</AlertTitle>
+                                  <AlertDescription>
+                                    <ul className="list-disc list-inside mt-2">
+                                      {Object.entries(batch.errores_validacion).map(([key, value]: [string, any]) => (
+                                        <li key={key}>{value}</li>
+                                      ))}
+                                    </ul>
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ));
+                      })()
+                    )}
+                  </TabsContent>
+                ))}
+              </Tabs>
             </div>
           </main>
         </div>
