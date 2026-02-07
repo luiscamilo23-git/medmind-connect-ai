@@ -1,162 +1,218 @@
 
 
-# Soluciones para los Riesgos de la Migracion a GoHighLevel
+# Plan Completo: Migracion de Evolution API + n8n a GoHighLevel
 
-## Riesgo 1: WhatsApp en GHL requiere configuracion en la plataforma GHL
+## Inventario completo de lo que se reemplaza
 
-**Problema:** Vincular un numero de WhatsApp Business y aprobar plantillas de Meta se hace desde GHL, no desde MEDMIND.
+### Edge Functions a ELIMINAR (6 funciones)
+1. `create-whatsapp-instance` - Crea instancia en Evolution API, genera QR
+2. `check-whatsapp-instance` - Verifica estado de conexion en Evolution API
+3. `disconnect-whatsapp-instance` - Elimina instancia de Evolution API
+4. `reset-whatsapp-instance` - Reinicia instancia sin desconectar
+5. `sync-instance-settings` - Sincroniza webhook y comportamiento en Evolution API
+6. `send-appointment-reminders` - Envio de recordatorios via Twilio (GHL lo maneja nativamente)
 
-**Solucion: Wizard guiado dentro de MEDMIND**
+### Edge Functions a ELIMINAR (3 funciones de orquestacion n8n)
+7. `book-appointment` - Agenda citas via webhook publico (autenticado con N8N_AUTH_TOKEN)
+8. `get-availability` - Consulta disponibilidad de slots (autenticado con N8N_AUTH_TOKEN)
+9. `get-doctor-context` - Obtiene base de conocimiento del doctor (autenticado con N8N_AUTH_TOKEN)
 
-No podemos hacer la vinculacion de WhatsApp desde MEDMIND (es un proceso que Meta y GHL controlan), pero podemos crear un **asistente paso a paso** que guie al doctor sin salir de la plataforma:
+### Archivos Frontend a ELIMINAR
+10. `src/components/ConnectWhatsApp.tsx` (675 lineas) - Componente completo de QR, polling, sync
+11. `src/services/n8nService.ts` (56 lineas) - Servicio de webhooks a n8n
 
-1. Crear un componente `ConnectHighLevel.tsx` con un wizard de 3 pasos:
-   - **Paso 1 - Cuenta GHL:** Instrucciones visuales para crear/acceder a la cuenta GHL y generar el Private Integration Token. Incluir enlace directo a `Settings > Private Integrations` de GHL.
-   - **Paso 2 - WhatsApp en GHL:** Checklist interactivo con enlaces directos a la configuracion de WhatsApp en GHL (Settings > Phone Numbers > WhatsApp). Cada paso tiene un checkbox que el doctor marca al completarlo.
-   - **Paso 3 - Conectar a MEDMIND:** Campos para ingresar el Private Integration Token y Location ID. Boton "Verificar Conexion" que llama al Edge Function `connect-highlevel` para validar las credenciales via `GET /locations/{locationId}`.
-
-2. Agregar un Edge Function `connect-highlevel` que:
-   - Recibe Token + Location ID
-   - Llama a `GET https://services.leadconnectorhq.com/locations/{locationId}` para verificar acceso
-   - Si es valido, guarda `ghl_location_id` y `ghl_connected = true` en la tabla `profiles`
-   - Lista los calendarios disponibles via `GET /calendars/?locationId={id}` para que el doctor seleccione cual usar
-
-3. Agregar una seccion de "Estado de configuracion" con indicadores visuales:
-   - Cuenta GHL: Verificado / Pendiente
-   - WhatsApp: Conectado / No configurado
-   - Calendario: Seleccionado / Pendiente
-
----
-
-## Riesgo 2: La IA del chatbot se configura en GHL pero la base de conocimiento vive en MEDMIND
-
-**Problema:** El Conversation AI de GHL usa su propia Knowledge Base, y la informacion del doctor (servicios, ubicacion, horarios) ya esta almacenada en la tabla `profiles` de MEDMIND.
-
-**Solucion: Sincronizacion automatica de Knowledge Base via API**
-
-GHL expone una API completa de Knowledge Base que permite crear, actualizar y eliminar bases de conocimiento programaticamente:
-
-1. Crear un Edge Function `sync-ghl-knowledge` que:
-   - Lee la base de conocimiento del doctor desde `profiles` (business_description, business_location, business_hours, business_services, business_additional_info)
-   - Usa `POST /knowledge-bases/` de GHL API para crear una Knowledge Base llamada "MEDMIND - {nombre_doctor}" si no existe, o `PUT /knowledge-bases/{id}` para actualizarla
-   - Crea FAQs automaticas via `POST /knowledge-bases/faqs` basadas en los servicios configurados. Ejemplo: "Cuanto cuesta una consulta general? - La consulta general tiene un costo de $80,000 COP y dura 30 minutos"
-   - Guarda el `ghl_knowledge_base_id` en la tabla `profiles` para futuras sincronizaciones
-
-2. Disparar la sincronizacion automaticamente cuando:
-   - El doctor guarda cambios en la seccion "Base de Conocimiento" de MyAgentAI (despues del `handleSave` actual)
-   - El doctor conecta GHL por primera vez
-
-3. Agregar un boton "Sincronizar con GoHighLevel" en la UI que permite forzar la sincronizacion manualmente, con indicador de ultima sincronizacion.
-
-4. Agregar columnas nuevas a `profiles`:
-   - `ghl_knowledge_base_id` (text) - ID de la Knowledge Base en GHL
-   - `ghl_last_kb_sync_at` (timestamptz) - Fecha de ultima sincronizacion
+### Archivos Frontend a MODIFICAR
+12. `src/pages/MyAgentAI.tsx` - Reemplazar ConnectWhatsApp por ConnectHighLevel, agregar sync KB
+13. `src/pages/SmartScheduler.tsx` - Eliminar referencia a n8nService, eliminar checkWhatsAppStatus con Evolution API, actualizar seccion WhatsApp y IA Asistente
 
 ---
 
-## Riesgo 3: Sincronizacion bidireccional de citas
-
-**Problema:** Las citas creadas en GHL por el chatbot no aparecen automaticamente en el calendario de MEDMIND.
-
-**Solucion: Webhook bidireccional GHL - MEDMIND**
-
-GHL soporta webhooks nativos que notifican cuando ocurren eventos como creacion de citas:
-
-1. Crear un Edge Function `webhook-ghl` (verify_jwt = false, publico) que:
-   - Recibe eventos webhook de GHL (AppointmentCreate, AppointmentUpdate, ContactCreate)
-   - Valida la autenticidad del webhook verificando la firma o un header personalizado
-   - Para `AppointmentCreate`: Busca o crea el paciente en MEDMIND, luego inserta la cita en la tabla `appointments` con status "confirmed"
-   - Para `ContactCreate`: Sincroniza el contacto como paciente nuevo en la tabla `patients`
-   - Mapea los campos de GHL a los campos de MEDMIND (nombre, telefono, email, fecha/hora)
-
-2. Configurar el webhook en GHL via API usando `POST /webhooks/`:
-   - URL del webhook: La URL del Edge Function `webhook-ghl`
-   - Eventos: `AppointmentCreate`, `AppointmentUpdate`, `AppointmentDelete`, `ContactCreate`
-   - Esto se puede hacer automaticamente desde el Edge Function `connect-highlevel` al momento de la conexion
-
-3. Sincronizacion MEDMIND hacia GHL (opcional):
-   - Cuando se crea una cita desde MEDMIND, el Edge Function `sync-highlevel` puede crear la cita tambien en GHL via `POST /calendars/events/appointments`
-   - Esto mantiene ambos calendarios sincronizados
-
-4. Agregar columna `ghl_appointment_id` a la tabla `appointments` para rastrear la relacion y evitar duplicados.
-
----
-
-## Riesgo 4: Secretos de Evolution API que dejan de usarse
-
-**Problema:** Los secretos `EVOLUTION_API_URL`, `EVOLUTION_API_KEY`, `MEDMIND_WEBHOOK` y `N8N_AUTH_TOKEN` quedan huerfanos despues de la migracion.
-
-**Solucion: Migracion ordenada con limpieza documentada**
-
-1. **Fase 1 - Agregar nuevos secretos** (antes de implementar):
-   - `GHL_API_KEY` - Private Integration Token de GoHighLevel
-   - Estos se agregan manualmente por el usuario via la interfaz de secretos
-
-2. **Fase 2 - Migrar codigo** (implementacion):
-   - Los nuevos Edge Functions (`connect-highlevel`, `sync-ghl-knowledge`, `webhook-ghl`) usan solo `GHL_API_KEY`
-   - El `ghl_location_id` y `ghl_calendar_id` se guardan per-doctor en la tabla `profiles` (no como secretos globales, ya que cada doctor tiene su propia sub-cuenta GHL)
-
-3. **Fase 3 - Eliminar funciones obsoletas**:
-   - Eliminar archivos de Edge Functions: `create-whatsapp-instance`, `check-whatsapp-instance`, `disconnect-whatsapp-instance`, `reset-whatsapp-instance`, `sync-instance-settings`, `send-appointment-reminders`
-   - Eliminar de `supabase/config.toml`
-   - Eliminar `src/services/n8nService.ts`
-   - Eliminar `src/components/ConnectWhatsApp.tsx`
-
-4. **Fase 4 - Documentar limpieza de secretos**:
-   - Proporcionar al usuario una lista clara de secretos que puede eliminar manualmente: `EVOLUTION_API_URL`, `EVOLUTION_API_KEY`, `MEDMIND_WEBHOOK`, `N8N_AUTH_TOKEN`
-   - No se eliminan automaticamente (respetando la politica de control manual de secretos del usuario)
-
----
-
-## Cambios en la Base de Datos
+## Paso 1: Migracion de Base de Datos
 
 Nuevas columnas en `profiles`:
 
 ```text
-ghl_location_id        TEXT     (nullable) - ID de la sub-cuenta/ubicacion en GHL
-ghl_connected          BOOLEAN  (default false) - Estado de conexion con GHL
-ghl_calendar_id        TEXT     (nullable) - ID del calendario seleccionado en GHL
-ghl_knowledge_base_id  TEXT     (nullable) - ID de la Knowledge Base en GHL
-ghl_last_kb_sync_at    TIMESTAMPTZ (nullable) - Ultima sincronizacion de KB
+ghl_location_id        TEXT        (nullable)     - ID de sub-cuenta GHL
+ghl_connected          BOOLEAN     (default false) - Estado de conexion
+ghl_calendar_id        TEXT        (nullable)     - Calendario seleccionado en GHL
+ghl_knowledge_base_id  TEXT        (nullable)     - Knowledge Base ID en GHL
+ghl_last_kb_sync_at    TIMESTAMPTZ (nullable)     - Ultima sincronizacion KB
 ```
 
 Nueva columna en `appointments`:
 
 ```text
-ghl_appointment_id     TEXT     (nullable) - ID de la cita en GHL (para evitar duplicados)
+ghl_appointment_id     TEXT        (nullable)     - ID de cita en GHL (evita duplicados)
+```
+
+Las columnas `whatsapp_instance_name` y `whatsapp_last_sync_at` se mantienen por compatibilidad pero dejan de usarse activamente.
+
+---
+
+## Paso 2: Nuevos Edge Functions (3 funciones reemplazan 9)
+
+### 2a. `connect-highlevel` (verify_jwt = true)
+Reemplaza: create-whatsapp, check-whatsapp, disconnect-whatsapp, reset-whatsapp, sync-instance-settings
+
+Acciones via campo `action`:
+- `verify` - Valida credenciales con `GET /locations/{locationId}` de GHL API v2
+- `list_calendars` - Lista calendarios del doctor via `GET /calendars/?locationId={id}`
+- `select_calendar` - Guarda `ghl_calendar_id` seleccionado
+- `disconnect` - Limpia campos GHL del perfil
+- `status` - Retorna estado actual de conexion
+
+Usa `GHL_API_KEY` como secreto global + `ghl_location_id` per-doctor desde profiles.
+
+### 2b. `sync-ghl-knowledge` (verify_jwt = true)
+Reemplaza: get-doctor-context (la logica pasa a vivir en GHL)
+
+- Lee datos de la base de conocimiento del doctor desde `profiles`
+- Usa `POST /knowledge-bases/` para crear o `PUT /knowledge-bases/{id}` para actualizar
+- Genera FAQs automaticas desde los servicios configurados via `POST /knowledge-bases/faqs`
+- Guarda `ghl_knowledge_base_id` y `ghl_last_kb_sync_at`
+
+### 2c. `webhook-ghl` (verify_jwt = false, publico)
+Reemplaza: book-appointment, get-availability (la logica de agendamiento vive en GHL)
+
+- Recibe eventos webhook de GHL: AppointmentCreate, AppointmentUpdate, AppointmentDelete, ContactCreate
+- Valida autenticidad via header personalizado o firma
+- Sincroniza citas y contactos de GHL a las tablas `appointments` y `patients` de MEDMIND
+- Usa `ghl_appointment_id` para evitar duplicados
+- Sigue el patron de "soft error" (HTTP 200 con JSON de error)
+
+---
+
+## Paso 3: Nuevo Componente Frontend
+
+### `ConnectHighLevel.tsx` (reemplaza ConnectWhatsApp.tsx)
+
+Wizard de 3 pasos:
+
+**Paso 1 - Cuenta GHL:**
+- Instrucciones visuales para crear cuenta GHL
+- Enlace directo a Settings > Private Integrations
+- Checkbox que el doctor marca al completar
+
+**Paso 2 - WhatsApp en GHL:**
+- Checklist interactivo con enlaces directos a la configuracion de WhatsApp en GHL
+- Cada sub-paso tiene checkbox (vincular numero, aprobar plantillas, activar Conversation AI)
+
+**Paso 3 - Conectar a MEDMIND:**
+- Campo para Location ID
+- Boton "Verificar Conexion" que llama a `connect-highlevel`
+- Selector de calendario (lista calendarios disponibles)
+- Estado de conexion con indicadores visuales (verde/rojo)
+
+Estado de configuracion visible:
+- Cuenta GHL: Verificado / Pendiente
+- WhatsApp: Conectado / No configurado
+- Calendario: Seleccionado / Pendiente
+
+---
+
+## Paso 4: Actualizar MyAgentAI.tsx
+
+- Reemplazar `import ConnectWhatsApp` por `import ConnectHighLevel`
+- Cambiar `<ConnectWhatsApp />` por `<ConnectHighLevel />`
+- Cambiar deteccion de conexion: de `whatsapp_instance_name` a `ghl_connected`
+- Agregar boton "Sincronizar Base de Conocimiento con GoHighLevel" que llama a `sync-ghl-knowledge`
+- Mostrar ultima sincronizacion (`ghl_last_kb_sync_at`)
+- Actualizar textos de "WhatsApp" a "GoHighLevel"
+
+---
+
+## Paso 5: Actualizar SmartScheduler.tsx
+
+- Eliminar import de `n8nService` y toda la funcion `sendToN8N`
+- Eliminar `checkWhatsAppStatus` (que usa `check-whatsapp-instance`)
+- Actualizar la seccion "WhatsApp" en la sidebar para verificar `ghl_connected` en vez de `whatsapp_instance_name`
+- Redirigir a `/my-agent` en vez de `/profile` cuando no esta conectado
+- Los botones de IA (auto-organizar, sugerir, recordatorios) se pueden mantener pero sin enviar a n8n - se marcaran como "Disponible via GoHighLevel" ya que GHL maneja esto nativamente
+
+---
+
+## Paso 6: Actualizar supabase/config.toml
+
+Eliminar las 9 funciones obsoletas y agregar las 3 nuevas:
+
+```text
+ELIMINAR:
+[functions.create-whatsapp-instance]
+[functions.check-whatsapp-instance] (no aparece en config actual pero existe el archivo)
+[functions.disconnect-whatsapp-instance] (no aparece en config actual)
+[functions.reset-whatsapp-instance] (no aparece en config actual)
+[functions.sync-instance-settings] (no aparece en config actual)
+[functions.send-appointment-reminders]
+[functions.book-appointment]
+[functions.get-availability]
+[functions.get-doctor-context]
+
+AGREGAR:
+[functions.connect-highlevel]
+verify_jwt = true
+
+[functions.sync-ghl-knowledge]
+verify_jwt = true
+
+[functions.webhook-ghl]
+verify_jwt = false
 ```
 
 ---
 
-## Resumen de Edge Functions
+## Paso 7: Limpieza y Secretos
 
-| Funcion | Proposito | JWT |
-|---------|-----------|-----|
-| `connect-highlevel` | Verificar credenciales, listar calendarios, configurar webhooks en GHL | Si |
-| `sync-ghl-knowledge` | Sincronizar base de conocimiento de MEDMIND a GHL Knowledge Base API | Si |
-| `webhook-ghl` | Recibir eventos de citas/contactos desde GHL y sincronizar a MEDMIND | No |
+### Secreto nuevo requerido:
+- `GHL_API_KEY` - Private Integration Token de GoHighLevel (se pedira al usuario antes de implementar)
+
+### Secretos que el usuario puede eliminar manualmente despues de la migracion:
+- `EVOLUTION_API_URL`
+- `EVOLUTION_API_KEY`
+- `MEDMIND_WEBHOOK`
+- `N8N_AUTH_TOKEN`
+
+(No se eliminan automaticamente. Se documenta la lista para control manual del usuario.)
 
 ---
 
-## Resumen de Componentes Frontend
+## Flujo Final
 
-| Componente | Cambio |
-|------------|--------|
-| `ConnectHighLevel.tsx` | Nuevo - Wizard de 3 pasos con verificacion de credenciales |
-| `ConnectWhatsApp.tsx` | Eliminado |
-| `MyAgentAI.tsx` | Actualizado - Usa ConnectHighLevel, agrega boton de sincronizacion KB |
-| `n8nService.ts` | Eliminado |
+```text
+Paciente escribe por WhatsApp
+        |
+        v
+GoHighLevel recibe (WhatsApp nativo integrado)
+        |
+        v
+GHL Conversation AI responde usando:
+  - Knowledge Base (sincronizada desde MEDMIND)
+  - Calendario GHL (disponibilidad real)
+  - Contactos GHL
+        |
+        v
+Si se agenda cita --> GHL crea evento
+        |
+        v
+GHL webhook notifica a MEDMIND (webhook-ghl)
+  - Sincroniza cita a tabla appointments
+  - Sincroniza contacto a tabla patients
+        |
+        v
+Doctor ve la cita en SmartScheduler de MEDMIND
+```
 
 ---
 
 ## Orden de Implementacion
 
-1. Migracion de base de datos (nuevas columnas)
-2. Edge Function `connect-highlevel`
-3. Componente `ConnectHighLevel.tsx` con wizard
-4. Edge Function `sync-ghl-knowledge`
-5. Actualizar `MyAgentAI.tsx` (reemplazar ConnectWhatsApp, agregar sync KB)
-6. Edge Function `webhook-ghl`
-7. Limpieza (eliminar funciones, componentes y archivos obsoletos)
-8. Documentar secretos a eliminar manualmente
+1. Pedir al usuario el secreto `GHL_API_KEY`
+2. Migracion de base de datos (nuevas columnas en profiles y appointments)
+3. Edge Function `connect-highlevel`
+4. Componente `ConnectHighLevel.tsx`
+5. Edge Function `sync-ghl-knowledge`
+6. Actualizar `MyAgentAI.tsx`
+7. Edge Function `webhook-ghl`
+8. Actualizar `SmartScheduler.tsx`
+9. Limpieza: eliminar 9 Edge Functions, ConnectWhatsApp.tsx, n8nService.ts
+10. Documentar secretos obsoletos para eliminacion manual
 
