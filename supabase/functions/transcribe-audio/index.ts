@@ -75,6 +75,7 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
           },
         ],
         temperature: 0.0,
+        max_tokens: 16384, // Allow long transcriptions without truncation
       }),
     });
   } catch (e) {
