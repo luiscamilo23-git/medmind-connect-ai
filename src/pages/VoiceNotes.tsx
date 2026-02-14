@@ -644,17 +644,30 @@ const VoiceNotes = () => {
         });
       }
 
-      // Paso 2: Analizar y sugerir preguntas faltantes
+      // Paso 2: Analizar y sugerir preguntas faltantes (con delay para evitar rate limit)
       setIsAnalyzing(true);
-      const { data: suggestData, error: suggestError } = await supabase.functions.invoke('analyze-clinical-transcript', {
-        body: { 
-          transcript,
-          specialty: doctorSpecialty
-        }
-      });
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      let suggestRetries = 0;
+      let suggestSuccess = false;
+      while (suggestRetries < 3 && !suggestSuccess) {
+        const { data: suggestData, error: suggestError } = await supabase.functions.invoke('analyze-clinical-transcript', {
+          body: { 
+            transcript,
+            specialty: doctorSpecialty
+          }
+        });
 
-      if (!suggestError && suggestData?.suggestions) {
-        setSuggestions(suggestData.suggestions);
+        if (!suggestError && suggestData?.suggestions) {
+          setSuggestions(suggestData.suggestions);
+          suggestSuccess = true;
+        } else if (suggestError || suggestData?.error?.includes('Límite')) {
+          suggestRetries++;
+          console.warn(`Analyze retry ${suggestRetries}/3...`);
+          if (suggestRetries < 3) await new Promise(resolve => setTimeout(resolve, 4000));
+        } else {
+          break;
+        }
       }
 
       toast({
