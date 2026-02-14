@@ -263,10 +263,7 @@ export const SPECIALTY_CONFIGS: Record<MedicalSpecialty, SpecialtyConfig> = {
     description: "Procedimientos quirúrgicos y notas operatorias",
     hasFullClinicalRecord: true,
     additionalFields: [
-      // ROS simplificado para cirugía
-      { key: "ros_cardiovascular", label: "Cardiovascular", type: "textarea", section: "ros", placeholder: "Dolor torácico, palpitaciones, disnea..." },
-      { key: "ros_respiratorio", label: "Respiratorio", type: "textarea", section: "ros", placeholder: "Tos, disnea, sibilancias..." },
-      { key: "ros_digestivo", label: "Digestivo", type: "textarea", section: "ros", placeholder: "Náuseas, vómito, dolor abdominal..." },
+      ...ROS_FIELDS,
       
       // Examen físico
       { key: "physical_exam", label: "Examen Físico General", type: "textarea", section: "examen" },
