@@ -603,10 +603,19 @@ const VoiceNotes = () => {
       const planManejo = extracted.treatmentPlan || extracted.treatment;
       if (planManejo && !treatment) setTreatment(planManejo);
       
+      if (extracted.consent && !consent) setConsent(extracted.consent);
       if (extracted.education && !education) setEducation(extracted.education);
       if (extracted.followup && !followup) setFollowup(extracted.followup);
       if (extracted.medications && Array.isArray(extracted.medications) && medications.length === 0) {
         setMedications(extracted.medications);
+      }
+      
+      // Autocompletar fecha y hora del encuentro
+      if (extracted.encounterDateTime) {
+        setSpecialtyFieldsValues(prev => ({
+          ...prev,
+          encounter_date: prev.encounter_date || extracted.encounterDateTime,
+        }));
       }
       
       // Autocompletar signos vitales

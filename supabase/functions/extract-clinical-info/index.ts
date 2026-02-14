@@ -34,20 +34,32 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `Eres un asistente médico experto. Extrae información clínica estructurada de transcripciones.
+    const systemPrompt = `Eres un asistente médico experto colombiano. Extrae información clínica estructurada de transcripciones de consultas médicas.
 
 INSTRUCCIONES:
-1. EDAD: Busca "X años", "tengo X"
+1. EDAD: Busca "X años", "tengo X", "edad X"
 2. SEXO: Infiere del nombre si no se menciona (Juan→masculino, María→femenino)
 3. ACOMPAÑANTE: Busca "viene con", "lo trae", "acompañado por"
 4. ROS por sistemas: cardiovascular, respiratorio, digestivo, etc.
-5. SIGNOS VITALES: presión, FC, FR, temperatura, SpO2
+5. SIGNOS VITALES CRÍTICO:
+   - PRESIÓN ARTERIAL: Cuando el doctor dice un número como "1280", "128080", "12080", interpreta como dos valores separados por "/". Ejemplo: "1280" → "128/80", "12070" → "120/70". Si dice "128 sobre 80" → "128/80".
+   - FC, FR: valores numéricos simples
+   - Temperatura: grados Celsius (ej: "37" → "37")
+   - SpO2: porcentaje (ej: "99" → "99")
+   - Peso en kg, Talla en cm
 6. DIAGNÓSTICO: Captura exactamente lo que dice el doctor
+7. CIE-10: SIEMPRE intenta sugerir un código CIE-10 basado en el diagnóstico. Por ejemplo: dolor abdominal → R10.4, cefalea → R51, hipertensión → I10. Si el diagnóstico es vago, sugiere el código más cercano posible.
+8. DIRECCIÓN: Busca "calle", "carrera", "avenida", "dirección", "vive en"
+9. TELÉFONO: Busca números de 7-10 dígitos, "teléfono", "celular", "número"
+10. FECHA Y HORA: Busca "fecha", "hoy es", "consulta número", formatos de fecha
+11. CONSENTIMIENTO: Busca si el paciente acepta/rechaza tratamiento, "consentimiento", "acepta", "no necesitamos procedimiento"
 
 REGLAS:
-- NO inventes información
-- Si dice "ninguno/niega", extrae ese valor
-- Separa ROS por sistemas corporales`;
+- NO inventes información que no esté en la transcripción
+- Si dice "ninguno/niega/no tiene", extrae ese valor exacto (no dejes vacío)
+- Separa ROS por sistemas corporales
+- Para antecedentes personales, incluye condiciones crónicas mencionadas (ej: "sufre la presión" → "Hipertensión arterial")
+- Para antecedentes familiares, si dice "ninguno" → extrae "Niega antecedentes familiares patológicos"`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -73,7 +85,9 @@ REGLAS:
                 patientIdentification: { type: "string" },
                 patientAge: { type: "string" },
                 patientSex: { type: "string", enum: ["masculino", "femenino"] },
-                patientPhone: { type: "string" },
+                patientPhone: { type: "string", description: "Número de teléfono o celular del paciente" },
+                patientAddress: { type: "string", description: "Dirección del paciente (calle, carrera, etc.)" },
+                encounterDateTime: { type: "string", description: "Fecha y hora de la consulta mencionada" },
                 hasCompanion: { type: "string", enum: ["si", "no"] },
                 companionName: { type: "string" },
                 companionRelationship: { type: "string" },
@@ -97,14 +111,15 @@ REGLAS:
                 },
                 ros: { type: "string" },
                 medicalHistory: { type: "string" },
-                personalHistory: { type: "string" },
-                familyHistory: { type: "string" },
-                currentMedications: { type: "string" },
-                allergies: { type: "string" },
+                personalHistory: { type: "string", description: "Antecedentes personales patológicos (ej: hipertensión, diabetes)" },
+                familyHistory: { type: "string", description: "Antecedentes familiares. Si niega, poner 'Niega antecedentes familiares patológicos'" },
+                surgicalHistory: { type: "string", description: "Antecedentes quirúrgicos" },
+                currentMedications: { type: "string", description: "Medicamentos que toma actualmente el paciente" },
+                allergies: { type: "string", description: "Alergias del paciente. Si niega, poner 'Niega alergias'" },
                 vitalSigns: {
                   type: "object",
                   properties: {
-                    blood_pressure: { type: "string" },
+                    blood_pressure: { type: "string", description: "Presión arterial en formato SYS/DIA. Ej: 128/80. Si dice '1280' interpretar como '128/80'" },
                     heart_rate: { type: "string" },
                     respiratory_rate: { type: "string" },
                     temperature: { type: "string" },
@@ -116,12 +131,13 @@ REGLAS:
                 physicalExam: { type: "string" },
                 diagnosticAids: { type: "string" },
                 diagnosis: { type: "string" },
-                cie10Code: { type: "string" },
+                cie10Code: { type: "string", description: "Código CIE-10 sugerido basado en el diagnóstico. SIEMPRE sugerir uno si hay diagnóstico." },
                 treatment: { type: "string" },
-                treatmentPlan: { type: "string" },
+                treatmentPlan: { type: "string", description: "Plan de manejo completo incluyendo medicamentos e indicaciones" },
                 medications: { type: "array", items: { type: "string" } },
                 education: { type: "string" },
-                followup: { type: "string" }
+                followup: { type: "string" },
+                consent: { type: "string", description: "Consentimiento del paciente. Si acepta tratamiento o rechaza procedimientos, registrarlo." }
               }
             }
           }
