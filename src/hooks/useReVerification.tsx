@@ -2,12 +2,17 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const REVERIFICATION_DAYS = 30;
+const SKIP_REVERIFICATION = import.meta.env.VITE_SKIP_REVERIFICATION === "true";
 
 export const useReVerification = () => {
   const [needsVerification, setNeedsVerification] = useState(false);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    if (SKIP_REVERIFICATION) {
+      setChecking(false);
+      return;
+    }
     checkVerificationStatus();
   }, []);
 
