@@ -55,7 +55,7 @@ export function generatePitchDeckPDF(): jsPDF {
   doc.text('AI-Powered Clinical Intelligence for Doctors', 30, 90);
   doc.setFontSize(12);
   doc.setTextColor(...COLORS.lightGray);
-  doc.text('Pitch Deck 2025', 30, 108);
+  doc.text('Pitch Deck 2026', 30, 108);
   drawAccentLine(doc, 115);
   doc.setFontSize(10);
   doc.setTextColor(...COLORS.midGray);
@@ -326,7 +326,7 @@ export function generatePitchDeckPDF(): jsPDF {
     '✅  RIPS regulatory reporting — automated',
     '✅  WhatsApp AI Agent — deployed',
     '✅  Multi-role system (Doctor, Patient, Moderator) — live',
-    '🔜  Beta launch with 50 pilot physicians — Q1 2025',
+    '🔜  Beta launch with 50 pilot physicians — Q3 2026',
   ];
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -347,10 +347,10 @@ export function generatePitchDeckPDF(): jsPDF {
   doc.text('Path to Market Leadership', 20, 42);
 
   const phases = [
-    { q: 'Q1-Q2 2025', title: 'Launch', items: ['Beta with 50 physicians', 'Onboarding optimization', 'Patient mobile app', 'Collect NPS & iterate'] },
-    { q: 'Q3-Q4 2025', title: 'Scale', items: ['500+ active doctors', 'Marketplace launch', 'Telehealth integration', 'Peru & Mexico expansion'] },
-    { q: '2026', title: 'Expand', items: ['5,000+ physicians', 'Insurance integrations', 'Clinical decision AI', 'Series A fundraise'] },
-    { q: '2027+', title: 'Dominate', items: ['LatAm market leader', 'Hospital partnerships', 'Population health data', 'IPO preparation'] },
+    { q: 'Q3-Q4 2026', title: 'Launch', items: ['Beta with 50 physicians', 'Onboarding optimization', 'Patient mobile app', 'Collect NPS & iterate'] },
+    { q: 'Q1-Q2 2027', title: 'Scale', items: ['500+ active doctors', 'Marketplace launch', 'Telehealth integration', 'Peru & Mexico expansion'] },
+    { q: 'Q3-Q4 2027', title: 'Expand', items: ['5,000+ physicians', 'Insurance integrations', 'Clinical decision AI', 'Series A fundraise'] },
+    { q: '2028+', title: 'Dominate', items: ['LatAm market leader', 'Hospital partnerships', 'Population health data', 'IPO preparation'] },
   ];
 
   phases.forEach((p, i) => {

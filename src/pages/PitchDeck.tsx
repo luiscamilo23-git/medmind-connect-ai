@@ -11,7 +11,7 @@ const slides = [
   { num: 5, title: "Market", desc: "$12B LatAm healthcare IT opportunity" },
   { num: 6, title: "Business Model", desc: "SaaS tiers: $29 / $79 / $149 per month" },
   { num: 7, title: "Traction", desc: "MVP live, all core modules operational" },
-  { num: 8, title: "Roadmap", desc: "Launch → Scale → Expand → Dominate" },
+  { num: 8, title: "Roadmap", desc: "Launch → Scale → Expand → Dominate (starting Q3 2026)" },
   { num: 9, title: "Team", desc: "Healthcare + AI expertise" },
   { num: 10, title: "Vision & Ask", desc: "Pre-Seed $500K to transform LatAm healthcare" },
 ];
@@ -21,7 +21,7 @@ const PitchDeck = () => {
 
   const handleDownload = () => {
     const doc = generatePitchDeckPDF();
-    doc.save("MEDMIND_Pitch_Deck_2025.pdf");
+    doc.save("MEDMIND_Pitch_Deck_2026.pdf");
   };
 
   return (
