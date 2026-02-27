@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.create-whatsapp-instance]
 verify_jwt = true
+
+[functions.twin-agent-api]
+verify_jwt = false
