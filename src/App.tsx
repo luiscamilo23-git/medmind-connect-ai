@@ -31,6 +31,7 @@ import LegalNotice from "./pages/LegalNotice";
 import Referrals from "./pages/Referrals";
 import Comparison from "./pages/Comparison";
 import PitchDeck from "./pages/PitchDeck";
+import ExecutiveBrief from "./pages/ExecutiveBrief";
 import BillingServices from "./pages/billing/BillingServices";
 import BillingInvoices from "./pages/billing/BillingInvoices";
 import BillingRIPS from "./pages/billing/BillingRIPS";
