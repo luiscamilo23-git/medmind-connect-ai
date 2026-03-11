@@ -31,6 +31,7 @@ import LegalNotice from "./pages/LegalNotice";
 import Referrals from "./pages/Referrals";
 import Comparison from "./pages/Comparison";
 import PitchDeck from "./pages/PitchDeck";
+import ExecutiveBrief from "./pages/ExecutiveBrief";
 import BillingServices from "./pages/billing/BillingServices";
 import BillingInvoices from "./pages/billing/BillingInvoices";
 import BillingRIPS from "./pages/billing/BillingRIPS";
@@ -85,6 +86,7 @@ const App = () => (
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/comparison" element={<Comparison />} />
           <Route path="/pitch-deck" element={<PitchDeck />} />
+          <Route path="/executive-brief" element={<ExecutiveBrief />} />
           <Route path="/billing/services" element={<BillingServices />} />
           <Route path="/billing/invoices" element={<BillingInvoices />} />
           <Route path="/billing/rips" element={<BillingRIPS />} />
