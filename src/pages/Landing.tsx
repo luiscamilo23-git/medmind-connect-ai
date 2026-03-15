@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play, Gift, Percent, FileText, Bell, Twitter, Linkedin, Instagram, Mail } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
+import ShaderBackground from "@/components/ui/shader-background";
 
 const Landing = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
