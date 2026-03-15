@@ -193,12 +193,8 @@ const Landing = () => {
 
       {/* Hero Section */}
       <section className="relative bg-background py-16 sm:py-24 md:py-32 lg:py-40 px-4 overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 md:top-40 md:left-20 w-48 h-48 md:w-96 md:h-96 bg-primary/10 rounded-full blur-[80px] md:blur-[120px] animate-pulse-slow" />
-          <div className="absolute bottom-20 right-10 md:bottom-40 md:right-20 w-64 h-64 md:w-[500px] md:h-[500px] bg-secondary/10 rounded-full blur-[80px] md:blur-[120px] animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 md:w-[600px] md:h-[600px] bg-primary/5 rounded-full blur-[100px] md:blur-[150px]" />
-        </div>
+        {/* WebGL Shader Background */}
+        <ShaderBackground />
         
         {/* Heartbeat line at the bottom of hero - More visible */}
         <HeartbeatLine color="primary" variant="hero" intensity="high" speed="slow" />
