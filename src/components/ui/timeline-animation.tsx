@@ -1,5 +1,15 @@
 import { motion, useInView, Variants } from 'framer-motion';
-import React, { useRef, ElementType, RefObject } from 'react';
+import React, { useRef, ElementType, RefObject, useMemo } from 'react';
+
+const defaultVariants: Variants = {
+  hidden: { opacity: 0, y: -20, filter: 'blur(10px)' },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { delay: i * 0.15, duration: 0.5, ease: 'easeOut' },
+  }),
+};
 
 type TimelineContentProps = {
   as?: ElementType;
@@ -22,18 +32,10 @@ export function TimelineContent({
   const inViewRef = timelineRef ?? selfRef;
   const isInView = useInView(inViewRef as RefObject<Element>, { once: true, margin: '-60px' });
 
-  const defaultVariants: Variants = {
-    hidden: { opacity: 0, y: -20, filter: 'blur(10px)' },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      filter: 'blur(0px)',
-      transition: { delay: i * 0.15, duration: 0.5, ease: 'easeOut' },
-    }),
-  };
+  // Memoize so React never sees a new component type between renders
+  const MotionTag = useMemo(() => motion(Tag as keyof JSX.IntrinsicElements), [Tag]);
 
   const variants = customVariants ?? defaultVariants;
-  const MotionTag = motion(Tag as keyof JSX.IntrinsicElements);
 
   return (
     <MotionTag
