@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play, Gift, Percent, FileText, Bell, Twitter, Linkedin, Instagram, Mail, Menu, X } from "lucide-react";
+import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Sparkles, Play, Gift, Percent, FileText, Bell, Twitter, Linkedin, Instagram, Mail, Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
 import ShaderBackground from "@/components/ui/shader-background";
@@ -9,6 +9,7 @@ import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 import { motion, useScroll } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { TestimonialsGrid } from "@/components/ui/testimonials-grid";
 
 const LAUNCH_END = new Date("2026-04-07T23:59:59-05:00");
 
@@ -280,32 +281,6 @@ const Landing = () => {
     { value: "100%", label: "Cumplimiento normativo Colombia", icon: TrendingDown }
   ];
 
-  const testimonials = [
-    {
-      name: "Dr. Andrés Vargas",
-      specialty: "Medicina General · Bogotá",
-      comment: "Pasé de 3 horas de papeleo diario a 25 minutos. Ahora tengo tiempo para almorzar y ver a mis hijos antes de que duerman.",
-      rating: 5,
-      avatar: "AV",
-      result: "-87% tiempo administrativo"
-    },
-    {
-      name: "Dra. Carolina Reyes",
-      specialty: "Ginecología · Medellín",
-      comment: "Mis RIPS los genera en 2 minutos. Antes me demoraba medio día y aún así venían con errores. En 6 meses: cero rechazos de la DIAN.",
-      rating: 5,
-      avatar: "CR",
-      result: "0 rechazos DIAN en 6 meses"
-    },
-    {
-      name: "Dr. Felipe Mora",
-      specialty: "Dermatología · Cali",
-      comment: "El agente de WhatsApp confirmó 43 citas esta semana. Solo tuve 1 no-show. Antes tenía 8 por semana — perdía $600,000 cada semana.",
-      rating: 5,
-      avatar: "FM",
-      result: "-87% en no-shows"
-    }
-  ];
 
   return (
     <div className="min-h-screen overflow-hidden">
@@ -1002,67 +977,7 @@ const Landing = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section 
-        className="py-24 px-4 bg-background relative overflow-hidden"
-        id="testimonials-section"
-        ref={(el) => (observerRefs.current["testimonials-section"] = el)}
-      >
-        <HeartbeatLine color="secondary" variant="subtle" intensity="low" speed="slow" />
-        <div className="container mx-auto max-w-7xl">
-          <div className={`text-center mb-20 transition-all duration-1000 ${isVisible["testimonials-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            <h2 className="text-5xl lg:text-6xl font-bold mb-6">
-              Resultados reales.<br /><span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Médicos reales.</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              No son promesas. Son los números de médicos que ya usan MEDMIND a diario.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className={`transition-all duration-700 ${
-                  isVisible["testimonials-section"] 
-                    ? "opacity-100 translate-y-0" 
-                    : "opacity-0 translate-y-10"
-                }`}
-                style={{ transitionDelay: `${index * 150}ms` }}
-              >
-                <Card className="h-full hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border-2 hover:border-primary/30 group">
-                  <CardHeader>
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">
-                        {testimonial.avatar}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-lg">{testimonial.name}</h4>
-                        <p className="text-sm text-muted-foreground">{testimonial.specialty}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-1 mb-4">
-                      {Array.from({ length: testimonial.rating }).map((_, i) => (
-                        <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground italic leading-relaxed">
-                      "{testimonial.comment}"
-                    </p>
-                    {(testimonial as any).result && (
-                      <div className="mt-4 inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/20">
-                        <TrendingDown className="w-3 h-3" />
-                        {(testimonial as any).result}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialsGrid />
 
       {/* Smart Notes Section */}
       <section
