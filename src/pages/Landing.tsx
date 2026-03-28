@@ -1,12 +1,118 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play, Gift, Percent, FileText, Bell, Twitter, Linkedin, Instagram, Mail } from "lucide-react";
+import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Star, Sparkles, Play, Gift, Percent, FileText, Bell, Twitter, Linkedin, Instagram, Mail, Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
 import ShaderBackground from "@/components/ui/shader-background";
+import { InfiniteSlider } from "@/components/ui/infinite-slider";
+import { ProgressiveBlur } from "@/components/ui/progressive-blur";
+import { motion, useScroll } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 const LAUNCH_END = new Date("2026-04-07T23:59:59-05:00");
+
+const navItems = [
+  { name: "Funciones", href: "#features" },
+  { name: "Precios", href: "/pricing" },
+  { name: "Comparativa", href: "/comparison" },
+];
+
+function LandingNav() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { scrollYProgress } = useScroll();
+
+  useEffect(() => {
+    const unsub = scrollYProgress.on("change", (v) => setScrolled(v > 0.03));
+    return unsub;
+  }, [scrollYProgress]);
+
+  return (
+    <header className="fixed top-12 left-0 right-0 z-40 pointer-events-none">
+      <nav
+        data-state={menuOpen ? "active" : undefined}
+        className="group pointer-events-auto mx-auto max-w-7xl px-4 lg:px-12"
+      >
+        <div
+          className={cn(
+            "rounded-2xl px-6 transition-all duration-300",
+            scrolled && "bg-background/70 backdrop-blur-xl shadow-lg border border-border/40"
+          )}
+        >
+          <motion.div
+            className={cn(
+              "flex flex-wrap items-center justify-between gap-4 py-3 duration-200 lg:py-4",
+              scrolled && "lg:py-3"
+            )}
+          >
+            <Link to="/" className="flex items-center gap-2 font-black text-lg text-foreground">
+              <span className="text-primary">MED</span>MIND
+            </Link>
+
+            {/* Mobile toggle */}
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              className="lg:hidden -m-2 p-2"
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
+            {/* Desktop nav */}
+            <ul className="hidden lg:flex gap-8 text-sm">
+              {navItems.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    to={item.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <div className="hidden lg:flex items-center gap-3">
+              <Link to="/auth">
+                <Button variant="ghost" size="sm">Iniciar sesión</Button>
+              </Link>
+              <Link to="/auth">
+                <Button size="sm" className="rounded-full px-5">Empezar gratis</Button>
+              </Link>
+            </div>
+
+            {/* Mobile menu */}
+            {menuOpen && (
+              <div className="w-full pb-4 lg:hidden space-y-4">
+                <ul className="space-y-3 text-sm border-t border-border/40 pt-4">
+                  {navItems.map((item) => (
+                    <li key={item.name}>
+                      <Link
+                        to={item.href}
+                        className="text-muted-foreground hover:text-foreground transition-colors block"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex gap-3">
+                  <Link to="/auth" className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full">Iniciar sesión</Button>
+                  </Link>
+                  <Link to="/auth" className="flex-1">
+                    <Button size="sm" className="w-full rounded-full">Empezar gratis</Button>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      </nav>
+    </header>
+  );
+}
 
 const Landing = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
@@ -203,6 +309,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen overflow-hidden">
+      <LandingNav />
       {/* Promo Banner */}
       <div className="bg-gradient-banner text-white py-3 px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMCAwaDIwdjIwSDB6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
@@ -305,6 +412,41 @@ const Landing = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Integrations Slider */}
+      <section className="bg-background border-y border-border/30 py-6">
+        <div className="group relative mx-auto max-w-7xl px-6">
+          <div className="flex flex-col items-center gap-4 md:flex-row">
+            <div className="shrink-0 md:border-r md:pr-6 md:max-w-44">
+              <p className="text-xs text-muted-foreground text-center md:text-right leading-snug">
+                Integrado con<br className="hidden md:block" /> las herramientas<br className="hidden md:block" /> que ya usas
+              </p>
+            </div>
+            <div className="relative w-full md:w-[calc(100%-11rem)]">
+              <InfiniteSlider speed={30} speedOnHover={10} gap={80}>
+                {[
+                  { name: "WhatsApp Business", color: "text-green-600" },
+                  { name: "DIAN Colombia", color: "text-blue-700" },
+                  { name: "Alegra", color: "text-orange-500" },
+                  { name: "Siigo", color: "text-purple-600" },
+                  { name: "MercadoPago", color: "text-sky-500" },
+                  { name: "Evolution API", color: "text-emerald-600" },
+                  { name: "Google Gemini", color: "text-indigo-500" },
+                  { name: "Alanube", color: "text-red-500" },
+                ].map((item) => (
+                  <div key={item.name} className="flex items-center shrink-0">
+                    <span className={cn("text-sm font-bold tracking-tight opacity-60 hover:opacity-100 transition-opacity", item.color)}>
+                      {item.name}
+                    </span>
+                  </div>
+                ))}
+              </InfiniteSlider>
+              <ProgressiveBlur className="pointer-events-none absolute left-0 top-0 h-full w-16" direction="left" blurIntensity={0.8} />
+              <ProgressiveBlur className="pointer-events-none absolute right-0 top-0 h-full w-16" direction="right" blurIntensity={0.8} />
             </div>
           </div>
         </div>
