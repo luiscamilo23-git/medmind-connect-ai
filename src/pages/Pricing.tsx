@@ -1,236 +1,146 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Check, Zap, Building2, GraduationCap, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Link, useNavigate } from 'react-router-dom';
+import { Check, GraduationCap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { PricingSection } from '@/components/ui/pricing';
+import type { Plan } from '@/components/ui/pricing';
 
-const plans = [
+const PLANS: Plan[] = [
   {
-    id: 'starter',
     name: 'Starter',
-    price: 89000,
-    icon: Zap,
-    color: 'from-blue-500 to-blue-600',
-    badge: null,
-    description: 'Ideal para médicos recién independientes',
+    info: 'Para médicos recién independientes',
+    price: { monthly: 89000, yearly: 89000 * 10 },
+    highlighted: false,
     features: [
-      'Historia clínica electrónica',
-      'VoiceNotes MD (transcripción IA)',
-      'Pacientes ilimitados',
-      'Agenda inteligente',
-      '3 especialidades médicas',
-      'Asistente IA',
-      'Documentos médicos básicos',
+      { text: 'Historia clínica electrónica' },
+      { text: 'VoiceNotes MD (transcripción IA)', tooltip: 'Graba la consulta y la IA genera la historia en segundos' },
+      { text: 'Pacientes ilimitados' },
+      { text: 'Agenda inteligente' },
+      { text: '3 especialidades médicas' },
+      { text: 'Asistente IA básico' },
+      { text: 'Documentos médicos básicos' },
     ],
-    excluded: [
-      'Facturación DIAN',
-      'RIPS automatizados',
-      'Agente WhatsApp IA',
-    ],
+    btn: { text: 'Empezar gratis 30 días', href: '/auth?plan=starter' },
   },
   {
-    id: 'profesional',
     name: 'Profesional',
-    price: 189000,
-    icon: Star,
-    color: 'from-emerald-500 to-emerald-600',
+    info: 'Para consultorios establecidos',
+    price: { monthly: 189000, yearly: 189000 * 10 },
+    highlighted: true,
     badge: 'Más popular',
-    description: 'Para médicos con consultorio establecido',
     features: [
-      'Todo Starter incluido',
-      'Facturación electrónica DIAN',
-      'RIPS automatizados',
-      'Agente IA WhatsApp 24/7',
-      '10 especialidades médicas',
-      'Documentos ilimitados',
-      'Inventario clínico (SupplyLens)',
-      'Analytics avanzado',
-      'Red social médica',
+      { text: 'Todo Starter incluido' },
+      { text: 'Facturación electrónica DIAN', tooltip: 'Generación y envío automático de facturas electrónicas a la DIAN' },
+      { text: 'RIPS automatizados', tooltip: 'Registros Individuales de Prestación de Servicios generados en 1 clic' },
+      { text: 'Agente IA WhatsApp 24/7', tooltip: 'Bot que confirma citas, responde pacientes y notifica al doctor' },
+      { text: '10 especialidades médicas' },
+      { text: 'Documentos ilimitados' },
+      { text: 'Inventario clínico (SupplyLens)' },
+      { text: 'Analytics avanzado' },
+      { text: 'Red social médica' },
     ],
-    excluded: [],
+    btn: { text: 'Empezar gratis 30 días', href: '/auth?plan=profesional' },
   },
   {
-    id: 'clinica',
     name: 'Clínica',
-    price: 390000,
-    icon: Building2,
-    color: 'from-violet-500 to-violet-600',
-    badge: null,
-    description: 'Para clínicas con múltiples médicos',
+    info: 'Para clínicas con múltiples médicos',
+    price: { monthly: 390000, yearly: 390000 * 10 },
+    highlighted: false,
     features: [
-      'Todo Profesional incluido',
-      'Hasta 5 médicos',
-      'Dashboard centralizado',
-      'Análisis predictivo IA',
-      'Módulo de moderador',
-      'Reportes ejecutivos',
-      'Soporte prioritario',
+      { text: 'Todo Profesional incluido' },
+      { text: 'Hasta 5 médicos', tooltip: 'Cada médico con su propio perfil, agenda y pacientes' },
+      { text: 'Dashboard centralizado' },
+      { text: 'Análisis predictivo IA' },
+      { text: 'Módulo de moderador' },
+      { text: 'Reportes ejecutivos' },
+      { text: 'Soporte prioritario', tooltip: 'Línea directa de soporte con respuesta en < 2 horas' },
     ],
-    excluded: [],
+    btn: { text: 'Hablar con ventas', href: '/auth?plan=clinica' },
   },
 ];
 
-const universityPlan = {
-  id: 'universidad',
-  name: 'Universidad',
-  price: 0,
-  icon: GraduationCap,
-  description: 'Para estudiantes de medicina (semestres 8-12)',
-  features: [
-    'Acceso completo para práctica',
-    'Historia clínica + VoiceNotes',
-    'Agenda de pacientes',
-    'Asistente IA',
-    'Sin facturación DIAN',
-  ],
-};
+const ALL_INCLUDE = [
+  'Cumplimiento DIAN',
+  'Normas MinSalud',
+  'HTTPS + Cifrado E2E',
+  'MFA incluido',
+  'Soporte en español',
+  'Cancela cuando quieras',
+];
 
 export default function Pricing() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<string | null>(null);
-
-  const handleSelectPlan = async (planId: string) => {
-    setLoading(planId);
-    // Redirige al registro con el plan preseleccionado
-    navigate(`/auth?plan=${planId}`);
-  };
-
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(price);
 
   return (
-    <div className="min-h-screen bg-[#0D1B3E] text-white">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="text-center pt-16 pb-10 px-4">
-        <Badge className="mb-4 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-sm px-4 py-1">
+      <div className="text-center pt-20 pb-4 px-4">
+        <Badge className="mb-4 bg-primary/10 text-primary border-primary/30 text-sm px-4 py-1">
           30 días gratis · Sin tarjeta de crédito
         </Badge>
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">
-          El doctor habla,<br />
-          <span className="text-emerald-400">la historia se escribe sola.</span>
-        </h1>
-        <p className="text-gray-400 text-lg max-w-xl mx-auto">
+        <p className="text-muted-foreground text-base max-w-xl mx-auto mt-2">
           Planes diseñados para médicos colombianos. Cumplimiento DIAN, RIPS y MinSalud incluido.
         </p>
       </div>
 
-      {/* Plans grid */}
-      <div className="max-w-6xl mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
-          {plans.map((plan) => {
-            const Icon = plan.icon;
-            const isPro = plan.id === 'profesional';
-            return (
-              <div
-                key={plan.id}
-                className={`relative rounded-2xl border p-6 flex flex-col transition-all ${
-                  isPro
-                    ? 'border-emerald-500 bg-emerald-950/30 shadow-lg shadow-emerald-900/30 scale-[1.02]'
-                    : 'border-white/10 bg-white/5 hover:border-white/20'
-                }`}
-              >
-                {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-emerald-500 text-white border-0 px-4 py-1 text-xs font-semibold">
-                      {plan.badge}
-                    </Badge>
-                  </div>
-                )}
+      {/* Pricing cards */}
+      <PricingSection
+        plans={PLANS}
+        heading="El médico habla, la historia se escribe sola."
+        description=""
+        showToggle={true}
+        className="pb-6"
+      />
 
-                {/* Plan header */}
-                <div className="mb-6">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-3`}>
-                    <Icon className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-xl font-bold">{plan.name}</h2>
-                  <p className="text-gray-400 text-sm mt-1">{plan.description}</p>
-                </div>
-
-                {/* Price */}
-                <div className="mb-6">
-                  <div className="flex items-end gap-1">
-                    <span className="text-3xl font-bold">{formatPrice(plan.price)}</span>
-                    <span className="text-gray-400 mb-1">/mes</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">+ IVA · Cancela cuando quieras</p>
-                </div>
-
-                {/* CTA */}
-                <Button
-                  onClick={() => handleSelectPlan(plan.id)}
-                  disabled={loading === plan.id}
-                  className={`w-full mb-6 font-semibold ${
-                    isPro
-                      ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                      : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
-                  }`}
-                >
-                  {loading === plan.id ? 'Cargando...' : 'Comenzar gratis 30 días'}
-                </Button>
-
-                {/* Features */}
-                <ul className="space-y-2 flex-1">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <Check className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                      <span className="text-gray-300">{f}</span>
-                    </li>
-                  ))}
-                  {plan.excluded.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm opacity-40">
-                      <span className="w-4 h-4 mt-0.5 shrink-0 text-center leading-4">✕</span>
-                      <span className="text-gray-500">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* University plan */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 flex flex-col md:flex-row items-center gap-6">
+      {/* University plan */}
+      <div className="max-w-4xl mx-auto px-4 pb-10">
+        <div className="rounded-xl border border-border/50 bg-muted/20 p-6 flex flex-col md:flex-row items-center gap-6 hover:border-amber-500/40 transition-colors">
           <div className="flex items-center gap-4 flex-1">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shrink-0">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold">Plan Universidad</h3>
-                <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-xs">Gratis</Badge>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-base font-bold">Plan Universidad</h3>
+                <Badge className="bg-amber-500/20 text-amber-600 border-amber-500/30 text-xs">Gratis</Badge>
               </div>
-              <p className="text-gray-400 text-sm">{universityPlan.description}</p>
+              <p className="text-muted-foreground text-sm">Para estudiantes de medicina (semestres 8-12)</p>
             </div>
           </div>
-          <ul className="flex flex-wrap gap-3 flex-1">
-            {universityPlan.features.map((f) => (
-              <li key={f} className="flex items-center gap-1.5 text-sm text-gray-300">
-                <Check className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <ul className="flex flex-wrap gap-x-4 gap-y-2 flex-1">
+            {['Historia clínica + VoiceNotes', 'Agenda de pacientes', 'Asistente IA', 'Sin facturación DIAN'].map((f) => (
+              <li key={f} className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Check className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 {f}
               </li>
             ))}
           </ul>
           <Button
-            onClick={() => handleSelectPlan('universidad')}
+            onClick={() => navigate('/auth?plan=universidad')}
             className="bg-amber-500 hover:bg-amber-600 text-white font-semibold shrink-0"
           >
             Acceso gratuito
           </Button>
         </div>
+      </div>
 
-        {/* Bottom trust */}
-        <div className="mt-12 text-center">
-          <p className="text-gray-500 text-sm mb-4">Todos los planes incluyen</p>
-          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
-            {['Cumplimiento DIAN', 'Normas MinSalud', 'HTTPS + Cifrado E2E', 'MFA incluido', 'Soporte en español', 'Cancela cuando quieras'].map((item) => (
-              <span key={item} className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                {item}
-              </span>
-            ))}
-          </div>
+      {/* Trust row */}
+      <div className="pb-16 text-center px-4">
+        <p className="text-muted-foreground text-sm mb-4">Todos los planes incluyen</p>
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+          {ALL_INCLUDE.map((item) => (
+            <span key={item} className="flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5 text-primary" />
+              {item}
+            </span>
+          ))}
         </div>
+        <p className="mt-8 text-xs text-muted-foreground">
+          ¿Tienes dudas? Escríbenos a{' '}
+          <a href="mailto:soporte@medmind.co" className="text-primary hover:underline">
+            soporte@medmind.co
+          </a>
+        </p>
       </div>
     </div>
   );
