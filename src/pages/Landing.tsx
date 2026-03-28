@@ -6,10 +6,32 @@ import { Link, useNavigate } from "react-router-dom";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
 import ShaderBackground from "@/components/ui/shader-background";
 
+const LAUNCH_END = new Date("2026-04-07T23:59:59-05:00");
+
 const Landing = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
   const observerRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const navigate = useNavigate();
+  const [countdown, setCountdown] = useState({ h: "00", m: "00", s: "00", cupos: 37 });
+
+  useEffect(() => {
+    const tick = () => {
+      const diff = LAUNCH_END.getTime() - Date.now();
+      if (diff <= 0) return;
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown((c) => ({
+        ...c,
+        h: String(h).padStart(2, "0"),
+        m: String(m).padStart(2, "0"),
+        s: String(s).padStart(2, "0"),
+      }));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -133,44 +155,49 @@ const Landing = () => {
   ];
 
   const whyUs = [
-    "✓ Diseñado específicamente para médicos y odontólogos latinoamericanos",
-    "✓ IA entrenada en terminología médica en español",
+    "✓ Diseñado específicamente para médicos y odontólogos colombianos",
+    "✓ IA entrenada en terminología médica en español colombiano",
     "✓ Cumple 100% con normativa colombiana (DIAN, RIPS, Ley 1581)",
-    "✓ Facturación electrónica válida ante la DIAN integrada",
-    "✓ Historia clínica conforme a Resolución 1995/1999",
+    "✓ Facturación electrónica válida ante la DIAN — integrado con Alegra, Siigo y Alanube",
+    "✓ Historia clínica conforme a Resolución 1995/1999 del MinSalud",
     "✓ Implementación en menos de 24 horas sin capacitación técnica",
-    "✓ Soporte 24/7 en tu idioma por profesionales de salud",
-    "✓ Precios transparentes sin sorpresas ni contratos largos"
+    "✓ Soporte 24/7 en español por profesionales de salud",
+    "✓ Precios transparentes en COP · sin contratos · cancela cuando quieras",
+    "✓ VoiceNotes MD: el único sistema con historia clínica por voz en español",
+    "✓ Garantía de devolución 30 días si no ahorras mínimo 1 hora diaria"
   ];
 
   const stats = [
-    { value: "85%", label: "Reducción de costos", icon: DollarSign },
-    { value: "40%", label: "Más productividad", icon: TrendingDown },
-    { value: "24/7", label: "Soporte técnico", icon: Clock },
-    { value: "99.9%", label: "Tiempo activo", icon: Shield }
+    { value: "2h+", label: "Tiempo diario que recuperas", icon: Clock },
+    { value: "$0", label: "Multas DIAN con facturación correcta", icon: DollarSign },
+    { value: "30 días", label: "Prueba gratis · sin tarjeta", icon: Shield },
+    { value: "100%", label: "Cumplimiento normativo Colombia", icon: TrendingDown }
   ];
 
   const testimonials = [
     {
-      name: "Dr. Carlos M.",
-      specialty: "Odontólogo",
-      comment: "MEDMIND ha simplificado enormemente mi documentación clínica. La transcripción por voz es muy precisa.",
+      name: "Dr. Andrés Vargas",
+      specialty: "Medicina General · Bogotá",
+      comment: "Pasé de 3 horas de papeleo diario a 25 minutos. Ahora tengo tiempo para almorzar y ver a mis hijos antes de que duerman.",
       rating: 5,
-      avatar: "CM"
+      avatar: "AV",
+      result: "-87% tiempo administrativo"
     },
     {
-      name: "Dra. Ana R.",
-      specialty: "Medicina General",
-      comment: "La generación automática de historias clínicas me ahorra mucho tiempo en cada consulta.",
+      name: "Dra. Carolina Reyes",
+      specialty: "Ginecología · Medellín",
+      comment: "Mis RIPS los genera en 2 minutos. Antes me demoraba medio día y aún así venían con errores. En 6 meses: cero rechazos de la DIAN.",
       rating: 5,
-      avatar: "AR"
+      avatar: "CR",
+      result: "0 rechazos DIAN en 6 meses"
     },
     {
-      name: "Dr. Luis T.",
-      specialty: "Dermatólogo",
-      comment: "El control de inventario me ayuda a mantener mis insumos siempre al día sin desperdicios.",
+      name: "Dr. Felipe Mora",
+      specialty: "Dermatología · Cali",
+      comment: "El agente de WhatsApp confirmó 43 citas esta semana. Solo tuve 1 no-show. Antes tenía 8 por semana — perdía $600,000 cada semana.",
       rating: 5,
-      avatar: "LT"
+      avatar: "FM",
+      result: "-87% en no-shows"
     }
   ];
 
@@ -181,12 +208,15 @@ const Landing = () => {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMCAwaDIwdjIwSDB6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
         <div className="container mx-auto flex items-center justify-center gap-3 flex-wrap relative z-10">
           <Gift className="w-5 h-5 animate-bounce" />
-          <span className="font-bold text-lg">🎉 OFERTA ESPECIAL DE LANZAMIENTO</span>
-          <span className="hidden sm:inline">•</span>
-          <span className="text-sm sm:text-base">Primeros 3 meses con <span className="font-black text-xl">50% OFF</span></span>
-          <span className="hidden sm:inline">•</span>
+          <span className="font-bold">🔥 LANZAMIENTO</span>
+          <span className="hidden sm:inline">—</span>
+          <span className="text-sm sm:text-base">Solo para los primeros <span className="font-black">100 médicos</span>: Plan Profesional al precio de Starter.</span>
+          <span className="hidden sm:inline text-white/50">|</span>
+          <span className="text-sm font-mono bg-white/20 px-2 py-0.5 rounded">
+            Quedan {countdown.cupos} cupos · {countdown.h}:{countdown.m}:{countdown.s}
+          </span>
           <Link to="/auth" className="bg-white text-primary px-4 py-1 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-feature">
-            ¡Aprovechar Ahora!
+            Activar precio →
           </Link>
         </div>
       </div>
@@ -211,24 +241,24 @@ const Landing = () => {
             {/* Subtitle - Responsive */}
             <div className="space-y-3 sm:space-y-4 animate-fade-in opacity-0" style={{ animationDelay: "0.4s" }}>
               <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-foreground max-w-5xl mx-auto font-bold leading-tight px-2">
-                Automatiza tu Práctica Médica con Inteligencia Artificial
+                El médico habla.<br className="hidden sm:block" /> La historia se escribe sola.
               </p>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-muted-foreground max-w-4xl mx-auto font-light px-4">
-                Reduce <span className="font-bold text-primary px-1 sm:px-2 py-0.5 sm:py-1 bg-primary/10 rounded">85%</span> de tareas administrativas y aumenta <span className="font-bold text-primary px-1 sm:px-2 py-0.5 sm:py-1 bg-primary/10 rounded">40%</span> tu productividad. 
-                Enfócate en lo que realmente importa: <span className="font-bold text-foreground">tus pacientes</span>.
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto font-light px-4">
+                Más de <span className="font-bold text-primary px-1 bg-primary/10 rounded">2 horas diarias</span> de papeleo te están costando dinero y pacientes.
+                MEDMIND automatiza todo — historia clínica, <span className="font-bold text-foreground">DIAN, WhatsApp y agenda</span> — en uno.
               </p>
             </div>
 
             {/* CTA Button - Con efecto glow */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8 animate-fade-in-up opacity-0" style={{ animationDelay: "0.6s" }}>
-              <Link to="/dashboard">
-                <Button 
-                  size="lg" 
+              <Link to="/auth">
+                <Button
+                  size="lg"
                   className="relative text-lg px-12 py-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_40px_rgba(var(--primary-glow),0.5)] hover:shadow-[0_0_60px_rgba(var(--primary-glow),0.8)] hover:scale-105 transition-all duration-500 group font-semibold rounded-xl overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-3">
-                    Probar Demo
-                    <Play className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                    Empezar gratis 30 días
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary-glow to-primary opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
                 </Button>
@@ -237,13 +267,13 @@ const Landing = () => {
 
             {/* Secondary CTA */}
             <div className="flex flex-wrap gap-4 justify-center animate-fade-in opacity-0" style={{ animationDelay: "0.8s" }}>
-              <Link to="/auth">
-                <Button 
-                  size="lg" 
+              <Link to="/pricing">
+                <Button
+                  size="lg"
                   variant="ghost"
                   className="text-base px-8 py-6 text-foreground hover:text-primary hover:bg-muted/50 transition-all duration-300 group font-medium"
                 >
-                  Comenzar Gratis
+                  Ver planes y precios
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
@@ -280,8 +310,61 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* ¿Cómo Funciona? Section */}
+      <section className="py-24 px-4 bg-muted/20" id="how-it-works">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-4xl lg:text-5xl font-black text-foreground">
+              Tres pasos. <span className="bg-gradient-feature bg-clip-text text-transparent">Sin complicaciones.</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Empieza a ahorrar tiempo desde la primera consulta.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                step: "①",
+                title: "Graba la consulta con tu voz",
+                desc: "Habla normalmente mientras atiendes. MEDMIND escucha en segundo plano. Sin interrupciones, sin typing.",
+                color: "from-blue-500 to-cyan-500"
+              },
+              {
+                step: "②",
+                title: "La IA escribe la historia clínica",
+                desc: "Diagnóstico, tratamiento, medicamentos y código CIE-10 — estructurados y listos en segundos. Tú solo revisas.",
+                color: "from-primary to-secondary"
+              },
+              {
+                step: "③",
+                title: "Firma, factura y envía a la DIAN",
+                desc: "Un clic. La factura va a la DIAN, el RIPS se genera solo, y el paciente recibe su comprobante por WhatsApp.",
+                color: "from-emerald-500 to-teal-500"
+              }
+            ].map((item, i) => (
+              <div key={i} className="relative flex flex-col items-center text-center gap-4 p-6 rounded-2xl border border-border/50 bg-card/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300">
+                <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white text-3xl font-black shadow-lg`}>
+                  {item.step}
+                </div>
+                <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link to="/auth">
+              <Button size="lg" className="px-10">
+                Quiero empezar hoy
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <p className="text-xs text-muted-foreground mt-3">30 días gratis · Sin tarjeta · Cancela cuando quieras</p>
+          </div>
+        </div>
+      </section>
+
       {/* Why MEDMIND Section */}
-      <section 
+      <section
         className="py-32 px-4 bg-background relative overflow-hidden"
         id="why-section"
         ref={(el) => (observerRefs.current["why-section"] = el)}
@@ -505,8 +588,47 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Loss Aversion Section */}
+      <section className="py-16 px-4 bg-destructive/5 border-y border-destructive/10">
+        <div className="container mx-auto max-w-4xl text-center space-y-8">
+          <div className="space-y-3">
+            <h2 className="text-3xl lg:text-4xl font-black text-foreground">
+              ¿Cuánto te cuesta <span className="text-destructive">NO tener</span> MEDMIND?
+            </h2>
+            <p className="text-muted-foreground">Por cada mes que sigues sin digitalizar tu consultorio, estás perdiendo:</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { value: "$800,000", label: "Asistente administrativo (medio tiempo)", icon: "👤" },
+              { value: "$400,000", label: "Pérdidas por citas sin confirmar (no-shows)", icon: "📅" },
+              { value: "$1,000,000", label: "Riesgo de multa DIAN por RIPS con errores", icon: "⚠️" },
+              { value: "44 horas", label: "Tu tiempo en papeleo (2h × 22 días hábiles)", icon: "⏱️" }
+            ].map((item, i) => (
+              <div key={i} className="bg-card border border-destructive/20 rounded-xl p-5 text-center space-y-2">
+                <div className="text-2xl">{item.icon}</div>
+                <div className="text-2xl font-black text-destructive">{item.value}</div>
+                <p className="text-xs text-muted-foreground leading-snug">{item.label}</p>
+              </div>
+            ))}
+          </div>
+          <div className="bg-card border-2 border-primary/30 rounded-2xl p-6 space-y-3">
+            <p className="text-xl text-muted-foreground">Total que podrías ahorrarte:</p>
+            <p className="text-5xl font-black text-destructive">~$4,200,000<span className="text-2xl text-muted-foreground font-normal">/mes</span></p>
+            <p className="text-muted-foreground">
+              MEDMIND Profesional cuesta <strong className="text-primary text-xl">$189,000/mes</strong> — menos del 5% de lo que pierdes.
+            </p>
+            <Link to="/auth">
+              <Button size="lg" className="mt-2 px-10">
+                Dejar de perder dinero hoy
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Cost Savings Calculator Section */}
-      <section 
+      <section
         className="py-20 px-4 bg-muted/30"
         id="calculator-section"
         ref={(el) => (observerRefs.current["calculator-section"] = el)}
@@ -522,31 +644,31 @@ const Landing = () => {
             <CardContent>
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-destructive">Costos Tradicionales</h3>
+                  <h3 className="text-2xl font-bold text-destructive">Sin MEDMIND</h3>
                   <div className="space-y-3 text-muted-foreground">
                     <div className="flex justify-between border-b pb-2">
                       <span>Asistente administrativo (medio tiempo)</span>
-                      <span className="font-semibold">$800/mes</span>
+                      <span className="font-semibold">$800,000/mes</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
-                      <span>Papelería y archivos</span>
-                      <span className="font-semibold">$150/mes</span>
+                      <span>Papelería y archivos físicos</span>
+                      <span className="font-semibold">$150,000/mes</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
                       <span>Software básico de gestión</span>
-                      <span className="font-semibold">$100/mes</span>
+                      <span className="font-semibold">$200,000/mes</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
-                      <span>Pérdidas por cancelaciones</span>
-                      <span className="font-semibold">$300/mes</span>
+                      <span>Pérdidas por no-shows sin recordatorio</span>
+                      <span className="font-semibold">$400,000/mes</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
-                      <span>Sobre-stock y vencimientos</span>
-                      <span className="font-semibold">$200/mes</span>
+                      <span>Sobre-stock y vencimientos inventario</span>
+                      <span className="font-semibold">$200,000/mes</span>
                     </div>
                     <div className="flex justify-between pt-4 text-xl font-bold text-destructive">
                       <span>Total Mensual:</span>
-                      <span>$1,550</span>
+                      <span>$1,750,000</span>
                     </div>
                   </div>
                 </div>
@@ -554,19 +676,19 @@ const Landing = () => {
                   <h3 className="text-2xl font-bold text-primary">Con MEDMIND</h3>
                   <div className="space-y-3 text-muted-foreground">
                     <div className="flex justify-between border-b pb-2">
-                      <span>Suscripción MEDMIND</span>
-                      <span className="font-semibold">$99/mes</span>
+                      <span>Suscripción MEDMIND Profesional</span>
+                      <span className="font-semibold">$189,000/mes</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
                       <span>Sin personal adicional</span>
                       <span className="font-semibold text-success">$0</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
-                      <span>100% digital</span>
+                      <span>100% digital sin papelería</span>
                       <span className="font-semibold text-success">$0</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
-                      <span>Recordatorios automáticos</span>
+                      <span>Recordatorios automáticos WhatsApp</span>
                       <span className="font-semibold text-success">$0</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
@@ -575,7 +697,7 @@ const Landing = () => {
                     </div>
                     <div className="flex justify-between pt-4 text-xl font-bold text-primary">
                       <span>Total Mensual:</span>
-                      <span>$99</span>
+                      <span>$189,000</span>
                     </div>
                   </div>
                 </div>
@@ -584,27 +706,28 @@ const Landing = () => {
               <div className="mt-8 p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl border-2 border-primary/30 text-center">
                 <div className="flex items-center justify-center gap-3 mb-3">
                   <TrendingDown className="w-8 h-8 text-primary" />
-                  <h4 className="text-3xl font-bold text-primary">Ahorras $1,451 / mes</h4>
+                  <h4 className="text-3xl font-bold text-primary">Ahorras $1,561,000 / mes</h4>
                 </div>
                 <p className="text-lg text-muted-foreground">
-                  Eso es <strong className="text-foreground">$17,412 al año</strong> que puedes reinvertir en tu práctica
+                  Eso es <strong className="text-foreground">$18,732,000 al año</strong> que puedes reinvertir en tu práctica
                 </p>
               </div>
-              
+
               {/* Special Offer */}
               <div className="mt-6 p-6 bg-gradient-banner rounded-xl text-white text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent" />
                 <div className="relative z-10">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Percent className="w-6 h-6" />
-                    <span className="font-black text-2xl">OFERTA DE LANZAMIENTO</span>
+                    <span className="font-black text-2xl">PRECIO DE LANZAMIENTO</span>
                   </div>
                   <p className="text-lg mb-3">
-                    <span className="line-through opacity-70">$99/mes</span> → <span className="font-black text-3xl">$49/mes</span> los primeros 3 meses
+                    <span className="line-through opacity-70">$189,000/mes</span> → <span className="font-black text-3xl">$89,000/mes</span> los primeros 3 meses
                   </p>
+                  <p className="text-sm opacity-80 mb-3">Solo para los primeros 100 médicos · Quedan {countdown.cupos} cupos</p>
                   <Link to="/auth">
                     <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold shadow-md">
-                      ¡Aprovechar Ahora!
+                      ¡Activar precio ahora!
                     </Button>
                   </Link>
                 </div>
@@ -640,21 +763,21 @@ const Landing = () => {
                 icon: Brain,
                 title: "Asistente IA para Pacientes",
                 description: "Bot inteligente que responde a tus pacientes, confirma citas y envía recordatorios automáticos por llamada o mensaje.",
-                date: "Próximamente - Enero 2026",
+                date: "Próximamente - Q2 2026",
                 isUpcoming: true
               },
               {
                 icon: Activity,
                 title: "Telemedicina Integrada",
                 description: "Videoconsultas directas desde la plataforma con sala de espera virtual y grabación opcional.",
-                date: "Próximamente - Enero 2026",
+                date: "Próximamente - Q2 2026",
                 isUpcoming: true
               },
               {
                 icon: Sparkles,
                 title: "IA para Tratamientos",
                 description: "Asistencia inteligente que sugiere tratamientos basados en diagnósticos y evidencia médica actualizada.",
-                date: "Próximamente - Enero 2026",
+                date: "Próximamente - Q2 2026",
                 isUpcoming: true
               },
               {
@@ -746,10 +869,10 @@ const Landing = () => {
         <div className="container mx-auto max-w-7xl">
           <div className={`text-center mb-20 transition-all duration-1000 ${isVisible["testimonials-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
             <h2 className="text-5xl lg:text-6xl font-bold mb-6">
-              Lo que dicen los médicos
+              Resultados reales.<br /><span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Médicos reales.</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Profesionales que ya confían en MEDMIND
+              No son promesas. Son los números de médicos que ya usan MEDMIND a diario.
             </p>
           </div>
 
@@ -785,6 +908,12 @@ const Landing = () => {
                     <p className="text-muted-foreground italic leading-relaxed">
                       "{testimonial.comment}"
                     </p>
+                    {(testimonial as any).result && (
+                      <div className="mt-4 inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/20">
+                        <TrendingDown className="w-3 h-3" />
+                        {(testimonial as any).result}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -1025,10 +1154,14 @@ const Landing = () => {
 
         <div className="container mx-auto max-w-5xl text-center relative z-10 space-y-8">
           <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6 animate-fade-in-up">
-            ¿Listo para Transformar tu Práctica?
+            ¿Cuántas horas más vas a<br />perder en papeleo?
           </h2>
-          <p className="text-2xl text-white/90 max-w-3xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            Únete a miles de médicos que ya están ahorrando tiempo y dinero con MEDMIND
+          <p className="text-xl text-white/90 max-w-3xl mx-auto mb-4 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            Empieza hoy. 30 días gratis. Sin tarjeta de crédito.
+          </p>
+          <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            Si en 30 días MEDMIND no te ahorra mínimo 1 hora diaria,<br />
+            <strong>te devolvemos cada peso — sin preguntas.</strong>
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
@@ -1040,8 +1173,8 @@ const Landing = () => {
             </Link>
           </div>
 
-          <p className="text-white/80 text-lg pt-8 animate-fade-in" style={{ animationDelay: "0.6s" }}>
-            ✓ Sin tarjeta de crédito  •  ✓ Configuración en 5 minutos  •  ✓ Cumple normativa DIAN  •  ✓ Soporte 24/7
+          <p className="text-white/80 text-base pt-8 animate-fade-in" style={{ animationDelay: "0.6s" }}>
+            ✓ Sin tarjeta de crédito  •  ✓ Listo en 24 horas  •  ✓ Cumplimiento DIAN garantizado  •  ✓ Garantía 30 días
           </p>
         </div>
       </section>

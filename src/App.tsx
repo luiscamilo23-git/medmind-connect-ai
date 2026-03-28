@@ -33,6 +33,7 @@ import Comparison from "./pages/Comparison";
 import PitchDeck from "./pages/PitchDeck";
 import ExecutiveBrief from "./pages/ExecutiveBrief";
 import BillingServices from "./pages/billing/BillingServices";
+import Subscription from "./pages/billing/Subscription";
 import BillingInvoices from "./pages/billing/BillingInvoices";
 import BillingRIPS from "./pages/billing/BillingRIPS";
 import BillingPayments from "./pages/billing/BillingPayments";
@@ -49,6 +50,7 @@ import ModeratorSocial from "./pages/moderator/ModeratorSocial";
 import ModeratorUsers from "./pages/moderator/ModeratorUsers";
 import ModeratorInventory from "./pages/moderator/ModeratorInventory";
 import NotFound from "./pages/NotFound";
+import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +63,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/voicenotes" element={<VoiceNotes />} />
           <Route path="/smart-notes" element={<SmartNotes />} />
@@ -87,6 +90,7 @@ const App = () => (
           <Route path="/comparison" element={<Comparison />} />
           <Route path="/pitch-deck" element={<PitchDeck />} />
           <Route path="/executive-brief" element={<ExecutiveBrief />} />
+          <Route path="/billing/subscription" element={<Subscription />} />
           <Route path="/billing/services" element={<BillingServices />} />
           <Route path="/billing/invoices" element={<BillingInvoices />} />
           <Route path="/billing/rips" element={<BillingRIPS />} />

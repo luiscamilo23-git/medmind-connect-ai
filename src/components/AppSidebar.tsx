@@ -1,8 +1,8 @@
-import { 
-  Brain, 
-  Calendar, 
-  LineChart, 
-  Package, 
+import {
+  Brain,
+  Calendar,
+  LineChart,
+  Package,
   Users,
   TrendingUp,
   Share2,
@@ -14,9 +14,14 @@ import {
   Send,
   BarChart3,
   Settings,
-  Bot
+  Bot,
+  CreditCard
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 import {
   Sidebar,
@@ -49,6 +54,7 @@ const analyticsItems = [
 ];
 
 const billingItems = [
+  { title: "Mi Suscripción", url: "/billing/subscription", icon: CreditCard },
   { title: "Servicios", url: "/billing/services", icon: Receipt },
   { title: "Facturas", url: "/billing/invoices", icon: FileText },
   { title: "RIPS", url: "/billing/rips", icon: FileText },
@@ -66,6 +72,27 @@ const socialItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const navigate = useNavigate();
+  const [planInfo, setPlanInfo] = useState<{ name: string; status: string } | null>(null);
+
+  useEffect(() => {
+    const loadPlan = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data } = await supabase
+        .from('subscriptions')
+        .select('status, subscription_plans(display_name)')
+        .eq('doctor_id', session.user.id)
+        .maybeSingle();
+      if (data) {
+        setPlanInfo({
+          name: (data.subscription_plans as any)?.display_name ?? 'Plan',
+          status: data.status,
+        });
+      }
+    };
+    loadPlan();
+  }, []);
 
   return (
     <Sidebar collapsible="icon">
@@ -185,6 +212,33 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {/* Plan badge */}
+        {planInfo && !isCollapsed && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <button
+                onClick={() => navigate("/pricing")}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-left"
+              >
+                <CreditCard className="h-4 w-4 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs font-semibold text-primary block truncate">
+                    Plan {planInfo.name}
+                  </span>
+                </div>
+                <Badge
+                  className={`text-[10px] px-1.5 py-0 shrink-0 ${
+                    planInfo.status === "trial"
+                      ? "bg-amber-500/20 text-amber-600 border-amber-500/30"
+                      : "bg-emerald-500/20 text-emerald-600 border-emerald-500/30"
+                  }`}
+                >
+                  {planInfo.status === "trial" ? "Trial" : "Activo"}
+                </Badge>
+              </button>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );

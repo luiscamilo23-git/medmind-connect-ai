@@ -28,6 +28,7 @@ const Auth = () => {
   const [showMFASetup, setShowMFASetup] = useState(false);
   const [showMFAVerification, setShowMFAVerification] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string>("");
+  const [isNewDoctorSignup, setIsNewDoctorSignup] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -105,6 +106,7 @@ const Auth = () => {
 
       // Show MFA setup after successful signup
       if (data.user) {
+        if (userRole === "doctor") setIsNewDoctorSignup(true);
         setShowMFASetup(true);
       }
     } catch (error: any) {
@@ -153,7 +155,7 @@ const Auth = () => {
     }
   };
 
-  const completeSignIn = async (userId: string) => {
+  const completeSignIn = async (userId: string, isNew?: boolean) => {
     try {
       const { data: roles } = await supabase
         .from("user_roles")
@@ -169,11 +171,13 @@ const Auth = () => {
         const role = roles[0].role;
         if (role === "patient") {
           navigate("/patient/dashboard");
+        } else if (isNew) {
+          navigate("/pricing");
         } else {
           navigate("/dashboard");
         }
       } else {
-        navigate("/dashboard");
+        navigate(isNew ? "/pricing" : "/dashboard");
       }
     } catch (error: any) {
       toast({
@@ -241,13 +245,13 @@ const Auth = () => {
         onComplete={async () => {
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
-            await completeSignIn(user.id);
+            await completeSignIn(user.id, isNewDoctorSignup);
           }
         }}
         onSkip={async () => {
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
-            await completeSignIn(user.id);
+            await completeSignIn(user.id, isNewDoctorSignup);
           }
         }}
       />

@@ -4,12 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Activity, 
-  Brain, 
-  Calendar, 
-  LogOut, 
-  Package, 
+import {
+  Activity,
+  Brain,
+  Calendar,
+  LogOut,
+  Package,
   Users,
   Clock,
   DollarSign,
@@ -20,7 +20,9 @@ import {
   TrendingUp,
   TrendingDown,
   Sparkles,
-  Bot
+  Bot,
+  AlertTriangle,
+  X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReVerification } from "@/hooks/useReVerification";
@@ -38,6 +40,8 @@ const Dashboard = () => {
   const [specialty, setSpecialty] = useState<string>("");
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [aiExpanded, setAiExpanded] = useState(false);
+  const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
+  const [showTrialBanner, setShowTrialBanner] = useState(false);
   const [stats, setStats] = useState({
     totalPatients: 0,
     satisfactionRate: 0,
@@ -68,6 +72,7 @@ const Dashboard = () => {
         setUser(session.user);
         await loadStats(session.user.id);
         await loadDoctorProfile(session.user.id);
+        await loadSubscription(session.user.id);
       } else {
         navigate("/auth");
       }
@@ -105,6 +110,27 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error loading doctor profile:', error);
+    }
+  };
+
+  const loadSubscription = async (doctorId: string) => {
+    try {
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('status, trial_ends_at')
+        .eq('doctor_id', doctorId)
+        .maybeSingle();
+
+      if (sub?.status === 'trial' && sub.trial_ends_at) {
+        const msLeft = new Date(sub.trial_ends_at).getTime() - Date.now();
+        const days = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
+        if (days <= 5 && days >= 0) {
+          setTrialDaysLeft(days);
+          setShowTrialBanner(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading subscription:', error);
     }
   };
 
@@ -313,6 +339,29 @@ const Dashboard = () => {
               </div>
             </div>
           </header>
+
+          {showTrialBanner && trialDaysLeft !== null && (
+            <div className="bg-amber-500 text-white px-6 py-3 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                {trialDaysLeft === 0
+                  ? "Tu prueba gratuita vence hoy. Activa tu plan para seguir usando MEDMIND."
+                  : `Tu prueba gratuita vence en ${trialDaysLeft} día${trialDaysLeft === 1 ? "" : "s"}. ¡Activa tu plan con 30% de descuento!`}
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  className="bg-white text-amber-600 hover:bg-amber-50 font-semibold h-7 px-3 text-xs"
+                  onClick={() => navigate("/pricing")}
+                >
+                  Activar plan
+                </Button>
+                <button onClick={() => setShowTrialBanner(false)} className="opacity-70 hover:opacity-100">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
 
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto px-6 py-8 space-y-8 max-w-7xl">

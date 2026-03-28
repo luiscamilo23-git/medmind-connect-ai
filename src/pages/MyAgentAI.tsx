@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,16 +6,35 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { 
-  Loader2, Bot, Save, Plus, Trash2, MapPin, Clock, FileText, 
-  DollarSign, MessageCircle, Sparkles, Building2, Calendar,
-  Stethoscope, Timer
+import {
+  Loader2, Bot, Save, Plus, Trash2, MapPin, Clock, FileText,
+  DollarSign, MessageCircle, Sparkles, Building2, Stethoscope,
+  Timer, Send, UserCheck, BotOff, Phone, ChevronLeft
 } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ConnectWhatsApp } from "@/components/ConnectWhatsApp";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+
+interface Conversation {
+  id: string;
+  patient_phone: string;
+  patient_name: string | null;
+  is_bot_active: boolean;
+  last_message: string | null;
+  last_message_at: string | null;
+  unread_count: number;
+}
+
+interface WMessage {
+  id: string;
+  direction: "inbound" | "outbound";
+  sender: "patient" | "bot" | "doctor";
+  content: string;
+  is_read: boolean;
+  created_at: string;
+}
 
 interface Service {
   name: string;
@@ -28,13 +47,22 @@ export default function MyAgentAI() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  
+
   // Knowledge base state
   const [businessDescription, setBusinessDescription] = useState("");
   const [businessLocation, setBusinessLocation] = useState("");
   const [businessHours, setBusinessHours] = useState("");
   const [businessAdditionalInfo, setBusinessAdditionalInfo] = useState("");
   const [services, setServices] = useState<Service[]>([]);
+
+  // Human takeover state
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConv, setSelectedConv] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<WMessage[]>([]);
+  const [replyText, setReplyText] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
+  const [togglingBot, setTogglingBot] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadProfileData();
@@ -57,19 +85,25 @@ export default function MyAgentAI() {
       }
 
       if (data) {
-        setIsConnected(!!data.whatsapp_instance_name);
+        const connected = !!data.whatsapp_instance_name;
+        setIsConnected(connected);
         setBusinessDescription(data.business_description || "");
         setBusinessLocation(data.business_location || "");
         setBusinessHours(data.business_hours || "");
         setBusinessAdditionalInfo(data.business_additional_info || "");
-        
+
         // Parse services from JSON
         if (data.business_services && Array.isArray(data.business_services)) {
           const parsedServices = (data.business_services as unknown as Service[]).map(s => ({
             ...s,
-            duration: s.duration || "30" // Default 30 minutes if not set
+            duration: s.duration || "30",
           }));
           setServices(parsedServices);
+        }
+
+        if (connected) {
+          await loadConversations(user.id);
+          subscribeToConversations(user.id);
         }
       }
     } catch (error) {
@@ -77,6 +111,121 @@ export default function MyAgentAI() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadConversations = async (doctorId: string) => {
+    const { data } = await supabase
+      .from("whatsapp_conversations")
+      .select("id, patient_phone, patient_name, is_bot_active, last_message, last_message_at, unread_count")
+      .eq("doctor_id", doctorId)
+      .order("last_message_at", { ascending: false });
+    if (data) setConversations(data as Conversation[]);
+  };
+
+  const subscribeToConversations = (doctorId: string) => {
+    const channel = supabase
+      .channel("whatsapp_conv_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "whatsapp_conversations", filter: `doctor_id=eq.${doctorId}` },
+        () => { loadConversations(doctorId); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  };
+
+  const openConversation = async (conv: Conversation) => {
+    setSelectedConv(conv);
+    setReplyText("");
+    const { data } = await supabase
+      .from("whatsapp_messages")
+      .select("id, direction, sender, content, is_read, created_at")
+      .eq("conversation_id", conv.id)
+      .order("created_at", { ascending: true });
+    if (data) setMessages(data as WMessage[]);
+
+    // Mark messages as read
+    await supabase
+      .from("whatsapp_messages")
+      .update({ is_read: true })
+      .eq("conversation_id", conv.id)
+      .eq("is_read", false);
+    await supabase
+      .from("whatsapp_conversations")
+      .update({ unread_count: 0 })
+      .eq("id", conv.id);
+
+    // Subscribe to new messages in this conversation
+    supabase
+      .channel(`msgs_${conv.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "whatsapp_messages", filter: `conversation_id=eq.${conv.id}` },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new as WMessage]);
+          setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+        }
+      )
+      .subscribe();
+  };
+
+  const toggleBot = async () => {
+    if (!selectedConv) return;
+    setTogglingBot(true);
+    const newVal = !selectedConv.is_bot_active;
+    const { error } = await supabase
+      .from("whatsapp_conversations")
+      .update({ is_bot_active: newVal, updated_at: new Date().toISOString() })
+      .eq("id", selectedConv.id);
+    if (!error) {
+      setSelectedConv({ ...selectedConv, is_bot_active: newVal });
+      setConversations((prev) =>
+        prev.map((c) => (c.id === selectedConv.id ? { ...c, is_bot_active: newVal } : c))
+      );
+      toast({
+        title: newVal ? "🤖 Bot activado" : "👨‍⚕️ Control manual activado",
+        description: newVal
+          ? "El bot volverá a responder automáticamente."
+          : "Ahora puedes responder tú. El bot está pausado.",
+      });
+    }
+    setTogglingBot(false);
+  };
+
+  const sendReply = async () => {
+    if (!selectedConv || !replyText.trim()) return;
+    setSendingReply(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { error } = await supabase.functions.invoke("send-whatsapp-manual", {
+        body: { conversation_id: selectedConv.id, message: replyText.trim() },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (error) throw new Error(error.message);
+      setReplyText("");
+    } catch (err: any) {
+      toast({ title: "Error al enviar", description: err.message, variant: "destructive" });
+    } finally {
+      setSendingReply(false);
+    }
+  };
+
+  const formatTime = (iso: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatDate = (iso: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const today = new Date();
+    if (d.toDateString() === today.toDateString()) return "Hoy";
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    if (d.toDateString() === yesterday.toDateString()) return "Ayer";
+    return d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });
   };
 
   const handleSave = async () => {
@@ -493,6 +642,214 @@ export default function MyAgentAI() {
                       Los cambios se aplicarán inmediatamente a tu agente de WhatsApp
                     </p>
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 3: Human Takeover — Conversaciones Activas */}
+            {isConnected && (
+              <Card className="border-2">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold shadow-lg">
+                      3
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="flex items-center gap-2">
+                        <MessageCircle className="h-5 w-5 text-primary" />
+                        Conversaciones Activas
+                      </CardTitle>
+                      <CardDescription className="mt-1">
+                        Toma el control manual de cualquier chat y responde directamente
+                      </CardDescription>
+                    </div>
+                    <Badge variant="secondary" className="gap-1">
+                      {conversations.length} chat{conversations.length !== 1 ? "s" : ""}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {conversations.length === 0 ? (
+                    <div className="text-center py-12 px-6">
+                      <MessageCircle className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
+                      <p className="text-sm text-muted-foreground">Sin conversaciones aún</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Cuando tus pacientes te escriban por WhatsApp aparecerán aquí
+                      </p>
+                    </div>
+                  ) : selectedConv ? (
+                    /* ── MESSAGE THREAD VIEW ── */
+                    <div className="flex flex-col h-[520px]">
+                      {/* Thread header */}
+                      <div className="flex items-center gap-3 px-4 py-3 border-b bg-muted/30">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => { setSelectedConv(null); setMessages([]); }}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm">
+                            {selectedConv.patient_name || selectedConv.patient_phone}
+                          </p>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            {selectedConv.patient_phone}
+                          </p>
+                        </div>
+                        {/* Bot toggle */}
+                        <Button
+                          size="sm"
+                          variant={selectedConv.is_bot_active ? "outline" : "default"}
+                          onClick={toggleBot}
+                          disabled={togglingBot}
+                          className={`gap-1.5 text-xs ${!selectedConv.is_bot_active ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}`}
+                        >
+                          {togglingBot ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : selectedConv.is_bot_active ? (
+                            <>
+                              <BotOff className="h-3.5 w-3.5" />
+                              Tomar control
+                            </>
+                          ) : (
+                            <>
+                              <UserCheck className="h-3.5 w-3.5" />
+                              Devolver al bot
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
+                      {/* Bot status banner */}
+                      <div className={`px-4 py-1.5 text-xs flex items-center gap-1.5 ${
+                        selectedConv.is_bot_active
+                          ? "bg-blue-50 text-blue-700 border-b border-blue-100"
+                          : "bg-amber-50 text-amber-700 border-b border-amber-100"
+                      }`}>
+                        {selectedConv.is_bot_active ? (
+                          <><Bot className="h-3.5 w-3.5" /> El bot está respondiendo automáticamente</>
+                        ) : (
+                          <><UserCheck className="h-3.5 w-3.5" /> Modo manual — estás respondiendo tú</>
+                        )}
+                      </div>
+
+                      {/* Messages */}
+                      <div className="flex-1 overflow-y-auto px-4 py-3">
+                        <div className="space-y-3">
+                          {messages.map((msg) => {
+                            const isInbound = msg.direction === "inbound";
+                            return (
+                              <div
+                                key={msg.id}
+                                className={`flex ${isInbound ? "justify-start" : "justify-end"}`}
+                              >
+                                <div
+                                  className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                                    isInbound
+                                      ? "bg-muted text-foreground rounded-tl-sm"
+                                      : msg.sender === "bot"
+                                      ? "bg-blue-500 text-white rounded-tr-sm"
+                                      : "bg-emerald-600 text-white rounded-tr-sm"
+                                  }`}
+                                >
+                                  <p className="leading-relaxed whitespace-pre-wrap break-words">
+                                    {msg.content}
+                                  </p>
+                                  <p className={`text-[10px] mt-1 text-right ${isInbound ? "text-muted-foreground" : "text-white/70"}`}>
+                                    {formatTime(msg.created_at)}
+                                    {!isInbound && (
+                                      <span className="ml-1 font-medium">
+                                        · {msg.sender === "bot" ? "🤖" : "👨‍⚕️"}
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          <div ref={scrollRef} />
+                        </div>
+                      </div>
+
+                      {/* Reply input — solo visible en modo manual */}
+                      {!selectedConv.is_bot_active && (
+                        <div className="border-t px-4 py-3 flex gap-2 bg-background">
+                          <Input
+                            placeholder="Escribe tu respuesta..."
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                sendReply();
+                              }
+                            }}
+                            className="flex-1"
+                          />
+                          <Button
+                            onClick={sendReply}
+                            disabled={sendingReply || !replyText.trim()}
+                            size="icon"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
+                          >
+                            {sendingReply ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Send className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* ── CONVERSATIONS LIST ── */
+                    <div className="divide-y">
+                      {conversations.map((conv) => (
+                        <button
+                          key={conv.id}
+                          onClick={() => openConversation(conv)}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors text-left"
+                        >
+                          {/* Avatar */}
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <span className="text-primary font-semibold text-sm">
+                              {(conv.patient_name || conv.patient_phone).charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-sm truncate">
+                                {conv.patient_name || conv.patient_phone}
+                              </p>
+                              {!conv.is_bot_active && (
+                                <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30 text-[10px] px-1.5 py-0 shrink-0">
+                                  👨‍⚕️ Manual
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">
+                              {conv.last_message || "Sin mensajes"}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col items-end gap-1 shrink-0">
+                            <span className="text-[11px] text-muted-foreground">
+                              {formatDate(conv.last_message_at)}
+                            </span>
+                            {conv.unread_count > 0 && (
+                              <Badge className="bg-emerald-500 text-white border-0 h-5 min-w-5 rounded-full text-[10px] flex items-center justify-center px-1">
+                                {conv.unread_count}
+                              </Badge>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
