@@ -1,54 +1,68 @@
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 
-type Logo = {
+type LogoItem = {
+  type: "img";
   src: string;
   alt: string;
+} | {
+  type: "text";
+  label: string;
 };
 
 type LogoCloudProps = {
-  logos: Logo[];
-  label?: string;
+  title?: string;
+  subtitle?: string;
+  items: LogoItem[];
 };
 
-export function LogoCloud({ logos, label }: LogoCloudProps) {
+export function LogoCloud({
+  title = "Integrado con las mejores plataformas",
+  subtitle = "Trabajamos con las herramientas que el sector salud ya conoce y confía",
+  items,
+}: LogoCloudProps) {
   return (
-    <div className="bg-background border-y border-border/30 py-5">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="flex flex-col items-center gap-4 md:flex-row">
-          {label && (
-            <div className="shrink-0 md:border-r md:pr-6 md:max-w-44">
-              <p className="text-xs text-muted-foreground text-center md:text-right leading-snug">
-                {label}
-              </p>
-            </div>
+    <div className="bg-background border-y border-border/30 py-10 px-4">
+      {/* Header centrado */}
+      <div className="text-center mb-7 space-y-1">
+        <p className="text-xs text-muted-foreground tracking-wider uppercase">{subtitle}</p>
+        <p className="text-base font-black text-foreground tracking-tight">{title}</p>
+      </div>
+
+      {/* Slider */}
+      <div className="relative mx-auto max-w-5xl">
+        <InfiniteSlider gap={56} speed={45} speedOnHover={20}>
+          {items.map((item, i) =>
+            item.type === "img" ? (
+              <img
+                key={i}
+                src={item.src}
+                alt={item.alt}
+                height="auto"
+                width="auto"
+                loading="lazy"
+                className="h-7 md:h-8 w-auto object-contain opacity-55 hover:opacity-95 transition-opacity select-none pointer-events-none"
+              />
+            ) : (
+              <span
+                key={i}
+                className="text-sm font-bold text-muted-foreground/70 hover:text-foreground transition-colors whitespace-nowrap select-none"
+              >
+                {item.label}
+              </span>
+            )
           )}
-          <div className="relative w-full md:w-[calc(100%-11rem)]">
-            <InfiniteSlider gap={56} speed={50} speedOnHover={20}>
-              {logos.map((logo) => (
-                <img
-                  key={logo.alt}
-                  src={logo.src}
-                  alt={logo.alt}
-                  height="auto"
-                  width="auto"
-                  loading="lazy"
-                  className="h-7 md:h-8 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity select-none pointer-events-none rounded-md"
-                />
-              ))}
-            </InfiniteSlider>
-            <ProgressiveBlur
-              className="pointer-events-none absolute left-0 top-0 h-full w-20"
-              direction="left"
-              blurIntensity={0.8}
-            />
-            <ProgressiveBlur
-              className="pointer-events-none absolute right-0 top-0 h-full w-20"
-              direction="right"
-              blurIntensity={0.8}
-            />
-          </div>
-        </div>
+        </InfiniteSlider>
+        <ProgressiveBlur
+          className="pointer-events-none absolute left-0 top-0 h-full w-24"
+          direction="left"
+          blurIntensity={0.9}
+        />
+        <ProgressiveBlur
+          className="pointer-events-none absolute right-0 top-0 h-full w-24"
+          direction="right"
+          blurIntensity={0.9}
+        />
       </div>
     </div>
   );

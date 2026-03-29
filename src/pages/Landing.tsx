@@ -456,17 +456,19 @@ const Landing = () => {
 
       {/* Integrations Slider */}
       <LogoCloud
-        label={"Integrado con\nlas herramientas\nque ya usas"}
-        logos={[
-          { src: "https://logo.clearbit.com/whatsapp.com", alt: "WhatsApp Business" },
-          { src: "https://logo.clearbit.com/mercadopago.com.co", alt: "MercadoPago" },
-          { src: "https://logo.clearbit.com/dian.gov.co", alt: "DIAN" },
-          { src: "https://logo.clearbit.com/alanube.co", alt: "Alanube" },
-          { src: "https://logo.clearbit.com/alegra.com", alt: "Alegra" },
-          { src: "https://logo.clearbit.com/siigo.com", alt: "Siigo" },
-          { src: "https://logo.clearbit.com/gemini.google.com", alt: "Google Gemini" },
-          { src: "https://logo.clearbit.com/supabase.com", alt: "Supabase" },
-          { src: "https://logo.clearbit.com/google.com", alt: "Google" },
+        subtitle="Trabajamos con las herramientas que el sector salud ya conoce"
+        title="Integrado con las mejores plataformas"
+        items={[
+          { type: "img", src: "https://svgl.app/library/whatsapp.svg", alt: "WhatsApp Business" },
+          { type: "img", src: "https://svgl.app/library/mercadopago.svg", alt: "MercadoPago" },
+          { type: "img", src: "https://svgl.app/library/gemini.svg", alt: "Google Gemini" },
+          { type: "img", src: "https://svgl.app/library/supabase_wordmark_light.svg", alt: "Supabase" },
+          { type: "img", src: "https://svgl.app/library/google.svg", alt: "Google" },
+          { type: "img", src: "https://svgl.app/library/gmail.svg", alt: "Gmail" },
+          { type: "text", label: "DIAN Colombia" },
+          { type: "text", label: "Alanube" },
+          { type: "text", label: "Alegra" },
+          { type: "text", label: "Siigo" },
         ]}
       />
 
