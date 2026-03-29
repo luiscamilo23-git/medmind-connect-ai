@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Sparkles, Play, Gift, Percent, FileText, Bell, Twitter, Linkedin, Instagram, Mail, Menu, X } from "lucide-react";
+import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, TrendingDown, Clock, Shield, Zap, DollarSign, ArrowRight, Sparkles, Play, Gift, Percent, FileText, Bell, Twitter, Linkedin, Instagram, Mail, Menu, X, Phone, MapPin } from "lucide-react";
+import { TextHoverEffect, FooterBackgroundGradient } from "@/components/ui/hover-footer";
 import { Link, useNavigate } from "react-router-dom";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
 import ShaderBackground from "@/components/ui/shader-background";
@@ -1237,68 +1238,108 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-muted/30 py-12 px-4 border-t">
-        <div className="container mx-auto max-w-7xl text-center">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Activity className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold">MEDMIND</span>
-          </div>
-          <p className="text-muted-foreground mb-6">
-            La plataforma médica más avanzada de Latinoamérica
-          </p>
-          
-          {/* Social Icons con hover-social-icon effect */}
-          <div className="flex justify-center gap-4 mb-8">
-            <a 
-              href="https://twitter.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hover-social-icon w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center text-muted-foreground"
-            >
-              <Twitter className="w-5 h-5" />
-            </a>
-            <a 
-              href="https://linkedin.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hover-social-icon w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center text-muted-foreground"
-            >
-              <Linkedin className="w-5 h-5" />
-            </a>
-            <a 
-              href="https://instagram.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hover-social-icon w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center text-muted-foreground"
-            >
-              <Instagram className="w-5 h-5" />
-            </a>
-            <a 
-              href="mailto:contacto@medmind.co"
-              className="hover-social-icon w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center text-muted-foreground"
-            >
-              <Mail className="w-5 h-5" />
-            </a>
+      <footer className="relative overflow-hidden bg-[#0F0F11] border-t border-white/5 mt-0">
+        <div className="max-w-7xl mx-auto px-6 pt-16 pb-8 z-10 relative">
+          {/* Top grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-12">
+            {/* Brand */}
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center gap-2">
+                <Activity className="h-7 w-7 text-[#3ca2fa]" />
+                <span className="text-white text-2xl font-extrabold tracking-tight">MEDMIND</span>
+              </div>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                La plataforma médica con IA más completa de Colombia. Historia clínica, facturación DIAN y agente WhatsApp en un solo lugar.
+              </p>
+              <div className="flex gap-3 pt-1">
+                {[
+                  { href: "https://twitter.com", icon: <Twitter className="w-4 h-4" />, label: "Twitter" },
+                  { href: "https://linkedin.com", icon: <Linkedin className="w-4 h-4" />, label: "LinkedIn" },
+                  { href: "https://instagram.com", icon: <Instagram className="w-4 h-4" />, label: "Instagram" },
+                  { href: "mailto:contacto@medmind.co", icon: <Mail className="w-4 h-4" />, label: "Email" },
+                ].map(({ href, icon, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    target={href.startsWith("http") ? "_blank" : undefined}
+                    rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                    className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-[#3ca2fa] hover:border-[#3ca2fa]/40 transition-colors"
+                  >
+                    {icon}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Producto */}
+            <div>
+              <h4 className="text-white font-semibold mb-5">Producto</h4>
+              <ul className="space-y-3 text-sm text-gray-400">
+                {[
+                  { label: "VoiceNotes MD", href: "/#features" },
+                  { label: "Facturación DIAN", href: "/#features" },
+                  { label: "Agente IA WhatsApp", href: "/#features" },
+                  { label: "SupplyLens", href: "/#features" },
+                  { label: "Planes y precios", href: "/pricing" },
+                ].map(({ label, href }) => (
+                  <li key={label}>
+                    <Link to={href} className="hover:text-[#3ca2fa] transition-colors">{label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Empresa */}
+            <div>
+              <h4 className="text-white font-semibold mb-5">Empresa</h4>
+              <ul className="space-y-3 text-sm text-gray-400">
+                {[
+                  { label: "Política de Privacidad", href: "/privacy-policy" },
+                  { label: "Términos de Servicio", href: "/terms-of-service" },
+                  { label: "Política de Cookies", href: "/cookie-policy" },
+                  { label: "Aviso Legal", href: "/legal-notice" },
+                ].map(({ label, href }) => (
+                  <li key={label}>
+                    <Link to={href} className="hover:text-[#3ca2fa] transition-colors">{label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contacto */}
+            <div>
+              <h4 className="text-white font-semibold mb-5">Contacto</h4>
+              <ul className="space-y-4 text-sm text-gray-400">
+                <li className="flex items-center gap-3">
+                  <Mail className="w-4 h-4 text-[#3ca2fa] shrink-0" />
+                  <a href="mailto:soporte@medmind.co" className="hover:text-[#3ca2fa] transition-colors">soporte@medmind.co</a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-[#3ca2fa] shrink-0" />
+                  <a href="tel:+573001234567" className="hover:text-[#3ca2fa] transition-colors">+57 300 123 4567</a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <MapPin className="w-4 h-4 text-[#3ca2fa] shrink-0" />
+                  <span>Bogotá, Colombia</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6 mb-6 text-sm">
-            <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
-              Política de Privacidad
-            </Link>
-            <Link to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors">
-              Términos de Servicio
-            </Link>
-            <Link to="/cookie-policy" className="text-muted-foreground hover:text-primary transition-colors">
-              Política de Cookies
-            </Link>
-            <Link to="/legal-notice" className="text-muted-foreground hover:text-primary transition-colors">
-              Aviso Legal
-            </Link>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            © 2025 MEDMIND. Todos los derechos reservados.
+          <hr className="border-white/10 mb-6" />
+
+          <p className="text-center text-xs text-gray-500">
+            © {new Date().getFullYear()} MEDMIND. Todos los derechos reservados. Hecho con ❤️ en Colombia.
           </p>
         </div>
+
+        {/* TextHoverEffect MEDMIND */}
+        <div className="lg:flex hidden h-72 -mt-16 -mb-20 px-4">
+          <TextHoverEffect text="MEDMIND" className="z-10" />
+        </div>
+
+        <FooterBackgroundGradient />
       </footer>
     </div>
   );
