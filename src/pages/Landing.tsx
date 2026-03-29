@@ -459,8 +459,8 @@ const Landing = () => {
         subtitle="Trabajamos con las herramientas que el sector salud ya conoce"
         title="Integrado con las mejores plataformas"
         items={[
-          { type: "img", src: "https://svgl.app/library/whatsapp.svg", alt: "WhatsApp" },
-          { type: "img", src: "https://svgl.app/library/mercadopago.svg", alt: "MercadoPago" },
+          { type: "text", label: "WhatsApp", color: "#25D366" },
+          { type: "text", label: "MercadoPago", color: "#009EE3" },
           { type: "img", src: "https://svgl.app/library/gemini.svg", alt: "Google Gemini" },
           { type: "img", src: "https://svgl.app/library/google.svg", alt: "Google" },
           { type: "img", src: "https://svgl.app/library/gmail.svg", alt: "Gmail" },
