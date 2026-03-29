@@ -230,7 +230,7 @@ export function AppSidebar() {
                   className={`text-[10px] px-1.5 py-0 shrink-0 ${
                     planInfo.status === "trial"
                       ? "bg-amber-500/20 text-amber-600 border-amber-500/30"
-                      : "bg-emerald-500/20 text-emerald-600 border-emerald-500/30"
+                      : "bg-primary/20 text-primary border-primary/30"
                   }`}
                 >
                   {planInfo.status === "trial" ? "Trial" : "Activo"}

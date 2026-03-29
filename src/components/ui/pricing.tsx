@@ -113,7 +113,7 @@ export function PricingFrequencyToggle({
           {freq === 'yearly' && (
             <span className={cn(
               'text-[10px] font-bold',
-              frequency === 'yearly' ? 'text-white/80' : 'text-emerald-500',
+              frequency === 'yearly' ? 'text-white/80' : 'text-primary',
             )}>-17%</span>
           )}
         </button>
@@ -184,7 +184,7 @@ export function PricingCard({
             </p>
           )}
           {frequency === 'yearly' && savingPct > 0 && (
-            <p className="bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+            <p className="bg-primary/20 text-primary border border-primary/30 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
               -{savingPct}%
             </p>
           )}

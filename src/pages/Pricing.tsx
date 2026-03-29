@@ -96,7 +96,7 @@ export default function Pricing() {
       <div className="max-w-4xl mx-auto px-4 pb-10">
         <div className="rounded-xl border border-border/50 bg-muted/20 p-6 flex flex-col md:flex-row items-center gap-6 hover:border-amber-500/40 transition-colors">
           <div className="flex items-center gap-4 flex-1">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <div>

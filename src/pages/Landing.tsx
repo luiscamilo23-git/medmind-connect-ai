@@ -165,7 +165,7 @@ const Landing = () => {
       icon: Brain,
       title: "VoiceNotes MD",
       description: "Transcripción automática de consultas y generación de historias clínicas con IA",
-      color: "from-blue-500 to-cyan-500",
+      color: "bg-primary",
       howItWorks: "Graba la consulta con tu voz, la IA transcribe literalmente y genera una historia clínica estructurada. ¡NUEVO! Descarga el audio de cada consulta.",
       savings: "Ahorra 15-20 minutos por consulta en documentación",
       isNew: true
@@ -174,7 +174,7 @@ const Landing = () => {
       icon: Package,
       title: "SupplyLens",
       description: "Gestión inteligente de inventario con predicción de consumo y alertas",
-      color: "from-emerald-500 to-teal-500",
+      color: "bg-primary",
       howItWorks: "Registra tu inventario y la IA analiza tus citas diarias para sugerir automáticamente el consumo de materiales.",
       savings: "Reduce pérdidas por vencimiento y sobre-stock en un 30%"
     },
@@ -182,7 +182,7 @@ const Landing = () => {
       icon: Calendar,
       title: "SmartScheduler",
       description: "Agenda predictiva que optimiza tus citas y reduce cancelaciones",
-      color: "from-primary to-secondary",
+      color: "bg-primary",
       howItWorks: "Gestiona citas con recordatorios automáticos, visualiza tu agenda semanal con indicadores de citas en el calendario.",
       savings: "Reduce cancelaciones en 40% y optimiza tu agenda",
       isNew: true
@@ -191,7 +191,7 @@ const Landing = () => {
       icon: LineChart,
       title: "Facturación Electrónica DIAN",
       description: "Facturación electrónica y RIPS integrados para Colombia",
-      color: "from-orange-500 to-red-500",
+      color: "bg-primary",
       howItWorks: "Genera facturas electrónicas válidas ante la DIAN, exporta RIPS en JSON y recibe notificaciones en tiempo real.",
       savings: "Cumple normativa colombiana 100% automático",
       isNew: true
@@ -200,7 +200,7 @@ const Landing = () => {
       icon: Users,
       title: "Gestión de Pacientes",
       description: "Base de datos completa con historiales médicos digitalizados",
-      color: "from-indigo-500 to-blue-500",
+      color: "bg-primary",
       howItWorks: "Almacena información de pacientes, consultas, diagnósticos y tratamientos. Accede al historial completo en segundos.",
       savings: "Elimina 100% el uso de papel y archivos físicos"
     },
@@ -208,7 +208,7 @@ const Landing = () => {
       icon: Activity,
       title: "Notificaciones Inteligentes",
       description: "Alertas de citas, recordatorios y actualizaciones en tiempo real",
-      color: "from-yellow-500 to-amber-500",
+      color: "bg-primary",
       howItWorks: "Recibe notificaciones de citas del día, recordatorios de seguimiento y alertas de facturación directamente en la app.",
       savings: "Nunca pierdas una cita o seguimiento importante",
       isNew: true
@@ -292,7 +292,7 @@ const Landing = () => {
     <div className="min-h-screen overflow-hidden">
       <LandingNav />
       {/* Promo Banner */}
-      <div className="bg-gradient-banner text-white py-3 px-4 text-center relative overflow-hidden">
+      <div className="bg-primary text-white py-3 px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMCAwaDIwdjIwSDB6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
         <div className="container mx-auto flex items-center justify-center gap-3 flex-wrap relative z-10">
           <Gift className="w-5 h-5 animate-bounce" />
@@ -442,12 +442,12 @@ const Landing = () => {
             <div className="relative w-full md:w-[calc(100%-11rem)]">
               <InfiniteSlider speed={30} speedOnHover={10} gap={80}>
                 {[
-                  { name: "WhatsApp Business", color: "text-green-600" },
+                  { name: "WhatsApp Business", color: "text-primary" },
                   { name: "DIAN Colombia", color: "text-blue-700" },
                   { name: "Alegra", color: "text-orange-500" },
                   { name: "Siigo", color: "text-purple-600" },
                   { name: "MercadoPago", color: "text-sky-500" },
-                  { name: "Evolution API", color: "text-emerald-600" },
+                  { name: "Evolution API", color: "text-primary" },
                   { name: "Google Gemini", color: "text-indigo-500" },
                   { name: "Alanube", color: "text-red-500" },
                 ].map((item) => (
@@ -470,7 +470,7 @@ const Landing = () => {
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl lg:text-5xl font-black text-foreground">
-              Tres pasos. <span className="bg-gradient-feature bg-clip-text text-transparent">Sin complicaciones.</span>
+              Tres pasos. <span className="text-primary">Sin complicaciones.</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Empieza a ahorrar tiempo desde la primera consulta.
@@ -482,23 +482,23 @@ const Landing = () => {
                 step: "①",
                 title: "Graba la consulta con tu voz",
                 desc: "Habla normalmente mientras atiendes. MEDMIND escucha en segundo plano. Sin interrupciones, sin typing.",
-                color: "from-blue-500 to-cyan-500"
+                color: "bg-primary"
               },
               {
                 step: "②",
                 title: "La IA escribe la historia clínica",
                 desc: "Diagnóstico, tratamiento, medicamentos y código CIE-10 — estructurados y listos en segundos. Tú solo revisas.",
-                color: "from-primary to-secondary"
+                color: "bg-primary"
               },
               {
                 step: "③",
                 title: "Firma, factura y envía a la DIAN",
                 desc: "Un clic. La factura va a la DIAN, el RIPS se genera solo, y el paciente recibe su comprobante por WhatsApp.",
-                color: "from-emerald-500 to-teal-500"
+                color: "bg-primary"
               }
             ].map((item, i) => (
               <div key={i} className="relative flex flex-col items-center text-center gap-4 p-6 rounded-2xl border border-border/50 bg-card/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300">
-                <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white text-3xl font-black shadow-lg`}>
+                <div className={`w-16 h-16 rounded-full ${item.color} flex items-center justify-center text-white text-3xl font-black shadow-lg`}>
                   {item.step}
                 </div>
                 <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
@@ -565,7 +565,7 @@ const Landing = () => {
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className={`text-center mb-24 space-y-6 transition-all duration-1000 ${isVisible["features-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
             <h2 className="text-5xl lg:text-7xl font-black text-foreground">
-              Herramientas <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Poderosas</span>
+              Herramientas <span className="text-primary">Poderosas</span>
             </h2>
             <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
               Todo lo que necesitas para gestionar tu práctica médica<br/>
@@ -589,7 +589,7 @@ const Landing = () => {
                   
                   {(feature as any).isNew && (
                     <div className="absolute top-4 right-4 z-10">
-                      <span className="bg-gradient-feature text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-feature">
+                      <span className="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-feature">
                         ✨ NUEVO
                       </span>
                     </div>
@@ -691,7 +691,7 @@ const Landing = () => {
                 ].map(([label, price]) => (
                   <div key={label} className="flex justify-between border-b border-border/30 pb-2">
                     <span className="text-muted-foreground">{label}</span>
-                    <span className={`font-semibold ${price === "$0" ? "text-emerald-500" : "text-primary"}`}>{price}</span>
+                    <span className={`font-semibold ${price === "$0" ? "text-primary" : "text-primary"}`}>{price}</span>
                   </div>
                 ))}
                 <div className="flex justify-between pt-2 text-lg font-black text-primary">
@@ -703,7 +703,7 @@ const Landing = () => {
           </div>
 
           {/* Savings callout */}
-          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 rounded-2xl p-8 text-center space-y-4">
+          <div className="bg-primary/10 border border-primary/30 rounded-2xl p-8 text-center space-y-4">
             <p className="text-muted-foreground text-lg">Ahorras cada mes:</p>
             <p className="text-6xl font-black text-primary">$1.561.000</p>
             <p className="text-muted-foreground">Eso es <strong className="text-foreground">$18.732.000 al año</strong> que puedes reinvertir en tu práctica</p>
@@ -747,7 +747,7 @@ const Landing = () => {
       </section>
 
       {/* CTA Final Section */}
-      <section className="py-32 px-4 bg-gradient-hero relative overflow-hidden">
+      <section className="py-32 px-4 bg-primary relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-10 left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-float" />
           <div className="absolute bottom-10 right-20 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
