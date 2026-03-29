@@ -12,7 +12,7 @@ import { motion, useScroll } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TestimonialsColumn, firstColumn, secondColumn, thirdColumn } from "@/components/ui/testimonials-columns";
 
-const LAUNCH_END = new Date("2026-04-07T23:59:59-05:00");
+const LAUNCH_END = new Date("2026-04-15T23:59:59-05:00");
 
 const navItems = [
   { name: "Funciones", href: "#features" },
@@ -121,17 +121,19 @@ const Landing = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
   const observerRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState({ h: "00", m: "00", s: "00", cupos: 37 });
+  const [countdown, setCountdown] = useState({ d: "00", h: "00", m: "00", s: "00", cupos: 37 });
 
   useEffect(() => {
     const tick = () => {
       const diff = LAUNCH_END.getTime() - Date.now();
       if (diff <= 0) return;
-      const h = Math.floor(diff / 3600000);
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
       setCountdown((c) => ({
         ...c,
+        d: String(d).padStart(2, "0"),
         h: String(h).padStart(2, "0"),
         m: String(m).padStart(2, "0"),
         s: String(s).padStart(2, "0"),
@@ -293,19 +295,39 @@ const Landing = () => {
     <div className="min-h-screen overflow-hidden">
       <LandingNav />
       {/* Promo Banner */}
-      <div className="bg-primary text-white py-3 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMCAwaDIwdjIwSDB6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
-        <div className="container mx-auto flex items-center justify-center gap-3 flex-wrap relative z-10">
-          <Gift className="w-5 h-5 animate-bounce" />
-          <span className="font-bold">🔥 LANZAMIENTO</span>
-          <span className="hidden sm:inline">—</span>
-          <span className="text-sm sm:text-base">Solo para los primeros <span className="font-black">100 médicos</span>: Plan Profesional al precio de Starter.</span>
-          <span className="hidden sm:inline text-white/50">|</span>
-          <span className="text-sm font-mono bg-white/20 px-2 py-0.5 rounded">
-            Quedan {countdown.cupos} cupos · {countdown.h}:{countdown.m}:{countdown.s}
-          </span>
-          <Link to="/auth" className="bg-white text-primary px-4 py-1 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-feature">
-            Activar precio →
+      <div className="bg-primary text-white py-2.5 px-4 relative overflow-hidden">
+        <div className="container mx-auto flex items-center justify-center gap-4 flex-wrap">
+          {/* Oferta */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-base">🎁</span>
+            <span className="font-black tracking-wide">LANZAMIENTO</span>
+            <span className="text-white/60 hidden sm:inline">·</span>
+            <span className="hidden sm:inline">30 días gratis + <span className="font-black">40% OFF</span> los primeros 3 meses</span>
+          </div>
+
+          <span className="text-white/30 hidden md:inline">|</span>
+
+          {/* Cupos + Countdown */}
+          <div className="flex items-center gap-2">
+            <span className="bg-white/20 text-white text-xs font-black px-2.5 py-1 rounded-full tracking-wide">
+              🔥 {countdown.cupos} cupos
+            </span>
+            <div className="flex items-center gap-1 font-mono text-sm font-bold">
+              <span className="bg-white/15 px-1.5 py-0.5 rounded">{countdown.d}d</span>
+              <span className="text-white/50">:</span>
+              <span className="bg-white/15 px-1.5 py-0.5 rounded">{countdown.h}h</span>
+              <span className="text-white/50">:</span>
+              <span className="bg-white/15 px-1.5 py-0.5 rounded">{countdown.m}m</span>
+              <span className="text-white/50">:</span>
+              <span className="bg-white/15 px-1.5 py-0.5 rounded">{countdown.s}s</span>
+            </div>
+          </div>
+
+          <span className="text-white/30 hidden md:inline">|</span>
+
+          {/* CTA */}
+          <Link to="/auth" className="bg-white text-primary px-4 py-1.5 rounded-full font-black text-sm hover:bg-white/90 transition-colors shadow-md whitespace-nowrap">
+            Activar ahora →
           </Link>
         </div>
       </div>
