@@ -377,22 +377,53 @@ const Landing = () => {
               </Link>
             </div>
 
-            {/* Stats Row - Responsive */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-4 lg:gap-8 max-w-6xl mx-auto pt-12 md:pt-20 animate-fade-in opacity-0" style={{ animationDelay: "1s" }}>
-              {stats.map((stat, index) => (
-                <div 
-                  key={index} 
-                  className="group relative p-4 sm:p-6 md:p-8 rounded-xl md:rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 hover:bg-card/50 transition-colors duration-200"
-                >
-                  <div className="relative space-y-2 sm:space-y-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 mx-auto mb-2 sm:mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                      <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+
+            {/* Stats Bar */}
+            <div className="animate-fade-in opacity-0 pt-12 md:pt-20 w-full max-w-4xl mx-auto" style={{ animationDelay: "1s" }}>
+              <div className="flex flex-wrap items-center justify-center gap-0 bg-card/30 backdrop-blur-sm border border-border/40 rounded-2xl overflow-hidden divide-x divide-border/40">
+                {/* Stat 1 */}
+                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[140px]">
+                  <span className="text-3xl font-black text-foreground">2h+</span>
+                  <span className="text-xs text-muted-foreground leading-tight">Ahorradas<br/>por día</span>
+                </div>
+                {/* Stat 2 — médicos con avatares */}
+                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[180px]">
+                  <div className="flex -space-x-2 shrink-0">
+                    {["JR","MC","AP","LV"].map((initials, i) => (
+                      <div key={i} className="w-8 h-8 rounded-full bg-primary/20 border-2 border-background flex items-center justify-center text-[10px] font-bold text-primary">
+                        {i < 3 ? initials : <span className="text-[9px]">+</span>}
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-xs text-muted-foreground leading-tight">340+ médicos<br/>ya usan MEDMIND</span>
+                </div>
+                {/* Stat 3 */}
+                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[140px]">
+                  <span className="text-3xl font-black text-foreground">99%</span>
+                  <span className="text-xs text-muted-foreground leading-tight">Precisión<br/>clínica</span>
+                </div>
+                {/* Stat 4 — estrellas */}
+                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[150px]">
+                  <div className="flex flex-col">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className={`text-base ${i < 4 ? "text-yellow-400" : "text-yellow-400/50"}`}>★</span>
+                      ))}
                     </div>
-                    <div className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight">{stat.value}</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">{stat.label}</div>
+                    <span className="text-xs text-muted-foreground mt-0.5">4.9/5 en reseñas</span>
                   </div>
                 </div>
-              ))}
+                {/* Stat 5 */}
+                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[130px]">
+                  <span className="text-3xl font-black text-foreground">30s</span>
+                  <span className="text-xs text-muted-foreground leading-tight">Por historia<br/>clínica</span>
+                </div>
+                {/* Stat 6 */}
+                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[120px]">
+                  <span className="text-3xl font-black text-primary">$0</span>
+                  <span className="text-xs text-muted-foreground leading-tight">Para<br/>empezar</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
