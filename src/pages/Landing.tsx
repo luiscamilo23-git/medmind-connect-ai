@@ -48,8 +48,9 @@ function LandingNav() {
               scrolled && "lg:py-3"
             )}
           >
-            <Link to="/" className="flex items-center gap-2 font-black text-lg text-foreground">
-              <span className="text-primary">MED</span>MIND
+            <Link to="/" className="flex items-center gap-2">
+              <Activity className="h-6 w-6 text-primary" />
+              <span className="text-xl font-extrabold tracking-tight text-foreground">MEDMIND</span>
             </Link>
 
             {/* Mobile toggle */}
