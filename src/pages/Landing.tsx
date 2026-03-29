@@ -263,16 +263,21 @@ const Landing = () => {
   ];
 
   const whyUs = [
-    "✓ Diseñado específicamente para médicos y odontólogos colombianos",
-    "✓ IA entrenada en terminología médica en español colombiano",
-    "✓ Cumple 100% con normativa colombiana (DIAN, RIPS, Ley 1581)",
-    "✓ Facturación electrónica válida ante la DIAN — integrado con Alegra, Siigo y Alanube",
-    "✓ Historia clínica conforme a Resolución 1995/1999 del MinSalud",
-    "✓ Implementación en menos de 24 horas sin capacitación técnica",
-    "✓ Soporte 24/7 en español por profesionales de salud",
-    "✓ Precios transparentes en COP · sin contratos · cancela cuando quieras",
-    "✓ VoiceNotes MD: el único sistema con historia clínica por voz en español",
-    "✓ Garantía de devolución 30 días si no ahorras mínimo 1 hora diaria"
+    {
+      icon: Brain,
+      title: "IA entrenada para medicina colombiana",
+      desc: "No es un chatbot genérico. Entiende terminología médica en español, genera historias clínicas SOAP, prescripciones y RIPS en segundos.",
+    },
+    {
+      icon: Shield,
+      title: "100% cumplimiento DIAN y MinSalud",
+      desc: "Facturación electrónica válida ante la DIAN, RIPS automáticos y historia clínica conforme a Resolución 1995/1999. Sin multas, sin estrés.",
+    },
+    {
+      icon: Zap,
+      title: "Listo en 24 horas, garantía 30 días",
+      desc: "Sin capacitación técnica, sin contratos, sin letra pequeña. Si en 30 días no ahorras mínimo 1 hora diaria, te devolvemos cada peso.",
+    },
   ];
 
   const stats = [
@@ -483,92 +488,37 @@ const Landing = () => {
 
       {/* Why MEDMIND Section */}
       <section
-        className="py-32 px-4 bg-background relative overflow-hidden"
+        className="py-24 px-4 bg-background relative overflow-hidden"
         id="why-section"
         ref={(el) => (observerRefs.current["why-section"] = el)}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(var(--primary-glow),0.03),transparent_70%)]" />
-        <div className="container mx-auto max-w-6xl relative z-10">
-          <div className={`text-center mb-20 space-y-6 transition-all duration-1000 ${isVisible["why-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            <h2 className="text-5xl lg:text-7xl font-black mb-6 text-foreground">
-              ¿Por Qué <span className="bg-gradient-feature bg-clip-text text-transparent">MEDMIND</span>?
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(var(--primary-glow),0.04),transparent_70%)]" />
+        <div className="container mx-auto max-w-5xl relative z-10">
+          <div className={`text-center mb-16 space-y-4 transition-all duration-1000 ${isVisible["why-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+            <p className="text-sm font-semibold text-primary uppercase tracking-widest">Por qué elegirnos</p>
+            <h2 className="text-4xl lg:text-5xl font-black text-foreground">
+              Construido para el médico colombiano
             </h2>
-            <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
-              No somos solo otro software médico.<br/>
-              Somos la <span className="text-foreground font-semibold">solución completa</span> diseñada por médicos, para médicos.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              No adaptamos software extranjero. Construimos MEDMIND desde cero para la realidad del sistema de salud colombiano.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-4 max-w-5xl mx-auto">
-            {whyUs.map((reason, index) => (
-              <div 
-                key={index} 
-                className={`group flex items-start gap-4 bg-card/50 backdrop-blur-sm p-8 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-card/70 hover:shadow-[0_0_30px_rgba(var(--primary-glow),0.1)] transition-all duration-500 ${
-                  isVisible["why-section"] ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
+          <div className="grid md:grid-cols-3 gap-6">
+            {whyUs.map((item, index) => (
+              <div
+                key={index}
+                className={`group flex flex-col gap-4 bg-card/60 backdrop-blur-sm p-7 rounded-2xl border border-border/50 hover:border-primary/40 hover:shadow-[0_0_40px_rgba(var(--primary-glow),0.1)] transition-all duration-500 ${
+                  isVisible["why-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                 }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
+                style={{ transitionDelay: `${index * 120}ms` }}
               >
-                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-1 group-hover:scale-110 transition-transform" />
-                <p className="text-base text-foreground/90 font-medium">{reason}</p>
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <item.icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Video Demo Section */}
-      <section 
-        className="py-32 px-4 bg-muted/20"
-        id="video-section"
-        ref={(el) => (observerRefs.current["video-section"] = el)}
-      >
-        <div className="container mx-auto max-w-6xl">
-          <div className={`text-center mb-16 space-y-6 transition-all duration-1000 ${isVisible["video-section"] ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}>
-            <h2 className="text-5xl lg:text-7xl font-black text-foreground">
-              Mira <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">MEDMIND</span> en Acción
-            </h2>
-            <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
-              Descubre cómo transformamos tu práctica médica en <span className="text-foreground font-semibold">solo 2 minutos</span>
-            </p>
-          </div>
-
-          <div className={`max-w-5xl mx-auto transition-all duration-1000 ${isVisible["video-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`} style={{ transitionDelay: "200ms" }}>
-            <div className="relative rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(var(--primary-glow),0.2)] border border-primary/20 hover:border-primary/40 hover:shadow-[0_0_120px_rgba(var(--primary-glow),0.3)] transition-all duration-500 group">
-              <div className="aspect-video bg-gradient-to-br from-card to-background flex items-center justify-center cursor-pointer relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 group-hover:opacity-80 transition-opacity" />
-                <div className="text-center space-y-6 p-12 relative z-10">
-                  <div className="relative w-24 h-24 mx-auto">
-                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:blur-2xl transition-all" />
-                    <div className="relative w-24 h-24 bg-primary rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(var(--primary-glow),0.6)] group-hover:shadow-[0_0_50px_rgba(var(--primary-glow),0.9)] group-hover:scale-110 transition-all duration-500">
-                      <Play className="w-12 h-12 text-primary-foreground ml-1" />
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <h3 className="text-3xl font-bold text-foreground">Demo Interactiva de MEDMIND</h3>
-                    <p className="text-lg text-muted-foreground">Ver cómo funciona en tiempo real</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-6 mt-12">
-              {[
-                { icon: Brain, title: "VoiceNotes MD", description: "Transcripción automática", color: "from-blue-500 to-cyan-500" },
-                { icon: Package, title: "SupplyLens", description: "Gestión de inventario", color: "from-emerald-500 to-teal-500" },
-                { icon: Calendar, title: "SmartScheduler", description: "Agenda optimizada", color: "from-primary to-secondary" }
-              ].map((feature, index) => (
-                <Card 
-                  key={index} 
-                  className="text-center p-6 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-                  style={{ transitionDelay: `${(index + 3) * 100}ms` }}
-                >
-                  <div className={`w-12 h-12 mx-auto mb-4 bg-gradient-to-br ${feature.color} rounded-full flex items-center justify-center`}>
-                    <feature.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h4 className="font-semibold mb-2">{feature.title}</h4>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </Card>
-              ))}
-            </div>
           </div>
         </div>
       </section>
@@ -644,100 +594,90 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section 
-        className="py-32 px-4 bg-muted/20 relative overflow-hidden"
-        id="benefits-section"
-        ref={(el) => (observerRefs.current["benefits-section"] = el)}
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(var(--primary-glow),0.08),transparent_50%)]" />
-        <HeartbeatLine color="secondary" variant="background" intensity="low" speed="normal" />
-        
-        <div className="container mx-auto max-w-7xl relative z-10">
-          <div className={`text-center mb-20 transition-all duration-1000 ${isVisible["benefits-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            <h2 className="text-5xl lg:text-7xl font-black mb-6 text-foreground">
-              Ventajas <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">Competitivas</span>
+      {/* ROI Section */}
+      <section className="py-24 px-4 bg-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(var(--primary-glow),0.04),transparent_60%)]" />
+        <div className="container mx-auto max-w-5xl relative z-10 space-y-16">
+          {/* Loss cost cards */}
+          <div className="text-center space-y-4">
+            <p className="text-sm font-semibold text-destructive uppercase tracking-widest">El costo de no actuar</p>
+            <h2 className="text-4xl lg:text-5xl font-black text-foreground">
+              Cada mes sin MEDMIND te cuesta
             </h2>
-            <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto font-light">
-              Invierte en MEDMIND y recupera tu inversión<br/>
-              en <span className="text-foreground font-semibold">el primer mes</span>
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {benefits.map((benefit, index) => (
-              <div
-                key={index}
-                className={`transition-all duration-700 ${
-                  isVisible["benefits-section"] 
-                    ? "opacity-100 translate-x-0" 
-                    : `opacity-0 ${index % 2 === 0 ? "-translate-x-10" : "translate-x-10"}`
-                }`}
-                style={{ transitionDelay: `${index * 150}ms` }}
-              >
-                <Card className="h-full border border-border/50 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(var(--primary-glow),0.15)] transition-all duration-500 group bg-card/50 backdrop-blur-sm hover-float-glow">
-                  <CardHeader>
-                    <div className="flex items-start gap-4">
-                      <div className="hover-icon-circle w-12 h-12 flex-shrink-0">
-                        <benefit.icon className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <CardTitle className="text-2xl mb-2 font-bold group-hover:text-primary transition-colors">{benefit.title}</CardTitle>
-                        <CardDescription className="text-sm font-semibold text-primary/80">
-                          {benefit.description}
-                        </CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {benefit.items.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-3 group/item hover:translate-x-1 transition-transform">
-                          <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform" />
-                          <span className="text-sm text-muted-foreground group-hover/item:text-foreground transition-colors">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Loss Aversion Section */}
-      <section className="py-16 px-4 bg-destructive/5 border-y border-destructive/10">
-        <div className="container mx-auto max-w-4xl text-center space-y-8">
-          <div className="space-y-3">
-            <h2 className="text-3xl lg:text-4xl font-black text-foreground">
-              ¿Cuánto te cuesta <span className="text-destructive">NO tener</span> MEDMIND?
-            </h2>
-            <p className="text-muted-foreground">Por cada mes que sigues sin digitalizar tu consultorio, estás perdiendo:</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { value: "$800,000", label: "Asistente administrativo (medio tiempo)", icon: "👤" },
-              { value: "$400,000", label: "Pérdidas por citas sin confirmar (no-shows)", icon: "📅" },
-              { value: "$1,000,000", label: "Riesgo de multa DIAN por RIPS con errores", icon: "⚠️" },
-              { value: "44 horas", label: "Tu tiempo en papeleo (2h × 22 días hábiles)", icon: "⏱️" }
+              { value: "$800.000", label: "Asistente administrativo (medio tiempo)", icon: "👤" },
+              { value: "$400.000", label: "Pérdidas por citas sin confirmar", icon: "📅" },
+              { value: "$1.000.000", label: "Riesgo multa DIAN por RIPS con errores", icon: "⚠️" },
+              { value: "44 horas", label: "Tu tiempo en papeleo al mes", icon: "⏱️" },
             ].map((item, i) => (
-              <div key={i} className="bg-card border border-destructive/20 rounded-xl p-5 text-center space-y-2">
-                <div className="text-2xl">{item.icon}</div>
-                <div className="text-2xl font-black text-destructive">{item.value}</div>
+              <div key={i} className="bg-card border border-destructive/20 rounded-2xl p-6 text-center space-y-3 hover:border-destructive/40 transition-colors">
+                <div className="text-3xl">{item.icon}</div>
+                <div className="text-3xl font-black text-destructive">{item.value}</div>
                 <p className="text-xs text-muted-foreground leading-snug">{item.label}</p>
               </div>
             ))}
           </div>
-          <div className="bg-card border-2 border-primary/30 rounded-2xl p-6 space-y-3">
-            <p className="text-xl text-muted-foreground">Total que podrías ahorrarte:</p>
-            <p className="text-5xl font-black text-destructive">~$4,200,000<span className="text-2xl text-muted-foreground font-normal">/mes</span></p>
-            <p className="text-muted-foreground">
-              MEDMIND Profesional cuesta <strong className="text-primary text-xl">$189,000/mes</strong> — menos del 5% de lo que pierdes.
-            </p>
+
+          {/* Comparison table */}
+          <div className="grid md:grid-cols-2 gap-6 bg-card border border-border/50 rounded-2xl overflow-hidden">
+            <div className="p-8 space-y-4 border-b md:border-b-0 md:border-r border-border/50">
+              <h3 className="text-xl font-bold text-destructive flex items-center gap-2">
+                <span className="text-2xl">✗</span> Sin MEDMIND
+              </h3>
+              <div className="space-y-3 text-sm">
+                {[
+                  ["Asistente administrativo", "$800.000/mes"],
+                  ["Papelería y archivos físicos", "$150.000/mes"],
+                  ["Software básico de gestión", "$200.000/mes"],
+                  ["Pérdidas por no-shows", "$400.000/mes"],
+                  ["Sobre-stock e inventario manual", "$200.000/mes"],
+                ].map(([label, price]) => (
+                  <div key={label} className="flex justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground">{label}</span>
+                    <span className="font-semibold text-destructive">{price}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between pt-2 text-lg font-black text-destructive">
+                  <span>Total mensual</span>
+                  <span>$1.750.000</span>
+                </div>
+              </div>
+            </div>
+            <div className="p-8 space-y-4 bg-primary/5">
+              <h3 className="text-xl font-bold text-primary flex items-center gap-2">
+                <span className="text-2xl">✓</span> Con MEDMIND
+              </h3>
+              <div className="space-y-3 text-sm">
+                {[
+                  ["MEDMIND Profesional (todo incluido)", "$189.000/mes"],
+                  ["Sin personal adicional", "$0"],
+                  ["100% digital, sin papelería", "$0"],
+                  ["Recordatorios WhatsApp automáticos", "$0"],
+                  ["Control inteligente de stock", "$0"],
+                ].map(([label, price]) => (
+                  <div key={label} className="flex justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground">{label}</span>
+                    <span className={`font-semibold ${price === "$0" ? "text-emerald-500" : "text-primary"}`}>{price}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between pt-2 text-lg font-black text-primary">
+                  <span>Total mensual</span>
+                  <span>$189.000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Savings callout */}
+          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 rounded-2xl p-8 text-center space-y-4">
+            <p className="text-muted-foreground text-lg">Ahorras cada mes:</p>
+            <p className="text-6xl font-black text-primary">$1.561.000</p>
+            <p className="text-muted-foreground">Eso es <strong className="text-foreground">$18.732.000 al año</strong> que puedes reinvertir en tu práctica</p>
             <Link to="/auth">
               <Button size="lg" className="mt-2 px-10">
-                Dejar de perder dinero hoy
+                Empezar gratis 30 días
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -745,463 +685,8 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Cost Savings Calculator Section */}
-      <section
-        className="py-20 px-4 bg-muted/30"
-        id="calculator-section"
-        ref={(el) => (observerRefs.current["calculator-section"] = el)}
-      >
-        <div className="container mx-auto max-w-5xl">
-          <Card className={`border-2 border-primary/20 shadow-xl transition-all duration-1000 ${isVisible["calculator-section"] ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}>
-            <CardHeader className="text-center">
-              <CardTitle className="text-4xl mb-4">Calcula tu Ahorro Mensual</CardTitle>
-              <CardDescription className="text-lg">
-                Ejemplo típico de consultorio con 100 pacientes al mes
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-destructive">Sin MEDMIND</h3>
-                  <div className="space-y-3 text-muted-foreground">
-                    <div className="flex justify-between border-b pb-2">
-                      <span>Asistente administrativo (medio tiempo)</span>
-                      <span className="font-semibold">$800,000/mes</span>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <span>Papelería y archivos físicos</span>
-                      <span className="font-semibold">$150,000/mes</span>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <span>Software básico de gestión</span>
-                      <span className="font-semibold">$200,000/mes</span>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <span>Pérdidas por no-shows sin recordatorio</span>
-                      <span className="font-semibold">$400,000/mes</span>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <span>Sobre-stock y vencimientos inventario</span>
-                      <span className="font-semibold">$200,000/mes</span>
-                    </div>
-                    <div className="flex justify-between pt-4 text-xl font-bold text-destructive">
-                      <span>Total Mensual:</span>
-                      <span>$1,750,000</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-primary">Con MEDMIND</h3>
-                  <div className="space-y-3 text-muted-foreground">
-                    <div className="flex justify-between border-b pb-2">
-                      <span>Suscripción MEDMIND Profesional</span>
-                      <span className="font-semibold">$189,000/mes</span>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <span>Sin personal adicional</span>
-                      <span className="font-semibold text-success">$0</span>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <span>100% digital sin papelería</span>
-                      <span className="font-semibold text-success">$0</span>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <span>Recordatorios automáticos WhatsApp</span>
-                      <span className="font-semibold text-success">$0</span>
-                    </div>
-                    <div className="flex justify-between border-b pb-2">
-                      <span>Control inteligente de stock</span>
-                      <span className="font-semibold text-success">$0</span>
-                    </div>
-                    <div className="flex justify-between pt-4 text-xl font-bold text-primary">
-                      <span>Total Mensual:</span>
-                      <span>$189,000</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-8 p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl border-2 border-primary/30 text-center">
-                <div className="flex items-center justify-center gap-3 mb-3">
-                  <TrendingDown className="w-8 h-8 text-primary" />
-                  <h4 className="text-3xl font-bold text-primary">Ahorras $1,561,000 / mes</h4>
-                </div>
-                <p className="text-lg text-muted-foreground">
-                  Eso es <strong className="text-foreground">$18,732,000 al año</strong> que puedes reinvertir en tu práctica
-                </p>
-              </div>
-
-              {/* Special Offer */}
-              <div className="mt-6 p-6 bg-gradient-banner rounded-xl text-white text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent" />
-                <div className="relative z-10">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Percent className="w-6 h-6" />
-                    <span className="font-black text-2xl">PRECIO DE LANZAMIENTO</span>
-                  </div>
-                  <p className="text-lg mb-3">
-                    <span className="line-through opacity-70">$189,000/mes</span> → <span className="font-black text-3xl">$89,000/mes</span> los primeros 3 meses
-                  </p>
-                  <p className="text-sm opacity-80 mb-3">Solo para los primeros 100 médicos · Quedan {countdown.cupos} cupos</p>
-                  <Link to="/auth">
-                    <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold shadow-md">
-                      ¡Activar precio ahora!
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* What's New Section */}
-      <section 
-        className="py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-secondary/5"
-        id="whats-new-section"
-        ref={(el) => (observerRefs.current["whats-new-section"] = el)}
-      >
-        <div className="container mx-auto max-w-6xl">
-          <div className={`text-center mb-16 transition-all duration-1000 ${isVisible["whats-new-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Actualizaciones Recientes</span>
-            </div>
-            <h2 className="text-5xl lg:text-6xl font-black text-foreground mb-4">
-              ¿Qué Hay de <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Nuevo</span>?
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Mejoras continuas para hacer tu práctica más eficiente
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Brain,
-                title: "Asistente IA para Pacientes",
-                description: "Bot inteligente que responde a tus pacientes, confirma citas y envía recordatorios automáticos por llamada o mensaje.",
-                date: "Próximamente - Q2 2026",
-                isUpcoming: true
-              },
-              {
-                icon: Activity,
-                title: "Telemedicina Integrada",
-                description: "Videoconsultas directas desde la plataforma con sala de espera virtual y grabación opcional.",
-                date: "Próximamente - Q2 2026",
-                isUpcoming: true
-              },
-              {
-                icon: Sparkles,
-                title: "IA para Tratamientos",
-                description: "Asistencia inteligente que sugiere tratamientos basados en diagnósticos y evidencia médica actualizada.",
-                date: "Próximamente - Q2 2026",
-                isUpcoming: true
-              },
-              {
-                icon: Bell,
-                title: "Notificaciones de Citas",
-                description: "Recibe alertas de citas del día y mañana directamente en la campana de notificaciones. Nunca pierdas una cita.",
-                date: "Diciembre 2025"
-              },
-              {
-                icon: Calendar,
-                title: "Calendario con Indicadores",
-                description: "El mini-calendario ahora muestra puntos en las fechas con citas programadas para una vista rápida.",
-                date: "Diciembre 2025"
-              },
-              {
-                icon: FileText,
-                title: "Descarga de Audio",
-                description: "Descarga las grabaciones de consultas en formato WebM para archivar o revisar más tarde.",
-                date: "Diciembre 2025"
-              },
-              {
-                icon: LineChart,
-                title: "Facturación DIAN",
-                description: "Genera facturas electrónicas válidas ante la DIAN con notificaciones en tiempo real de aprobación.",
-                date: "Noviembre 2025"
-              },
-              {
-                icon: Brain,
-                title: "IA Mejorada",
-                description: "El asistente de IA ahora autocompleta campos y sugiere preguntas en una sola operación.",
-                date: "Noviembre 2025"
-              },
-              {
-                icon: Users,
-                title: "Programa de Referidos",
-                description: "Refiere colegas y obtén hasta 100% de descuento en tu suscripción.",
-                date: "Octubre 2025"
-              }
-            ].map((update, index) => (
-              <Card 
-                key={index}
-                className={`group hover:shadow-xl transition-all duration-500 hover-float-glow border ${
-                  update.isUpcoming 
-                    ? "border-primary/40 bg-gradient-to-br from-primary/5 to-secondary/5" 
-                    : "border-border/50 hover:border-primary/30"
-                } ${
-                  isVisible["whats-new-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-                }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`hover-icon-circle w-12 h-12 ${
-                      update.isUpcoming 
-                        ? "!bg-primary/10" 
-                        : ""
-                    }`}>
-                      <update.icon className="w-5 h-5 text-primary" />
-                    </div>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      update.isUpcoming 
-                        ? "text-primary bg-primary/10 font-semibold" 
-                        : "text-muted-foreground bg-muted"
-                    }`}>
-                      {update.date}
-                    </span>
-                  </div>
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                    {update.isUpcoming && <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded mr-2">PRÓXIMO</span>}
-                    {update.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{update.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials Section */}
       <TestimonialsGrid />
-
-      {/* Smart Notes Section */}
-      <section
-        id="smart-notes-section"
-        ref={(el) => (observerRefs.current["smart-notes-section"] = el)}
-        className={`py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-secondary/5 transition-all duration-700 ${
-          isVisible["smart-notes-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-                <Brain className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">Notas Inteligentes</span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold">
-                Transforma tus notas en
-                <br />
-                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  acciones concretas
-                </span>
-              </h2>
-              <p className="text-lg text-foreground/80">
-                La IA analiza tus notas clínicas (escritas o por voz) y extrae automáticamente <span className="text-primary font-semibold">tareas pendientes</span>, 
-                <span className="text-primary font-semibold"> ideas principales</span> y <span className="text-primary font-semibold">recordatorios importantes</span>.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">Extracción automática de tareas</h3>
-                    <p className="text-sm text-foreground/70">Identifica acciones pendientes como estudios, seguimientos o referencias</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">Ideas principales destacadas</h3>
-                    <p className="text-sm text-foreground/70">Resume los puntos clave de cada consulta automáticamente</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">Recordatorios inteligentes</h3>
-                    <p className="text-sm text-foreground/70">Alertas sobre alergias, medicaciones y fechas de seguimiento</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <Button size="lg" onClick={() => navigate("/smart-notes")} className="bg-primary hover:bg-primary/90">
-                  Probar ahora
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                <Button size="lg" variant="outline" onClick={() => navigate("/smart-notes")}>
-                  Ver funcionalidad completa
-                </Button>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl blur-3xl opacity-20"></div>
-              <Card className="relative border-2 border-primary/20 shadow-2xl">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  </div>
-                  <CardTitle className="text-lg">Análisis de Nota Clínica</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="p-4 rounded-lg bg-muted/50 border border-border">
-                    <p className="text-sm font-medium text-foreground mb-3">Nota original:</p>
-                    <p className="text-xs leading-relaxed text-foreground/80">
-                      "Paciente con dolor torácico. Solicitar ECG urgente y troponinas. 
-                      Revisar historial de hipertensión. Programar seguimiento en 48h..."
-                    </p>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
-                      <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">✓ Tareas</p>
-                      <p className="text-xs text-foreground">• Solicitar ECG urgente<br/>• Solicitar troponinas</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                      <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">💡 Ideas</p>
-                      <p className="text-xs text-foreground">• Dolor torácico agudo<br/>• Descartar isquemia</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
-                      <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 mb-1">🔔 Recordatorios</p>
-                      <p className="text-xs text-foreground">• Seguimiento en 48 horas</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Referral Program Section */}
-      <section
-        id="referral-section"
-        ref={(el) => (observerRefs.current["referral-section"] = el)}
-        className={`py-20 px-4 bg-gradient-to-br from-primary/5 via-secondary/5 to-transparent transition-all duration-700 ${
-          isVisible["referral-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-                <Users className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">Programa de Referidos</span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold">
-                Comparte MEDMIND,
-                <br />
-                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  Ahorra hasta 100%
-                </span>
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Por cada médico que refieras, <span className="text-primary font-semibold">ambos reciben 25% de descuento permanente</span>. 
-                Con 4 referidos activos, <span className="text-secondary font-semibold">tu suscripción es completamente GRATIS</span>.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Descuento permanente del 25%</h3>
-                    <p className="text-sm text-muted-foreground">Para ti y cada médico que se registre con tu enlace</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Descuentos acumulativos</h3>
-                    <p className="text-sm text-muted-foreground">4 referidos activos = Suscripción 100% GRATIS</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Beneficios exclusivos</h3>
-                    <p className="text-sm text-muted-foreground">Acceso anticipado a nuevas funciones y soporte prioritario</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/referrals">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    Ver programa completo
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
-                <Link to="/auth">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    Crear cuenta gratis
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            <Card className="bg-gradient-to-br from-card to-card/50 border-primary/30 shadow-xl shadow-primary/10">
-              <CardHeader>
-                <CardTitle className="text-2xl">Médicos que ya refieren</CardTitle>
-                <CardDescription>Historias reales de ahorro</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-3 gap-4 pb-6 border-b border-border/40">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1">
-                      50+
-                    </div>
-                    <div className="text-xs text-muted-foreground">Médicos refieren</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1">
-                      120+
-                    </div>
-                    <div className="text-xs text-muted-foreground">Referidos activos</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1">
-                      $5K
-                    </div>
-                    <div className="text-xs text-muted-foreground">Ahorrados total</div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold text-sm">
-                        CM
-                      </div>
-                      <div>
-                        <div className="font-semibold text-sm">Dr. Carlos M.</div>
-                        <div className="text-xs text-muted-foreground">4 referidos • Cardiología</div>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground italic">"Mi suscripción es gratis gracias al programa"</p>
-                  </div>
-
-                  <div className="p-4 rounded-lg bg-secondary/10 border border-secondary/20">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold text-sm">
-                        AS
-                      </div>
-                      <div>
-                        <div className="font-semibold text-sm">Dra. Ana S.</div>
-                        <div className="text-xs text-muted-foreground">2 referidos • Pediatría</div>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground italic">"Ya tengo 50% de descuento"</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
 
       {/* CTA Final Section */}
       <section className="py-32 px-4 bg-gradient-hero relative overflow-hidden">
