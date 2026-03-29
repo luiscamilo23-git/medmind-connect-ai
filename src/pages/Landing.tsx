@@ -461,9 +461,9 @@ const Landing = () => {
         items={[
           { type: "text", label: "WhatsApp", color: "#25D366" },
           { type: "text", label: "MercadoPago", color: "#009EE3" },
-          { type: "img", src: "https://svgl.app/library/gemini.svg", alt: "Google Gemini" },
-          { type: "img", src: "https://svgl.app/library/google.svg", alt: "Google" },
-          { type: "img", src: "https://svgl.app/library/gmail.svg", alt: "Gmail" },
+          { type: "text", label: "Google Gemini", color: "#8A6FE8" },
+          { type: "text", label: "Gmail", color: "#EA4335" },
+          { type: "text", label: "Google Calendar", color: "#1A73E8" },
           { type: "text", label: "DIAN", color: "#00843D" },
           { type: "text", label: "Alegra", color: "#00BFA5" },
           { type: "text", label: "Alanube", color: "#0066CC" },
