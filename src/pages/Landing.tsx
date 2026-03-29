@@ -378,51 +378,67 @@ const Landing = () => {
             </div>
 
 
-            {/* Stats Bar */}
-            <div className="animate-fade-in opacity-0 pt-12 md:pt-20 w-full max-w-4xl mx-auto" style={{ animationDelay: "1s" }}>
-              <div className="flex flex-wrap items-center justify-center gap-0 bg-card/30 backdrop-blur-sm border border-border/40 rounded-2xl overflow-hidden divide-x divide-border/40">
-                {/* Stat 1 */}
-                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[140px]">
-                  <span className="text-3xl font-black text-foreground">2h+</span>
-                  <span className="text-xs text-muted-foreground leading-tight">Ahorradas<br/>por día</span>
+            {/* Stats Row */}
+            <div className="animate-fade-in opacity-0 pt-14 md:pt-20 w-full max-w-5xl mx-auto" style={{ animationDelay: "1s" }}>
+              <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
+
+                {/* Stat: 2h+ */}
+                <div className="flex items-center gap-3">
+                  <span className="text-4xl font-black text-foreground">2h+</span>
+                  <span className="text-sm text-muted-foreground leading-tight">Ahorradas<br/>por día</span>
                 </div>
-                {/* Stat 2 — médicos con avatares */}
-                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[180px]">
-                  <div className="flex -space-x-2 shrink-0">
-                    {["JR","MC","AP","LV"].map((initials, i) => (
+
+                <div className="w-px h-8 bg-border/50 hidden sm:block" />
+
+                {/* Stat: médicos con avatares */}
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-2">
+                    {["JR","MC","AP"].map((initials, i) => (
                       <div key={i} className="w-8 h-8 rounded-full bg-primary/20 border-2 border-background flex items-center justify-center text-[10px] font-bold text-primary">
-                        {i < 3 ? initials : <span className="text-[9px]">+</span>}
+                        {initials}
                       </div>
                     ))}
+                    <div className="w-8 h-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-[10px] font-bold text-primary">+</div>
                   </div>
-                  <span className="text-xs text-muted-foreground leading-tight">340+ médicos<br/>ya usan MEDMIND</span>
+                  <span className="text-sm text-muted-foreground leading-tight">340+ médicos<br/>ya usan MEDMIND</span>
                 </div>
-                {/* Stat 3 */}
-                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[140px]">
-                  <span className="text-3xl font-black text-foreground">99%</span>
-                  <span className="text-xs text-muted-foreground leading-tight">Precisión<br/>clínica</span>
+
+                <div className="w-px h-8 bg-border/50 hidden sm:block" />
+
+                {/* Stat: 99% */}
+                <div className="flex items-center gap-3">
+                  <span className="text-4xl font-black text-foreground">99%</span>
+                  <span className="text-sm text-muted-foreground leading-tight">Precisión<br/>clínica</span>
                 </div>
-                {/* Stat 4 — estrellas */}
-                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[150px]">
-                  <div className="flex flex-col">
-                    <div className="flex gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={`text-base ${i < 4 ? "text-yellow-400" : "text-yellow-400/50"}`}>★</span>
-                      ))}
-                    </div>
-                    <span className="text-xs text-muted-foreground mt-0.5">4.9/5 en reseñas</span>
+
+                <div className="w-px h-8 bg-border/50 hidden sm:block" />
+
+                {/* Stat: estrellas */}
+                <div className="flex flex-col items-start gap-0.5">
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className={`text-lg ${i < 5 ? "text-yellow-400" : "text-yellow-400/30"}`}>★</span>
+                    ))}
                   </div>
+                  <span className="text-sm text-muted-foreground">4.9/5 en reseñas</span>
                 </div>
-                {/* Stat 5 */}
-                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[130px]">
-                  <span className="text-3xl font-black text-foreground">30s</span>
-                  <span className="text-xs text-muted-foreground leading-tight">Por historia<br/>clínica</span>
+
+                <div className="w-px h-8 bg-border/50 hidden sm:block" />
+
+                {/* Stat: 30s */}
+                <div className="flex items-center gap-3">
+                  <span className="text-4xl font-black text-foreground">30s</span>
+                  <span className="text-sm text-muted-foreground leading-tight">Por historia<br/>clínica</span>
                 </div>
-                {/* Stat 6 */}
-                <div className="flex items-center gap-3 px-6 py-4 flex-1 min-w-[120px]">
-                  <span className="text-3xl font-black text-primary">$0</span>
-                  <span className="text-xs text-muted-foreground leading-tight">Para<br/>empezar</span>
+
+                <div className="w-px h-8 bg-border/50 hidden sm:block" />
+
+                {/* Stat: $0 */}
+                <div className="flex items-center gap-3">
+                  <span className="text-4xl font-black text-primary">$0</span>
+                  <span className="text-sm text-muted-foreground leading-tight">Para<br/>empezar</span>
                 </div>
+
               </div>
             </div>
           </div>
