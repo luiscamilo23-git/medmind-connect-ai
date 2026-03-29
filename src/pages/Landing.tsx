@@ -459,7 +459,7 @@ const Landing = () => {
         subtitle="Trabajamos con las herramientas que el sector salud ya conoce"
         title="Integrado con las mejores plataformas"
         items={[
-          { type: "img", src: "/logos/whatsapp.png", alt: "WhatsApp Business" },
+          { type: "img", src: "https://svgl.app/library/whatsapp.svg", alt: "WhatsApp" },
           { type: "img", src: "/logos/mercadopago.jpg", alt: "MercadoPago" },
           { type: "img", src: "/logos/dian.jpg", alt: "DIAN Colombia" },
           { type: "img", src: "/logos/alegra.png", alt: "Alegra" },

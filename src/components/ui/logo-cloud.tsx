@@ -22,11 +22,11 @@ export function LogoCloud({
   items,
 }: LogoCloudProps) {
   return (
-    <div className="bg-background border-y border-border/30 py-10 px-4">
+    <div className="bg-zinc-50 border-y border-zinc-200 py-10 px-4">
       {/* Header centrado */}
       <div className="text-center mb-7 space-y-1">
-        <p className="text-xs text-muted-foreground tracking-wider uppercase">{subtitle}</p>
-        <p className="text-base font-black text-foreground tracking-tight">{title}</p>
+        <p className="text-xs text-zinc-500 tracking-wider uppercase">{subtitle}</p>
+        <p className="text-base font-black text-zinc-800 tracking-tight">{title}</p>
       </div>
 
       {/* Slider */}
@@ -41,12 +41,12 @@ export function LogoCloud({
                 height="auto"
                 width="auto"
                 loading="lazy"
-                className="h-7 md:h-8 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity select-none pointer-events-none dark:brightness-0 dark:invert"
+                className="h-7 md:h-8 w-auto object-contain opacity-60 hover:opacity-100 mix-blend-multiply transition-opacity select-none pointer-events-none"
               />
             ) : (
               <span
                 key={i}
-                className="text-sm font-bold text-muted-foreground/70 hover:text-foreground transition-colors whitespace-nowrap select-none"
+                className="text-sm font-bold text-zinc-400 hover:text-zinc-700 transition-colors whitespace-nowrap select-none"
               >
                 {item.label}
               </span>
