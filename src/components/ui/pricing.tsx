@@ -53,7 +53,7 @@ export function PricingSection({
   return (
     <div
       className={cn(
-        'flex w-full flex-col items-center justify-center space-y-5 p-4',
+        'flex w-full flex-col items-center justify-center space-y-8 p-4',
         props.className,
       )}
       {...props}
@@ -93,7 +93,7 @@ export function PricingFrequencyToggle({
   return (
     <div
       className={cn(
-        'bg-muted/30 mx-auto flex w-fit rounded-full border p-1',
+        'bg-muted/20 border border-border mx-auto flex w-fit rounded-full p-1 gap-1',
         props.className,
       )}
       {...props}
@@ -102,20 +102,19 @@ export function PricingFrequencyToggle({
         <button
           key={freq}
           onClick={() => setFrequency(freq)}
-          className="relative px-4 py-1 text-sm capitalize"
-        >
-          <span className="relative z-10">
-            {freq === 'monthly' ? 'Mensual' : 'Anual'}
-          </span>
-          {frequency === freq && (
-            <motion.span
-              layoutId="frequency"
-              transition={{ type: 'spring', duration: 0.4 }}
-              className="bg-foreground absolute inset-0 z-0 rounded-full mix-blend-difference"
-            />
+          className={cn(
+            'relative flex items-center gap-1 px-5 py-1.5 text-sm font-medium rounded-full transition-all duration-200',
+            frequency === freq
+              ? 'bg-primary text-white shadow-md'
+              : 'text-muted-foreground hover:text-foreground',
           )}
+        >
+          {freq === 'monthly' ? 'Mensual' : 'Anual'}
           {freq === 'yearly' && (
-            <span className="ml-1 text-[10px] text-emerald-500 font-semibold relative z-10">-17%</span>
+            <span className={cn(
+              'text-[10px] font-bold',
+              frequency === 'yearly' ? 'text-white/80' : 'text-emerald-500',
+            )}>-17%</span>
           )}
         </button>
       ))}

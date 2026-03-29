@@ -86,8 +86,8 @@ export default function Pricing() {
       {/* Pricing cards */}
       <PricingSection
         plans={PLANS}
-        heading="El médico habla, la historia se escribe sola."
-        description=""
+        heading="Planes y precios"
+        description="Sin costos ocultos. Cancela cuando quieras."
         showToggle={true}
         className="pb-6"
       />
