@@ -458,16 +458,15 @@ const Landing = () => {
       <LogoCloud
         label={"Integrado con\nlas herramientas\nque ya usas"}
         logos={[
-          { src: "https://svgl.app/library/whatsapp.svg", alt: "WhatsApp Business" },
-          { src: "https://svgl.app/library/mercadopago.svg", alt: "MercadoPago" },
-          { src: "https://svgl.app/library/gemini.svg", alt: "Google Gemini" },
-          { src: "https://svgl.app/library/gmail.svg", alt: "Gmail" },
-          { src: "https://svgl.app/library/supabase_wordmark_light.svg", alt: "Supabase" },
-          { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/DIAN_logo.svg/1200px-DIAN_logo.svg.png", alt: "DIAN" },
-          { src: "https://www.alanube.co/hubfs/alanube-logo.svg", alt: "Alanube" },
-          { src: "https://www.alegra.com/wp-content/uploads/2023/04/logo-alegra.svg", alt: "Alegra" },
-          { src: "https://svgl.app/library/meta.svg", alt: "Meta" },
-          { src: "https://svgl.app/library/google.svg", alt: "Google" },
+          { src: "https://logo.clearbit.com/whatsapp.com", alt: "WhatsApp Business" },
+          { src: "https://logo.clearbit.com/mercadopago.com.co", alt: "MercadoPago" },
+          { src: "https://logo.clearbit.com/dian.gov.co", alt: "DIAN" },
+          { src: "https://logo.clearbit.com/alanube.co", alt: "Alanube" },
+          { src: "https://logo.clearbit.com/alegra.com", alt: "Alegra" },
+          { src: "https://logo.clearbit.com/siigo.com", alt: "Siigo" },
+          { src: "https://logo.clearbit.com/gemini.google.com", alt: "Google Gemini" },
+          { src: "https://logo.clearbit.com/supabase.com", alt: "Supabase" },
+          { src: "https://logo.clearbit.com/google.com", alt: "Google" },
         ]}
       />
 

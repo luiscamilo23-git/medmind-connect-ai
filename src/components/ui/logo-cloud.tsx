@@ -33,7 +33,7 @@ export function LogoCloud({ logos, label }: LogoCloudProps) {
                   height="auto"
                   width="auto"
                   loading="lazy"
-                  className="h-6 md:h-7 w-auto object-contain opacity-50 hover:opacity-90 transition-opacity select-none pointer-events-none dark:brightness-0 dark:invert"
+                  className="h-7 md:h-8 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity select-none pointer-events-none rounded-md"
                 />
               ))}
             </InfiniteSlider>
