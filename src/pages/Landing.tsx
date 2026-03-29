@@ -8,6 +8,7 @@ import { HeartbeatLine } from "@/components/HeartbeatLine";
 import ParticlesBackground from "@/components/ui/particles-background";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
+import { LogoCloud } from "@/components/ui/logo-cloud";
 import { motion, useScroll } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TestimonialsColumn, firstColumn, secondColumn, thirdColumn } from "@/components/ui/testimonials-columns";
@@ -454,39 +455,21 @@ const Landing = () => {
       </section>
 
       {/* Integrations Slider */}
-      <section className="bg-background border-y border-border/30 py-6">
-        <div className="group relative mx-auto max-w-7xl px-6">
-          <div className="flex flex-col items-center gap-4 md:flex-row">
-            <div className="shrink-0 md:border-r md:pr-6 md:max-w-44">
-              <p className="text-xs text-muted-foreground text-center md:text-right leading-snug">
-                Integrado con<br className="hidden md:block" /> las herramientas<br className="hidden md:block" /> que ya usas
-              </p>
-            </div>
-            <div className="relative w-full md:w-[calc(100%-11rem)]">
-              <InfiniteSlider speed={30} speedOnHover={10} gap={80}>
-                {[
-                  { name: "WhatsApp Business", color: "text-primary" },
-                  { name: "DIAN Colombia", color: "text-blue-700" },
-                  { name: "Alegra", color: "text-orange-500" },
-                  { name: "Siigo", color: "text-purple-600" },
-                  { name: "MercadoPago", color: "text-sky-500" },
-                  { name: "Evolution API", color: "text-primary" },
-                  { name: "Google Gemini", color: "text-indigo-500" },
-                  { name: "Alanube", color: "text-red-500" },
-                ].map((item) => (
-                  <div key={item.name} className="flex items-center shrink-0">
-                    <span className={cn("text-sm font-bold tracking-tight opacity-60 hover:opacity-100 transition-opacity", item.color)}>
-                      {item.name}
-                    </span>
-                  </div>
-                ))}
-              </InfiniteSlider>
-              <ProgressiveBlur className="pointer-events-none absolute left-0 top-0 h-full w-16" direction="left" blurIntensity={0.8} />
-              <ProgressiveBlur className="pointer-events-none absolute right-0 top-0 h-full w-16" direction="right" blurIntensity={0.8} />
-            </div>
-          </div>
-        </div>
-      </section>
+      <LogoCloud
+        label={"Integrado con\nlas herramientas\nque ya usas"}
+        logos={[
+          { src: "https://svgl.app/library/whatsapp.svg", alt: "WhatsApp Business" },
+          { src: "https://svgl.app/library/google.svg", alt: "Google" },
+          { src: "https://svgl.app/library/mercadopago.svg", alt: "MercadoPago" },
+          { src: "https://svgl.app/library/supabase_wordmark_light.svg", alt: "Supabase" },
+          { src: "https://svgl.app/library/gemini.svg", alt: "Google Gemini" },
+          { src: "https://svgl.app/library/gmail.svg", alt: "Gmail" },
+          { src: "https://svgl.app/library/meta.svg", alt: "Meta" },
+          { src: "https://svgl.app/library/google_calendar.svg", alt: "Google Calendar" },
+          { src: "https://svgl.app/library/google_meet.svg", alt: "Google Meet" },
+          { src: "https://svgl.app/library/openai.svg", alt: "OpenAI" },
+        ]}
+      />
 
       {/* ¿Cómo Funciona? Section */}
       <section className="py-24 px-4 bg-muted/20" id="how-it-works">
