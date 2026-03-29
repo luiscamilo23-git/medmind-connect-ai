@@ -423,21 +423,6 @@ const Landing = () => {
                   <span className="text-sm text-muted-foreground">4.9/5 en reseñas</span>
                 </div>
 
-                <div className="w-px h-8 bg-border/50 hidden sm:block" />
-
-                {/* Stat: 30s */}
-                <div className="flex items-center gap-3">
-                  <span className="text-4xl font-black text-foreground">30s</span>
-                  <span className="text-sm text-muted-foreground leading-tight">Por historia<br/>clínica</span>
-                </div>
-
-                <div className="w-px h-8 bg-border/50 hidden sm:block" />
-
-                {/* Stat: $0 */}
-                <div className="flex items-center gap-3">
-                  <span className="text-4xl font-black text-primary">$0</span>
-                  <span className="text-sm text-muted-foreground leading-tight">Para<br/>empezar</span>
-                </div>
 
               </div>
             </div>
