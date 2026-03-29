@@ -5,7 +5,7 @@ import { Activity, Brain, Calendar, LineChart, Package, Users, CheckCircle2, Tre
 import { TextHoverEffect, FooterBackgroundGradient } from "@/components/ui/hover-footer";
 import { Link, useNavigate } from "react-router-dom";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
-import ShaderBackground from "@/components/ui/shader-background";
+import ParticlesBackground from "@/components/ui/particles-background";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 import { motion, useScroll } from "framer-motion";
@@ -313,7 +313,7 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="relative bg-background py-16 sm:py-24 md:py-32 lg:py-40 px-4 overflow-hidden">
         {/* WebGL Shader Background */}
-        <ShaderBackground />
+        <ParticlesBackground />
         
         {/* Heartbeat line at the bottom of hero - More visible */}
         <HeartbeatLine color="primary" variant="hero" intensity="high" speed="slow" />
