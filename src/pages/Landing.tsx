@@ -10,7 +10,7 @@ import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 import { motion, useScroll } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { TestimonialsGrid } from "@/components/ui/testimonials-grid";
+import { TestimonialsColumn, firstColumn, secondColumn, thirdColumn } from "@/components/ui/testimonials-columns";
 
 const LAUNCH_END = new Date("2026-04-07T23:59:59-05:00");
 
@@ -686,7 +686,33 @@ const Landing = () => {
       </section>
 
       {/* Testimonials Section */}
-      <TestimonialsGrid />
+      {/* Testimonials Section */}
+      <section className="py-24 px-4 bg-background relative overflow-hidden">
+        <div className="container mx-auto max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true }}
+            className="text-center mb-14 space-y-4"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium">
+              Lo que dicen nuestros médicos
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-black text-foreground">
+              Más de 200 médicos ya confían en MEDMIND
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              Resultados reales de consultorios colombianos.
+            </p>
+          </motion.div>
+          <div className="flex justify-center gap-5 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] max-h-[780px] overflow-hidden">
+            <TestimonialsColumn testimonials={firstColumn} duration={38} />
+            <TestimonialsColumn testimonials={secondColumn} className="hidden md:block" duration={47} />
+            <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:block" duration={43} />
+          </div>
+        </div>
+      </section>
 
       {/* CTA Final Section */}
       <section className="py-32 px-4 bg-gradient-hero relative overflow-hidden">
