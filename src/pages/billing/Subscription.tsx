@@ -192,7 +192,7 @@ export default function Subscription() {
 
                     {sub.status === "active" && (
                       <p className="text-xs text-muted-foreground text-center">
-                        Para cambiar o cancelar tu plan, contáctanos en soporte@medmind.co
+                        Para cambiar o cancelar tu plan, contáctanos en soporte@medmindsystem.com
                       </p>
                     )}
                   </CardContent>

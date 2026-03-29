@@ -137,8 +137,8 @@ export default function Pricing() {
         </div>
         <p className="mt-8 text-xs text-muted-foreground">
           ¿Tienes dudas? Escríbenos a{' '}
-          <a href="mailto:soporte@medmind.co" className="text-primary hover:underline">
-            soporte@medmind.co
+          <a href="mailto:soporte@medmindsystem.com" className="text-primary hover:underline">
+            soporte@medmindsystem.com
           </a>
         </p>
       </div>

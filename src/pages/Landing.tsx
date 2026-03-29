@@ -31,7 +31,7 @@ function LandingNav() {
   }, [scrollYProgress]);
 
   return (
-    <header className="fixed top-12 left-0 right-0 z-40 pointer-events-none">
+    <header className="fixed top-10 left-0 right-0 z-40 pointer-events-none">
       <nav
         data-state={menuOpen ? "active" : undefined}
         className="group pointer-events-auto mx-auto max-w-7xl px-4 lg:px-12"
@@ -295,23 +295,26 @@ const Landing = () => {
     <div className="min-h-screen overflow-hidden">
       <LandingNav />
       {/* Promo Banner */}
-      <div className="bg-primary text-white py-2.5 px-4 relative overflow-hidden">
-        <div className="container mx-auto flex items-center justify-center gap-4 flex-wrap">
-          {/* Oferta */}
+      <div className="bg-primary text-white px-4 relative overflow-hidden h-10 flex items-center">
+        {/* Mobile: compacto */}
+        <div className="flex sm:hidden w-full items-center justify-between gap-2 text-xs">
+          <span className="font-black tracking-wide">🎁 40% OFF · 3 meses</span>
+          <span className="bg-white/20 font-black px-2 py-0.5 rounded-full">🔥 {countdown.cupos}</span>
+          <Link to="/auth" className="bg-white text-primary px-3 py-1 rounded-full font-black text-xs whitespace-nowrap">
+            Activar →
+          </Link>
+        </div>
+        {/* Desktop: completo */}
+        <div className="hidden sm:flex w-full items-center justify-center gap-4">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-base">🎁</span>
-            <span className="font-black tracking-wide">LANZAMIENTO</span>
-            <span className="text-white/60 hidden sm:inline">·</span>
-            <span className="hidden sm:inline">30 días gratis + <span className="font-black">40% OFF</span> los primeros 3 meses</span>
+            <span>🎁</span>
+            <span className="font-black">LANZAMIENTO</span>
+            <span className="text-white/50">·</span>
+            <span>30 días gratis + <span className="font-black">40% OFF</span> los primeros 3 meses</span>
           </div>
-
-          <span className="text-white/30 hidden md:inline">|</span>
-
-          {/* Cupos + Countdown */}
+          <span className="text-white/30">|</span>
           <div className="flex items-center gap-2">
-            <span className="bg-white/20 text-white text-xs font-black px-2.5 py-1 rounded-full tracking-wide">
-              🔥 {countdown.cupos} cupos
-            </span>
+            <span className="bg-white/20 text-xs font-black px-2.5 py-0.5 rounded-full">🔥 {countdown.cupos} cupos</span>
             <div className="flex items-center gap-1 font-mono text-sm font-bold">
               <span className="bg-white/15 px-1.5 py-0.5 rounded">{countdown.d}d</span>
               <span className="text-white/50">:</span>
@@ -322,11 +325,8 @@ const Landing = () => {
               <span className="bg-white/15 px-1.5 py-0.5 rounded">{countdown.s}s</span>
             </div>
           </div>
-
-          <span className="text-white/30 hidden md:inline">|</span>
-
-          {/* CTA */}
-          <Link to="/auth" className="bg-white text-primary px-4 py-1.5 rounded-full font-black text-sm hover:bg-white/90 transition-colors shadow-md whitespace-nowrap">
+          <span className="text-white/30">|</span>
+          <Link to="/auth" className="bg-white text-primary px-4 py-1 rounded-full font-black text-sm hover:bg-white/90 transition-colors whitespace-nowrap">
             Activar ahora →
           </Link>
         </div>
@@ -790,7 +790,7 @@ const Landing = () => {
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
             <Link to="/auth">
-              <Button size="lg" className="text-xl px-16 py-8 bg-white text-primary hover:bg-white/90 shadow-2xl hover:scale-110 transition-all duration-300 group">
+              <Button size="lg" className="text-base sm:text-lg px-8 sm:px-14 py-4 sm:py-6 bg-white text-primary hover:bg-white/90 shadow-2xl hover:scale-105 transition-all duration-300 group w-full sm:w-auto">
                 Comenzar Ahora Gratis
                 <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform" />
               </Button>
@@ -822,7 +822,7 @@ const Landing = () => {
                   { href: "https://twitter.com", icon: <Twitter className="w-4 h-4" />, label: "Twitter" },
                   { href: "https://linkedin.com", icon: <Linkedin className="w-4 h-4" />, label: "LinkedIn" },
                   { href: "https://instagram.com", icon: <Instagram className="w-4 h-4" />, label: "Instagram" },
-                  { href: "mailto:contacto@medmind.co", icon: <Mail className="w-4 h-4" />, label: "Email" },
+                  { href: "mailto:soporte@medmindsystem.com", icon: <Mail className="w-4 h-4" />, label: "Email" },
                 ].map(({ href, icon, label }) => (
                   <a
                     key={label}
@@ -879,11 +879,11 @@ const Landing = () => {
               <ul className="space-y-4 text-sm text-gray-400">
                 <li className="flex items-center gap-3">
                   <Mail className="w-4 h-4 text-[#3ca2fa] shrink-0" />
-                  <a href="mailto:soporte@medmind.co" className="hover:text-[#3ca2fa] transition-colors">soporte@medmind.co</a>
+                  <a href="mailto:soporte@medmindsystem.com" className="hover:text-[#3ca2fa] transition-colors">soporte@medmindsystem.com</a>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-[#3ca2fa] shrink-0" />
-                  <a href="tel:+573001234567" className="hover:text-[#3ca2fa] transition-colors">+57 300 123 4567</a>
+                  <a href="tel:+573171234567" className="hover:text-[#3ca2fa] transition-colors">+57 317 123 4567</a>
                 </li>
                 <li className="flex items-center gap-3">
                   <MapPin className="w-4 h-4 text-[#3ca2fa] shrink-0" />
