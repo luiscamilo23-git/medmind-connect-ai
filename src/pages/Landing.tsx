@@ -459,16 +459,15 @@ const Landing = () => {
         subtitle="Trabajamos con las herramientas que el sector salud ya conoce"
         title="Integrado con las mejores plataformas"
         items={[
-          { type: "img", src: "https://svgl.app/library/whatsapp.svg", alt: "WhatsApp Business" },
-          { type: "img", src: "https://svgl.app/library/mercadopago.svg", alt: "MercadoPago" },
+          { type: "img", src: "/logos/whatsapp.png", alt: "WhatsApp Business" },
+          { type: "img", src: "/logos/mercadopago.jpg", alt: "MercadoPago" },
+          { type: "img", src: "/logos/dian.jpg", alt: "DIAN Colombia" },
+          { type: "img", src: "/logos/alegra.png", alt: "Alegra" },
+          { type: "img", src: "/logos/alanube.png", alt: "Alanube" },
+          { type: "img", src: "/logos/siigo.png", alt: "Siigo" },
           { type: "img", src: "https://svgl.app/library/gemini.svg", alt: "Google Gemini" },
-          { type: "img", src: "https://svgl.app/library/supabase_wordmark_light.svg", alt: "Supabase" },
           { type: "img", src: "https://svgl.app/library/google.svg", alt: "Google" },
           { type: "img", src: "https://svgl.app/library/gmail.svg", alt: "Gmail" },
-          { type: "text", label: "DIAN Colombia" },
-          { type: "text", label: "Alanube" },
-          { type: "text", label: "Alegra" },
-          { type: "text", label: "Siigo" },
         ]}
       />
 

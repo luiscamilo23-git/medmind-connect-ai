@@ -41,7 +41,7 @@ export function LogoCloud({
                 height="auto"
                 width="auto"
                 loading="lazy"
-                className="h-7 md:h-8 w-auto object-contain opacity-55 hover:opacity-95 transition-opacity select-none pointer-events-none"
+                className="h-7 md:h-8 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity select-none pointer-events-none dark:brightness-0 dark:invert"
               />
             ) : (
               <span
