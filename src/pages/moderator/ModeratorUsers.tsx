@@ -73,8 +73,8 @@ export default function ModeratorUsers() {
       case 'admin': return 'bg-red-500/20 text-red-400 border-red-500';
       case 'moderator': return 'bg-orange-500/20 text-orange-400 border-orange-500';
       case 'doctor': return 'bg-blue-500/20 text-blue-400 border-blue-500';
-      case 'patient': return 'bg-green-500/20 text-green-400 border-green-500';
-      case 'staff': return 'bg-cyan-500/20 text-cyan-400 border-cyan-500';
+      case 'patient': return 'bg-primary/20 text-primary border-primary';
+      case 'staff': return 'bg-primary/10 text-primary/80 border-primary/50';
       default: return 'bg-gray-500/20 text-gray-400 border-gray-500';
     }
   };

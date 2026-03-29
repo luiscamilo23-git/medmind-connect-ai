@@ -163,7 +163,7 @@ export function PricingCard({
         <BorderTrail
           size={80}
           style={{
-            background: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)))',
+            background: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary) / 0.7))',
             boxShadow: '0 0 20px 4px hsl(var(--primary) / 0.3)',
           }}
         />
@@ -283,7 +283,7 @@ export function BorderTrail({
         style={{
           width: size,
           offsetPath: `rect(0 auto auto 0 round ${size}px)`,
-          background: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)))',
+          background: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary) / 0.7))',
           ...style,
         }}
         animate={{ offsetDistance: ['0%', '100%'] }}

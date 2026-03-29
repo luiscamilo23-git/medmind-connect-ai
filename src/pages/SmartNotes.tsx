@@ -309,7 +309,7 @@ const SmartNotes = () => {
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
               {/* Hero Banner */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-glow to-secondary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white mb-4 sm:mb-8">
+              <div className="relative overflow-hidden bg-primary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white mb-4 sm:mb-8">
                 <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/5 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24" />
                 <HeartbeatLine color="muted" variant="card" intensity="low" speed="slow" />
                 <div className="relative z-10">
@@ -618,10 +618,10 @@ const SmartNotes = () => {
         {analysis && (
           <div className="grid md:grid-cols-3 gap-6 mt-8">
             {/* Tasks */}
-            <Card className="border-green-500/30 bg-card">
+            <Card className="border-primary/30 bg-card">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
                   <CardTitle className="text-foreground">Tareas Pendientes</CardTitle>
                 </div>
                 <CardDescription>
@@ -632,8 +632,8 @@ const SmartNotes = () => {
                 {analysis.tasks.length > 0 ? (
                   <ul className="space-y-3">
                     {analysis.tasks.map((task, index) => (
-                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/30 group">
-                        <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                      <li key={index} className="flex items-start gap-2 p-3 rounded-lg bg-primary/10 border border-primary/30 group">
+                        <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                         <span className="text-sm font-medium text-foreground flex-1">{task}</span>
                         <button
                           onClick={() => deleteTask(index)}

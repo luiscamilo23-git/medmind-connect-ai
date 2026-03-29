@@ -18,8 +18,8 @@ const InventoryList = ({ items, loading, onEdit, onDelete }: InventoryListProps)
       medication: "bg-blue-500/10 text-blue-500",
       equipment: "bg-primary/10 text-primary",
       surgical: "bg-red-500/10 text-red-500",
-      diagnostic: "bg-cyan-500/10 text-cyan-500",
-      disposable: "bg-green-500/10 text-green-500",
+      diagnostic: "bg-primary/10 text-primary",
+      disposable: "bg-primary/10 text-primary",
       other: "bg-gray-500/10 text-gray-500",
     };
     return colors[category] || colors.other;
@@ -31,7 +31,7 @@ const InventoryList = ({ items, loading, onEdit, onDelete }: InventoryListProps)
     } else if (item.current_stock <= item.minimum_stock) {
       return { label: "Stock Bajo", color: "bg-yellow-500/10 text-yellow-500" };
     }
-    return { label: "Stock OK", color: "bg-green-500/10 text-green-500" };
+    return { label: "Stock OK", color: "bg-primary/10 text-primary" };
   };
 
   if (loading) {

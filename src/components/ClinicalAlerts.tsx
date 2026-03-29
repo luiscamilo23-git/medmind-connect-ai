@@ -66,7 +66,7 @@ export function ClinicalAlerts({ data, onSelectCIE10, onDismissInteraction }: Cl
     switch (status) {
       case 'critical': return 'bg-destructive text-destructive-foreground';
       case 'warning': return 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-300';
-      default: return 'bg-green-500/20 text-green-700 dark:text-green-300';
+      default: return 'bg-primary/20 text-primary';
     }
   };
 
@@ -208,7 +208,7 @@ export function ClinicalAlerts({ data, onSelectCIE10, onDismissInteraction }: Cl
                     </span>
                     {lab.status && (
                       lab.status === 'normal' ? 
-                        <CheckCircle className="h-4 w-4 text-green-500" /> :
+                        <CheckCircle className="h-4 w-4 text-primary" /> :
                         <AlertTriangle className="h-4 w-4 text-yellow-500" />
                     )}
                   </div>

@@ -284,15 +284,15 @@ export default function BillingRIPS() {
                     <div className="text-2xl font-bold text-blue-600">{epsCount}</div>
                   </CardContent>
                 </Card>
-                <Card className="border-green-500/30 bg-green-500/5">
+                <Card className="border-primary/30 bg-primary/5">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
-                      <Wallet className="h-4 w-4 text-green-600" />
+                      <Wallet className="h-4 w-4 text-primary" />
                       Particulares
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-green-600">{particularCount}</div>
+                    <div className="text-2xl font-bold text-primary">{particularCount}</div>
                     <p className="text-xs text-muted-foreground">No requieren RIPS</p>
                   </CardContent>
                 </Card>
@@ -301,7 +301,7 @@ export default function BillingRIPS() {
                     <CardTitle className="text-sm font-medium">Validados</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-2xl font-bold text-primary">
                       {batches?.filter((b) => b.estado === "VALIDADO").length || 0}
                     </div>
                   </CardContent>
@@ -359,7 +359,7 @@ export default function BillingRIPS() {
                         variant="outline" 
                         size="sm"
                         onClick={() => handleDownloadFiltered("particular")}
-                        className="border-green-500/30 text-green-600 hover:bg-green-500/10"
+                        className="border-primary/30 text-primary hover:bg-primary/10"
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Descargar Particulares

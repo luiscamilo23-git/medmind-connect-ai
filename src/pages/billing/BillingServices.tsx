@@ -222,11 +222,11 @@ export default function BillingServices() {
                     <strong>No mezcles servicios Particulares con EPS/Aseguradora.</strong> Cada servicio debe tener una única modalidad de pago.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                      <Wallet className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                      <Wallet className="h-5 w-5 text-primary mt-0.5" />
                       <div>
-                        <p className="font-semibold text-green-700">Particular</p>
-                        <p className="text-sm text-green-600">
+                        <p className="font-semibold text-primary">Particular</p>
+                        <p className="text-sm text-primary/80">
                           No genera RIPS. El código CUPS es opcional. Ideal para consultas privadas sin intermediarios.
                         </p>
                       </div>

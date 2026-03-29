@@ -202,7 +202,7 @@ export default function BillingPayments() {
                     <CardTitle className="text-sm font-medium">Pagos Aprobados</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-2xl font-bold text-primary">
                       {payments?.filter((p) => p.estado === "APROBADO").length || 0}
                     </div>
                   </CardContent>

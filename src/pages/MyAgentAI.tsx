@@ -336,7 +336,7 @@ export default function MyAgentAI() {
             <div className="flex h-14 items-center gap-4 px-6">
               <SidebarTrigger />
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-gradient-feature flex items-center justify-center shadow-md shadow-primary/30">
+                <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center shadow-md shadow-primary/30">
                   <Bot className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -378,7 +378,7 @@ export default function MyAgentAI() {
                     </CardDescription>
                   </div>
                   {isConnected && (
-                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
+                    <Badge className="bg-primary/10 text-primary border-primary/30">
                       ✓ Conectado
                     </Badge>
                   )}
@@ -705,7 +705,7 @@ export default function MyAgentAI() {
                           variant={selectedConv.is_bot_active ? "outline" : "default"}
                           onClick={toggleBot}
                           disabled={togglingBot}
-                          className={`gap-1.5 text-xs ${!selectedConv.is_bot_active ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}`}
+                          className={`gap-1.5 text-xs ${!selectedConv.is_bot_active ? "bg-primary hover:bg-primary/90 text-white" : ""}`}
                         >
                           {togglingBot ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -752,7 +752,7 @@ export default function MyAgentAI() {
                                       ? "bg-muted text-foreground rounded-tl-sm"
                                       : msg.sender === "bot"
                                       ? "bg-blue-500 text-white rounded-tr-sm"
-                                      : "bg-emerald-600 text-white rounded-tr-sm"
+                                      : "bg-primary text-white rounded-tr-sm"
                                   }`}
                                 >
                                   <p className="leading-relaxed whitespace-pre-wrap break-words">
@@ -793,7 +793,7 @@ export default function MyAgentAI() {
                             onClick={sendReply}
                             disabled={sendingReply || !replyText.trim()}
                             size="icon"
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
+                            className="bg-primary hover:bg-primary/90 text-white shrink-0"
                           >
                             {sendingReply ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -841,7 +841,7 @@ export default function MyAgentAI() {
                               {formatDate(conv.last_message_at)}
                             </span>
                             {conv.unread_count > 0 && (
-                              <Badge className="bg-emerald-500 text-white border-0 h-5 min-w-5 rounded-full text-[10px] flex items-center justify-center px-1">
+                              <Badge className="bg-primary text-white border-0 h-5 min-w-5 rounded-full text-[10px] flex items-center justify-center px-1">
                                 {conv.unread_count}
                               </Badge>
                             )}

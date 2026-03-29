@@ -101,7 +101,7 @@ export const PatientAISummary = ({ patientId, patientName }: PatientAISummaryPro
 
   if (loading) {
     return (
-      <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+      <Card className="bg-primary/5 border-primary/20">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary animate-pulse" />
@@ -129,7 +129,7 @@ export const PatientAISummary = ({ patientId, patientName }: PatientAISummaryPro
   }
 
   return (
-    <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+    <Card className="bg-primary/5 border-primary/20">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

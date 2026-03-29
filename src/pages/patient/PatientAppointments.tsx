@@ -64,7 +64,7 @@ const PatientAppointments = () => {
       case "scheduled":
         return "bg-blue-500";
       case "confirmed":
-        return "bg-green-500";
+        return "bg-primary";
       case "cancelled":
         return "bg-red-500";
       case "completed":

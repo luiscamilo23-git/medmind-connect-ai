@@ -176,7 +176,7 @@ export const DoctorAIAssistant = ({
       <CardHeader className="border-b border-primary/20 py-3 px-4 bg-gradient-to-r from-primary/5 to-transparent">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-foreground text-base">
-            <div className="p-1.5 rounded-full bg-gradient-feature shadow-feature">
+            <div className="p-1.5 rounded-full bg-primary shadow-md">
               <Bot className="w-4 h-4 text-white" />
             </div>
             <span className="flex items-center gap-1.5">
@@ -209,7 +209,7 @@ export const DoctorAIAssistant = ({
               }`}
             >
               {message.role === "assistant" && (
-                <div className="w-7 h-7 rounded-full bg-gradient-feature flex items-center justify-center shrink-0 shadow-feature">
+                <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0 shadow-md">
                   <Bot className="w-3.5 h-3.5 text-white" />
                 </div>
               )}
@@ -234,7 +234,7 @@ export const DoctorAIAssistant = ({
 
           {isLoading && (
             <div className="flex gap-2 justify-start">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0">
                 <Bot className="w-3.5 h-3.5 text-primary-foreground" />
               </div>
               <div className="bg-muted/60 rounded-xl rounded-bl-sm px-3 py-2">

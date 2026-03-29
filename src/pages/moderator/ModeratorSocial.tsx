@@ -155,7 +155,7 @@ export default function ModeratorSocial() {
                       <TableCell>{post.likes_count}</TableCell>
                       <TableCell>{post.comments_count}</TableCell>
                       <TableCell>
-                        <Badge className={post.published ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"}>
+                        <Badge className={post.published ? "bg-primary/20 text-primary" : "bg-gray-500/20 text-gray-400"}>
                           {post.published ? "Publicado" : "Oculto"}
                         </Badge>
                       </TableCell>

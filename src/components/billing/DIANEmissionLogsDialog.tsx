@@ -46,7 +46,7 @@ export function DIANEmissionLogsDialog({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "SUCCESS":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+        return <CheckCircle2 className="h-5 w-5 text-primary" />;
       case "ERROR":
         return <XCircle className="h-5 w-5 text-red-500" />;
       case "PENDING":

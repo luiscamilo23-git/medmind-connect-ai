@@ -154,9 +154,9 @@ export const AudioFileUpload = ({ onTranscriptionComplete, className }: AudioFil
           {/* Background animated pattern when dragging */}
           {isDragging && (
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 animate-pulse" />
+              <div className="absolute inset-0 bg-primary/10 animate-pulse" />
               <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-secondary/10 rounded-full blur-3xl animate-pulse delay-150" />
+              <div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse delay-150" />
             </div>
           )}
 

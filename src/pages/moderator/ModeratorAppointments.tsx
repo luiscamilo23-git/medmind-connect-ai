@@ -75,7 +75,7 @@ export default function ModeratorAppointments() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'scheduled': return 'bg-blue-500/20 text-blue-400 border-blue-500';
-      case 'confirmed': return 'bg-green-500/20 text-green-400 border-green-500';
+      case 'confirmed': return 'bg-primary/20 text-primary border-primary';
       case 'completed': return 'bg-gray-500/20 text-gray-400 border-gray-500';
       case 'cancelled': return 'bg-red-500/20 text-red-400 border-red-500';
       case 'no_show': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500';

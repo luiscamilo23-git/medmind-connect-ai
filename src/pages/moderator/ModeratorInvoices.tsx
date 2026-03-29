@@ -56,7 +56,7 @@ export default function ModeratorInvoices() {
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'VALIDADA': return 'bg-green-500/20 text-green-400 border-green-500';
+      case 'VALIDADA': return 'bg-primary/20 text-primary border-primary';
       case 'EMITIDA': return 'bg-blue-500/20 text-blue-400 border-blue-500';
       case 'RECHAZADA': return 'bg-red-500/20 text-red-400 border-red-500';
       case 'DRAFT': return 'bg-gray-500/20 text-gray-400 border-gray-500';

@@ -47,7 +47,7 @@ export function DIANWebhookEventsDialog({
       return <XCircle className="h-5 w-5 text-red-500" />;
     }
     if (processed) {
-      return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      return <CheckCircle2 className="h-5 w-5 text-primary" />;
     }
     return <Clock className="h-5 w-5 text-yellow-500" />;
   };

@@ -154,7 +154,7 @@ export function TestimonialsGrid() {
             className="text-3xl xl:text-5xl font-black"
           >
             Resultados reales.{" "}
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <span className="text-primary">
               Médicos reales.
             </span>
           </TimelineContent>

@@ -365,7 +365,7 @@ const Dashboard = () => {
 
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto px-6 py-8 space-y-8 max-w-7xl">
-              <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-glow to-secondary rounded-2xl p-6 md:p-8 text-white">
+              <div className="relative overflow-hidden bg-primary rounded-2xl p-6 md:p-8 text-white">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32" />
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
                 <HeartbeatLine color="muted" variant="card" intensity="low" speed="slow" />
@@ -443,7 +443,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+              <Card className="bg-primary/5 border-primary/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-primary" />
@@ -463,7 +463,7 @@ const Dashboard = () => {
           {!showAIAssistant && (
             <Button
               onClick={() => setShowAIAssistant(true)}
-              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl bg-gradient-feature hover:scale-110 transition-transform z-50 shadow-feature"
+              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 hover:scale-110 transition-transform z-50"
               size="icon"
             >
               <Bot className="w-6 h-6" />

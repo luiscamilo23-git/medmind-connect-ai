@@ -1170,7 +1170,7 @@ const VoiceNotes = () => {
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-6xl space-y-4 sm:space-y-6">
               {/* Hero Banner */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-glow to-secondary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
+              <div className="relative overflow-hidden bg-primary rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
                 <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/5 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24" />
                 <HeartbeatLine color="muted" variant="card" intensity="low" speed="slow" />
                 <div className="relative z-10">

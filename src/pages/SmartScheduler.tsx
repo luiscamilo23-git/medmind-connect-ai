@@ -330,7 +330,7 @@ const SmartScheduler = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "confirmed": return "bg-emerald-500/90";
+      case "confirmed": return "bg-primary/90";
       case "completed": return "bg-sky-500/90";
       case "cancelled": return "bg-red-500/90";
       case "in_progress": return "bg-amber-500/90";
@@ -448,8 +448,8 @@ const SmartScheduler = () => {
                   <p className="text-xl font-bold text-primary">{todayAppointments.length}</p>
                   <p className="text-[9px] text-muted-foreground">Citas</p>
                 </div>
-                <div className="bg-emerald-500/5 rounded-lg p-2.5 text-center border border-emerald-500/10">
-                  <p className="text-xl font-bold text-emerald-500">
+                <div className="bg-primary/5 rounded-lg p-2.5 text-center border border-primary/10">
+                  <p className="text-xl font-bold text-primary">
                     {todayAppointments.filter(a => a.status === "completed").length}
                   </p>
                   <p className="text-[9px] text-muted-foreground">Completadas</p>
@@ -536,7 +536,7 @@ const SmartScheduler = () => {
             {/* WhatsApp Status */}
             <div className="space-y-2">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-1.5">
-                <MessageSquare className="w-3 h-3 text-emerald-500" />
+                <MessageSquare className="w-3 h-3 text-primary" />
                 WhatsApp
               </p>
               <Button 
@@ -544,7 +544,7 @@ const SmartScheduler = () => {
                 size="sm" 
                 className={`w-full justify-start gap-2 text-xs h-9 ${
                   whatsappConnected 
-                    ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600' 
+                    ? 'bg-primary/10 hover:bg-primary/20 text-primary'
                     : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-600'
                 }`}
                 onClick={() => navigate("/profile")}

@@ -163,7 +163,7 @@ export default function ModeratorDashboard() {
               <Card className="border-orange-500/20">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Total Citas</CardTitle>
-                  <Calendar className="h-4 w-4 text-green-500" />
+                  <Calendar className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats?.totalAppointments || 0}</div>
@@ -197,13 +197,13 @@ export default function ModeratorDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="border-green-500/20">
+              <Card className="border-primary/20">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">DIAN Aprobadas</CardTitle>
-                  <DollarSign className="h-4 w-4 text-green-500" />
+                  <DollarSign className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-500">{stats?.invoicesApproved || 0}</div>
+                  <div className="text-2xl font-bold text-primary">{stats?.invoicesApproved || 0}</div>
                   <p className="text-xs text-muted-foreground">Validadas por DIAN</p>
                 </CardContent>
               </Card>
@@ -234,13 +234,13 @@ export default function ModeratorDashboard() {
             {/* Alerts */}
             <h3 className="text-lg font-semibold mt-6">Alertas del Sistema</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className={`border-${(stats?.inventoryAlerts || 0) > 0 ? 'red' : 'green'}-500/20`}>
+              <Card className={`border-${(stats?.inventoryAlerts || 0) > 0 ? 'red' : 'primary'}-500/20`}>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Alertas de Inventario</CardTitle>
-                  <Package className={`h-4 w-4 ${(stats?.inventoryAlerts || 0) > 0 ? 'text-red-500' : 'text-green-500'}`} />
+                  <Package className={`h-4 w-4 ${(stats?.inventoryAlerts || 0) > 0 ? 'text-red-500' : 'text-primary'}`} />
                 </CardHeader>
                 <CardContent>
-                  <div className={`text-2xl font-bold ${(stats?.inventoryAlerts || 0) > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                  <div className={`text-2xl font-bold ${(stats?.inventoryAlerts || 0) > 0 ? 'text-red-500' : 'text-primary'}`}>
                     {stats?.inventoryAlerts || 0}
                   </div>
                   <p className="text-xs text-muted-foreground">

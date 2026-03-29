@@ -66,18 +66,18 @@ All colors MUST be HSL.
     
     --radius: 0.75rem;
     
-    /* Gradients - Primary flows from Logo Blue to Teal with darkened base for contrast */
-    --gradient-primary: linear-gradient(135deg, hsl(211 63% 35%), hsl(173 80% 28%));
-    --gradient-secondary: linear-gradient(135deg, hsl(173 80% 28%), hsl(173 80% 35%));
-    --gradient-hero: linear-gradient(135deg, hsl(211 63% 30% / 0.95) 0%, hsl(173 80% 22% / 0.95) 100%);
+    /* Gradients - Primary Blue only */
+    --gradient-primary: linear-gradient(135deg, hsl(211 63% 35%), hsl(211 63% 45%));
+    --gradient-secondary: linear-gradient(135deg, hsl(211 63% 45%), hsl(211 63% 55%));
+    --gradient-hero: linear-gradient(135deg, hsl(211 63% 25% / 0.95) 0%, hsl(211 63% 35% / 0.95) 100%);
     --gradient-card: linear-gradient(180deg, hsl(222 47% 11%), hsl(224 71% 4%));
-    --gradient-glow: linear-gradient(135deg, hsl(211 63% 57% / 0.15), hsl(173 80% 40% / 0.15));
-    --gradient-cta: linear-gradient(135deg, hsl(211 63% 45%), hsl(173 80% 35%));
-    
-    /* Feature Gradients - Using Primary (Blue) and Secondary (Teal) */
-    --gradient-feature: linear-gradient(135deg, hsl(211 63% 50%), hsl(173 80% 40%));
-    --gradient-feature-soft: linear-gradient(135deg, hsl(211 63% 55%), hsl(173 80% 45%));
-    --gradient-banner: linear-gradient(90deg, hsl(211 63% 50%), hsl(173 80% 40%));
+    --gradient-glow: linear-gradient(135deg, hsl(211 63% 57% / 0.15), hsl(211 63% 45% / 0.15));
+    --gradient-cta: linear-gradient(135deg, hsl(211 63% 40%), hsl(211 63% 50%));
+
+    /* Feature Gradients - Using Primary Blue only */
+    --gradient-feature: linear-gradient(135deg, hsl(211 63% 45%), hsl(211 63% 55%));
+    --gradient-feature-soft: linear-gradient(135deg, hsl(211 63% 50%), hsl(211 63% 60%));
+    --gradient-banner: linear-gradient(90deg, hsl(211 63% 45%), hsl(211 63% 55%));
     
     /* Shadows - Using Logo Blue for glow effects */
     --shadow-sm: 0 1px 3px 0 hsl(211 63% 57% / 0.08);
@@ -268,7 +268,7 @@ All colors MUST be HSL.
   
   .hover-social-icon::before {
     content: '';
-    @apply absolute inset-0 w-full h-full bg-gradient-to-t from-primary to-secondary;
+    @apply absolute inset-0 w-full h-full bg-primary;
     transform: translateY(100%);
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 0;
@@ -387,7 +387,7 @@ All colors MUST be HSL.
   
   .hover-slide-fill::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-primary to-secondary;
+    @apply absolute inset-0 bg-primary;
     transform: translateX(-100%);
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 0;

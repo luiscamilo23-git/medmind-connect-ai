@@ -28,13 +28,13 @@ const planIcons: Record<string, React.ElementType> = {
 
 const planColors: Record<string, string> = {
   starter: "text-blue-500",
-  profesional: "text-emerald-500",
+  profesional: "text-primary",
   clinica: "text-violet-500",
 };
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   trial: { label: "Período de prueba", color: "bg-amber-500/20 text-amber-600 border-amber-500/30" },
-  active: { label: "Activo", color: "bg-emerald-500/20 text-emerald-600 border-emerald-500/30" },
+  active: { label: "Activo", color: "bg-primary/20 text-primary border-primary/30" },
   cancelled: { label: "Cancelado", color: "bg-red-500/20 text-red-600 border-red-500/30" },
   past_due: { label: "Pago pendiente", color: "bg-red-500/20 text-red-600 border-red-500/30" },
   expired: { label: "Expirado", color: "bg-gray-500/20 text-gray-600 border-gray-500/30" },
@@ -184,7 +184,7 @@ export default function Subscription() {
                     })()}
 
                     {(sub.status === "trial" || sub.status === "past_due") && (
-                      <Button onClick={handleUpgrade} className="w-full bg-emerald-600 hover:bg-emerald-700">
+                      <Button onClick={handleUpgrade} className="w-full bg-primary hover:bg-primary/90">
                         <Check className="w-4 h-4 mr-2" />
                         {sub.status === "trial" ? "Activar plan ahora" : "Regularizar pago"}
                       </Button>

@@ -72,7 +72,7 @@ const PatientDashboard = () => {
       description: "Chat inteligente para resolver dudas de salud",
       icon: Bot,
       path: null, // Will show chatbot inline
-      color: "from-emerald-500 to-teal-500",
+      color: "from-primary to-primary/80",
       isNew: true,
     },
     {
@@ -80,7 +80,7 @@ const PatientDashboard = () => {
       description: "Encuentra especialistas cerca de ti",
       icon: Users,
       path: "/patient/explore",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-primary to-primary/80",
     },
     {
       title: "Mis Citas",
@@ -94,7 +94,7 @@ const PatientDashboard = () => {
       description: "Recomendaciones personalizadas",
       icon: Activity,
       path: "/patient/wellness",
-      color: "from-green-500 to-emerald-500",
+      color: "from-primary to-primary/80",
       badge: stats.wellnessTips,
     },
     {
@@ -109,7 +109,7 @@ const PatientDashboard = () => {
       description: "Consulta con profesionales",
       icon: MessageSquare,
       path: "/patient/chat",
-      color: "from-secondary to-primary",
+      color: "from-primary to-primary/80",
       badge: stats.unreadMessages,
     },
   ];
@@ -168,7 +168,7 @@ const PatientDashboard = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       {module.isNew && (
-                        <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse">
+                        <span className="px-2 py-1 text-xs font-bold text-white bg-primary rounded-full animate-pulse">
                           ✨ NUEVO
                         </span>
                       )}

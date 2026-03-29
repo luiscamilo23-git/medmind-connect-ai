@@ -278,29 +278,29 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4 relative">
+    <div className="min-h-screen overflow-y-auto flex flex-col items-center justify-center bg-gradient-hero p-4 relative">
       {/* Back to Home Button */}
-      <Link 
-        to="/" 
-        className="absolute top-6 left-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors group"
+      <Link
+        to="/"
+        className="self-start mb-4 sm:absolute sm:top-6 sm:left-6 sm:mb-0 flex items-center gap-2 text-white/80 hover:text-white transition-colors group"
       >
         <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
         <span className="font-medium">Volver al inicio</span>
       </Link>
 
-      <Card className="w-full max-w-md shadow-xl animate-fade-in-up">
-        <CardHeader className="text-center space-y-4">
+      <Card className="w-full max-w-sm sm:max-w-md mx-4 sm:mx-auto shadow-xl animate-fade-in-up">
+        <CardHeader className="text-center space-y-4 p-6 sm:p-8">
           <Link to="/" className="mx-auto">
-            <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow hover:scale-110 transition-transform cursor-pointer">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-glow hover:scale-110 transition-transform cursor-pointer">
               <Activity className="w-8 h-8 text-white" />
             </div>
           </Link>
-          <CardTitle className="text-3xl font-bold">MEDMIND</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl font-bold">MEDMIND</CardTitle>
           <CardDescription className="text-base">
             Plataforma inteligente para profesionales de la salud
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 sm:p-8">
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-6">
               <TabsTrigger value="signin">Iniciar Sesión</TabsTrigger>

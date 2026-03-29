@@ -30,7 +30,7 @@ const InventoryAlerts = ({ items, loading }: InventoryAlertsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-center py-12">
-            <Package className="h-12 w-12 mx-auto text-green-500 mb-4" />
+            <Package className="h-12 w-12 mx-auto text-primary mb-4" />
             <p className="text-muted-foreground">¡Todo en orden! No hay alertas de stock.</p>
           </div>
         </CardContent>

@@ -75,7 +75,7 @@ export const AppointmentCalendar = ({
 
     switch (status) {
       case "confirmed":
-        backgroundColor = "hsl(150, 60%, 45%)"; // secondary (green)
+        backgroundColor = "hsl(211, 63%, 45%)"; // primary (blue)
         break;
       case "completed":
         backgroundColor = "hsl(199, 89%, 48%)"; // info (blue)

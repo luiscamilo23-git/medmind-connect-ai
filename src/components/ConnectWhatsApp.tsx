@@ -469,15 +469,15 @@ export function ConnectWhatsApp() {
 
   if (isConnected) {
     return (
-      <Card className="w-full max-w-md mx-auto border-emerald-500/30 bg-emerald-500/5">
+      <Card className="w-full max-w-md mx-auto border-primary/30 bg-primary/5">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
-            <CheckCircle className="h-6 w-6 text-emerald-500" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
+            <CheckCircle className="h-6 w-6 text-primary" />
           </div>
-          <CardTitle className="text-xl text-emerald-600 flex items-center justify-center gap-2">
+          <CardTitle className="text-xl text-primary flex items-center justify-center gap-2">
             WhatsApp Vinculado
             {status === 'online' && (
-              <Badge className="bg-emerald-500 text-white text-[10px] gap-1">
+              <Badge className="bg-primary text-white text-[10px] gap-1">
                 <Wifi className="h-3 w-3" />
                 Online
               </Badge>
@@ -536,7 +536,7 @@ export function ConnectWhatsApp() {
               variant="outline"
               size="sm"
               onClick={handleSyncSettings}
-              className="flex-1 text-xs gap-2 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-500"
+              className="flex-1 text-xs gap-2 border-primary/30 text-primary hover:bg-primary/10"
               disabled={syncing}
             >
               {syncing ? (
