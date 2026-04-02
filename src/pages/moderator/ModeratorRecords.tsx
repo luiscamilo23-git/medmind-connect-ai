@@ -42,7 +42,6 @@ export default function ModeratorRecords() {
       if (error) throw error;
       setRecords(data || []);
     } catch (error) {
-      console.error("Error loading records:", error);
     } finally {
       setLoading(false);
     }

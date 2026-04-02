@@ -80,7 +80,6 @@ export default function MyAgentAI() {
         .maybeSingle();
 
       if (error) {
-        console.error("Error loading profile:", error);
         return;
       }
 
@@ -107,7 +106,6 @@ export default function MyAgentAI() {
         }
       }
     } catch (error) {
-      console.error("Error loading profile:", error);
     } finally {
       setLoading(false);
     }
@@ -266,7 +264,6 @@ export default function MyAgentAI() {
         description: "Tu base de conocimiento ha sido actualizada",
       });
     } catch (error) {
-      console.error("Error saving:", error);
       toast({
         title: "Error",
         description: "Ocurrió un error al guardar",

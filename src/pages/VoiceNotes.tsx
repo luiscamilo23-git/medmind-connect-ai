@@ -169,7 +169,6 @@ const VoiceNotes = () => {
         });
 
         if (error) {
-          console.error('Error analyzing transcript:', error);
           return;
         }
         
@@ -177,7 +176,6 @@ const VoiceNotes = () => {
           setSuggestions(data.suggestions);
         }
       } catch (error) {
-        console.error('Error analyzing transcript:', error);
       } finally {
         setIsAnalyzing(false);
       }
@@ -231,7 +229,6 @@ const VoiceNotes = () => {
       };
 
       recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
         if (event.error === 'no-speech') {
           toast({
             title: "No se detectó voz",
@@ -334,7 +331,6 @@ const VoiceNotes = () => {
         description: recordingField ? `Transcribiendo ${getFieldLabel(recordingField)}` : "Transcripción en tiempo real activada",
       });
     } catch (error) {
-      console.error('Error starting recording:', error);
       toast({
         title: "Error",
         description: "No se pudo iniciar la grabación. Verifica los permisos del micrófono.",
@@ -511,8 +507,6 @@ const VoiceNotes = () => {
       const extracted = extractData.extractedData;
       const alerts = extractData.clinicalAlerts;
       
-      console.log("Datos extraídos por IA:", extracted);
-      console.log("Alertas clínicas:", alerts);
       
       // Actualizar alertas clínicas
       if (alerts) {
@@ -675,7 +669,6 @@ const VoiceNotes = () => {
         description: `Campos autocompletados según tu especialidad: ${specialtyConfig?.name || doctorSpecialty}`,
       });
     } catch (error: any) {
-      console.error('Error en asistente IA:', error);
       toast({
         title: "Error en asistente IA",
         description: error.message || "No se pudo completar el análisis",
@@ -696,7 +689,6 @@ const VoiceNotes = () => {
     if (isTranscribingAudio) return;
 
     transcribeAudioBlob(audioBlob).catch((err: any) => {
-      console.error('Error transcribing recorded audio:', err);
       toast({
         title: 'Error de transcripción',
         description: err?.message || 'No se pudo transcribir la grabación.',
@@ -1066,7 +1058,6 @@ const VoiceNotes = () => {
         description: `${specialtyConfig?.name || 'Médico General'} - ${selectedService.nombre_servicio}. ${ripsMessage}`,
       });
     } catch (error: any) {
-      console.error('Error saving medical record:', error);
       toast({
         title: "Error al guardar",
         description: error.message,

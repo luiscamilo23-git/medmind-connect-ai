@@ -124,7 +124,6 @@ export default function BillingServices() {
       queryClient.invalidateQueries({ queryKey: ["services"] });
       toast.success(`${servicesToInsert.length} servicio(s) importado(s) exitosamente`);
     } catch (error) {
-      console.error("Error importing services:", error);
       toast.error("Error al importar servicios");
     } finally {
       setIsImporting(false);

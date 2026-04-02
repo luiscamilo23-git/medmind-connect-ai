@@ -72,7 +72,6 @@ const Profile = () => {
         });
       }
     } catch (error: any) {
-      console.error("Error loading profile:", error);
       toast({
         title: "Error",
         description: "No se pudo cargar el perfil",
@@ -113,7 +112,6 @@ const Profile = () => {
         description: "No olvides guardar los cambios",
       });
     } catch (error: any) {
-      console.error("Error uploading avatar:", error);
       toast({
         title: "Error",
         description: error.message || "No se pudo subir la foto",
@@ -145,7 +143,6 @@ const Profile = () => {
         description: "Tus cambios han sido guardados exitosamente",
       });
     } catch (error: any) {
-      console.error("Error saving profile:", error);
       toast({
         title: "Error",
         description: error.message || "No se pudo guardar el perfil",

@@ -1,58 +1,88 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Landing from "./pages/Landing";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import VoiceNotes from "./pages/VoiceNotes";
-import Patients from "./pages/Patients";
-import SmartScheduler from "./pages/SmartScheduler";
-import SupplyLens from "./pages/SupplyLens";
-import Analytics from "./pages/Analytics";
-import Profile from "./pages/Profile";
-import DoctorSettings from "./pages/DoctorSettings";
-import SocialNetwork from "./pages/SocialNetwork";
-import PredictiveAnalysis from "./pages/PredictiveAnalysis";
-import SmartNotes from "./pages/SmartNotes";
-import MyAgentAI from "./pages/MyAgentAI";
-import PatientDashboard from "./pages/patient/PatientDashboard";
-import DoctorExplorer from "./pages/patient/DoctorExplorer";
-import PatientWellness from "./pages/patient/PatientWellness";
-import PatientFeed from "./pages/patient/PatientFeed";
-import PatientChat from "./pages/patient/PatientChat";
-import PatientAppointments from "./pages/patient/PatientAppointments";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import CookiePolicy from "./pages/CookiePolicy";
-import LegalNotice from "./pages/LegalNotice";
-import Referrals from "./pages/Referrals";
-import Comparison from "./pages/Comparison";
-import PitchDeck from "./pages/PitchDeck";
-import ExecutiveBrief from "./pages/ExecutiveBrief";
-import BillingServices from "./pages/billing/BillingServices";
-import Subscription from "./pages/billing/Subscription";
-import BillingInvoices from "./pages/billing/BillingInvoices";
-import BillingRIPS from "./pages/billing/BillingRIPS";
-import BillingPayments from "./pages/billing/BillingPayments";
-import BillingSettings from "./pages/billing/BillingSettings";
-import BillingDIAN from "./pages/billing/BillingDIAN";
-import BillingDIANMonitoring from "./pages/billing/BillingDIANMonitoring";
-import ModeratorDashboard from "./pages/moderator/ModeratorDashboard";
-import ModeratorAuditLogs from "./pages/moderator/ModeratorAuditLogs";
-import ModeratorPatients from "./pages/moderator/ModeratorPatients";
-import ModeratorRecords from "./pages/moderator/ModeratorRecords";
-import ModeratorAppointments from "./pages/moderator/ModeratorAppointments";
-import ModeratorInvoices from "./pages/moderator/ModeratorInvoices";
-import ModeratorSocial from "./pages/moderator/ModeratorSocial";
-import ModeratorUsers from "./pages/moderator/ModeratorUsers";
-import ModeratorInventory from "./pages/moderator/ModeratorInventory";
-import NotFound from "./pages/NotFound";
-import Pricing from "./pages/Pricing";
+import { Loader2 } from "lucide-react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-const queryClient = new QueryClient();
+// Public pages
+const Landing = React.lazy(() => import("./pages/Landing"));
+const Auth = React.lazy(() => import("./pages/Auth"));
+const Pricing = React.lazy(() => import("./pages/Pricing"));
+const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
+const CookiePolicy = React.lazy(() => import("./pages/CookiePolicy"));
+const LegalNotice = React.lazy(() => import("./pages/LegalNotice"));
+const Comparison = React.lazy(() => import("./pages/Comparison"));
+const PitchDeck = React.lazy(() => import("./pages/PitchDeck"));
+const ExecutiveBrief = React.lazy(() => import("./pages/ExecutiveBrief"));
+const NotFound = React.lazy(() => import("./pages/NotFound"));
+
+// Doctor pages
+const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+const VoiceNotes = React.lazy(() => import("./pages/VoiceNotes"));
+const SmartNotes = React.lazy(() => import("./pages/SmartNotes"));
+const MyAgentAI = React.lazy(() => import("./pages/MyAgentAI"));
+const Patients = React.lazy(() => import("./pages/Patients"));
+const SmartScheduler = React.lazy(() => import("./pages/SmartScheduler"));
+const SupplyLens = React.lazy(() => import("./pages/SupplyLens"));
+const Analytics = React.lazy(() => import("./pages/Analytics"));
+const PredictiveAnalysis = React.lazy(() => import("./pages/PredictiveAnalysis"));
+const Profile = React.lazy(() => import("./pages/Profile"));
+const DoctorSettings = React.lazy(() => import("./pages/DoctorSettings"));
+const SocialNetwork = React.lazy(() => import("./pages/SocialNetwork"));
+const Referrals = React.lazy(() => import("./pages/Referrals"));
+
+// Patient pages
+const PatientDashboard = React.lazy(() => import("./pages/patient/PatientDashboard"));
+const DoctorExplorer = React.lazy(() => import("./pages/patient/DoctorExplorer"));
+const PatientWellness = React.lazy(() => import("./pages/patient/PatientWellness"));
+const PatientFeed = React.lazy(() => import("./pages/patient/PatientFeed"));
+const PatientChat = React.lazy(() => import("./pages/patient/PatientChat"));
+const PatientAppointments = React.lazy(() => import("./pages/patient/PatientAppointments"));
+
+// Billing pages
+const BillingServices = React.lazy(() => import("./pages/billing/BillingServices"));
+const Subscription = React.lazy(() => import("./pages/billing/Subscription"));
+const BillingInvoices = React.lazy(() => import("./pages/billing/BillingInvoices"));
+const BillingRIPS = React.lazy(() => import("./pages/billing/BillingRIPS"));
+const BillingPayments = React.lazy(() => import("./pages/billing/BillingPayments"));
+const BillingSettings = React.lazy(() => import("./pages/billing/BillingSettings"));
+const BillingDIAN = React.lazy(() => import("./pages/billing/BillingDIAN"));
+const BillingDIANMonitoring = React.lazy(() => import("./pages/billing/BillingDIANMonitoring"));
+
+// Moderator pages
+const ModeratorDashboard = React.lazy(() => import("./pages/moderator/ModeratorDashboard"));
+const ModeratorAuditLogs = React.lazy(() => import("./pages/moderator/ModeratorAuditLogs"));
+const ModeratorPatients = React.lazy(() => import("./pages/moderator/ModeratorPatients"));
+const ModeratorRecords = React.lazy(() => import("./pages/moderator/ModeratorRecords"));
+const ModeratorAppointments = React.lazy(() => import("./pages/moderator/ModeratorAppointments"));
+const ModeratorInvoices = React.lazy(() => import("./pages/moderator/ModeratorInvoices"));
+const ModeratorSocial = React.lazy(() => import("./pages/moderator/ModeratorSocial"));
+const ModeratorUsers = React.lazy(() => import("./pages/moderator/ModeratorUsers"));
+const ModeratorInventory = React.lazy(() => import("./pages/moderator/ModeratorInventory"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      retry: 3,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <Loader2 className="w-10 h-10 text-primary animate-spin" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -60,57 +90,68 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/voicenotes" element={<VoiceNotes />} />
-          <Route path="/smart-notes" element={<SmartNotes />} />
-          <Route path="/my-agent" element={<MyAgentAI />} />
-          <Route path="/patients" element={<Patients />} />
-          <Route path="/scheduler" element={<SmartScheduler />} />
-          <Route path="/supplylens" element={<SupplyLens />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/predictive" element={<PredictiveAnalysis />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/doctor-settings" element={<DoctorSettings />} />
-          <Route path="/social" element={<SocialNetwork />} />
-          <Route path="/patient/dashboard" element={<PatientDashboard />} />
-          <Route path="/patient/explore" element={<DoctorExplorer />} />
-          <Route path="/patient/wellness" element={<PatientWellness />} />
-          <Route path="/patient/feed" element={<PatientFeed />} />
-          <Route path="/patient/chat" element={<PatientChat />} />
-          <Route path="/patient/appointments" element={<PatientAppointments />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/cookie-policy" element={<CookiePolicy />} />
-          <Route path="/legal-notice" element={<LegalNotice />} />
-          <Route path="/referrals" element={<Referrals />} />
-          <Route path="/comparison" element={<Comparison />} />
-          <Route path="/pitch-deck" element={<PitchDeck />} />
-          <Route path="/executive-brief" element={<ExecutiveBrief />} />
-          <Route path="/billing/subscription" element={<Subscription />} />
-          <Route path="/billing/services" element={<BillingServices />} />
-          <Route path="/billing/invoices" element={<BillingInvoices />} />
-          <Route path="/billing/rips" element={<BillingRIPS />} />
-          <Route path="/billing/payments" element={<BillingPayments />} />
-          <Route path="/billing/settings" element={<BillingSettings />} />
-          <Route path="/billing/dian" element={<BillingDIAN />} />
-          <Route path="/billing/monitoring" element={<BillingDIANMonitoring />} />
-          {/* Moderator Routes */}
-          <Route path="/moderator" element={<ModeratorDashboard />} />
-          <Route path="/moderator/patients" element={<ModeratorPatients />} />
-          <Route path="/moderator/records" element={<ModeratorRecords />} />
-          <Route path="/moderator/appointments" element={<ModeratorAppointments />} />
-          <Route path="/moderator/inventory" element={<ModeratorInventory />} />
-          <Route path="/moderator/invoices" element={<ModeratorInvoices />} />
-          <Route path="/moderator/social" element={<ModeratorSocial />} />
-          <Route path="/moderator/users" element={<ModeratorUsers />} />
-          <Route path="/moderator/audit-logs" element={<ModeratorAuditLogs />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route path="/legal-notice" element={<LegalNotice />} />
+            <Route path="/comparison" element={<Comparison />} />
+            <Route path="/pitch-deck" element={<PitchDeck />} />
+            <Route path="/executive-brief" element={<ExecutiveBrief />} />
+
+            {/* Doctor routes */}
+            <Route path="/dashboard" element={<ProtectedRoute requiredRole="doctor"><Dashboard /></ProtectedRoute>} />
+            <Route path="/voicenotes" element={<ProtectedRoute requiredRole="doctor"><VoiceNotes /></ProtectedRoute>} />
+            <Route path="/smart-notes" element={<ProtectedRoute requiredRole="doctor"><SmartNotes /></ProtectedRoute>} />
+            <Route path="/my-agent" element={<ProtectedRoute requiredRole="doctor"><MyAgentAI /></ProtectedRoute>} />
+            <Route path="/patients" element={<ProtectedRoute requiredRole="doctor"><Patients /></ProtectedRoute>} />
+            <Route path="/scheduler" element={<ProtectedRoute requiredRole="doctor"><SmartScheduler /></ProtectedRoute>} />
+            <Route path="/supplylens" element={<ProtectedRoute requiredRole="doctor"><SupplyLens /></ProtectedRoute>} />
+            <Route path="/analytics" element={<ProtectedRoute requiredRole="doctor"><Analytics /></ProtectedRoute>} />
+            <Route path="/predictive" element={<ProtectedRoute requiredRole="doctor"><PredictiveAnalysis /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute requiredRole="doctor"><Profile /></ProtectedRoute>} />
+            <Route path="/doctor-settings" element={<ProtectedRoute requiredRole="doctor"><DoctorSettings /></ProtectedRoute>} />
+            <Route path="/social" element={<ProtectedRoute requiredRole="doctor"><SocialNetwork /></ProtectedRoute>} />
+            <Route path="/referrals" element={<ProtectedRoute requiredRole="doctor"><Referrals /></ProtectedRoute>} />
+
+            {/* Patient routes */}
+            <Route path="/patient/dashboard" element={<ProtectedRoute requiredRole="patient"><PatientDashboard /></ProtectedRoute>} />
+            <Route path="/patient/explore" element={<ProtectedRoute requiredRole="patient"><DoctorExplorer /></ProtectedRoute>} />
+            <Route path="/patient/wellness" element={<ProtectedRoute requiredRole="patient"><PatientWellness /></ProtectedRoute>} />
+            <Route path="/patient/feed" element={<ProtectedRoute requiredRole="patient"><PatientFeed /></ProtectedRoute>} />
+            <Route path="/patient/chat" element={<ProtectedRoute requiredRole="patient"><PatientChat /></ProtectedRoute>} />
+            <Route path="/patient/appointments" element={<ProtectedRoute requiredRole="patient"><PatientAppointments /></ProtectedRoute>} />
+
+            {/* Billing routes */}
+            <Route path="/billing/subscription" element={<ProtectedRoute requiredRole="doctor"><Subscription /></ProtectedRoute>} />
+            <Route path="/billing/services" element={<ProtectedRoute requiredRole="doctor"><BillingServices /></ProtectedRoute>} />
+            <Route path="/billing/invoices" element={<ProtectedRoute requiredRole="doctor"><BillingInvoices /></ProtectedRoute>} />
+            <Route path="/billing/rips" element={<ProtectedRoute requiredRole="doctor"><BillingRIPS /></ProtectedRoute>} />
+            <Route path="/billing/payments" element={<ProtectedRoute requiredRole="doctor"><BillingPayments /></ProtectedRoute>} />
+            <Route path="/billing/settings" element={<ProtectedRoute requiredRole="doctor"><BillingSettings /></ProtectedRoute>} />
+            <Route path="/billing/dian" element={<ProtectedRoute requiredRole="doctor"><BillingDIAN /></ProtectedRoute>} />
+            <Route path="/billing/monitoring" element={<ProtectedRoute requiredRole="doctor"><BillingDIANMonitoring /></ProtectedRoute>} />
+
+            {/* Moderator routes */}
+            <Route path="/moderator" element={<ProtectedRoute requiredRole="admin"><ModeratorDashboard /></ProtectedRoute>} />
+            <Route path="/moderator/patients" element={<ProtectedRoute requiredRole="admin"><ModeratorPatients /></ProtectedRoute>} />
+            <Route path="/moderator/records" element={<ProtectedRoute requiredRole="admin"><ModeratorRecords /></ProtectedRoute>} />
+            <Route path="/moderator/appointments" element={<ProtectedRoute requiredRole="admin"><ModeratorAppointments /></ProtectedRoute>} />
+            <Route path="/moderator/inventory" element={<ProtectedRoute requiredRole="admin"><ModeratorInventory /></ProtectedRoute>} />
+            <Route path="/moderator/invoices" element={<ProtectedRoute requiredRole="admin"><ModeratorInvoices /></ProtectedRoute>} />
+            <Route path="/moderator/social" element={<ProtectedRoute requiredRole="admin"><ModeratorSocial /></ProtectedRoute>} />
+            <Route path="/moderator/users" element={<ProtectedRoute requiredRole="admin"><ModeratorUsers /></ProtectedRoute>} />
+            <Route path="/moderator/audit-logs" element={<ProtectedRoute requiredRole="admin"><ModeratorAuditLogs /></ProtectedRoute>} />
+
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

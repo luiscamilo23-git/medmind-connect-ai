@@ -93,7 +93,6 @@ const SupplyLens = () => {
       if (error) throw error;
       setInventory(data || []);
     } catch (error) {
-      console.error("Error loading inventory:", error);
       toast.error("Error al cargar el inventario");
     } finally {
       setLoading(false);
@@ -126,7 +125,6 @@ const SupplyLens = () => {
       toast.success("Item eliminado correctamente");
       loadInventory();
     } catch (error) {
-      console.error("Error deleting item:", error);
       toast.error("Error al eliminar el item");
     }
   };

@@ -43,7 +43,6 @@ export default function ModeratorInvoices() {
       if (error) throw error;
       setInvoices(data || []);
     } catch (error) {
-      console.error("Error loading invoices:", error);
     } finally {
       setLoading(false);
     }

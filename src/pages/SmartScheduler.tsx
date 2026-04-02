@@ -98,7 +98,6 @@ const SmartScheduler = () => {
       const { data, error } = await supabase.functions.invoke('check-whatsapp-instance');
 
       if (error) {
-        console.error("Error checking WhatsApp status:", error);
         // Fallback to local check
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
@@ -113,7 +112,6 @@ const SmartScheduler = () => {
 
       setWhatsappConnected(data?.connected || false);
     } catch (error) {
-      console.error("Error checking WhatsApp status:", error);
     }
   };
 
@@ -198,7 +196,6 @@ const SmartScheduler = () => {
         setSelectedServices(data.map(s => s.id));
       }
     } catch (error) {
-      console.error("Error loading services:", error);
     }
   };
 
@@ -295,7 +292,6 @@ const SmartScheduler = () => {
         });
       }
     } catch (error) {
-      console.error("Error in sendToN8N:", error);
       toast({
         title: "Error",
         description: "Ocurrió un error al enviar la solicitud",

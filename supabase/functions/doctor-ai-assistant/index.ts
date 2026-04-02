@@ -60,7 +60,6 @@ NUNCA:
       { role: "user", content: message },
     ];
 
-    console.log("Calling Lovable AI for doctor assistant...");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -78,7 +77,6 @@ NUNCA:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
       
       if (response.status === 429) {
         return new Response(
@@ -98,14 +96,12 @@ NUNCA:
     const data = await response.json();
     const aiResponse = data.choices?.[0]?.message?.content || "No pude generar una respuesta.";
 
-    console.log("AI response generated successfully");
 
     return new Response(
       JSON.stringify({ response: aiResponse }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("Error in doctor-ai-assistant:", error);
     const errorMessage = error instanceof Error ? error.message : "Error interno del servidor";
     return new Response(
       JSON.stringify({ error: errorMessage }),

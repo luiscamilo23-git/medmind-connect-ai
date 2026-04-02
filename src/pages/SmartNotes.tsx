@@ -80,7 +80,6 @@ const SmartNotes = () => {
       };
 
       recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
         if (event.error === 'not-allowed') {
           toast({
             title: "Permiso denegado",
@@ -108,7 +107,6 @@ const SmartNotes = () => {
         description: "Habla ahora, transcribiendo en tiempo real...",
       });
     } catch (error) {
-      console.error('Error starting recording:', error);
       toast({
         title: "Error",
         description: "No se pudo iniciar la grabación. Verifica los permisos del micrófono.",
@@ -157,7 +155,6 @@ const SmartNotes = () => {
         description: "La tarea se eliminó correctamente",
       });
     } catch (error) {
-      console.error('Error deleting task:', error);
     }
   };
 
@@ -184,7 +181,6 @@ const SmartNotes = () => {
         description: "La idea se eliminó correctamente",
       });
     } catch (error) {
-      console.error('Error deleting idea:', error);
     }
   };
 
@@ -211,7 +207,6 @@ const SmartNotes = () => {
         description: "El recordatorio se eliminó correctamente",
       });
     } catch (error) {
-      console.error('Error deleting reminder:', error);
     }
   };
 
@@ -256,7 +251,6 @@ const SmartNotes = () => {
         });
 
       if (saveError) {
-        console.error('Error saving analysis:', saveError);
       }
 
       toast({
@@ -264,7 +258,6 @@ const SmartNotes = () => {
         description: "Se han extraído y guardado las tareas, ideas y recordatorios de tus notas",
       });
     } catch (error) {
-      console.error('Error analyzing notes:', error);
       toast({
         title: "Error",
         description: "No se pudo analizar las notas. Por favor intenta nuevamente.",

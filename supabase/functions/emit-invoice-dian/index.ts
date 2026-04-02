@@ -136,10 +136,23 @@ Deno.serve(async (req) => {
       .single();
 
     if (invoiceError || !invoice) {
-      console.error('Invoice error:', invoiceError);
       return new Response(
         JSON.stringify({ error: 'Factura no encontrada' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Idempotency: if already emitted, return existing data
+    if (invoice.numero_factura_dian && invoice.cufe) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Factura ya emitida anteriormente',
+          cufe: invoice.cufe,
+          numero: invoice.numero_factura_dian,
+          idempotent: true,
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

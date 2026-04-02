@@ -57,7 +57,6 @@ export default function ModeratorUsers() {
 
       setUsers(usersWithRoles);
     } catch (error) {
-      console.error("Error loading users:", error);
     } finally {
       setLoading(false);
     }

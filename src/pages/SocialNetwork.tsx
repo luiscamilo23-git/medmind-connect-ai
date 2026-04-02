@@ -100,7 +100,6 @@ const SocialNetwork = () => {
       setProfiles(profilesMap);
       setPosts(postsData || []);
     } catch (error: any) {
-      console.error("Error loading posts:", error);
       toast({
         title: "Error",
         description: "No se pudieron cargar las publicaciones",
@@ -138,7 +137,6 @@ const SocialNetwork = () => {
       setDialogOpen(false);
       await loadPosts();
     } catch (error: any) {
-      console.error("Error creating post:", error);
       toast({
         title: "Error",
         description: error.message || "No se pudo crear la publicación",
@@ -175,7 +173,6 @@ const SocialNetwork = () => {
 
       await loadPosts();
     } catch (error: any) {
-      console.error("Error toggling like:", error);
     }
   };
 
@@ -191,7 +188,6 @@ const SocialNetwork = () => {
 
       setComments(data || []);
     } catch (error: any) {
-      console.error("Error loading comments:", error);
     }
   };
 
@@ -213,7 +209,6 @@ const SocialNetwork = () => {
       await loadComments(selectedPost.id);
       await loadPosts();
     } catch (error: any) {
-      console.error("Error posting comment:", error);
       toast({
         title: "Error",
         description: "No se pudo publicar el comentario",
@@ -245,7 +240,6 @@ const SocialNetwork = () => {
       setDeletePostId(null);
       await loadPosts();
     } catch (error: any) {
-      console.error("Error deleting post:", error);
       toast({
         title: "Error",
         description: error.message || "No se pudo eliminar la publicación",
@@ -274,7 +268,6 @@ const SocialNetwork = () => {
         await loadPosts();
       }
     } catch (error: any) {
-      console.error("Error deleting comment:", error);
       toast({
         title: "Error",
         description: error.message || "No se pudo eliminar el comentario",

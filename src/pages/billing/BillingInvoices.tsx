@@ -130,7 +130,6 @@ export default function BillingInvoices() {
       });
 
       if (response.error) {
-        console.error("Emission error:", response.error);
         toast({
           title: "Error al emitir",
           description: response.error.message || "Error desconocido",
@@ -147,7 +146,6 @@ export default function BillingInvoices() {
       // Refresh invoices
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
     } catch (error: any) {
-      console.error("Error:", error);
       toast({
         title: "Error",
         description: error.message || "Error al emitir factura",
@@ -220,7 +218,6 @@ export default function BillingInvoices() {
         });
       }
     } catch (error: any) {
-      console.error(`Error downloading ${format.toUpperCase()}:`, error);
       toast({
         title: "Error",
         description: error.message || `Error al descargar ${format.toUpperCase()}`,

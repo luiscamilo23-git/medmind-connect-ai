@@ -53,7 +53,6 @@ const DoctorSettings = () => {
         });
       }
     } catch (error) {
-      console.error("Error loading settings:", error);
       toast.error("Error al cargar la configuración");
     } finally {
       setLoading(false);
@@ -79,7 +78,6 @@ const DoctorSettings = () => {
 
       toast.success("Configuración guardada exitosamente");
     } catch (error) {
-      console.error("Error saving settings:", error);
       toast.error("Error al guardar la configuración");
     } finally {
       setSaving(false);

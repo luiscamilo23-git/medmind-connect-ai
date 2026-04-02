@@ -40,7 +40,6 @@ export default function ModeratorInventory() {
       if (error) throw error;
       setItems(data || []);
     } catch (error) {
-      console.error("Error loading inventory:", error);
     } finally {
       setLoading(false);
     }

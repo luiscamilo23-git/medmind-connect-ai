@@ -54,7 +54,6 @@ export default function ModeratorAuditLogs() {
       if (error) throw error;
       setLogs(data || []);
     } catch (error) {
-      console.error("Error loading audit logs:", error);
     } finally {
       setLoading(false);
     }

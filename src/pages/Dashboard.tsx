@@ -109,7 +109,6 @@ const Dashboard = () => {
         setSpecialty(profile.specialty);
       }
     } catch (error) {
-      console.error('Error loading doctor profile:', error);
     }
   };
 
@@ -130,7 +129,6 @@ const Dashboard = () => {
         }
       }
     } catch (error) {
-      console.error('Error loading subscription:', error);
     }
   };
 
@@ -206,7 +204,6 @@ const Dashboard = () => {
         });
       }
     } catch (error) {
-      console.error('Error loading stats:', error);
     }
   };
 

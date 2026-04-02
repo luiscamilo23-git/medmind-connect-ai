@@ -55,7 +55,6 @@ export default function ModeratorSocial() {
       if (error) throw error;
       setPosts(data || []);
     } catch (error) {
-      console.error("Error loading posts:", error);
     } finally {
       setLoading(false);
     }
@@ -74,7 +73,6 @@ export default function ModeratorSocial() {
       toast.success(post.published ? "Post ocultado" : "Post publicado");
       loadPosts();
     } catch (error) {
-      console.error("Error updating post:", error);
       toast.error("Error al actualizar el post");
     }
   };
@@ -95,7 +93,6 @@ export default function ModeratorSocial() {
       setDeleteId(null);
       loadPosts();
     } catch (error) {
-      console.error("Error deleting post:", error);
       toast.error("Error al eliminar el post");
     }
   };

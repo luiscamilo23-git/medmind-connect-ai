@@ -23,7 +23,6 @@ async function transcribeWithGemini(params: {
   apiKey: string;
 }): Promise<string> {
   const { audioBase64, format, apiKey } = params;
-  console.log('Transcribing with Gemini (google/gemini-3-flash-preview)...');
 
   const systemPrompt = `Eres una máquina de transcripción de audio LITERAL.
 
@@ -90,7 +89,6 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Gemini API error:', response.status, errorText);
     if (response.status === 429) throw new Error('Límite de uso excedido. Por favor intenta más tarde.');
     if (response.status === 402) throw new Error('Créditos agotados. Agrega créditos en Settings → Workspace → Usage.');
     throw new Error(`Error de transcripción: ${errorText}`);
@@ -112,7 +110,6 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
     throw new Error('No se pudo procesar el audio (formato no soportado o audio vacío). Intenta con WAV/MP3 o vuelve a grabar.');
   }
   
-  console.log('Gemini transcription successful, length:', transcribedText.length);
   return transcribedText;
 }
 
@@ -123,7 +120,7 @@ serve(async (req) => {
 
   try {
     const { audio, mimeType, fileName } = await req.json();
-    
+
     if (!audio) {
       return new Response(
         JSON.stringify({ success: false, error: 'No se recibió audio' }),
@@ -131,7 +128,16 @@ serve(async (req) => {
       );
     }
 
-    console.log('Received audio data, length:', audio.length);
+    // Reject audio larger than 10MB (base64 → ~75% of original binary size)
+    const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
+    const estimatedBytes = Math.floor((audio.length * 3) / 4);
+    if (estimatedBytes > MAX_AUDIO_BYTES) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Audio demasiado grande (máximo 10MB). Divide la grabación en partes más cortas.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
@@ -156,7 +162,6 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in transcribe-audio:', error);
     return new Response(
       JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Error desconocido' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

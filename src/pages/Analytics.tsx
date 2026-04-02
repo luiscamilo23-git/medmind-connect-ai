@@ -146,7 +146,6 @@ const Analytics = () => {
 
       setMetrics(metricsData);
     } catch (error) {
-      console.error("Error loading analytics:", error);
       toast({
         title: "Error",
         description: "No se pudieron cargar las métricas",
@@ -191,7 +190,6 @@ const Analytics = () => {
         description: "Las recomendaciones de IA están listas",
       });
     } catch (error: any) {
-      console.error("Error generating insights:", error);
       toast({
         title: "Error",
         description: error.message || "No se pudieron generar los insights",

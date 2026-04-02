@@ -60,7 +60,6 @@ export default function ModeratorAppointments() {
 
       setAppointments(enrichedAppointments);
     } catch (error) {
-      console.error("Error loading appointments:", error);
     } finally {
       setLoading(false);
     }

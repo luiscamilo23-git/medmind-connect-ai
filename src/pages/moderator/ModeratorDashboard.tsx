@@ -73,7 +73,6 @@ export default function ModeratorDashboard() {
         inventoryAlerts: inventory.filter(i => i.current_stock <= i.minimum_stock).length,
       });
     } catch (error) {
-      console.error("Error loading stats:", error);
     } finally {
       setLoading(false);
     }
