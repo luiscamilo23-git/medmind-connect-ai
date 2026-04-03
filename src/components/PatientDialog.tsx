@@ -22,7 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { HabeasDataDialog, HABEAS_DATA_TEXT } from "@/components/HabeasDataDialog";
+import { HabeasDataDialog, HABEAS_DATA_TEXT, CONSENTIMIENTO_GENERAL_TEXT } from "@/components/HabeasDataDialog";
 
 const patientSchema = z.object({
   full_name: z.string().min(1, "El nombre es requerido").max(100),
@@ -159,7 +159,7 @@ export const PatientDialog = ({ open, onOpenChange, patient }: PatientDialogProp
     }
   };
 
-  const handleHabeasAccepted = async (firmaUrl?: string) => {
+  const handleHabeasAccepted = async (firmaUrl?: string, consentimientoGeneral?: boolean) => {
     if (!pendingPatientData) return;
 
     try {
@@ -190,8 +190,8 @@ export const PatientDialog = ({ open, onOpenChange, patient }: PatientDialogProp
 
       if (insertError) throw insertError;
 
-      // Save authorization record
-      await supabase.from("patient_authorizations").insert([{
+      // Save Habeas Data authorization
+      const authInserts: object[] = [{
         patient_id: newPatient.id,
         tipo: "habeas_data",
         texto_mostrado: HABEAS_DATA_TEXT,
@@ -200,7 +200,24 @@ export const PatientDialog = ({ open, onOpenChange, patient }: PatientDialogProp
         medico_id: userData.user.id,
         ip_address: window.location.hostname,
         user_agent: navigator.userAgent,
-      }]);
+      }];
+
+      // Save general consent if accepted (covers all future routine consultations)
+      if (consentimientoGeneral) {
+        authInserts.push({
+          patient_id: newPatient.id,
+          tipo: "consentimiento_informado",
+          procedimiento: "consulta_general",
+          texto_mostrado: CONSENTIMIENTO_GENERAL_TEXT.replace("[FECHA_REGISTRO]", new Date().toLocaleDateString("es-CO")),
+          aceptado: true,
+          firma_url: firmaUrl || null,
+          medico_id: userData.user.id,
+          ip_address: window.location.hostname,
+          user_agent: navigator.userAgent,
+        });
+      }
+
+      await supabase.from("patient_authorizations").insert(authInserts);
 
       toast({
         title: "Paciente creado",

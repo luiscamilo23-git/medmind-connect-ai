@@ -385,10 +385,15 @@ const SmartNotes = () => {
                 </Select>
               </div>
               <div className="flex items-center gap-3">
-                {consentimientoObtenido ? (
+                {modalidadAtencion === "presencial" ? (
                   <Badge className="bg-green-100 text-green-700 border-green-300 gap-1.5">
                     <FileCheck className="w-3.5 h-3.5" />
-                    Consentimiento obtenido
+                    Consentimiento general en archivo
+                  </Badge>
+                ) : consentimientoObtenido ? (
+                  <Badge className="bg-green-100 text-green-700 border-green-300 gap-1.5">
+                    <FileCheck className="w-3.5 h-3.5" />
+                    Consentimiento telemedicina obtenido
                   </Badge>
                 ) : (
                   <Button
@@ -398,7 +403,7 @@ const SmartNotes = () => {
                     className="gap-2"
                   >
                     <FileCheck className="w-4 h-4" />
-                    Obtener consentimiento
+                    Consentimiento telemedicina
                   </Button>
                 )}
               </div>
