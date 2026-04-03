@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -113,12 +114,58 @@ Tu ÚNICA tarea: Escribe EXACTAMENTE lo que oyes, palabra por palabra, sin cambi
   return transcribedText;
 }
 
+const TRANSCRIBE_RATE_LIMIT = 50; // calls per hour per doctor
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
+    // Auth check
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } },
+    );
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'No autorizado' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
+    // Rate limit
+    const now = new Date();
+    const { data: usage } = await supabase
+      .from('rate_limit_usage')
+      .select('count, reset_at')
+      .eq('doctor_id', user.id)
+      .eq('endpoint', 'transcribe-audio')
+      .maybeSingle();
+
+    if (usage && new Date(usage.reset_at) > now && usage.count >= TRANSCRIBE_RATE_LIMIT) {
+      const resetTime = new Date(usage.reset_at).toLocaleTimeString('es-CO');
+      return new Response(
+        JSON.stringify({ success: false, error: `Límite de transcripciones alcanzado (${TRANSCRIBE_RATE_LIMIT}/hora). Se reinicia a las ${resetTime}.` }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+    // Upsert count
+    if (usage && new Date(usage.reset_at) > now) {
+      await supabase.from('rate_limit_usage')
+        .update({ count: usage.count + 1 })
+        .eq('doctor_id', user.id).eq('endpoint', 'transcribe-audio');
+    } else {
+      await supabase.from('rate_limit_usage').upsert({
+        doctor_id: user.id,
+        endpoint: 'transcribe-audio',
+        count: 1,
+        reset_at: new Date(now.getTime() + 3600_000).toISOString(),
+      }, { onConflict: 'doctor_id,endpoint' });
+    }
+
     const { audio, mimeType, fileName } = await req.json();
 
     if (!audio) {
