@@ -39,6 +39,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
 import { ConsentimientoInformadoDialog } from "@/components/ConsentimientoInformadoDialog";
+import { PatientSearchCombobox, PatientOption } from "@/components/PatientSearchCombobox";
 
 const SmartNotes = () => {
   const [notes, setNotes] = useState("");
@@ -57,6 +58,7 @@ const SmartNotes = () => {
   const [consentimientoOpen, setConsentimientoOpen] = useState(false);
   const [consentimientoObtenido, setConsentimientoObtenido] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string>("");
+  const [linkedPatient, setLinkedPatient] = useState<PatientOption | null>(null);
   const [medicoId, setMedicoId] = useState<string>("");
 
   // Voice recording states
@@ -359,6 +361,22 @@ const SmartNotes = () => {
               </div>
             </div>
           </CardHeader>
+        </Card>
+
+        {/* Vincular paciente existente */}
+        <Card className="mb-4 sm:mb-6 border-border/50">
+          <CardContent className="pt-4 pb-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Vincular Paciente</Label>
+              <PatientSearchCombobox
+                selectedPatient={linkedPatient}
+                onSelect={(p) => {
+                  setLinkedPatient(p);
+                  setSelectedPatientId(p?.id ?? "");
+                }}
+              />
+            </div>
+          </CardContent>
         </Card>
 
         {/* Modalidad de atención — Res. 2654/2019 */}

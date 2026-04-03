@@ -40,6 +40,7 @@ import { ClinicalAlerts, ClinicalAlertsData } from "@/components/ClinicalAlerts"
 import { blobToWavBase64 } from "@/utils/audioWav";
 import { ServiceSelector, SelectedService } from "@/components/ServiceSelector";
 import { ConsentimientoInformadoDialog } from "@/components/ConsentimientoInformadoDialog";
+import { PatientSearchCombobox, PatientOption } from "@/components/PatientSearchCombobox";
 import { FileCheck } from "lucide-react";
 
 interface Suggestion {
@@ -131,6 +132,7 @@ const VoiceNotes = () => {
   >("presencial");
   const [consentimientoOpen, setConsentimientoOpen] = useState(false);
   const [consentimientoObtenido, setConsentimientoObtenido] = useState(false);
+  const [linkedPatient, setLinkedPatient] = useState<PatientOption | null>(null);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -846,6 +848,30 @@ const VoiceNotes = () => {
     setSpecialtyFieldsValues(prev => ({ ...prev, [key]: value }));
   };
 
+  const handleLinkedPatientSelect = (patient: PatientOption | null) => {
+    setLinkedPatient(patient);
+    if (patient) {
+      setPatientName(patient.full_name);
+      setPatientPhone(patient.phone || "");
+      setPatientAddress(patient.address || "");
+      if (patient.date_of_birth) {
+        const age = Math.floor(
+          (Date.now() - new Date(patient.date_of_birth).getTime()) /
+            (1000 * 60 * 60 * 24 * 365.25)
+        );
+        setPatientAge(String(age));
+      }
+      if (patient.allergies?.length) {
+        setSpecialtyFieldsValues(prev => ({ ...prev, allergies: patient.allergies!.join(", ") }));
+      }
+    } else {
+      setPatientName("");
+      setPatientPhone("");
+      setPatientAddress("");
+      setPatientAge("");
+    }
+  };
+
   // Get combined values for SpecialtyFields component
   const getSpecialtyFieldsValues = (): Record<string, any> => {
     return {
@@ -926,33 +952,37 @@ const VoiceNotes = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Search for existing patient
-      const { data: existingPatients, error: searchError } = await supabase
-        .from('patients')
-        .select('id')
-        .eq('doctor_id', user.id)
-        .ilike('full_name', patientName.trim())
-        .limit(1);
-
-      if (searchError) throw searchError;
-
       let patientId: string;
 
-      if (existingPatients && existingPatients.length > 0) {
-        patientId = existingPatients[0].id;
-        // Actualizar datos del paciente si la IA los extrajo
-        const updateData: Record<string, any> = {};
-        if (patientPhone && patientPhone !== 'Sin especificar') updateData.phone = patientPhone;
-        if (patientAddress) updateData.address = patientAddress;
-        if (patientSex) updateData.sex = patientSex;
-
-        if (Object.keys(updateData).length > 0) {
-          await supabase
-            .from('patients')
-            .update(updateData)
-            .eq('id', patientId);
-        }
+      if (linkedPatient) {
+        // Patient already linked via combobox — use directly
+        patientId = linkedPatient.id;
       } else {
+        // Search for existing patient by name
+        const { data: existingPatients, error: searchError } = await supabase
+          .from('patients')
+          .select('id')
+          .eq('doctor_id', user.id)
+          .ilike('full_name', patientName.trim())
+          .limit(1);
+
+        if (searchError) throw searchError;
+
+        if (existingPatients && existingPatients.length > 0) {
+          patientId = existingPatients[0].id;
+          // Actualizar datos del paciente si la IA los extrajo
+          const updateData: Record<string, any> = {};
+          if (patientPhone && patientPhone !== 'Sin especificar') updateData.phone = patientPhone;
+          if (patientAddress) updateData.address = patientAddress;
+          if (patientSex) updateData.sex = patientSex;
+
+          if (Object.keys(updateData).length > 0) {
+            await supabase
+              .from('patients')
+              .update(updateData)
+              .eq('id', patientId);
+          }
+        } else {
         const { data: newPatient, error: createError } = await supabase
           .from('patients')
           .insert([{
@@ -967,8 +997,9 @@ const VoiceNotes = () => {
 
         if (createError) throw createError;
         if (!newPatient) throw new Error('Failed to create patient');
-        
+
         patientId = newPatient.id;
+        }
       }
 
       // Save audio if available
@@ -1483,6 +1514,23 @@ const VoiceNotes = () => {
                       )}
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Vincular paciente existente */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Vincular Paciente</CardTitle>
+                  <CardDescription className="text-xs">
+                    Busca un paciente registrado para vincular esta historia clínica y auto-completar sus datos.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <PatientSearchCombobox
+                    selectedPatient={linkedPatient}
+                    onSelect={handleLinkedPatientSelect}
+                    disabled={isSaving}
+                  />
                 </CardContent>
               </Card>
 
