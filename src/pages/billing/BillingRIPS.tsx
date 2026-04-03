@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Download, Send, Eye, LogOut, Bell, User, AlertCircle, CheckCircle, Clock, Sparkles, Filter, Building2, Wallet } from "lucide-react";
+import { Plus, Download, Send, List, LogOut, Bell, User, AlertCircle, CheckCircle, Clock, Sparkles, Filter, Building2, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { RIPSBatchDialog } from "@/components/billing/RIPSBatchDialog";
+import { RIPSBatchDetail } from "@/components/billing/RIPSBatchDetail";
 import { AIRIPSAssistant } from "@/components/billing/AIRIPSAssistant";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,6 +41,7 @@ export default function BillingRIPS() {
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null);
   const [modalidadFilter, setModalidadFilter] = useState<string>("all");
+  const [detailBatch, setDetailBatch] = useState<{ id: string; pagador: string; fecha_inicio: string; fecha_fin: string } | null>(null);
 
   const { data: batches, isLoading } = useQuery({
     queryKey: ["rips-batches"],
@@ -50,22 +52,10 @@ export default function BillingRIPS() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as RIPSBatch[];
+      return data as unknown as RIPSBatch[];
     },
   });
 
-  // Filtrar batches por modalidad
-  const filteredBatches = batches?.filter(batch => {
-    if (modalidadFilter === "all") return true;
-    // Determinar modalidad basado en si tiene NIT o nombre de EPS
-    const isEPS = batch.nit_pagador || batch.pagador?.toLowerCase().includes("eps") || 
-                  batch.pagador?.toLowerCase().includes("nueva") || 
-                  batch.pagador?.toLowerCase().includes("sura") ||
-                  batch.pagador?.toLowerCase().includes("salud");
-    if (modalidadFilter === "eps") return isEPS;
-    if (modalidadFilter === "particular") return !isEPS;
-    return true;
-  });
 
   const generateRIPSMutation = useMutation({
     mutationFn: async (batchId: string) => {
@@ -481,6 +471,14 @@ export default function BillingRIPS() {
                                   <Button
                                     size="sm"
                                     variant="outline"
+                                    onClick={() => setDetailBatch({ id: batch.id, pagador: batch.pagador, fecha_inicio: batch.fecha_inicio, fecha_fin: batch.fecha_fin })}
+                                  >
+                                    <List className="h-4 w-4 mr-2" />
+                                    Ver registros
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
                                     onClick={() => {
                                       setSelectedBatchId(batch.id);
                                       setIsAIOpen(true);
@@ -617,6 +615,15 @@ export default function BillingRIPS() {
         batchId={selectedBatchId || undefined}
         onSuggestionsApplied={() => queryClient.invalidateQueries({ queryKey: ["rips-batches"] })}
       />
+
+      {detailBatch && (
+        <RIPSBatchDetail
+          open={!!detailBatch}
+          onOpenChange={(open) => { if (!open) setDetailBatch(null); }}
+          batchId={detailBatch.id}
+          batchInfo={{ pagador: detailBatch.pagador, fecha_inicio: detailBatch.fecha_inicio, fecha_fin: detailBatch.fecha_fin }}
+        />
+      )}
     </SidebarProvider>
   );
 }
