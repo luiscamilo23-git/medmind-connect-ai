@@ -39,6 +39,8 @@ import { MedicalSpecialty, SPECIALTY_CONFIGS, getFieldsForSpecialty } from "@/co
 import { ClinicalAlerts, ClinicalAlertsData } from "@/components/ClinicalAlerts";
 import { blobToWavBase64 } from "@/utils/audioWav";
 import { ServiceSelector, SelectedService } from "@/components/ServiceSelector";
+import { ConsentimientoInformadoDialog } from "@/components/ConsentimientoInformadoDialog";
+import { FileCheck } from "lucide-react";
 
 interface Suggestion {
   question: string;
@@ -122,6 +124,13 @@ const VoiceNotes = () => {
   
   // Selected service for the consultation (mandatory)
   const [selectedService, setSelectedService] = useState<SelectedService | null>(null);
+
+  // Modalidad de atención — Res. 2654/2019
+  const [modalidadAtencion, setModalidadAtencion] = useState<
+    "presencial" | "telemedicina_interactiva" | "telemedicina_no_interactiva"
+  >("presencial");
+  const [consentimientoOpen, setConsentimientoOpen] = useState(false);
+  const [consentimientoObtenido, setConsentimientoObtenido] = useState(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -1035,6 +1044,7 @@ const VoiceNotes = () => {
           evolution_notes: evolutionNotes,
           notes: [notes, specialtyNotes].filter(Boolean).join('\n\n--- Campos Especializados ---\n'),
           voice_transcript: transcript,
+          modalidad_atencion: modalidadAtencion,
         }])
         .select('*')
         .single();
@@ -1103,6 +1113,8 @@ const VoiceNotes = () => {
     setPatientName("");
     setSelectedService(null);
     setSpecialtyFieldsValues({});
+    setModalidadAtencion("presencial");
+    setConsentimientoObtenido(false);
     audioChunksRef.current = [];
     setAudioBlob(null);
   };
@@ -1416,6 +1428,59 @@ const VoiceNotes = () => {
                 </CardContent>
               </Card>
 
+              {/* Modalidad de atención — Res. 2654/2019 */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Modalidad de Atención</CardTitle>
+                  <CardDescription className="text-xs">
+                    Resolución 2654/2019 — Obligatorio registrar la modalidad de atención
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex-1 space-y-1.5">
+                      <Label className="text-sm font-medium">Modalidad</Label>
+                      <Select
+                        value={modalidadAtencion}
+                        onValueChange={(v) => {
+                          setModalidadAtencion(v as typeof modalidadAtencion);
+                          setConsentimientoObtenido(false);
+                        }}
+                        disabled={isSaving}
+                      >
+                        <SelectTrigger className="w-full sm:w-72">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="presencial">Presencial</SelectItem>
+                          <SelectItem value="telemedicina_interactiva">Telemedicina interactiva</SelectItem>
+                          <SelectItem value="telemedicina_no_interactiva">Telemedicina no interactiva</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-3 pt-1 sm:pt-5">
+                      {consentimientoObtenido ? (
+                        <Badge className="bg-green-100 text-green-700 border-green-300 gap-1.5">
+                          <FileCheck className="w-3.5 h-3.5" />
+                          Consentimiento obtenido
+                        </Badge>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setConsentimientoOpen(true)}
+                          disabled={isSaving}
+                          className="gap-2"
+                        >
+                          <FileCheck className="w-4 h-4" />
+                          Obtener consentimiento
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Title Card */}
               <Card>
                 <CardHeader className="pb-4">
@@ -1605,6 +1670,19 @@ const VoiceNotes = () => {
           </main>
         </div>
       </div>
+
+      {/* Consentimiento informado */}
+      {doctorProfile?.id && (
+        <ConsentimientoInformadoDialog
+          open={consentimientoOpen}
+          onOpenChange={setConsentimientoOpen}
+          patientId=""
+          patientName={patientName}
+          medicoId={doctorProfile.id}
+          tipo={modalidadAtencion.startsWith("telemedicina") ? "telemedicina" : "consulta_general"}
+          onConfirmed={() => setConsentimientoObtenido(true)}
+        />
+      )}
     </SidebarProvider>
   );
 };

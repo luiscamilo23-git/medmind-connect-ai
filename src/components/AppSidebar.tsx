@@ -15,7 +15,8 @@ import {
   BarChart3,
   Settings,
   Bot,
-  CreditCard
+  CreditCard,
+  Shield
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useEffect, useState } from "react";
@@ -38,6 +39,10 @@ import {
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Pacientes", url: "/patients", icon: Users },
+];
+
+const complianceItems = [
+  { title: "PQRS", url: "/pqrs", icon: Shield },
 ];
 
 const modulesItems = [
@@ -176,6 +181,29 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink 
+                      to={item.url}
+                      className="flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {!isCollapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Cumplimiento Legal */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase text-xs tracking-wider">Cumplimiento</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {complianceItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
                       to={item.url}
                       className="flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
                       activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"

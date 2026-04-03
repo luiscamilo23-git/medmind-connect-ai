@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { 
+import {
   Sparkles,
   CheckCircle2,
   Lightbulb,
@@ -18,18 +18,27 @@ import {
   Upload,
   FileText,
   LogOut,
-  User as UserIcon
+  User as UserIcon,
+  FileCheck
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AudioFileUpload } from "@/components/AudioFileUpload";
 import AudioWaveform from "@/components/AudioWaveform";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
+import { ConsentimientoInformadoDialog } from "@/components/ConsentimientoInformadoDialog";
 
 const SmartNotes = () => {
   const [notes, setNotes] = useState("");
@@ -40,7 +49,16 @@ const SmartNotes = () => {
     mainIdeas: string[];
     reminders?: string[];
   } | null>(null);
-  
+
+  // Modalidad de atención — Res. 2654/2019
+  const [modalidadAtencion, setModalidadAtencion] = useState<
+    "presencial" | "telemedicina_interactiva" | "telemedicina_no_interactiva"
+  >("presencial");
+  const [consentimientoOpen, setConsentimientoOpen] = useState(false);
+  const [consentimientoObtenido, setConsentimientoObtenido] = useState(false);
+  const [selectedPatientId, setSelectedPatientId] = useState<string>("");
+  const [medicoId, setMedicoId] = useState<string>("");
+
   // Voice recording states
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
@@ -50,6 +68,12 @@ const SmartNotes = () => {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setMedicoId(data.user.id);
+    });
+  }, []);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -335,6 +359,51 @@ const SmartNotes = () => {
               </div>
             </div>
           </CardHeader>
+        </Card>
+
+        {/* Modalidad de atención — Res. 2654/2019 */}
+        <Card className="mb-4 sm:mb-6 border-border/50">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="flex-1 space-y-1.5">
+                <Label className="text-sm font-medium">Modalidad de atención</Label>
+                <Select
+                  value={modalidadAtencion}
+                  onValueChange={(v) => {
+                    setModalidadAtencion(v as typeof modalidadAtencion);
+                    setConsentimientoObtenido(false);
+                  }}
+                >
+                  <SelectTrigger className="w-full sm:w-72">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="presencial">Presencial</SelectItem>
+                    <SelectItem value="telemedicina_interactiva">Telemedicina interactiva</SelectItem>
+                    <SelectItem value="telemedicina_no_interactiva">Telemedicina no interactiva</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-3">
+                {consentimientoObtenido ? (
+                  <Badge className="bg-green-100 text-green-700 border-green-300 gap-1.5">
+                    <FileCheck className="w-3.5 h-3.5" />
+                    Consentimiento obtenido
+                  </Badge>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setConsentimientoOpen(true)}
+                    className="gap-2"
+                  >
+                    <FileCheck className="w-4 h-4" />
+                    Obtener consentimiento
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
         <Tabs defaultValue="voice" className="w-full">
@@ -759,6 +828,19 @@ const SmartNotes = () => {
           </main>
         </div>
       </div>
+
+      {/* Consentimiento informado */}
+      {medicoId && (
+        <ConsentimientoInformadoDialog
+          open={consentimientoOpen}
+          onOpenChange={setConsentimientoOpen}
+          patientId={selectedPatientId}
+          patientName=""
+          medicoId={medicoId}
+          tipo={modalidadAtencion.startsWith("telemedicina") ? "telemedicina" : "consulta_general"}
+          onConfirmed={() => setConsentimientoObtenido(true)}
+        />
+      )}
     </SidebarProvider>
   );
 };

@@ -42,6 +42,11 @@ const PatientWellness = React.lazy(() => import("./pages/patient/PatientWellness
 const PatientFeed = React.lazy(() => import("./pages/patient/PatientFeed"));
 const PatientChat = React.lazy(() => import("./pages/patient/PatientChat"));
 const PatientAppointments = React.lazy(() => import("./pages/patient/PatientAppointments"));
+const PatientPQRS = React.lazy(() => import("./pages/patient/PatientPQRS"));
+const PatientAuthorizations = React.lazy(() => import("./pages/patient/PatientAuthorizations"));
+
+// Legal compliance pages (doctor)
+const PQRS = React.lazy(() => import("./pages/PQRS"));
 
 // Billing pages
 const BillingServices = React.lazy(() => import("./pages/billing/BillingServices"));
@@ -118,6 +123,7 @@ const App = () => (
             <Route path="/doctor-settings" element={<ProtectedRoute requiredRole="doctor"><DoctorSettings /></ProtectedRoute>} />
             <Route path="/social" element={<ProtectedRoute requiredRole="doctor"><SocialNetwork /></ProtectedRoute>} />
             <Route path="/referrals" element={<ProtectedRoute requiredRole="doctor"><Referrals /></ProtectedRoute>} />
+            <Route path="/pqrs" element={<ProtectedRoute requiredRole="doctor"><PQRS /></ProtectedRoute>} />
 
             {/* Patient routes */}
             <Route path="/patient/dashboard" element={<ProtectedRoute requiredRole="patient"><PatientDashboard /></ProtectedRoute>} />
@@ -126,6 +132,8 @@ const App = () => (
             <Route path="/patient/feed" element={<ProtectedRoute requiredRole="patient"><PatientFeed /></ProtectedRoute>} />
             <Route path="/patient/chat" element={<ProtectedRoute requiredRole="patient"><PatientChat /></ProtectedRoute>} />
             <Route path="/patient/appointments" element={<ProtectedRoute requiredRole="patient"><PatientAppointments /></ProtectedRoute>} />
+            <Route path="/patient/pqrs" element={<ProtectedRoute requiredRole="patient"><PatientPQRS /></ProtectedRoute>} />
+            <Route path="/patient/authorizations" element={<ProtectedRoute requiredRole="patient"><PatientAuthorizations /></ProtectedRoute>} />
 
             {/* Billing routes */}
             <Route path="/billing/subscription" element={<ProtectedRoute requiredRole="doctor"><Subscription /></ProtectedRoute>} />

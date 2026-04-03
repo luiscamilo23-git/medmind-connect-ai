@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { HabeasDataDialog, HABEAS_DATA_TEXT } from "@/components/HabeasDataDialog";
 
 const patientSchema = z.object({
   full_name: z.string().min(1, "El nombre es requerido").max(100),
@@ -60,6 +61,9 @@ interface PatientDialogProps {
 
 export const PatientDialog = ({ open, onOpenChange, patient }: PatientDialogProps) => {
   const { toast } = useToast();
+  const [showHabeas, setShowHabeas] = useState(false);
+  const [pendingPatientData, setPendingPatientData] = useState<PatientFormData | null>(null);
+
   const form = useForm<PatientFormData>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
@@ -107,6 +111,14 @@ export const PatientDialog = ({ open, onOpenChange, patient }: PatientDialogProp
   }, [patient, form]);
 
   const onSubmit = async (data: PatientFormData) => {
+    if (!patient) {
+      // For new patients, show Habeas Data dialog first
+      setPendingPatientData(data);
+      setShowHabeas(true);
+      return;
+    }
+
+    // For existing patients, update directly
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
@@ -117,7 +129,7 @@ export const PatientDialog = ({ open, onOpenChange, patient }: PatientDialogProp
         email: data.email || null,
         date_of_birth: data.date_of_birth || null,
         blood_type: data.blood_type || null,
-        allergies: data.allergies ? data.allergies.split(",").map(a => a.trim()) : null,
+        allergies: data.allergies ? data.allergies.split(",").map((a) => a.trim()) : null,
         emergency_contact_name: data.emergency_contact_name || null,
         emergency_contact_phone: data.emergency_contact_phone || null,
         address: data.address || null,
@@ -125,30 +137,17 @@ export const PatientDialog = ({ open, onOpenChange, patient }: PatientDialogProp
         doctor_id: user.id,
       };
 
-      if (patient) {
-        const { error } = await supabase
-          .from("patients")
-          .update(patientData)
-          .eq("id", patient.id);
+      const { error } = await supabase
+        .from("patients")
+        .update(patientData)
+        .eq("id", patient.id);
 
-        if (error) throw error;
+      if (error) throw error;
 
-        toast({
-          title: "Paciente actualizado",
-          description: "Los datos del paciente se actualizaron correctamente.",
-        });
-      } else {
-        const { error } = await supabase
-          .from("patients")
-          .insert([patientData]);
-
-        if (error) throw error;
-
-        toast({
-          title: "Paciente creado",
-          description: "El paciente se registró exitosamente.",
-        });
-      }
+      toast({
+        title: "Paciente actualizado",
+        description: "Los datos del paciente se actualizaron correctamente.",
+      });
 
       onOpenChange(true);
     } catch (error: any) {
@@ -160,7 +159,79 @@ export const PatientDialog = ({ open, onOpenChange, patient }: PatientDialogProp
     }
   };
 
+  const handleHabeasAccepted = async (firmaUrl?: string) => {
+    if (!pendingPatientData) return;
+
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error("No user found");
+
+      const patientData = {
+        full_name: pendingPatientData.full_name,
+        phone: pendingPatientData.phone,
+        email: pendingPatientData.email || null,
+        date_of_birth: pendingPatientData.date_of_birth || null,
+        blood_type: pendingPatientData.blood_type || null,
+        allergies: pendingPatientData.allergies
+          ? pendingPatientData.allergies.split(",").map((a) => a.trim())
+          : null,
+        emergency_contact_name: pendingPatientData.emergency_contact_name || null,
+        emergency_contact_phone: pendingPatientData.emergency_contact_phone || null,
+        address: pendingPatientData.address || null,
+        notes: pendingPatientData.notes || null,
+        doctor_id: userData.user.id,
+      };
+
+      const { data: newPatient, error: insertError } = await supabase
+        .from("patients")
+        .insert([patientData])
+        .select("id")
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Save authorization record
+      await supabase.from("patient_authorizations").insert([{
+        patient_id: newPatient.id,
+        tipo: "habeas_data",
+        texto_mostrado: HABEAS_DATA_TEXT,
+        aceptado: true,
+        firma_url: firmaUrl || null,
+        medico_id: userData.user.id,
+        ip_address: window.location.hostname,
+        user_agent: navigator.userAgent,
+      }]);
+
+      toast({
+        title: "Paciente creado",
+        description: "El paciente se registró exitosamente con autorización Habeas Data.",
+      });
+
+      setShowHabeas(false);
+      setPendingPatientData(null);
+      onOpenChange(true);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleHabeasRejected = () => {
+    setShowHabeas(false);
+    setPendingPatientData(null);
+  };
+
   return (
+    <>
+    <HabeasDataDialog
+      open={showHabeas}
+      patientName={pendingPatientData?.full_name ?? ""}
+      onAccepted={handleHabeasAccepted}
+      onRejected={handleHabeasRejected}
+    />
     <Dialog open={open} onOpenChange={(open) => onOpenChange(open)}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -326,5 +397,6 @@ export const PatientDialog = ({ open, onOpenChange, patient }: PatientDialogProp
         </Form>
       </DialogContent>
     </Dialog>
+    </>
   );
 };

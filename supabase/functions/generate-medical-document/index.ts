@@ -157,26 +157,37 @@ HISTORIA CLÍNICA ESTRUCTURADA:
 
 INSTRUCCIÓN CRÍTICA: Extrae TODOS los medicamentos que el médico mencionó en la transcripción o historia. Incluye dosis, frecuencia y duración EXACTAMENTE como fueron dictados.
 
+IMPORTANTE — FÓRMULA MÉDICA COLOMBIA (Resolución 1552/2013):
+- SIEMPRE usar nombre genérico (DCI/INN), NUNCA nombre comercial
+- Incluir: concentración, forma farmacéutica, vía de administración
+- La cantidad de unidades DEBE expresarse en número Y en letras (ej: VEINTIÚN (21) tabletas)
+- Incluir dosis exacta, frecuencia y duración del tratamiento
+- Si el medicamento no debe sustituirse, indicar 'NO SUSTITUIR'
+- Campo alertas: incluir interacciones importantes si las hay
+
 ${patientInfo}
 ${transcriptContext}
 ${medicalContext}
 
-Genera un JSON con esta estructura exacta:
+JSON structure:
 {
-  "medications": [
-    {
-      "name": "Nombre del medicamento (genérico y/o comercial)",
-      "presentation": "Presentación (tabletas 500mg, jarabe 5ml, etc)",
-      "dose": "Dosis exacta como la dictó el médico",
-      "frequency": "Frecuencia exacta (cada 8 horas, 2 veces al día, etc)",
-      "duration": "Duración exacta (7 días, 2 semanas, etc)",
-      "route": "Vía de administración",
-      "instructions": "Instrucciones especiales (con alimentos, antes de dormir, etc)"
-    }
-  ],
-  "generalInstructions": "Recomendaciones generales del médico",
-  "warnings": ["Advertencias mencionadas"],
-  "followUpDate": "Fecha de control si se mencionó"
+  "medicamentos": [{
+    "nombreGenerico": "nombre INN obligatorio",
+    "concentracion": "ej: 500mg",
+    "formaFarmaceutica": "ej: tabletas, cápsulas, jarabe",
+    "via": "ej: oral, intramuscular",
+    "dosis": "dosis exacta",
+    "frecuencia": "cada 8 horas, 2 veces al día, etc",
+    "duracion": "7 días, 2 semanas, etc",
+    "cantidadNumerica": 21,
+    "cantidadLetras": "VEINTIÚN (21)",
+    "indicaciones": "instrucciones especiales",
+    "noSustituir": false,
+    "alerta": "interacciones u observaciones si aplica"
+  }],
+  "diagnostico": "diagnóstico con código CIE-10",
+  "validezDias": 30,
+  "observaciones": "recomendaciones generales"
 }`,
 
     lab_order: `Genera una ORDEN DE LABORATORIO profesional.
@@ -279,27 +290,32 @@ Genera un JSON profesional:
 
 INSTRUCCIÓN CRÍTICA: Extrae los DÍAS DE INCAPACIDAD y las FECHAS exactas que el médico mencionó en la consulta. Si dijo "5 días de incapacidad" o "incapacidad del 8 al 12 de enero", usa esos datos exactos.
 
+IMPORTANTE — INCAPACIDAD MÉDICA COLOMBIA (Decreto 019/2012 art. 142):
+- El diagnóstico DEBE incluir código CIE-10
+- Los días deben expresarse en número Y en letras
+- Debe incluir fecha de inicio, fecha fin (calculada) y fecha de reintegro laboral
+- Incluir restricciones específicas (qué NO puede hacer el paciente)
+
 ${patientInfo}
 ${transcriptContext}
 ${medicalContext}
 
 La fecha de hoy es: ${new Date().toISOString().split('T')[0]}
 
-Genera un JSON profesional y legal:
+JSON structure:
 {
-  "startDate": "Fecha de inicio (la que mencionó el médico o fecha de hoy si no especificó)",
-  "days": número_de_días_de_incapacidad,
-  "endDate": "Fecha de finalización calculada",
-  "diagnosis": "Diagnóstico que justifica la incapacidad",
-  "cie10Code": "Código CIE-10",
-  "type": "Tipo de incapacidad (enfermedad general, accidente laboral, etc)",
-  "justification": "Justificación médica detallada basada en lo que dijo el médico",
-  "severity": "Gravedad y limitaciones funcionales",
-  "restrictions": ["Lista de restricciones y actividades que no puede realizar"],
-  "treatment": "Tratamiento durante la incapacidad",
-  "prognosis": "Pronóstico esperado",
-  "requiresExtension": "Si es probable extensión",
-  "workLimitations": "Limitaciones laborales específicas"
+  "diagnosticoCIE10": "código CIE-10 OBLIGATORIO",
+  "diagnosticoDescripcion": "descripción del diagnóstico",
+  "diasNumerica": 5,
+  "diasLetras": "CINCO (5) días",
+  "fechaInicio": "YYYY-MM-DD",
+  "fechaFin": "YYYY-MM-DD (fechaInicio + diasNumerica)",
+  "fechaReintegro": "YYYY-MM-DD (día siguiente a fechaFin)",
+  "restricciones": "qué NO puede hacer el paciente",
+  "recomendaciones": "indicaciones durante el reposo",
+  "tipoReposo": "absoluto o relativo",
+  "requiereControlMedico": true,
+  "fechaControl": "YYYY-MM-DD si aplica"
 }`,
   };
 
