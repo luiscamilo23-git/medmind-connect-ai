@@ -27,6 +27,8 @@ type RIPSBatch = {
   archivo_rips_url: string | null;
   errores_validacion: any;
   fecha_envio: string | null;
+  cuv: string | null;
+  fecha_cuv: string | null;
   created_at: string;
   modalidad?: string;
 };
@@ -98,6 +100,23 @@ export default function BillingRIPS() {
     },
     onError: (error: any) => {
       toast.error(`Error al validar RIPS: ${error.message}`);
+    },
+  });
+
+  const submitAdresMutation = useMutation({
+    mutationFn: async (batchId: string) => {
+      const { data, error } = await supabase.functions.invoke("submit-rips-adres", {
+        body: { batchId },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["rips-batches"] });
+      toast.success(`RIPS enviado a ADRES — CUV: ${data?.cuv ?? "pendiente"}`);
+    },
+    onError: (error: any) => {
+      toast.error(`Error al enviar a ADRES: ${error.message}`);
     },
   });
 
@@ -490,6 +509,21 @@ export default function BillingRIPS() {
                                       Validar
                                     </Button>
                                   )}
+                                  {batch.estado === "VALIDADO" && !batch.cuv && (
+                                    <Button
+                                      size="sm"
+                                      onClick={() => {
+                                        if (confirm("¿Enviar RIPS a ADRES/SISPRO?")) {
+                                          submitAdresMutation.mutate(batch.id);
+                                        }
+                                      }}
+                                      disabled={submitAdresMutation.isPending}
+                                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    >
+                                      <Send className="h-4 w-4 mr-2" />
+                                      Enviar a ADRES
+                                    </Button>
+                                  )}
                                   {batch.archivo_rips_url && (
                                     <Button
                                       size="sm"
@@ -522,6 +556,29 @@ export default function BillingRIPS() {
                                   <p className="font-medium">{formatDate(batch.created_at)}</p>
                                 </div>
                               </div>
+
+                              {/* CUV y plazo ADRES */}
+                              {batch.cuv ? (
+                                <div className="mt-3 flex items-center gap-2 text-sm bg-green-500/10 border border-green-500/30 rounded-md px-3 py-2">
+                                  <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />
+                                  <span className="text-green-700 font-medium">CUV ADRES:</span>
+                                  <span className="font-mono text-green-800">{batch.cuv}</span>
+                                  {batch.fecha_cuv && (
+                                    <span className="text-green-600 ml-auto text-xs">{formatDate(batch.fecha_cuv)}</span>
+                                  )}
+                                </div>
+                              ) : batch.estado === "VALIDADO" ? (
+                                <div className="mt-3 flex items-center gap-2 text-sm bg-amber-500/10 border border-amber-500/30 rounded-md px-3 py-2">
+                                  <Clock className="h-4 w-4 text-amber-600 shrink-0" />
+                                  <span className="text-amber-700">
+                                    Pendiente envío a ADRES —{" "}
+                                    <strong>
+                                      plazo: 22 días hábiles desde{" "}
+                                      {formatDate(batch.fecha_fin)}
+                                    </strong>
+                                  </span>
+                                </div>
+                              ) : null}
 
                               {batch.errores_validacion && (
                                 <Alert variant="destructive" className="mt-4">

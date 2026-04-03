@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { LogOut, Bell, User, Settings, Send } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { LogOut, Bell, User, Settings, Send, Star, Zap, Shield } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DIANProviderConfigDialog } from "@/components/billing/DIANProviderConfigDialog";
+import { DIANSoftwarePropioSetup } from "@/components/billing/DIANSoftwarePropioSetup";
+import { supabase } from "@/integrations/supabase/client";
 
 const DIAN_PROVIDERS = [
   {
@@ -38,6 +42,16 @@ const DIAN_PROVIDERS = [
 export default function BillingDIAN() {
   const navigate = useNavigate();
   const [selectedProvider, setSelectedProvider] = useState<{ id: string; name: string } | null>(null);
+  const [showSoftwarePropio, setShowSoftwarePropio] = useState(false);
+  const [softwarePropioConfig, setSoftwarePropioConfig] = useState<Record<string, unknown> | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase.from("dian_software_config").select("*").eq("doctor_id", user.id).maybeSingle()
+        .then(({ data }) => { if (data) setSoftwarePropioConfig(data); });
+    });
+  }, []);
 
   const handleLogout = async () => {
     const { supabase } = await import("@/integrations/supabase/client");
@@ -73,22 +87,81 @@ export default function BillingDIAN() {
           {/* Main Content */}
           <main className="flex-1 overflow-y-auto p-6">
             <div className="max-w-5xl mx-auto space-y-6">
+
+              {/* MEDMIND DIAN Directo — opción principal */}
+              <Card className="border-2 border-primary/40 bg-gradient-to-br from-primary/5 to-background shadow-md">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Zap className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="flex items-center gap-2">
+                          MEDMIND DIAN Directo
+                          <Badge variant="default" className="ml-2 text-xs">Recomendado</Badge>
+                          {softwarePropioConfig && (
+                            <Badge variant="outline" className="ml-1 text-xs text-green-600 border-green-500">
+                              ✓ Configurado
+                            </Badge>
+                          )}
+                        </CardTitle>
+                        <CardDescription>
+                          MEDMIND actúa como tu motor de facturación — sin terceros, sin costos adicionales
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div className="flex items-start gap-2">
+                      <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">CUFE SHA-384</p>
+                        <p className="text-xs text-muted-foreground">Calculado localmente, verificado por DIAN</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Star className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">Firma Digital X.509</p>
+                        <p className="text-xs text-muted-foreground">Con tu certificado de Certicámara/GSE</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Zap className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">SOAP Directo a DIAN</p>
+                        <p className="text-xs text-muted-foreground">SendBillSync sin intermediarios</p>
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    className="w-full md:w-auto"
+                    onClick={() => setShowSoftwarePropio(true)}
+                  >
+                    {softwarePropioConfig ? "Editar configuración" : "Configurar Software Propio"}
+                  </Button>
+                </CardContent>
+              </Card>
+
               <Alert>
                 <Settings className="h-4 w-4" />
-                <AlertTitle>Proveedor Tecnológico DIAN</AlertTitle>
+                <AlertTitle>Alternativas de terceros</AlertTitle>
                 <AlertDescription>
-                  Para emitir facturas electrónicas válidas ante la DIAN, debes configurar un proveedor
-                  tecnológico autorizado. Elige el que mejor se adapte a tus necesidades.
+                  Si aún no tienes tu NIT habilitado ante la DIAN o tu certificado X.509, puedes usar uno
+                  de los proveedores tecnológicos autorizados mientras completas el proceso.
                 </AlertDescription>
               </Alert>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {DIAN_PROVIDERS.map((provider) => (
-                  <Card key={provider.id} className="hover:shadow-lg transition-shadow">
+                  <Card key={provider.id} className="hover:shadow-lg transition-shadow opacity-90">
                     <CardHeader>
                       <div className="flex items-center justify-between mb-4">
-                        <img 
-                          src={provider.logo} 
+                        <img
+                          src={provider.logo}
                           alt={provider.name}
                           className="h-8 object-contain"
                           onError={(e) => {
@@ -112,15 +185,15 @@ export default function BillingDIAN() {
                             ))}
                           </ul>
                         </div>
-                        <Button 
-                          className="w-full" 
+                        <Button
+                          className="w-full"
                           variant="outline"
                           onClick={() => setSelectedProvider(provider)}
                         >
                           Configurar {provider.name}
                         </Button>
-                        <Button 
-                          className="w-full" 
+                        <Button
+                          className="w-full"
                           variant="ghost"
                           onClick={() => window.open(provider.website, "_blank")}
                         >
@@ -131,61 +204,6 @@ export default function BillingDIAN() {
                   </Card>
                 ))}
               </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>¿Cómo funciona?</CardTitle>
-                  <CardDescription>
-                    Pasos para habilitar la facturación electrónica
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                      1
-                    </div>
-                    <div>
-                      <p className="font-medium">Crea una cuenta</p>
-                      <p className="text-sm text-muted-foreground">
-                        Regístrate en el proveedor de tu elección y obtén tus credenciales de API
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                      2
-                    </div>
-                    <div>
-                      <p className="font-medium">Configura en MEDMIND</p>
-                      <p className="text-sm text-muted-foreground">
-                        Ingresa tu API Key y configura los datos de tu empresa (NIT, nombre, etc.)
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                      3
-                    </div>
-                    <div>
-                      <p className="font-medium">Prueba en Sandbox</p>
-                      <p className="text-sm text-muted-foreground">
-                        Usa el modo de pruebas para verificar que todo funcione correctamente
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                      4
-                    </div>
-                    <div>
-                      <p className="font-medium">Emite facturas reales</p>
-                      <p className="text-sm text-muted-foreground">
-                        Activa el modo producción y comienza a emitir facturas electrónicas válidas ante la DIAN
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </main>
         </div>
@@ -198,6 +216,25 @@ export default function BillingDIAN() {
           provider={selectedProvider}
         />
       )}
+
+      <Dialog open={showSoftwarePropio} onOpenChange={setShowSoftwarePropio}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Configurar MEDMIND DIAN Directo</DialogTitle>
+          </DialogHeader>
+          <DIANSoftwarePropioSetup
+            existingConfig={softwarePropioConfig}
+            onSaved={() => {
+              setShowSoftwarePropio(false);
+              supabase.auth.getUser().then(({ data: { user } }) => {
+                if (!user) return;
+                supabase.from("dian_software_config").select("*").eq("doctor_id", user.id).maybeSingle()
+                  .then(({ data }) => { if (data) setSoftwarePropioConfig(data); });
+              });
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 }
