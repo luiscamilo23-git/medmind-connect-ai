@@ -1048,8 +1048,7 @@ const VoiceNotes = () => {
       // Determine RIPS status based on service modalidad
       const ripsStatus = selectedService.modalidad === 'eps_aseguradora' ? 'pendiente' : 'no_aplica';
 
-      const { data: savedRecord, error } = await supabase.from('medical_records')
-        .insert([{
+      const recordPayload: Record<string, any> = {
           doctor_id: user.id,
           patient_id: patientId,
           service_id: selectedService.id,
@@ -1076,9 +1075,23 @@ const VoiceNotes = () => {
           notes: [notes, specialtyNotes].filter(Boolean).join('\n\n--- Campos Especializados ---\n'),
           voice_transcript: transcript,
           modalidad_atencion: modalidadAtencion,
-        }])
+      };
+
+      let { data: savedRecord, error } = await supabase.from('medical_records')
+        .insert([recordPayload])
         .select('*')
         .single();
+
+      // Fallback: if column doesn't exist yet in DB, retry without modalidad_atencion
+      if (error?.message?.includes('modalidad_atencion')) {
+        const { modalidad_atencion: _, ...payloadWithout } = recordPayload;
+        const retry = await supabase.from('medical_records')
+          .insert([payloadWithout])
+          .select('*')
+          .single();
+        savedRecord = retry.data;
+        error = retry.error;
+      }
 
       if (error) throw error;
       
