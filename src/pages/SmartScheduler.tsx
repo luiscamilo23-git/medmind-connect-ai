@@ -31,6 +31,9 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { NotificationBell } from "@/components/NotificationBell";
 import { format, addDays, startOfWeek, isSameDay, isToday, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -69,6 +72,11 @@ const SmartScheduler = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [whatsappConnected, setWhatsappConnected] = useState<boolean | null>(null);
+  const [blockDialogOpen, setBlockDialogOpen] = useState(false);
+  const [blockStartDate, setBlockStartDate] = useState("");
+  const [blockEndDate, setBlockEndDate] = useState("");
+  const [blockReason, setBlockReason] = useState("");
+  const [savingBlock, setSavingBlock] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -324,6 +332,34 @@ const SmartScheduler = () => {
     sendToN8N("send_reminders", "Enviar recordatorios automáticos a pacientes");
   };
 
+  const handleSaveBlockedDates = async () => {
+    if (!blockStartDate) { toast({ title: "Ingresa una fecha de inicio", variant: "destructive" }); return; }
+    setSavingBlock(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No autenticado");
+      const end = blockEndDate || blockStartDate;
+      // Create a "blocked" appointment slot spanning the date range
+      const { error } = await supabase.from("appointments").insert({
+        doctor_id: user.id,
+        title: blockReason || "Fechas bloqueadas",
+        appointment_date: new Date(blockStartDate + "T08:00:00").toISOString(),
+        duration_minutes: Math.max(1, Math.ceil((new Date(end + "T23:59:59").getTime() - new Date(blockStartDate + "T08:00:00").getTime()) / 60000)),
+        status: "cancelled",
+        notes: `BLOQUEADO: ${blockReason || "Sin motivo"} — hasta ${end}`,
+      });
+      if (error) throw error;
+      toast({ title: "Fechas bloqueadas", description: `Del ${blockStartDate} al ${end}` });
+      setBlockDialogOpen(false);
+      setBlockStartDate(""); setBlockEndDate(""); setBlockReason("");
+      loadAppointments();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setSavingBlock(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed": return "bg-primary/90";
@@ -425,7 +461,7 @@ const SmartScheduler = () => {
                 <Badge className="ml-auto text-[9px] bg-secondary/20 text-secondary hover:bg-secondary/20 px-1.5">Nuevo</Badge>
               </Button>
               
-              <Button variant="ghost" className="w-full justify-start gap-2 h-9 text-sm hover:bg-warning/10">
+              <Button variant="ghost" className="w-full justify-start gap-2 h-9 text-sm hover:bg-warning/10" onClick={() => setBlockDialogOpen(true)}>
                 <Lock className="w-4 h-4 text-warning" />
                 Bloquear Fechas
               </Button>
@@ -735,6 +771,46 @@ const SmartScheduler = () => {
         appointment={selectedAppointment}
         initialDate={selectedDate}
       />
+
+      {/* Bloquear Fechas Dialog */}
+      <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-warning" />
+              Bloquear Fechas
+            </DialogTitle>
+            <DialogDescription>
+              Marca días como no disponibles (vacaciones, congresos, etc.)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label>Fecha inicio *</Label>
+              <Input type="date" value={blockStartDate} onChange={e => setBlockStartDate(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Fecha fin (opcional)</Label>
+              <Input type="date" value={blockEndDate} min={blockStartDate} onChange={e => setBlockEndDate(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Motivo (opcional)</Label>
+              <Textarea
+                placeholder="Ej: Vacaciones, Congreso médico, Día festivo..."
+                value={blockReason}
+                onChange={e => setBlockReason(e.target.value)}
+                rows={2}
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setBlockDialogOpen(false)}>Cancelar</Button>
+              <Button className="flex-1" disabled={savingBlock} onClick={handleSaveBlockedDates}>
+                {savingBlock ? "Guardando..." : "Bloquear"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

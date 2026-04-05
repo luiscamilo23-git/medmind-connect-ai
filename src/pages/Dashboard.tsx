@@ -199,40 +199,42 @@ const Dashboard = () => {
         ? Math.round(appointments.reduce((sum, a) => sum + a.duration_minutes, 0) / appointments.length)
         : 0;
 
-      // Simular tendencias (en producción, compararías con mes anterior)
-      const trends = {
-        patients: Math.floor(Math.random() * 30) - 10, // -10% a +20%
-        satisfaction: Math.floor(Math.random() * 20) - 5, // -5% a +15%
-        revenue: Math.floor(Math.random() * 40) - 10, // -10% a +30%
-        time: Math.floor(Math.random() * 20) - 10 // -10% a +10%
+      // Calcular tendencias reales comparando mes actual vs mes anterior
+      const now = new Date();
+      const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
+
+      const [thisMonthPats, lastMonthPats, thisMonthApts, lastMonthApts] = await Promise.all([
+        supabase.from('patients').select('*', { count: 'exact', head: true })
+          .eq('doctor_id', doctorId).gte('created_at', startOfThisMonth),
+        supabase.from('patients').select('*', { count: 'exact', head: true })
+          .eq('doctor_id', doctorId).gte('created_at', startOfLastMonth).lte('created_at', endOfLastMonth),
+        supabase.from('appointments').select('*', { count: 'exact', head: true })
+          .eq('doctor_id', doctorId).eq('status', 'completed').gte('appointment_date', startOfThisMonth),
+        supabase.from('appointments').select('*', { count: 'exact', head: true })
+          .eq('doctor_id', doctorId).eq('status', 'completed').gte('appointment_date', startOfLastMonth).lte('appointment_date', endOfLastMonth),
+      ]);
+
+      const calcTrend = (current: number, previous: number) => {
+        if (previous === 0) return current > 0 ? 100 : 0;
+        return Math.round(((current - previous) / previous) * 100);
       };
 
-      // Si no hay datos reales, mostrar datos demo para el video
-      const hasRealData = (patientsCount || 0) > 0;
-      
-      if (hasRealData) {
-        setStats({
-          totalPatients: patientsCount || 0,
-          satisfactionRate,
-          estimatedRevenue,
-          averageTime,
-          trends
-        });
-      } else {
-        // Datos demo para presentaciones y videos
-        setStats({
-          totalPatients: 127,
-          satisfactionRate: 96,
-          estimatedRevenue: 15840000,
-          averageTime: 28,
-          trends: {
-            patients: 18,
-            satisfaction: 4,
-            revenue: 23,
-            time: -8
-          }
-        });
-      }
+      const trends = {
+        patients: calcTrend(thisMonthPats.count || 0, lastMonthPats.count || 0),
+        satisfaction: 0,
+        revenue: calcTrend(thisMonthApts.count || 0, lastMonthApts.count || 0),
+        time: 0,
+      };
+
+      setStats({
+        totalPatients: patientsCount || 0,
+        satisfactionRate,
+        estimatedRevenue,
+        averageTime,
+        trends
+      });
     } catch (error) {
     }
   };

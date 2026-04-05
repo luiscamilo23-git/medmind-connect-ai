@@ -40,14 +40,31 @@ const PatientAppointments = () => {
         return;
       }
 
-      // Note: This assumes appointments table will be extended to support patient_id
-      // For now, this is a placeholder
-      setAppointments([]);
+      // Find the patient record linked to this user's email
+      const { data: patientRecord } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("email", session.user.email)
+        .maybeSingle();
 
-      toast({
-        title: "Información",
-        description: "La funcionalidad de citas para pacientes estará disponible pronto",
-      });
+      if (!patientRecord) {
+        setAppointments([]);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("appointments")
+        .select(`
+          id, title, description, appointment_date,
+          duration_minutes, status, location,
+          profiles:doctor_id(full_name, specialty, avatar_url)
+        `)
+        .eq("patient_id", patientRecord.id)
+        .order("appointment_date", { ascending: true });
+
+      if (error) throw error;
+      setAppointments((data as any) || []);
     } catch (error: any) {
       toast({
         title: "Error",
