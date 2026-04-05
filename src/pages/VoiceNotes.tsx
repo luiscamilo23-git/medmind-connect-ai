@@ -920,16 +920,6 @@ const VoiceNotes = () => {
   };
 
   const saveMedicalRecord = async () => {
-    // Validate service selection (mandatory)
-    if (!selectedService) {
-      toast({
-        title: "Servicio requerido",
-        description: "Debes seleccionar un servicio médico antes de guardar la historia clínica",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!patientName.trim()) {
       toast({
         title: "Paciente requerido",
@@ -1047,13 +1037,13 @@ const VoiceNotes = () => {
         .map(([key, value]) => `${key}: ${value}`)
         .join('\n');
 
-      // Determine RIPS status based on service modalidad
-      const ripsStatus = selectedService.modalidad === 'eps_aseguradora' ? 'pendiente' : 'no_aplica';
+      // Determine RIPS status based on service modalidad (only if service selected)
+      const ripsStatus = selectedService?.modalidad === 'eps_aseguradora' ? 'pendiente' : 'no_aplica';
 
       const recordPayload: Record<string, any> = {
           doctor_id: user.id,
           patient_id: patientId,
-          service_id: selectedService.id,
+          service_id: selectedService?.id || null,
           rips_status: ripsStatus,
           record_type: recordType as "consultation" | "procedure" | "diagnosis" | "prescription" | "lab_result" | "imaging",
           title,
@@ -1105,13 +1095,13 @@ const VoiceNotes = () => {
       }
 
       // Show appropriate message based on service type
-      const ripsMessage = selectedService.modalidad === 'eps_aseguradora'
+      const ripsMessage = selectedService?.modalidad === 'eps_aseguradora'
         ? "📋 RIPS pendientes de generación para este servicio EPS."
-        : "ℹ️ Este servicio particular no requiere RIPS.";
+        : selectedService ? "ℹ️ Servicio particular registrado." : "";
 
       toast({
         title: "✅ Historia clínica guardada",
-        description: `${specialtyConfig?.name || 'Médico General'} - ${selectedService.nombre_servicio}. ${ripsMessage}`,
+        description: `${specialtyConfig?.name || 'Médico General'}${selectedService ? ` - ${selectedService.nombre_servicio}` : ""}. ${ripsMessage}`.trim(),
       });
     } catch (error: any) {
       toast({
@@ -1453,16 +1443,15 @@ const VoiceNotes = () => {
                 />
               ) : null}
 
-              {/* Service Selection - MANDATORY */}
-              <Card className="border-2 border-primary/30">
+              {/* Service Selection - OPTIONAL */}
+              <Card className="border border-border">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-base flex items-center gap-2">
                     📋 Servicio Médico
-                    <Badge variant="destructive" className="text-xs">Obligatorio</Badge>
+                    <Badge variant="secondary" className="text-xs">Opcional</Badge>
                   </CardTitle>
                   <CardDescription>
-                    Selecciona el servicio a facturar. La historia clínica respalda el acto médico,
-                    el servicio respalda el acto administrativo. MEDMIND conecta ambos de forma segura.
+                    Selecciona si vas a facturar desde MEDMIND. Si usas otra plataforma de facturación, puedes omitirlo.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -1721,16 +1710,18 @@ const VoiceNotes = () => {
                       />
                     )}
                     
-                    <Button
-                      className="w-full gap-2"
-                      onClick={() => {
-                        setShowExportDialog(false);
-                        setShowInvoiceDialog(true);
-                      }}
-                    >
-                      <Receipt className="w-4 h-4" />
-                      Generar Factura
-                    </Button>
+                    {selectedService && (
+                      <Button
+                        className="w-full gap-2"
+                        onClick={() => {
+                          setShowExportDialog(false);
+                          setShowInvoiceDialog(true);
+                        }}
+                      >
+                        <Receipt className="w-4 h-4" />
+                        Generar Factura
+                      </Button>
+                    )}
 
                     <Button
                       variant="outline"
