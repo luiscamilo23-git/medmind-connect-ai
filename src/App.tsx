@@ -18,6 +18,7 @@ const LegalNotice = React.lazy(() => import("./pages/LegalNotice"));
 const Comparison = React.lazy(() => import("./pages/Comparison"));
 const PitchDeck = React.lazy(() => import("./pages/PitchDeck"));
 const ExecutiveBrief = React.lazy(() => import("./pages/ExecutiveBrief"));
+const MedmindIntro = React.lazy(() => import("./pages/MedmindIntro"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 
 // Doctor pages
@@ -115,6 +116,7 @@ const App = () => (
             <Route path="/comparison" element={<Comparison />} />
             <Route path="/pitch-deck" element={<PitchDeck />} />
             <Route path="/executive-brief" element={<ExecutiveBrief />} />
+            <Route path="/intro" element={<MedmindIntro />} />
             <Route path="/confirm/:token" element={<ConfirmAppointment />} />
 
             {/* Doctor routes */}

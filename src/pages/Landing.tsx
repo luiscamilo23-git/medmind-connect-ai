@@ -390,13 +390,22 @@ const Landing = () => {
                 </Button>
               </Link>
               <Link to="/comparison">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   variant="outline"
                   className="text-base px-8 py-6 border-primary/30 text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-300 group font-medium"
                 >
                   Ver Comparativa
                   <Sparkles className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
+                </Button>
+              </Link>
+              <Link to="/intro">
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="text-base px-8 py-6 text-foreground hover:text-primary hover:bg-muted/50 transition-all duration-300 group font-medium"
+                >
+                  🎬 Ver intro
                 </Button>
               </Link>
             </div>
