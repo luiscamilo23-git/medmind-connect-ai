@@ -89,6 +89,9 @@ export type Database = {
       appointments: {
         Row: {
           appointment_date: string
+          confirmation_reminder_sent: boolean | null
+          confirmation_token: string | null
+          confirmed_at: string | null
           created_at: string
           description: string | null
           doctor_id: string
@@ -104,6 +107,9 @@ export type Database = {
         }
         Insert: {
           appointment_date: string
+          confirmation_reminder_sent?: boolean | null
+          confirmation_token?: string | null
+          confirmed_at?: string | null
           created_at?: string
           description?: string | null
           doctor_id: string
@@ -119,6 +125,9 @@ export type Database = {
         }
         Update: {
           appointment_date?: string
+          confirmation_reminder_sent?: boolean | null
+          confirmation_token?: string | null
+          confirmed_at?: string | null
           created_at?: string
           description?: string | null
           doctor_id?: string
@@ -1311,6 +1320,7 @@ export type Database = {
           business_services: Json | null
           certifications: string[] | null
           city: string | null
+          ciudad: string | null
           clinic_name: string | null
           consultation_fee: number | null
           created_at: string
@@ -1318,6 +1328,7 @@ export type Database = {
           id: string
           is_accepting_patients: boolean | null
           license_number: string | null
+          nit: string | null
           notifications_sound_enabled: boolean | null
           phone: string | null
           services_list: string | null
@@ -1339,6 +1350,7 @@ export type Database = {
           business_services?: Json | null
           certifications?: string[] | null
           city?: string | null
+          ciudad?: string | null
           clinic_name?: string | null
           consultation_fee?: number | null
           created_at?: string
@@ -1346,6 +1358,7 @@ export type Database = {
           id: string
           is_accepting_patients?: boolean | null
           license_number?: string | null
+          nit?: string | null
           notifications_sound_enabled?: boolean | null
           phone?: string | null
           services_list?: string | null
@@ -1367,6 +1380,7 @@ export type Database = {
           business_services?: Json | null
           certifications?: string[] | null
           city?: string | null
+          ciudad?: string | null
           clinic_name?: string | null
           consultation_fee?: number | null
           created_at?: string
@@ -1374,6 +1388,7 @@ export type Database = {
           id?: string
           is_accepting_patients?: boolean | null
           license_number?: string | null
+          nit?: string | null
           notifications_sound_enabled?: boolean | null
           phone?: string | null
           services_list?: string | null
@@ -1581,6 +1596,27 @@ export type Database = {
           },
         ]
       }
+      secretary_assignments: {
+        Row: {
+          created_at: string | null
+          doctor_id: string
+          id: string
+          secretary_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          doctor_id: string
+          id?: string
+          secretary_id: string
+        }
+        Update: {
+          created_at?: string | null
+          doctor_id?: string
+          id?: string
+          secretary_id?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           activo: boolean | null
@@ -1753,7 +1789,13 @@ export type Database = {
       validate_rips_structure: { Args: { rips_json: Json }; Returns: Json }
     }
     Enums: {
-      app_role: "admin" | "doctor" | "staff" | "patient" | "moderator"
+      app_role:
+        | "admin"
+        | "doctor"
+        | "staff"
+        | "patient"
+        | "moderator"
+        | "secretaria"
       appointment_status:
         | "scheduled"
         | "confirmed"
@@ -1932,7 +1974,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "doctor", "staff", "patient", "moderator"],
+      app_role: [
+        "admin",
+        "doctor",
+        "staff",
+        "patient",
+        "moderator",
+        "secretaria",
+      ],
       appointment_status: [
         "scheduled",
         "confirmed",
