@@ -120,9 +120,12 @@ const Dashboard = () => {
       const hasBasicProfile = !!(profile?.full_name && profile?.clinic_name);
 
       if (!localDone && !dbDone && !hasBasicProfile) {
-        // New doctor — show wizard with pre-filled data from signup
-        setOnboardingInitialName(profile?.full_name || "");
-        setOnboardingInitialSpecialty(profile?.specialty || "");
+        // New doctor — show wizard pre-filled with data from signup
+        // Also try auth metadata as fallback for full_name
+        const { data: authData } = await supabase.auth.getUser();
+        const metaName = authData?.user?.user_metadata?.full_name || "";
+        setOnboardingInitialName(profile?.full_name || metaName);
+        setOnboardingInitialSpecialty(profile?.specialty || authData?.user?.user_metadata?.specialty || "");
         setShowOnboarding(true);
         return;
       }
