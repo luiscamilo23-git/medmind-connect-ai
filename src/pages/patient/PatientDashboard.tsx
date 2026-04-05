@@ -48,21 +48,30 @@ const PatientDashboard = () => {
   }, [navigate, toast]);
 
   const loadStats = async (userId: string) => {
-    const { data: tips } = await supabase
-      .from("ai_wellness_tips")
-      .select("*")
-      .eq("patient_id", userId)
-      .eq("is_read", false);
+    const now = new Date().toISOString();
 
-    const { data: rooms } = await supabase
-      .from("chat_rooms")
-      .select("id")
-      .eq("patient_id", userId);
+    const [tipsRes, roomsRes, aptsRes] = await Promise.all([
+      supabase
+        .from("ai_wellness_tips")
+        .select("*", { count: "exact", head: true })
+        .eq("patient_id", userId)
+        .eq("is_read", false),
+      supabase
+        .from("chat_rooms")
+        .select("id", { count: "exact", head: true })
+        .eq("patient_id", userId),
+      supabase
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("patient_id", userId)
+        .gte("appointment_date", now)
+        .in("status", ["scheduled", "confirmed"]),
+    ]);
 
     setStats({
-      upcomingAppointments: 0, // TODO: Implement appointments for patients
-      unreadMessages: rooms?.length || 0,
-      wellnessTips: tips?.length || 0,
+      upcomingAppointments: aptsRes.count || 0,
+      unreadMessages: roomsRes.count || 0,
+      wellnessTips: tipsRes.count || 0,
     });
   };
 

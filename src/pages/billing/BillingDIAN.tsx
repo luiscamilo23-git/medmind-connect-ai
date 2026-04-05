@@ -165,7 +165,11 @@ export default function BillingDIAN() {
                           alt={provider.name}
                           className="h-8 object-contain"
                           onError={(e) => {
-                            e.currentTarget.src = "https://via.placeholder.com/150x50?text=" + provider.name;
+                            e.currentTarget.style.display = "none";
+                            const span = document.createElement("span");
+                            span.className = "text-base font-bold text-primary";
+                            span.textContent = provider.name;
+                            e.currentTarget.parentNode?.appendChild(span);
                           }}
                         />
                       </div>

@@ -89,6 +89,12 @@ export function InvoiceDialog({ open, onOpenChange, initialPatientId, initialSer
   const [showXMLPreview, setShowXMLPreview] = useState(false);
   const [xmlContent, setXmlContent] = useState<string>("");
   const [prefilledFromRecord, setPrefilledFromRecord] = useState(false);
+  // Campos clínicos para RIPS
+  const [cie10, setCie10] = useState("");
+  const [modalidadPrestacion, setModalidadPrestacion] = useState("consulta_externa");
+  const [causaAtencion, setCausaAtencion] = useState("enfermedad_general");
+  const [tipoUsuarioSalud, setTipoUsuarioSalud] = useState("particular");
+  const [numeroAutorizacionEps, setNumeroAutorizacionEps] = useState("");
 
   const form = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema),
@@ -381,7 +387,7 @@ export function InvoiceDialog({ open, onOpenChange, initialPatientId, initialSer
 
       if (invoiceError) throw invoiceError;
 
-      // Create invoice items
+      // Create invoice items with health fields for RIPS
       const invoiceItems = items.map((item) => ({
         invoice_id: invoice.id,
         service_id: item.service_id,
@@ -392,6 +398,11 @@ export function InvoiceDialog({ open, onOpenChange, initialPatientId, initialSer
         subtotal_linea: item.subtotal_linea,
         impuestos_linea: item.impuestos_linea,
         total_linea: item.total_linea,
+        codigo_cie10: cie10 || null,
+        modalidad_prestacion: modalidadPrestacion,
+        causa_atencion: causaAtencion,
+        tipo_usuario_salud: tipoUsuarioSalud,
+        numero_autorizacion_eps: numeroAutorizacionEps || null,
       }));
 
       const { error: itemsError } = await supabase
@@ -420,6 +431,11 @@ export function InvoiceDialog({ open, onOpenChange, initialPatientId, initialSer
     setQuantity(1);
     setShowXMLPreview(false);
     setXmlContent("");
+    setCie10("");
+    setModalidadPrestacion("consulta_externa");
+    setCausaAtencion("enfermedad_general");
+    setTipoUsuarioSalud("particular");
+    setNumeroAutorizacionEps("");
   };
 
   useEffect(() => {
@@ -590,6 +606,79 @@ export function InvoiceDialog({ open, onOpenChange, initialPatientId, initialSer
                               </div>
                             </div>
                           ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Datos Clínicos para RIPS */}
+                  <Card>
+                    <CardContent className="pt-4 space-y-4">
+                      <div>
+                        <h3 className="font-semibold">Datos Clínicos para RIPS</h3>
+                        <p className="text-xs text-muted-foreground">Requerido por Resolución 2275/2023 para reportes RIPS a ADRES</p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Código CIE-10 *</label>
+                          <Input
+                            placeholder="Ej: J06.9, A09, K29.7..."
+                            value={cie10}
+                            onChange={(e) => setCie10(e.target.value.toUpperCase())}
+                          />
+                          <p className="text-xs text-muted-foreground">Diagnóstico principal de la consulta</p>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Modalidad de Atención</label>
+                          <Select value={modalidadPrestacion} onValueChange={setModalidadPrestacion}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="consulta_externa">Consulta Externa</SelectItem>
+                              <SelectItem value="urgencias">Urgencias</SelectItem>
+                              <SelectItem value="hospitalizacion">Hospitalización</SelectItem>
+                              <SelectItem value="cirugia_ambulatoria">Cirugía Ambulatoria</SelectItem>
+                              <SelectItem value="domiciliaria">Domiciliaria</SelectItem>
+                              <SelectItem value="telemedicina">Telemedicina</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Causa de Atención</label>
+                          <Select value={causaAtencion} onValueChange={setCausaAtencion}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="enfermedad_general">Enfermedad General</SelectItem>
+                              <SelectItem value="accidente_trabajo">Accidente de Trabajo</SelectItem>
+                              <SelectItem value="enfermedad_profesional">Enfermedad Profesional</SelectItem>
+                              <SelectItem value="accidente_transito">Accidente de Tránsito</SelectItem>
+                              <SelectItem value="otro_accidente">Otro Accidente</SelectItem>
+                              <SelectItem value="maternidad">Maternidad</SelectItem>
+                              <SelectItem value="lesion_agresion">Lesión por Agresión</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Tipo de Usuario</label>
+                          <Select value={tipoUsuarioSalud} onValueChange={setTipoUsuarioSalud}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="particular">Particular</SelectItem>
+                              <SelectItem value="contributivo">Contributivo (EPS)</SelectItem>
+                              <SelectItem value="subsidiado">Subsidiado</SelectItem>
+                              <SelectItem value="vinculado">Vinculado</SelectItem>
+                              <SelectItem value="otro">Otro</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      {tipoUsuarioSalud !== "particular" && (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Número de Autorización EPS</label>
+                          <Input
+                            placeholder="Número de autorización del asegurador"
+                            value={numeroAutorizacionEps}
+                            onChange={(e) => setNumeroAutorizacionEps(e.target.value)}
+                          />
                         </div>
                       )}
                     </CardContent>
