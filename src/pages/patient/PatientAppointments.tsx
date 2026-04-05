@@ -4,6 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ArrowLeft, Calendar, Clock, MapPin, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,6 +37,8 @@ const PatientAppointments = () => {
   const { toast } = useToast();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancelId, setCancelId] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     loadAppointments();
@@ -73,6 +85,27 @@ const PatientAppointments = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelAppointment = async () => {
+    if (!cancelId) return;
+    setCancelling(true);
+    try {
+      const { error } = await supabase
+        .from("appointments")
+        .update({ status: "cancelled" })
+        .eq("id", cancelId);
+      if (error) throw error;
+      setAppointments((prev) =>
+        prev.map((a) => (a.id === cancelId ? { ...a, status: "cancelled" } : a))
+      );
+      toast({ title: "Cita cancelada", description: "Tu cita ha sido cancelada exitosamente." });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setCancelling(false);
+      setCancelId(null);
     }
   };
 
@@ -198,10 +231,23 @@ const PatientAppointments = () => {
 
                   {appointment.status === "scheduled" && (
                     <div className="flex gap-2 pt-3 border-t">
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          toast({
+                            title: "Reagendar cita",
+                            description: "Contacta al consultorio para reprogramar tu cita.",
+                          })
+                        }
+                      >
                         Reagendar
                       </Button>
-                      <Button variant="destructive" size="sm">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setCancelId(appointment.id)}
+                      >
                         Cancelar
                       </Button>
                     </div>
@@ -212,6 +258,27 @@ const PatientAppointments = () => {
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!cancelId} onOpenChange={(open) => !open && setCancelId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Cancelar esta cita?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. La cita quedará marcada como cancelada.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelling}>Volver</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelAppointment}
+              disabled={cancelling}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {cancelling ? "Cancelando..." : "Sí, cancelar cita"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
