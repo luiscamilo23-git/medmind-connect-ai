@@ -16,7 +16,8 @@ import {
   Settings,
   Bot,
   CreditCard,
-  Shield
+  Shield,
+  UserCheck
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useEffect, useState } from "react";
@@ -44,6 +45,12 @@ const mainItems = [
 
 const complianceItems = [
   { title: "PQRS", url: "/pqrs", icon: Shield },
+];
+
+const configItems = [
+  { title: "Secretaria", url: "/secretary-management", icon: UserCheck },
+  { title: "Configuración IA", url: "/doctor-settings", icon: Settings },
+  { title: "Mi Perfil", url: "/profile", icon: UserCircle },
 ];
 
 const modulesItems = [
@@ -252,6 +259,29 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {/* Configuración */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase text-xs tracking-wider">Configuración</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {configItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className="flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {!isCollapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {/* Plan badge */}
         {planInfo && !isCollapsed && (
           <SidebarGroup>

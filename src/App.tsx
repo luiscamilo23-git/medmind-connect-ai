@@ -32,6 +32,7 @@ const Analytics = React.lazy(() => import("./pages/Analytics"));
 const PredictiveAnalysis = React.lazy(() => import("./pages/PredictiveAnalysis"));
 const Profile = React.lazy(() => import("./pages/Profile"));
 const DoctorSettings = React.lazy(() => import("./pages/DoctorSettings"));
+const SecretaryManagement = React.lazy(() => import("./pages/SecretaryManagement"));
 const SocialNetwork = React.lazy(() => import("./pages/SocialNetwork"));
 const Referrals = React.lazy(() => import("./pages/Referrals"));
 
@@ -128,6 +129,7 @@ const App = () => (
             <Route path="/predictive" element={<ProtectedRoute requiredRole="doctor"><PredictiveAnalysis /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute requiredRole="doctor"><Profile /></ProtectedRoute>} />
             <Route path="/doctor-settings" element={<ProtectedRoute requiredRole="doctor"><DoctorSettings /></ProtectedRoute>} />
+            <Route path="/secretary-management" element={<ProtectedRoute requiredRole="doctor"><SecretaryManagement /></ProtectedRoute>} />
             <Route path="/social" element={<ProtectedRoute requiredRole="doctor"><SocialNetwork /></ProtectedRoute>} />
             <Route path="/referrals" element={<ProtectedRoute requiredRole="doctor"><Referrals /></ProtectedRoute>} />
             <Route path="/pqrs" element={<ProtectedRoute requiredRole="doctor"><PQRS /></ProtectedRoute>} />
