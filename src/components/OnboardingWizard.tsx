@@ -215,7 +215,7 @@ export function OnboardingWizard({
       .from("profiles")
       .update({
         clinic_name: clinicName.trim(),
-        nit: nit.trim(),
+        city: ciudad.trim() || null,
       })
       .eq("id", doctorId);
     setLoading(false);
