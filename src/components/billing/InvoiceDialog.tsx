@@ -105,26 +105,6 @@ export function InvoiceDialog({ open, onOpenChange, initialPatientId, initialSer
     if (initialPatientId) form.setValue("patient_id", initialPatientId);
   }, [open, initialPatientId, form]);
 
-  useEffect(() => {
-    if (!open || prefilledFromRecord || !initialServiceId || !services) return;
-    const service = services.find(s => s.id === initialServiceId);
-    if (!service) return;
-    const subtotal_linea = service.precio_unitario * 1;
-    const impuestos_linea = service.impuestos_aplican
-      ? subtotal_linea * (service.porcentaje_impuesto / 100) : 0;
-    setItems([{
-      service_id: service.id,
-      descripcion: service.nombre_servicio,
-      cantidad: 1,
-      precio_unitario: service.precio_unitario,
-      codigo_cups: service.codigo_cups,
-      subtotal_linea,
-      impuestos_linea,
-      total_linea: subtotal_linea + impuestos_linea,
-    }]);
-    setPrefilledFromRecord(true);
-  }, [open, services, initialServiceId, prefilledFromRecord]);
-
   // Fetch patients
   const { data: patients } = useQuery({
     queryKey: ["patients-for-invoice"],
@@ -161,6 +141,26 @@ export function InvoiceDialog({ open, onOpenChange, initialPatientId, initialSer
       return data as Service[];
     },
   });
+
+  useEffect(() => {
+    if (!open || prefilledFromRecord || !initialServiceId || !services) return;
+    const service = services.find(s => s.id === initialServiceId);
+    if (!service) return;
+    const subtotal_linea = service.precio_unitario * 1;
+    const impuestos_linea = service.impuestos_aplican
+      ? subtotal_linea * (service.porcentaje_impuesto / 100) : 0;
+    setItems([{
+      service_id: service.id,
+      descripcion: service.nombre_servicio,
+      cantidad: 1,
+      precio_unitario: service.precio_unitario,
+      codigo_cups: service.codigo_cups,
+      subtotal_linea,
+      impuestos_linea,
+      total_linea: subtotal_linea + impuestos_linea,
+    }]);
+    setPrefilledFromRecord(true);
+  }, [open, services, initialServiceId, prefilledFromRecord]);
 
   // Fetch doctor profile for XML preview
   const { data: doctorProfile } = useQuery({
