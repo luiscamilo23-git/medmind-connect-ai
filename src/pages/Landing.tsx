@@ -472,49 +472,83 @@ const Landing = () => {
       />
 
       {/* ¿Cómo Funciona? Section */}
-      <section className="py-24 px-4 bg-muted/20" id="how-it-works">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-16 space-y-4">
+      <section className="py-28 px-4 bg-background relative overflow-hidden" id="how-it-works">
+        {/* Glow background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
+        </div>
+
+        <div className="container mx-auto max-w-5xl relative z-10">
+          {/* Header */}
+          <div className="text-center mb-20 space-y-3">
+            <p className="text-primary text-xs font-bold tracking-[0.2em] uppercase">Cómo funciona</p>
             <h2 className="text-4xl lg:text-5xl font-black text-foreground">
               Tres pasos. <span className="text-primary">Sin complicaciones.</span>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
               Empieza a ahorrar tiempo desde la primera consulta.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+
+          {/* Cards */}
+          <div className="relative grid md:grid-cols-3 gap-5">
+            {/* Connector line desktop */}
+            <div className="hidden md:block absolute top-[52px] left-[calc(33.33%-10px)] right-[calc(33.33%-10px)] h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
             {[
               {
-                step: "①",
+                num: "01",
+                icon: "🎙️",
                 title: "Graba la consulta con tu voz",
                 desc: "Habla normalmente mientras atiendes. MEDMIND escucha en segundo plano. Sin interrupciones, sin typing.",
-                color: "bg-primary"
+                glow: "hover:shadow-blue-500/10",
+                dot: "bg-blue-500",
               },
               {
-                step: "②",
+                num: "02",
+                icon: "🧠",
                 title: "La IA escribe la historia clínica",
                 desc: "Diagnóstico, tratamiento, medicamentos y código CIE-10 — estructurados y listos en segundos. Tú solo revisas.",
-                color: "bg-primary"
+                glow: "hover:shadow-violet-500/10",
+                dot: "bg-violet-500",
               },
               {
-                step: "③",
+                num: "03",
+                icon: "🧾",
                 title: "Firma, factura y envía a la DIAN",
                 desc: "Un clic. La factura va a la DIAN, el RIPS se genera solo, y el paciente recibe su comprobante por WhatsApp.",
-                color: "bg-primary"
-              }
+                glow: "hover:shadow-emerald-500/10",
+                dot: "bg-emerald-500",
+              },
             ].map((item, i) => (
-              <div key={i} className="relative flex flex-col items-center text-center gap-4 p-6 rounded-2xl border border-border/50 bg-card/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300">
-                <div className={`w-16 h-16 rounded-full ${item.color} flex items-center justify-center text-white text-3xl font-black shadow-lg`}>
-                  {item.step}
+              <div
+                key={i}
+                className={`group relative flex flex-col gap-5 p-7 rounded-2xl border border-border/50 bg-card hover:border-border hover:shadow-2xl ${item.glow} hover:-translate-y-1.5 transition-all duration-300`}
+              >
+                {/* Step badge */}
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-xl bg-muted/60 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
+                    {item.icon}
+                  </div>
+                  <span className="text-2xl font-black text-muted-foreground/20 tabular-nums">{item.num}</span>
                 </div>
-                <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+
+                {/* Colored accent line */}
+                <div className={`w-8 h-0.5 rounded-full ${item.dot}`} />
+
+                {/* Text */}
+                <div className="space-y-2">
+                  <h3 className="text-base font-bold text-foreground leading-snug">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>
-          <div className="text-center mt-10">
+
+          {/* CTA */}
+          <div className="text-center mt-14">
             <Link to="/auth">
-              <Button size="lg" className="px-10">
+              <Button size="lg" className="px-10 h-12 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 transition-all">
                 Quiero empezar hoy
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
