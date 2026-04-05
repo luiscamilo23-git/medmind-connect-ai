@@ -26,6 +26,7 @@ const Profile = () => {
     bio: "",
     phone: "",
     license_number: "",
+    clinic_name: "",
     avatar_url: "",
     signature_url: "",
     notifications_sound_enabled: true
@@ -66,6 +67,7 @@ const Profile = () => {
           bio: data.bio || "",
           phone: data.phone || "",
           license_number: data.license_number || "",
+          clinic_name: data.clinic_name || "",
           avatar_url: data.avatar_url || "",
           signature_url: data.signature_url || "",
           notifications_sound_enabled: data.notifications_sound_enabled ?? true
@@ -242,13 +244,25 @@ const Profile = () => {
               />
 
               <div className="space-y-2">
-                <Label htmlFor="license_number">Número de Licencia</Label>
+                <Label htmlFor="clinic_name">Nombre de Clínica / Consultorio *</Label>
+                <Input
+                  id="clinic_name"
+                  value={profile.clinic_name}
+                  onChange={(e) => setProfile({ ...profile, clinic_name: e.target.value })}
+                  placeholder="Consultorio Dr. Pérez / Clínica San José"
+                />
+                <p className="text-xs text-muted-foreground">Requerido para facturación DIAN</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="license_number">Número RETHUS *</Label>
                 <Input
                   id="license_number"
                   value={profile.license_number}
                   onChange={(e) => setProfile({ ...profile, license_number: e.target.value })}
-                  placeholder="123456"
+                  placeholder="Ej: 123456789"
                 />
+                <p className="text-xs text-muted-foreground">Registro Único Nacional del Talento Humano en Salud</p>
               </div>
 
               <div className="space-y-2">

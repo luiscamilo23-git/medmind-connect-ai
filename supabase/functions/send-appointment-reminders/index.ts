@@ -16,7 +16,8 @@ async function sendEmail(
   clinicName: string,
   dateStr: string,
   timeStr: string,
-  title: string
+  title: string,
+  confirmationToken?: string
 ) {
   if (!RESEND_API_KEY) {
     console.log(`[EMAIL] RESEND_API_KEY no configurada.`);
@@ -48,7 +49,15 @@ async function sendEmail(
           ${clinicName ? `<tr><td style="color:#64748b;font-size:13px;padding:5px 0">🏢 Lugar</td><td style="color:#0f172a;font-size:14px;font-weight:600;text-align:right">${clinicName}</td></tr>` : ""}
         </table>
       </div>
-      <p style="margin:0 0 8px;color:#64748b;font-size:13px">✅ Por favor llega <strong>10 minutos antes</strong> de tu cita.</p>
+      <p style="margin:0 0 16px;color:#64748b;font-size:13px">✅ Por favor llega <strong>10 minutos antes</strong> de tu cita.</p>
+      ${confirmationToken ? `
+      <div style="text-align:center;margin-bottom:20px">
+        <a href="https://medmindsystem.com/confirm/${confirmationToken}" style="display:inline-block;background:#3b82f6;color:#fff;font-size:15px;font-weight:600;padding:12px 28px;border-radius:8px;text-decoration:none">
+          ✓ Confirmar mi asistencia
+        </a>
+        <p style="margin:10px 0 0;color:#94a3b8;font-size:11px">Haz clic para confirmarle al médico que asistirás</p>
+      </div>
+      ` : ""}
       <p style="margin:0;color:#64748b;font-size:13px">Si necesitas cancelar o reprogramar, comunícate directamente con tu médico.</p>
     </div>
     <div style="background:#f8fafc;padding:16px 32px;text-align:center;border-top:1px solid #e2e8f0">
@@ -166,7 +175,7 @@ serve(async (req) => {
     const { data: appointments, error } = await supabase
       .from("appointments")
       .select(`
-        id, title, appointment_date,
+        id, title, appointment_date, confirmation_token,
         patients ( full_name, phone, email ),
         profiles:doctor_id ( full_name, clinic_name )
       `)
@@ -192,7 +201,7 @@ serve(async (req) => {
       const smsText = `MEDMIND: Cita mañana ${dateStr} ${timeStr}. Motivo: ${apt.title}. Médico: ${doctor?.full_name || ""}. Llega 10 min antes.`;
 
       const [emailResult, smsResult] = await Promise.all([
-        sendEmail(patient?.email, patient?.full_name, doctor?.full_name, doctor?.clinic_name, dateStr, timeStr, apt.title),
+        sendEmail(patient?.email, patient?.full_name, doctor?.full_name, doctor?.clinic_name, dateStr, timeStr, apt.title, apt.confirmation_token),
         sendSms(patient?.phone, smsText),
       ]);
 

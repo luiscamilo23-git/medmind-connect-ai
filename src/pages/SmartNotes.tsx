@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Sparkles,
   CheckCircle2,
+  History,
   Lightbulb,
   Bell,
   Loader2,
@@ -40,6 +41,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
 import { ConsentimientoInformadoDialog } from "@/components/ConsentimientoInformadoDialog";
 import { PatientSearchCombobox, PatientOption } from "@/components/PatientSearchCombobox";
+import { PatientMedicalHistory } from "@/components/PatientMedicalHistory";
 
 const SmartNotes = () => {
   const [notes, setNotes] = useState("");
@@ -59,6 +61,7 @@ const SmartNotes = () => {
   const [consentimientoObtenido, setConsentimientoObtenido] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string>("");
   const [linkedPatient, setLinkedPatient] = useState<PatientOption | null>(null);
+  const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
   const [medicoId, setMedicoId] = useState<string>("");
 
   // Voice recording states
@@ -375,6 +378,17 @@ const SmartNotes = () => {
                   setSelectedPatientId(p?.id ?? "");
                 }}
               />
+              {linkedPatient && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 w-full"
+                  onClick={() => setHistoryPanelOpen(true)}
+                >
+                  <History className="w-4 h-4 mr-2" />
+                  Ver historial de {linkedPatient.full_name}
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -851,6 +865,13 @@ const SmartNotes = () => {
           </main>
         </div>
       </div>
+
+      {/* Historial del paciente vinculado */}
+      <PatientMedicalHistory
+        open={historyPanelOpen}
+        onOpenChange={setHistoryPanelOpen}
+        patient={linkedPatient ? { id: linkedPatient.id, full_name: linkedPatient.full_name } : null}
+      />
 
       {/* Consentimiento informado */}
       {medicoId && (

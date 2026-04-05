@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { GlobalSearch } from "@/components/GlobalSearch";
 
 import {
   Sidebar,
@@ -102,6 +103,17 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
+        {/* Búsqueda global */}
+        {!isCollapsed && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <div className="px-1 pt-2 pb-1">
+                <GlobalSearch />
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {/* Principal */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-muted-foreground/70 uppercase text-xs tracking-wider">Principal</SidebarGroupLabel>

@@ -5,7 +5,15 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText, Webhook, Download, RefreshCw, BarChart3, Mail, Loader2 } from "lucide-react";
+import { Plus, Eye, LogOut, Bell, User, Filter, Send, CheckCircle2, AlertCircle, FileText, Webhook, Download, RefreshCw, BarChart3, Mail, Loader2, CreditCard, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -57,6 +65,7 @@ export default function BillingInvoices() {
   const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
   const [emailPreviewOpen, setEmailPreviewOpen] = useState(false);
   const [selectedInvoiceForEmail, setSelectedInvoiceForEmail] = useState<string | null>(null);
+  const [updatingPayment, setUpdatingPayment] = useState<string | null>(null);
 
   const { data: invoices, isLoading } = useQuery({
     queryKey: ["invoices"],
@@ -237,6 +246,24 @@ export default function BillingInvoices() {
     queryClient.invalidateQueries({ queryKey: ["invoices"] });
   };
 
+  const handleUpdatePaymentStatus = async (invoiceId: string, newStatus: string) => {
+    setUpdatingPayment(invoiceId);
+    try {
+      const { error } = await supabase
+        .from("invoices")
+        .update({ payment_status: newStatus })
+        .eq("id", invoiceId);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      const labels: Record<string, string> = { PAGADA: "Pagada", PENDIENTE: "Pendiente", PARCIAL: "Pago parcial", VENCIDA: "Vencida" };
+      toast({ title: "Estado actualizado", description: `Factura marcada como ${labels[newStatus] || newStatus}.` });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setUpdatingPayment(null);
+    }
+  };
+
   const handleSendToClient = (invoiceId: string) => {
     setSelectedInvoiceForEmail(invoiceId);
     setEmailPreviewOpen(true);
@@ -414,6 +441,37 @@ export default function BillingInvoices() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
+                                {/* Pago - visible para todas las facturas */}
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      disabled={updatingPayment === invoice.id}
+                                    >
+                                      <CreditCard className="h-4 w-4 mr-2" />
+                                      Pago
+                                      <ChevronDown className="h-3 w-3 ml-1" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Estado de pago</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => handleUpdatePaymentStatus(invoice.id, "PAGADA")}>
+                                      ✅ Marcar como Pagada
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleUpdatePaymentStatus(invoice.id, "PARCIAL")}>
+                                      🔄 Pago Parcial
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleUpdatePaymentStatus(invoice.id, "PENDIENTE")}>
+                                      ⏳ Pendiente
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleUpdatePaymentStatus(invoice.id, "VENCIDA")}>
+                                      ❌ Vencida
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+
                                 {/* Enviar Prefactura - visible para todas las facturas */}
                                 <TooltipProvider>
                                   <Tooltip>

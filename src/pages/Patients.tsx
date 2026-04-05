@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { 
+import {
   Activity,
+  Download,
   Search,
   UserPlus,
   Users,
@@ -166,6 +167,38 @@ const Patients = () => {
     }
   };
 
+  const exportToCSV = () => {
+    const source = filteredPatients.length > 0 ? filteredPatients : patients;
+    const headers = [
+      "Nombre", "Email", "Teléfono", "Fecha nacimiento", "Tipo de sangre",
+      "Alergias", "Dirección", "Contacto emergencia", "Teléfono emergencia", "Notas", "Registrado"
+    ];
+    const rows = source.map(p => [
+      p.full_name,
+      p.email || "",
+      p.phone,
+      p.date_of_birth ? new Date(p.date_of_birth).toLocaleDateString("es-CO") : "",
+      p.blood_type || "",
+      (p.allergies || []).join("; "),
+      p.address || "",
+      p.emergency_contact_name || "",
+      p.emergency_contact_phone || "",
+      p.notes || "",
+      new Date(p.created_at).toLocaleDateString("es-CO"),
+    ]);
+    const csv = [headers, ...rows]
+      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `pacientes_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exportado", description: `${source.length} pacientes exportados como CSV.` });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -198,6 +231,10 @@ const Patients = () => {
               </div>
               <div className="flex items-center gap-2">
                 <NotificationBell />
+                <Button variant="outline" size="sm" onClick={exportToCSV} disabled={patients.length === 0}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar CSV
+                </Button>
                 <Button onClick={() => { setSelectedPatient(null); setDialogOpen(true); }} size="sm">
                   <UserPlus className="w-4 h-4 mr-2" />
                   Nuevo Paciente

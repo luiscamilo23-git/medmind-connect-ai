@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Bot, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Bot, Save, Loader2, UserCheck } from "lucide-react";
 import { toast } from "sonner";
+import { InviteSecretaryDialog } from "@/components/InviteSecretaryDialog";
 
 interface DoctorSettingsData {
   specialty: string;
@@ -19,6 +20,7 @@ const DoctorSettings = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [settings, setSettings] = useState<DoctorSettingsData>({
     specialty: "",
     services_list: "",
@@ -94,6 +96,7 @@ const DoctorSettings = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <InviteSecretaryDialog open={inviteOpen} onOpenChange={setInviteOpen} />
       <div className="container max-w-3xl py-8">
         <Button
           variant="ghost"
@@ -155,6 +158,19 @@ const DoctorSettings = () => {
               <p className="text-sm text-muted-foreground">
                 Define reglas y comportamientos personalizados para la IA cuando interactúe con tus pacientes.
               </p>
+            </div>
+
+            <div className="pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-sm">Secretaria / Auxiliar</p>
+                  <p className="text-xs text-muted-foreground">Invita a tu secretaria para que gestione tu agenda y pacientes</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setInviteOpen(true)}>
+                  <UserCheck className="h-4 w-4 mr-2" />
+                  Invitar Secretaria
+                </Button>
+              </div>
             </div>
 
             <Button onClick={handleSave} disabled={saving} className="w-full">

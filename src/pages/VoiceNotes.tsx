@@ -9,11 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Activity, 
-  Mic, 
-  Square, 
-  FileText, 
+import {
+  Activity,
+  History,
+  Mic,
+  Square,
+  FileText,
   Loader2,
   Save,
   Sparkles,
@@ -43,6 +44,7 @@ import { ConsentimientoInformadoDialog } from "@/components/ConsentimientoInform
 import { PatientSearchCombobox, PatientOption } from "@/components/PatientSearchCombobox";
 import { FileCheck, Receipt } from "lucide-react";
 import { InvoiceDialog } from "@/components/billing/InvoiceDialog";
+import { PatientMedicalHistory } from "@/components/PatientMedicalHistory";
 
 interface Suggestion {
   question: string;
@@ -135,6 +137,7 @@ const VoiceNotes = () => {
   const [consentimientoOpen, setConsentimientoOpen] = useState(false);
   const [consentimientoObtenido, setConsentimientoObtenido] = useState(false);
   const [linkedPatient, setLinkedPatient] = useState<PatientOption | null>(null);
+  const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -1535,6 +1538,17 @@ const VoiceNotes = () => {
                     onSelect={handleLinkedPatientSelect}
                     disabled={isSaving}
                   />
+                  {linkedPatient && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 w-full"
+                      onClick={() => setHistoryPanelOpen(true)}
+                    >
+                      <History className="w-4 h-4 mr-2" />
+                      Ver historial de {linkedPatient.full_name}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
 
@@ -1749,6 +1763,13 @@ const VoiceNotes = () => {
           </main>
         </div>
       </div>
+
+      {/* Historial del paciente vinculado */}
+      <PatientMedicalHistory
+        open={historyPanelOpen}
+        onOpenChange={setHistoryPanelOpen}
+        patient={linkedPatient ? { id: linkedPatient.id, full_name: linkedPatient.full_name } : null}
+      />
 
       {/* Consentimiento informado */}
       {doctorProfile?.id && (

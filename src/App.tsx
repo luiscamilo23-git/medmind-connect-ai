@@ -48,6 +48,9 @@ const PatientAuthorizations = React.lazy(() => import("./pages/patient/PatientAu
 // Legal compliance pages (doctor)
 const PQRS = React.lazy(() => import("./pages/PQRS"));
 
+// Public utility pages
+const ConfirmAppointment = React.lazy(() => import("./pages/ConfirmAppointment"));
+
 // Billing pages
 const BillingServices = React.lazy(() => import("./pages/billing/BillingServices"));
 const Subscription = React.lazy(() => import("./pages/billing/Subscription"));
@@ -57,6 +60,9 @@ const BillingPayments = React.lazy(() => import("./pages/billing/BillingPayments
 const BillingSettings = React.lazy(() => import("./pages/billing/BillingSettings"));
 const BillingDIAN = React.lazy(() => import("./pages/billing/BillingDIAN"));
 const BillingDIANMonitoring = React.lazy(() => import("./pages/billing/BillingDIANMonitoring"));
+
+// Secretary pages
+const SecretaryDashboard = React.lazy(() => import("./pages/SecretaryDashboard"));
 
 // Moderator pages
 const ModeratorDashboard = React.lazy(() => import("./pages/moderator/ModeratorDashboard"));
@@ -108,6 +114,7 @@ const App = () => (
             <Route path="/comparison" element={<Comparison />} />
             <Route path="/pitch-deck" element={<PitchDeck />} />
             <Route path="/executive-brief" element={<ExecutiveBrief />} />
+            <Route path="/confirm/:token" element={<ConfirmAppointment />} />
 
             {/* Doctor routes */}
             <Route path="/dashboard" element={<ProtectedRoute requiredRole="doctor"><Dashboard /></ProtectedRoute>} />
@@ -144,6 +151,9 @@ const App = () => (
             <Route path="/billing/settings" element={<ProtectedRoute requiredRole="doctor"><BillingSettings /></ProtectedRoute>} />
             <Route path="/billing/dian" element={<ProtectedRoute requiredRole="doctor"><BillingDIAN /></ProtectedRoute>} />
             <Route path="/billing/monitoring" element={<ProtectedRoute requiredRole="doctor"><BillingDIANMonitoring /></ProtectedRoute>} />
+
+            {/* Secretary routes */}
+            <Route path="/secretary/dashboard" element={<ProtectedRoute requiredRole="secretaria"><SecretaryDashboard /></ProtectedRoute>} />
 
             {/* Moderator routes */}
             <Route path="/moderator" element={<ProtectedRoute requiredRole="admin"><ModeratorDashboard /></ProtectedRoute>} />
