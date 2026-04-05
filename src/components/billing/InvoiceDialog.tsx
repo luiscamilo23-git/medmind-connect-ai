@@ -76,24 +76,54 @@ type InvoiceItem = {
 type InvoiceDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialPatientId?: string;
+  initialServiceId?: string;
+  initialMedicalRecordId?: string;
 };
 
-export function InvoiceDialog({ open, onOpenChange }: InvoiceDialogProps) {
+export function InvoiceDialog({ open, onOpenChange, initialPatientId, initialServiceId, initialMedicalRecordId }: InvoiceDialogProps) {
   const queryClient = useQueryClient();
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [showXMLPreview, setShowXMLPreview] = useState(false);
   const [xmlContent, setXmlContent] = useState<string>("");
+  const [prefilledFromRecord, setPrefilledFromRecord] = useState(false);
 
   const form = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
-      patient_id: "",
+      patient_id: initialPatientId || "",
       fecha_vencimiento: format(addDays(new Date(), 30), "yyyy-MM-dd"),
       notas: "",
     },
   });
+
+  // Auto-prefill patient + service when opened from medical record
+  useEffect(() => {
+    if (!open) { setPrefilledFromRecord(false); return; }
+    if (initialPatientId) form.setValue("patient_id", initialPatientId);
+  }, [open, initialPatientId, form]);
+
+  useEffect(() => {
+    if (!open || prefilledFromRecord || !initialServiceId || !services) return;
+    const service = services.find(s => s.id === initialServiceId);
+    if (!service) return;
+    const subtotal_linea = service.precio_unitario * 1;
+    const impuestos_linea = service.impuestos_aplican
+      ? subtotal_linea * (service.porcentaje_impuesto / 100) : 0;
+    setItems([{
+      service_id: service.id,
+      descripcion: service.nombre_servicio,
+      cantidad: 1,
+      precio_unitario: service.precio_unitario,
+      codigo_cups: service.codigo_cups,
+      subtotal_linea,
+      impuestos_linea,
+      total_linea: subtotal_linea + impuestos_linea,
+    }]);
+    setPrefilledFromRecord(true);
+  }, [open, services, initialServiceId, prefilledFromRecord]);
 
   // Fetch patients
   const { data: patients } = useQuery({

@@ -41,7 +41,8 @@ import { blobToWavBase64 } from "@/utils/audioWav";
 import { ServiceSelector, SelectedService } from "@/components/ServiceSelector";
 import { ConsentimientoInformadoDialog } from "@/components/ConsentimientoInformadoDialog";
 import { PatientSearchCombobox, PatientOption } from "@/components/PatientSearchCombobox";
-import { FileCheck } from "lucide-react";
+import { FileCheck, Receipt } from "lucide-react";
+import { InvoiceDialog } from "@/components/billing/InvoiceDialog";
 
 interface Suggestion {
   question: string;
@@ -119,7 +120,8 @@ const VoiceNotes = () => {
   const [savedMedicalRecord, setSavedMedicalRecord] = useState<any>(null);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  
+  const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
+
   // Clinical alerts state
   const [clinicalAlerts, setClinicalAlerts] = useState<ClinicalAlertsData>({});
   
@@ -1719,19 +1721,39 @@ const VoiceNotes = () => {
                       />
                     )}
                     
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      className="w-full gap-2"
+                      onClick={() => {
+                        setShowExportDialog(false);
+                        setShowInvoiceDialog(true);
+                      }}
+                    >
+                      <Receipt className="w-4 h-4" />
+                      Generar Factura
+                    </Button>
+
+                    <Button
+                      variant="outline"
                       className="w-full"
                       onClick={() => {
                         setShowExportDialog(false);
                         resetForm();
                       }}
                     >
-                      Crear Nueva Historia
+                      Nueva Consulta
                     </Button>
                   </div>
                 </DialogContent>
               </Dialog>
+
+              {/* Invoice dialog pre-filled from this consultation */}
+              <InvoiceDialog
+                open={showInvoiceDialog}
+                onOpenChange={setShowInvoiceDialog}
+                initialPatientId={linkedPatient?.id}
+                initialServiceId={selectedService?.id}
+                initialMedicalRecordId={savedRecordId || undefined}
+              />
             </div>
           </main>
         </div>
