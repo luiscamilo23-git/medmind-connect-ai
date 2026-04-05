@@ -44,6 +44,8 @@ const Dashboard = () => {
   const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
   const [showTrialBanner, setShowTrialBanner] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingInitialName, setOnboardingInitialName] = useState("");
+  const [onboardingInitialSpecialty, setOnboardingInitialSpecialty] = useState("");
   const [profileWarnings, setProfileWarnings] = useState<string[]>([]);
   const [showProfileBanner, setShowProfileBanner] = useState(false);
   const [stats, setStats] = useState({
@@ -109,13 +111,23 @@ const Dashboard = () => {
       if (profile?.full_name) setDoctorName(profile.full_name);
       if (profile?.specialty) setSpecialty(profile.specialty);
 
-      // Show onboarding wizard for new doctors
-      if (!profile?.onboarding_completed) {
+      // Determine if onboarding is needed:
+      // 1. Check localStorage (works even before DB migration is applied)
+      // 2. Check DB flag
+      // 3. Fallback: if full_name AND clinic_name exist, consider done
+      const localDone = localStorage.getItem(`onboarding_done_${doctorId}`) === "true";
+      const dbDone = profile?.onboarding_completed === true;
+      const hasBasicProfile = !!(profile?.full_name && profile?.clinic_name);
+
+      if (!localDone && !dbDone && !hasBasicProfile) {
+        // New doctor — show wizard with pre-filled data from signup
+        setOnboardingInitialName(profile?.full_name || "");
+        setOnboardingInitialSpecialty(profile?.specialty || "");
         setShowOnboarding(true);
         return;
       }
 
-      // Check profile completeness for existing doctors
+      // Profile completeness warnings for existing doctors
       const warnings: string[] = [];
       if (!profile?.clinic_name) warnings.push("nombre de clínica");
       if (!profile?.license_number) warnings.push("número RETHUS");
@@ -324,6 +336,8 @@ const Dashboard = () => {
         {showOnboarding && user && (
           <OnboardingWizard
             doctorId={user.id}
+            initialName={onboardingInitialName}
+            initialSpecialty={onboardingInitialSpecialty}
             onComplete={() => {
               setShowOnboarding(false);
               loadDoctorProfile(user.id);

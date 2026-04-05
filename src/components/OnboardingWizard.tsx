@@ -15,10 +15,13 @@ import {
   Zap,
   Sparkles,
   ArrowRight,
+  Pencil,
 } from "lucide-react";
 
 interface OnboardingWizardProps {
   doctorId: string;
+  initialName?: string;
+  initialSpecialty?: string;
   onComplete: () => void;
 }
 
@@ -42,7 +45,7 @@ const SERVICIOS_SUGERIDOS: Record<string, { nombre: string; precio: number; cups
   ],
   PEDIATRIA: [
     { nombre: "Consulta pediátrica", precio: 80000, cups: "890301" },
-    { nombre: "Control de crecimiento", precio: 60000, cups: "890302" },
+    { nombre: "Control de crecimiento y desarrollo", precio: 60000, cups: "890302" },
   ],
   GINECOLOGIA: [
     { nombre: "Consulta ginecológica", precio: 100000, cups: "890401" },
@@ -50,6 +53,7 @@ const SERVICIOS_SUGERIDOS: Record<string, { nombre: string; precio: number; cups
   ],
   MEDICINA_INTERNA: [
     { nombre: "Consulta medicina interna", precio: 120000, cups: "890501" },
+    { nombre: "Control crónico", precio: 90000, cups: "890502" },
   ],
   PSIQUIATRIA: [
     { nombre: "Consulta psiquiátrica", precio: 150000, cups: "890601" },
@@ -57,19 +61,23 @@ const SERVICIOS_SUGERIDOS: Record<string, { nombre: string; precio: number; cups
   ],
   CIRUGIA: [
     { nombre: "Consulta cirugía general", precio: 120000, cups: "890701" },
+    { nombre: "Control post-operatorio", precio: 80000, cups: "890702" },
   ],
   ESTETICA: [
     { nombre: "Consulta medicina estética", precio: 100000, cups: "890801" },
+    { nombre: "Procedimiento estético menor", precio: 200000, cups: "890802" },
   ],
   NUTRICION: [
     { nombre: "Consulta nutricional", precio: 80000, cups: "890901" },
     { nombre: "Control nutricional", precio: 60000, cups: "890902" },
   ],
   FISIOTERAPIA: [
-    { nombre: "Sesión de fisioterapia", precio: 70000, cups: "890201" },
+    { nombre: "Sesión de fisioterapia", precio: 70000, cups: "892601" },
+    { nombre: "Evaluación fisioterapéutica", precio: 90000, cups: "892602" },
   ],
   MEDICINA_LABORAL: [
-    { nombre: "Examen médico ocupacional", precio: 90000, cups: "891001" },
+    { nombre: "Examen médico de ingreso", precio: 90000, cups: "891001" },
+    { nombre: "Examen médico periódico", precio: 80000, cups: "891002" },
   ],
 };
 
@@ -81,15 +89,15 @@ const steps = [
   { id: 5, label: "¡Listo!", icon: CheckCircle2 },
 ];
 
-export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps) {
+export function OnboardingWizard({ doctorId, initialName = "", initialSpecialty = "", onComplete }: OnboardingWizardProps) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Step 2 — perfil
-  const [fullName, setFullName] = useState("");
-  const [specialty, setSpecialty] = useState("");
+  // Step 2 — perfil (pre-filled from existing profile)
+  const [fullName, setFullName] = useState(initialName);
+  const [specialty, setSpecialty] = useState(initialSpecialty);
   const [phone, setPhone] = useState("");
 
   // Step 3 — clínica
@@ -101,25 +109,35 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
   const [serviceName, setServiceName] = useState("");
   const [servicePrice, setServicePrice] = useState("");
   const [serviceCups, setServiceCups] = useState("");
-  const [skipService, setSkipService] = useState(false);
+  const [editingService, setEditingService] = useState(false);
+  const [selectedSugerido, setSelectedSugerido] = useState<string | null>(null);
 
   const selectedSpecialtyLabel = SPECIALTIES.find(s => s.value === specialty)?.label || "";
-  const sugeridos = SERVICIOS_SUGERIDOS[specialty] || [];
+  const sugeridos = SERVICIOS_SUGERIDOS[specialty] ?? [];
 
   const applySugerido = (s: { nombre: string; precio: number; cups: string }) => {
+    setSelectedSugerido(s.cups);
     setServiceName(s.nombre);
     setServicePrice(String(s.precio));
     setServiceCups(s.cups);
+    setEditingService(false);
   };
 
   const handleStep2 = async () => {
     if (!fullName.trim() || !specialty) {
-      toast({ title: "Completa los campos obligatorios", variant: "destructive" });
+      toast({ title: "Completa tu nombre y especialidad", variant: "destructive" });
       return;
     }
     setLoading(true);
-    await supabase.from("profiles").update({ full_name: fullName, specialty, phone }).eq("id", doctorId);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: fullName.trim(), specialty, phone: phone.trim() || null })
+      .eq("id", doctorId);
     setLoading(false);
+    if (error) {
+      toast({ title: "Error guardando perfil", description: error.message, variant: "destructive" });
+      return;
+    }
     setStep(3);
   };
 
@@ -129,44 +147,57 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
       return;
     }
     setLoading(true);
-    await supabase.from("profiles").update({
-      clinic_name: clinicName,
-      license_number: licenseNumber,
-      consultation_fee: parseFloat(consultationFee) || 60000,
-    }).eq("id", doctorId);
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        clinic_name: clinicName.trim(),
+        license_number: licenseNumber.trim() || null,
+        consultation_fee: parseFloat(consultationFee) || 60000,
+      })
+      .eq("id", doctorId);
     setLoading(false);
+    if (error) {
+      toast({ title: "Error guardando datos de clínica", description: error.message, variant: "destructive" });
+      return;
+    }
     setStep(4);
   };
 
   const handleStep4 = async () => {
-    if (!skipService) {
-      if (!serviceName.trim() || !servicePrice) {
-        toast({ title: "Ingresa nombre y precio del servicio", variant: "destructive" });
-        return;
-      }
-      setLoading(true);
-      await supabase.from("services").insert({
-        doctor_id: doctorId,
-        nombre_servicio: serviceName,
-        precio_unitario: parseFloat(servicePrice) || 0,
-        codigo_cups: serviceCups || null,
-        tipo_servicio: "particular",
-        modalidad: "presencial",
-        impuestos_aplican: false,
-        porcentaje_impuesto: 0,
-        activo: true,
-      });
-      setLoading(false);
+    if (!serviceName.trim() || !servicePrice) {
+      toast({ title: "Ingresa nombre y precio del servicio", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.from("services").insert({
+      doctor_id: doctorId,
+      nombre_servicio: serviceName.trim(),
+      precio_unitario: parseFloat(servicePrice) || 0,
+      codigo_cups: serviceCups.trim() || null,
+      tipo_servicio: "particular",
+      modalidad: "presencial",
+      impuestos_aplican: false,
+      porcentaje_impuesto: 0,
+      activo: true,
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Error guardando servicio", description: error.message, variant: "destructive" });
+      return;
     }
     setStep(5);
   };
 
   const handleFinish = async () => {
     setLoading(true);
+    // Save in localStorage so wizard doesn't show again even before migration is applied
+    localStorage.setItem(`onboarding_done_${doctorId}`, "true");
     await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", doctorId);
     setLoading(false);
     onComplete();
   };
+
+  const firstName = fullName.split(" ")[0] || "doctor";
 
   return (
     <div className="fixed inset-0 z-50 bg-background flex items-center justify-center p-4">
@@ -186,7 +217,7 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
           const active = step === s.id;
           return (
             <div key={s.id} className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all
                 ${done ? "bg-primary text-primary-foreground" : active ? "bg-primary/20 text-primary border-2 border-primary" : "bg-muted text-muted-foreground"}`}>
                 {done ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
               </div>
@@ -199,6 +230,7 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
       </div>
 
       <div className="w-full max-w-lg mt-16">
+
         {/* STEP 1 — Bienvenida */}
         {step === 1 && (
           <div className="text-center space-y-6 animate-in fade-in slide-in-from-bottom-4">
@@ -219,7 +251,7 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
               ].map(item => (
                 <div key={item.label} className="bg-muted/50 rounded-lg p-3 text-center">
                   <div className="text-2xl mb-1">{item.icon}</div>
-                  <div className="text-muted-foreground">{item.label}</div>
+                  <div className="text-muted-foreground text-xs">{item.label}</div>
                 </div>
               ))}
             </div>
@@ -248,7 +280,7 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
               </div>
               <div className="space-y-2">
                 <Label>Especialidad *</Label>
-                <Select value={specialty} onValueChange={setSpecialty}>
+                <Select value={specialty} onValueChange={v => { setSpecialty(v); setSelectedSugerido(null); setServiceName(""); setServicePrice(""); setServiceCups(""); }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona tu especialidad" />
                   </SelectTrigger>
@@ -272,7 +304,7 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => setStep(1)}>Atrás</Button>
               <Button className="flex-1" onClick={handleStep2} disabled={loading}>
-                {loading ? "Guardando..." : "Continuar"} <ChevronRight className="ml-1 w-4 h-4" />
+                {loading ? "Guardando..." : <>Continuar <ChevronRight className="ml-1 w-4 h-4" /></>}
               </Button>
             </div>
           </div>
@@ -303,7 +335,7 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
                   value={licenseNumber}
                   onChange={e => setLicenseNumber(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground">Lo encuentras en tu tarjeta profesional del Tribunal Ético Médico.</p>
+                <p className="text-xs text-muted-foreground">Lo encuentras en tu tarjeta profesional.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fee">Valor consulta particular (COP)</Label>
@@ -319,7 +351,7 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => setStep(2)}>Atrás</Button>
               <Button className="flex-1" onClick={handleStep3} disabled={loading}>
-                {loading ? "Guardando..." : "Continuar"} <ChevronRight className="ml-1 w-4 h-4" />
+                {loading ? "Guardando..." : <>Continuar <ChevronRight className="ml-1 w-4 h-4" /></>}
               </Button>
             </div>
           </div>
@@ -327,37 +359,88 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
 
         {/* STEP 4 — Primer servicio */}
         {step === 4 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+          <div className="space-y-5 animate-in fade-in slide-in-from-right-4">
             <div>
               <h2 className="text-2xl font-bold mb-1">Crea tu primer servicio</h2>
-              <p className="text-muted-foreground">Los servicios son la base de tus facturas. Puedes crear más después.</p>
+              <p className="text-muted-foreground">Los servicios se usan al crear historias clínicas y facturas. Puedes agregar más después.</p>
             </div>
 
-            {sugeridos.length > 0 && !skipService && (
+            {/* Sugeridos según especialidad */}
+            {sugeridos.length > 0 && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Sugeridos para {selectedSpecialtyLabel}:</p>
+                <p className="text-sm font-medium">Sugeridos para <span className="text-primary">{selectedSpecialtyLabel}</span> — haz clic para seleccionar:</p>
                 <div className="grid gap-2">
                   {sugeridos.map(s => (
                     <button
                       key={s.cups}
+                      type="button"
                       onClick={() => applySugerido(s)}
-                      className={`text-left px-3 py-2 rounded-lg border text-sm transition-colors hover:border-primary hover:bg-primary/5
-                        ${serviceName === s.nombre ? "border-primary bg-primary/10" : "border-border"}`}
+                      className={`text-left px-4 py-3 rounded-lg border text-sm transition-all
+                        ${selectedSugerido === s.cups
+                          ? "border-primary bg-primary/10 ring-1 ring-primary"
+                          : "border-border hover:border-primary/60 hover:bg-muted/50"}`}
                     >
-                      <span className="font-medium">{s.nombre}</span>
-                      <span className="text-muted-foreground ml-2">${s.precio.toLocaleString()}</span>
-                      <span className="text-xs text-muted-foreground ml-2">CUPS {s.cups}</span>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{s.nombre}</span>
+                        <div className="flex items-center gap-2 ml-2 shrink-0">
+                          <span className="text-muted-foreground">${s.precio.toLocaleString("es-CO")}</span>
+                          {selectedSugerido === s.cups && <CheckCircle2 className="w-4 h-4 text-primary" />}
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted-foreground">CUPS: {s.cups}</span>
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {!skipService && (
+            {/* Formulario editable */}
+            {(selectedSugerido || editingService) && (
+              <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">Editar servicio seleccionado</p>
+                  {selectedSugerido && !editingService && (
+                    <button type="button" onClick={() => setEditingService(true)} className="text-xs text-primary flex items-center gap-1">
+                      <Pencil className="w-3 h-3" /> Editar
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">Nombre del servicio *</Label>
+                  <Input
+                    placeholder="ej: Consulta médica general"
+                    value={serviceName}
+                    onChange={e => setServiceName(e.target.value)}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Precio (COP) *</Label>
+                    <Input
+                      type="number"
+                      placeholder="60000"
+                      value={servicePrice}
+                      onChange={e => setServicePrice(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Código CUPS</Label>
+                    <Input
+                      placeholder="890201"
+                      value={serviceCups}
+                      onChange={e => setServiceCups(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Formulario desde cero si no hay especialidad o no hay sugeridos */}
+            {sugeridos.length === 0 && (
               <div className="space-y-3">
                 <div className="space-y-2">
                   <Label>Nombre del servicio *</Label>
-                  <Input placeholder="ej: Consulta médica general" value={serviceName} onChange={e => setServiceName(e.target.value)} />
+                  <Input placeholder="ej: Consulta médica" value={serviceName} onChange={e => setServiceName(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
@@ -376,13 +459,17 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
               <Button variant="outline" onClick={() => setStep(3)}>Atrás</Button>
               <Button
                 variant="ghost"
-                onClick={() => { setSkipService(true); setStep(5); }}
-                className="text-muted-foreground"
+                className="text-muted-foreground text-sm"
+                onClick={() => setStep(5)}
               >
-                Omitir
+                Omitir por ahora
               </Button>
-              <Button className="flex-1" onClick={handleStep4} disabled={loading}>
-                {loading ? "Guardando..." : "Continuar"} <ChevronRight className="ml-1 w-4 h-4" />
+              <Button
+                className="flex-1"
+                onClick={handleStep4}
+                disabled={loading || (!serviceName.trim() || !servicePrice)}
+              >
+                {loading ? "Guardando..." : <>Guardar servicio <ChevronRight className="ml-1 w-4 h-4" /></>}
               </Button>
             </div>
           </div>
@@ -395,24 +482,22 @@ export function OnboardingWizard({ doctorId, onComplete }: OnboardingWizardProps
               <CheckCircle2 className="w-12 h-12 text-green-500" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold mb-2">¡Todo listo, {fullName.split(" ")[0] || "doctor"}!</h2>
-              <p className="text-muted-foreground text-lg">
-                Tu cuenta está configurada. Puedes empezar a crear historias clínicas ahora mismo.
-              </p>
+              <h2 className="text-3xl font-bold mb-2">¡Todo listo, {firstName}!</h2>
+              <p className="text-muted-foreground text-lg">Tu cuenta está configurada. Ya puedes crear tu primera consulta.</p>
             </div>
             <div className="bg-muted/50 rounded-lg p-4 text-left space-y-2">
               <p className="font-medium text-sm">¿Qué sigue?</p>
               <div className="space-y-1 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" /> Registra tu primer paciente en "Pacientes"</div>
                 <div className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" /> Crea tu primera historia clínica con IA</div>
-                <div className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" /> Genera la factura electrónica DIAN al finalizar</div>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" /> Genera la factura electrónica DIAN automáticamente</div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Button variant="outline" onClick={() => { handleFinish(); navigate("/patients"); }}>
                 Registrar paciente
               </Button>
-              <Button onClick={() => { handleFinish(); navigate("/voicenotes"); }}>
+              <Button onClick={() => { handleFinish(); navigate("/voicenotes"); }} disabled={loading}>
                 Iniciar consulta <ArrowRight className="ml-1 w-4 h-4" />
               </Button>
             </div>
