@@ -142,7 +142,6 @@ export function OnboardingWizard({
   // Step 3 — clínica
   const [clinicName, setClinicName] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
-  const [consultationFee, setConsultationFee] = useState("60000");
 
   // Step 4 — servicio
   const [selectedSugeridoKey, setSelectedSugeridoKey] = useState<string | null>(null);
@@ -216,7 +215,6 @@ export function OnboardingWizard({
       .update({
         clinic_name: clinicName.trim(),
         license_number: licenseNumber.trim() || null,
-        consultation_fee: parseFloat(consultationFee) || 60000,
       })
       .eq("id", doctorId);
     setLoading(false);
@@ -402,17 +400,7 @@ export function OnboardingWizard({
                   value={licenseNumber}
                   onChange={e => setLicenseNumber(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground">Aparece en tu tarjeta profesional del Tribunal Ético Médico.</p>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="fee">Valor consulta particular (COP)</Label>
-                <Input
-                  id="fee"
-                  type="number"
-                  placeholder="60000"
-                  value={consultationFee}
-                  onChange={e => setConsultationFee(e.target.value)}
-                />
+                <p className="text-xs text-muted-foreground">Aparece en tu tarjeta profesional. Lo puedes completar después.</p>
               </div>
             </div>
             <div className="flex gap-3 pt-2">
