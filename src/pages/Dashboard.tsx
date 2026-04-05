@@ -32,6 +32,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { DoctorAIAssistant } from "@/components/DoctorAIAssistant";
 import { HeartbeatLine } from "@/components/HeartbeatLine";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -42,6 +43,9 @@ const Dashboard = () => {
   const [aiExpanded, setAiExpanded] = useState(false);
   const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
   const [showTrialBanner, setShowTrialBanner] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [profileWarnings, setProfileWarnings] = useState<string[]>([]);
+  const [showProfileBanner, setShowProfileBanner] = useState(false);
   const [stats, setStats] = useState({
     totalPatients: 0,
     satisfactionRate: 0,
@@ -98,15 +102,26 @@ const Dashboard = () => {
     try {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, specialty')
+        .select('full_name, specialty, clinic_name, license_number, onboarding_completed')
         .eq('id', doctorId)
         .maybeSingle();
 
-      if (profile?.full_name) {
-        setDoctorName(profile.full_name);
+      if (profile?.full_name) setDoctorName(profile.full_name);
+      if (profile?.specialty) setSpecialty(profile.specialty);
+
+      // Show onboarding wizard for new doctors
+      if (!profile?.onboarding_completed) {
+        setShowOnboarding(true);
+        return;
       }
-      if (profile?.specialty) {
-        setSpecialty(profile.specialty);
+
+      // Check profile completeness for existing doctors
+      const warnings: string[] = [];
+      if (!profile?.clinic_name) warnings.push("nombre de clínica");
+      if (!profile?.license_number) warnings.push("número RETHUS");
+      if (warnings.length > 0) {
+        setProfileWarnings(warnings);
+        setShowProfileBanner(true);
       }
     } catch (error) {
     }
@@ -306,6 +321,16 @@ const Dashboard = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
+        {showOnboarding && user && (
+          <OnboardingWizard
+            doctorId={user.id}
+            onComplete={() => {
+              setShowOnboarding(false);
+              loadDoctorProfile(user.id);
+            }}
+          />
+        )}
+
         <ReVerification
           isOpen={needsVerification}
           onVerified={markAsVerified}
@@ -336,6 +361,30 @@ const Dashboard = () => {
               </div>
             </div>
           </header>
+
+          {showProfileBanner && profileWarnings.length > 0 && (
+            <div className="bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-800 px-6 py-3 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-300">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>
+                  Tu perfil está incompleto: falta <strong>{profileWarnings.join(" y ")}</strong>. Esto puede afectar la facturación DIAN.
+                </span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-3 text-xs border-amber-400 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900"
+                  onClick={() => navigate("/profile")}
+                >
+                  Completar perfil
+                </Button>
+                <button onClick={() => setShowProfileBanner(false)} className="opacity-70 hover:opacity-100 text-amber-800 dark:text-amber-300">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {showTrialBanner && trialDaysLeft !== null && (
             <div className="bg-amber-500 text-white px-6 py-3 flex items-center justify-between gap-4">
