@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Activity, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { lovable } from "@/integrations/lovable";
 import { Separator } from "@/components/ui/separator";
 import MFASetup from "@/components/auth/MFASetup";
 import MFAVerification from "@/components/auth/MFAVerification";
@@ -190,18 +191,26 @@ const Auth = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth`,
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+        extraParams: {
+          prompt: "select_account",
         },
       });
 
-      if (error) throw error;
+      if (result.error) {
+        throw result.error;
+      }
+
+      if (result.redirected) {
+        return;
+      }
+
+      // Session set — complete sign-in
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await completeSignIn(user.id);
+      }
     } catch (error: any) {
       toast({
         title: "Error con Google",
