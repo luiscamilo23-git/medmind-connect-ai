@@ -42,6 +42,13 @@ export const useReVerification = () => {
         return;
       }
 
+      // Google users are already verified by Google — skip password re-verification
+      const provider = user.app_metadata?.provider;
+      if (provider === "google") {
+        setChecking(false);
+        return;
+      }
+
       const deviceFingerprint = generateDeviceFingerprint();
 
       const { data, error } = await supabase
