@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Activity, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { lovable } from "@/integrations/lovable";
 import { Separator } from "@/components/ui/separator";
 import MFASetup from "@/components/auth/MFASetup";
 import MFAVerification from "@/components/auth/MFAVerification";
