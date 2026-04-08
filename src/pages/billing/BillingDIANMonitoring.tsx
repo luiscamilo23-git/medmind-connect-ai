@@ -25,6 +25,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Settings2, ArrowRight } from "lucide-react";
 import { DIANRealtimeNotifications } from "@/components/billing/DIANRealtimeNotifications";
 
 const COLORS = {
@@ -177,6 +178,57 @@ export default function BillingDIANMonitoring() {
           {/* Main Content */}
           <main className="flex-1 overflow-y-auto p-6">
             <div className="max-w-7xl mx-auto space-y-6">
+
+              {/* Empty state — sin emisiones aún */}
+              {!logsLoading && totalEmissions === 0 && (
+                <Card className="border-dashed border-2 border-muted">
+                  <CardContent className="flex flex-col items-center justify-center py-16 text-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                      <Activity className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold mb-1">El monitoreo se activará con tu primera factura</h3>
+                      <p className="text-muted-foreground max-w-md">
+                        Aquí verás en tiempo real el estado de cada factura enviada a la DIAN — aprobadas, rechazadas, errores y tendencias.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 w-full max-w-2xl text-left">
+                      <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
+                        <span className="text-lg font-bold text-primary">1</span>
+                        <div>
+                          <p className="font-medium text-sm">Configura tu proveedor DIAN</p>
+                          <p className="text-xs text-muted-foreground mt-1">Alegra, Siigo o Alanube en Facturación → DIAN</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
+                        <span className="text-lg font-bold text-primary">2</span>
+                        <div>
+                          <p className="font-medium text-sm">Emite tu primera factura</p>
+                          <p className="text-xs text-muted-foreground mt-1">Ve a Facturas y crea una factura electrónica</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
+                        <span className="text-lg font-bold text-primary">3</span>
+                        <div>
+                          <p className="font-medium text-sm">El monitoreo se activa solo</p>
+                          <p className="text-xs text-muted-foreground mt-1">Las métricas y alertas aparecen en tiempo real</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button
+                      className="mt-2 gap-2"
+                      onClick={() => navigate("/billing/dian")}
+                    >
+                      <Settings2 className="h-4 w-4" />
+                      Configurar proveedor DIAN
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* KPI Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card>
