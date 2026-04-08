@@ -17,7 +17,7 @@ interface Message {
 const INITIAL_MESSAGE: Message = {
   id: "welcome",
   role: "assistant",
-  content: "¡Hola Doctor! 👋 Soy **Asistente MED**, tu apoyo clínico virtual.\n\nPuedo ayudarte con:\n• Consultar dosis y medicamentos\n• Códigos CIE-10 y CUPS\n• Diagnósticos diferenciales\n• Protocolos clínicos\n• Valores de referencia\n\n⚠️ *Recuerda: Mis respuestas son orientativas. Tu criterio clínico siempre prevalece.*\n\n¿En qué puedo asistirte?",
+  content: "**Asistente MED** — Apoyo clínico basado en evidencia\n\n Consultas rápidas disponibles:\n\n**💊 Farmacología**\n_\"Dosis de vancomicina en IRC FG 25\"_\n_\"Interacciones warfarina + amiodarona\"_\n\n**🔬 Diagnóstico**\n_\"Criterios diagnósticos de sepsis qSOFA\"_\n_\"Diferenciales de dolor pleurítico\"_\n\n**🏷️ Códigos**\n_\"CUPS consulta medicina interna EPS\"_\n_\"CIE-10 diabetes tipo 2 sin complicaciones\"_\n\n**📊 Laboratorio**\n_\"Interpretar troponina 0.08 ng/mL\"_\n_\"Valores normales TSH por trimestre embarazo\"_\n\n⚕️ *Criterio clínico del profesional prevalece siempre.*",
   timestamp: new Date(),
 };
 
