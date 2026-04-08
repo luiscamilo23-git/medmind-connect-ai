@@ -138,6 +138,7 @@ export function OnboardingWizard({
 
   // Step 2 — consultorio
   const [clinicName, setClinicName] = useState("");
+  const [rethus, setRethus] = useState("");
   const [nit, setNit] = useState("");
   const [ciudad, setCiudad] = useState("");
 
@@ -206,8 +207,8 @@ export function OnboardingWizard({
       toast({ title: "Ingresa el nombre de tu clínica o consultorio", variant: "destructive" });
       return;
     }
-    if (!nit.trim()) {
-      toast({ title: "Ingresa tu NIT o cédula", variant: "destructive" });
+    if (!rethus.trim()) {
+      toast({ title: "Ingresa tu número RETHUS", variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -215,6 +216,7 @@ export function OnboardingWizard({
       .from("profiles")
       .update({
         clinic_name: clinicName.trim(),
+        license_number: rethus.trim(),
         city: ciudad.trim() || null,
       })
       .eq("id", doctorId);
@@ -415,36 +417,48 @@ export function OnboardingWizard({
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="nit">NIT o Cédula *</Label>
+                <Label htmlFor="rethus">Número RETHUS *</Label>
                 <Input
-                  id="nit"
-                  placeholder="ej: 900123456 o 12345678"
-                  value={nit}
-                  onChange={e => setNit(e.target.value.replace(/\D/g, ""))}
+                  id="rethus"
+                  placeholder="ej: 05-123456"
+                  value={rethus}
+                  onChange={e => setRethus(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Si eres persona natural usa tu cédula. Si tienes empresa usa el NIT sin dígito verificador.
+                  Tu registro profesional ante el Ministerio de Salud. Aparece en tu tarjeta profesional.
                 </p>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="ciudad">Ciudad</Label>
-                <Input
-                  id="ciudad"
-                  placeholder="ej: Bogotá, Medellín, Cali..."
-                  value={ciudad}
-                  onChange={e => setCiudad(e.target.value)}
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="nit">NIT o Cédula</Label>
+                  <Input
+                    id="nit"
+                    placeholder="900123456"
+                    value={nit}
+                    onChange={e => setNit(e.target.value.replace(/\D/g, ""))}
+                  />
+                  <p className="text-xs text-muted-foreground">Para facturación DIAN</p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ciudad">Ciudad</Label>
+                  <Input
+                    id="ciudad"
+                    placeholder="Medellín, Bogotá..."
+                    value={ciudad}
+                    onChange={e => setCiudad(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
 
             <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg px-4 py-3 text-xs text-blue-700 dark:text-blue-300">
-              💡 Para activar la facturación electrónica DIAN necesitarás también la resolución de numeración y el certificado digital. Esto lo configuras en <strong>Facturación → DIAN</strong> cuando estés listo.
+              💡 Para activar la facturación electrónica DIAN necesitarás la resolución de numeración y el certificado digital. Configura esto en <strong>Facturación → DIAN</strong> cuando estés listo.
             </div>
 
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => setStep(1)}>Atrás</Button>
-              <Button className="flex-1" onClick={handleStep2} disabled={loading}>
+              <Button className="flex-1" onClick={handleStep2} disabled={loading || !clinicName.trim() || !rethus.trim()}>
                 {loading ? "Guardando..." : <>Continuar <ChevronRight className="ml-1 w-4 h-4" /></>}
               </Button>
             </div>
