@@ -62,6 +62,8 @@ const VoiceNotes = () => {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   
   const [servicioExpanded, setServicioExpanded] = useState(false);
+  const [modalidadExpanded, setModalidadExpanded] = useState(false);
+  const [pacienteExpanded, setPacienteExpanded] = useState(false);
 
   // Recording state for individual fields
   const [recordingField, setRecordingField] = useState<string | null>(null);
@@ -1490,88 +1492,128 @@ const VoiceNotes = () => {
 
               {/* Modalidad de atención — Res. 2654/2019 */}
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Modalidad de Atención</CardTitle>
-                  <CardDescription className="text-xs">
-                    Resolución 2654/2019 — Obligatorio registrar la modalidad de atención
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                    <div className="flex-1 space-y-1.5">
-                      <Label className="text-sm font-medium">Modalidad</Label>
-                      <Select
-                        value={modalidadAtencion}
-                        onValueChange={(v) => {
-                          setModalidadAtencion(v as typeof modalidadAtencion);
-                          setConsentimientoObtenido(false);
-                        }}
-                        disabled={isSaving}
-                      >
-                        <SelectTrigger className="w-full sm:w-72">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="presencial">Presencial</SelectItem>
-                          <SelectItem value="telemedicina_interactiva">Telemedicina interactiva</SelectItem>
-                          <SelectItem value="telemedicina_no_interactiva">Telemedicina no interactiva</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-3 pt-1 sm:pt-5">
-                      {modalidadAtencion === "presencial" ? (
-                        <Badge className="bg-green-100 text-green-700 border-green-300 gap-1.5">
-                          <FileCheck className="w-3.5 h-3.5" />
-                          Consentimiento general en archivo
-                        </Badge>
-                      ) : consentimientoObtenido ? (
-                        <Badge className="bg-green-100 text-green-700 border-green-300 gap-1.5">
-                          <FileCheck className="w-3.5 h-3.5" />
-                          Consentimiento telemedicina obtenido
-                        </Badge>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setConsentimientoOpen(true)}
-                          disabled={isSaving}
-                          className="gap-2"
-                        >
-                          <FileCheck className="w-4 h-4" />
-                          Consentimiento telemedicina
-                        </Button>
-                      )}
-                    </div>
+                <CardHeader
+                  className="pb-3 cursor-pointer select-none"
+                  onClick={() => setModalidadExpanded(v => !v)}
+                >
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      Modalidad de Atención
+                      <Badge variant="outline" className="text-xs font-normal capitalize">
+                        {modalidadAtencion === "presencial" ? "Presencial" : modalidadAtencion === "telemedicina_interactiva" ? "Telemedicina" : "No interactiva"}
+                      </Badge>
+                    </CardTitle>
+                    {modalidadExpanded
+                      ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                      : <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    }
                   </div>
-                </CardContent>
+                  {!modalidadExpanded && modalidadAtencion === "presencial" && (
+                    <CardDescription className="text-xs mt-1 flex items-center gap-1 text-green-600">
+                      <FileCheck className="w-3 h-3" /> Consentimiento general en archivo
+                    </CardDescription>
+                  )}
+                </CardHeader>
+                {modalidadExpanded && (
+                  <CardContent className="pt-0">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                      <div className="flex-1 space-y-1.5">
+                        <Label className="text-sm font-medium">Modalidad</Label>
+                        <Select
+                          value={modalidadAtencion}
+                          onValueChange={(v) => {
+                            setModalidadAtencion(v as typeof modalidadAtencion);
+                            setConsentimientoObtenido(false);
+                          }}
+                          disabled={isSaving}
+                        >
+                          <SelectTrigger className="w-full sm:w-72">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="presencial">Presencial</SelectItem>
+                            <SelectItem value="telemedicina_interactiva">Telemedicina interactiva</SelectItem>
+                            <SelectItem value="telemedicina_no_interactiva">Telemedicina no interactiva</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-3 pt-1 sm:pt-5">
+                        {modalidadAtencion === "presencial" ? (
+                          <Badge className="bg-green-100 text-green-700 border-green-300 gap-1.5">
+                            <FileCheck className="w-3.5 h-3.5" />
+                            Consentimiento general en archivo
+                          </Badge>
+                        ) : consentimientoObtenido ? (
+                          <Badge className="bg-green-100 text-green-700 border-green-300 gap-1.5">
+                            <FileCheck className="w-3.5 h-3.5" />
+                            Consentimiento telemedicina obtenido
+                          </Badge>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setConsentimientoOpen(true)}
+                            disabled={isSaving}
+                            className="gap-2"
+                          >
+                            <FileCheck className="w-4 h-4" />
+                            Consentimiento telemedicina
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                )}
               </Card>
 
               {/* Vincular paciente existente */}
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Vincular Paciente</CardTitle>
-                  <CardDescription className="text-xs">
-                    Busca un paciente registrado para vincular esta historia clínica y auto-completar sus datos.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <PatientSearchCombobox
-                    selectedPatient={linkedPatient}
-                    onSelect={handleLinkedPatientSelect}
-                    disabled={isSaving}
-                  />
-                  {linkedPatient && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-3 w-full"
-                      onClick={() => setHistoryPanelOpen(true)}
-                    >
-                      <History className="w-4 h-4 mr-2" />
-                      Ver historial de {linkedPatient.full_name}
-                    </Button>
+                <CardHeader
+                  className="pb-3 cursor-pointer select-none"
+                  onClick={() => setPacienteExpanded(v => !v)}
+                >
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      Vincular Paciente
+                      {linkedPatient && (
+                        <Badge variant="outline" className="text-xs font-normal">
+                          {linkedPatient.full_name}
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    {pacienteExpanded
+                      ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                      : <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    }
+                  </div>
+                  {!pacienteExpanded && (
+                    <CardDescription className="text-xs mt-1">
+                      {linkedPatient
+                        ? "Haz clic para cambiar el paciente vinculado"
+                        : "Haz clic para buscar y vincular un paciente"}
+                    </CardDescription>
                   )}
-                </CardContent>
+                </CardHeader>
+                {pacienteExpanded && (
+                  <CardContent className="pt-0">
+                    <PatientSearchCombobox
+                      selectedPatient={linkedPatient}
+                      onSelect={handleLinkedPatientSelect}
+                      disabled={isSaving}
+                    />
+                    {linkedPatient && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3 w-full"
+                        onClick={() => setHistoryPanelOpen(true)}
+                      >
+                        <History className="w-4 h-4 mr-2" />
+                        Ver historial de {linkedPatient.full_name}
+                      </Button>
+                    )}
+                  </CardContent>
+                )}
               </Card>
 
               {/* Title Card */}
