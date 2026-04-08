@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
-import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw, Clock, RotateCcw } from "lucide-react";
+import { Loader2, MessageCircle, QrCode, CheckCircle, Wifi, WifiOff, Unplug, RefreshCw, Clock, RotateCcw, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 export function ConnectWhatsApp() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -571,6 +573,22 @@ export function ConnectWhatsApp() {
               Última sincronización: {format(new Date(lastSyncAt), "d MMM yyyy, HH:mm", { locale: es })}
             </p>
           )}
+          <Button
+            variant="default"
+            size="sm"
+            className="w-full gap-2"
+            onClick={() => {
+              const el = document.getElementById("knowledge-base-section");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "start" });
+              } else {
+                navigate("/my-agent");
+              }
+            }}
+          >
+            <Settings className="h-4 w-4" />
+            Configurar asistente
+          </Button>
         </CardContent>
       </Card>
     );

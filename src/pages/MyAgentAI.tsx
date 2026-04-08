@@ -405,7 +405,7 @@ export default function MyAgentAI() {
 
             {/* Step 2: Knowledge Base (only shown when connected) */}
             {isConnected && (
-              <Card className="border-2">
+              <Card id="knowledge-base-section" className="border-2">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold shadow-lg">
