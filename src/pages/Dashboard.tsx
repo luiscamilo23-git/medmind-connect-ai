@@ -78,6 +78,9 @@ const Dashboard = () => {
   const [onboardingInitialSpecialty, setOnboardingInitialSpecialty] = useState("");
   const [profileWarnings, setProfileWarnings] = useState<string[]>([]);
   const [showProfileBanner, setShowProfileBanner] = useState(false);
+  const [rethusVerified, setRethusVerified] = useState<boolean | null>(null);
+  const [accountDaysSinceCreated, setAccountDaysSinceCreated] = useState(0);
+  const [showRethusBanner, setShowRethusBanner] = useState(false);
   const [todayAppointments, setTodayAppointments] = useState<Appointment[]>([]);
   const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
   const [recentPatients, setRecentPatients] = useState<RecentPatient[]>([]);
@@ -180,12 +183,21 @@ const Dashboard = () => {
     try {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, specialty, clinic_name, license_number, onboarding_completed")
+        .select("full_name, specialty, clinic_name, license_number, onboarding_completed, rethus_verified, created_at")
         .eq("id", doctorId)
         .maybeSingle();
 
       if (profile?.full_name) setDoctorName(profile.full_name);
       if (profile?.specialty) setSpecialty(profile.specialty);
+
+      // Verificación RETHUS
+      const verified = profile?.rethus_verified === true;
+      setRethusVerified(verified);
+      if (!verified && profile?.created_at) {
+        const days = Math.floor((Date.now() - new Date(profile.created_at).getTime()) / 86400000);
+        setAccountDaysSinceCreated(days);
+        if (days >= 5) setShowRethusBanner(true);
+      }
 
       const localDone = localStorage.getItem(`onboarding_done_${doctorId}`) === "true";
       const dbDone = profile?.onboarding_completed === true;
@@ -349,6 +361,37 @@ const Dashboard = () => {
                 </Button>
                 <button onClick={() => setShowProfileBanner(false)} className="opacity-70 hover:opacity-100 text-amber-800 dark:text-amber-300">
                   <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {showRethusBanner && !rethusVerified && (
+            <div className={`px-6 py-3 flex items-center justify-between gap-4 border-b ${
+              accountDaysSinceCreated >= 27
+                ? "bg-red-600 text-white border-red-700"
+                : "bg-orange-500/10 text-orange-800 dark:text-orange-300 border-orange-500/20"
+            }`}>
+              <div className="flex items-center gap-2 text-sm">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>
+                  {accountDaysSinceCreated >= 27
+                    ? <><strong>Tu cuenta se suspenderá en {30 - accountDaysSinceCreated} días.</strong> Verifica tu número RETHUS para continuar usando MEDMIND.</>
+                    : <>Tu cuenta está en revisión. Estamos verificando tu número RETHUS ante el Ministerio de Salud. <strong>Este proceso toma hasta 24h.</strong></>
+                  }
+                </span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  variant={accountDaysSinceCreated >= 27 ? "secondary" : "outline"}
+                  className="h-7 px-3 text-xs"
+                  onClick={() => navigate("/profile")}
+                >
+                  Ver perfil
+                </Button>
+                <button onClick={() => setShowRethusBanner(false)}>
+                  <X className="w-4 h-4 opacity-70 hover:opacity-100" />
                 </button>
               </div>
             </div>
