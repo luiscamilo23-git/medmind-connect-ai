@@ -353,7 +353,7 @@ const Landing = () => {
             {/* Subtitle - Responsive */}
             <div className="space-y-3 sm:space-y-4 animate-fade-in opacity-0" style={{ animationDelay: "0.4s" }}>
               <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-foreground max-w-5xl mx-auto font-bold leading-tight px-2">
-                El médico habla.<br className="hidden sm:block" /> La historia se escribe sola.
+                Automatiza tu Práctica Médica<br className="hidden sm:block" /> con Inteligencia Artificial
               </p>
               <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto font-light px-4">
                 Más de <span className="font-bold text-primary px-1 bg-primary/10 rounded">2 horas diarias</span> de papeleo te están costando dinero y pacientes.
