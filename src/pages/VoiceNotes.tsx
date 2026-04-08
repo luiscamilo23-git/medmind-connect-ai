@@ -42,7 +42,7 @@ import { blobToWavBase64 } from "@/utils/audioWav";
 import { ServiceSelector, SelectedService } from "@/components/ServiceSelector";
 import { ConsentimientoInformadoDialog } from "@/components/ConsentimientoInformadoDialog";
 import { PatientSearchCombobox, PatientOption } from "@/components/PatientSearchCombobox";
-import { FileCheck, Receipt } from "lucide-react";
+import { FileCheck, Receipt, ChevronDown, ChevronUp } from "lucide-react";
 import { InvoiceDialog } from "@/components/billing/InvoiceDialog";
 import { PatientMedicalHistory } from "@/components/PatientMedicalHistory";
 
@@ -61,6 +61,8 @@ const VoiceNotes = () => {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   
+  const [servicioExpanded, setServicioExpanded] = useState(false);
+
   // Recording state for individual fields
   const [recordingField, setRecordingField] = useState<string | null>(null);
   
@@ -1448,22 +1450,42 @@ const VoiceNotes = () => {
 
               {/* Service Selection - OPTIONAL */}
               <Card className="border border-border">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    📋 Servicio Médico
-                    <Badge variant="secondary" className="text-xs">Opcional</Badge>
-                  </CardTitle>
-                  <CardDescription>
-                    Selecciona si vas a facturar desde MEDMIND. Si usas otra plataforma de facturación, puedes omitirlo.
-                  </CardDescription>
+                <CardHeader
+                  className="pb-3 cursor-pointer select-none"
+                  onClick={() => setServicioExpanded(v => !v)}
+                >
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      📋 Servicio Médico
+                      <Badge variant="secondary" className="text-xs">Opcional</Badge>
+                      {selectedService && (
+                        <Badge variant="outline" className="text-xs font-normal">
+                          {selectedService.nombre_servicio}
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    {servicioExpanded
+                      ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                      : <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    }
+                  </div>
+                  {!servicioExpanded && (
+                    <CardDescription className="text-xs mt-1">
+                      {selectedService
+                        ? `CUPS: ${selectedService.codigo_cups || '—'} · $${selectedService.precio_unitario?.toLocaleString('es-CO')}`
+                        : "Haz clic para seleccionar el servicio a facturar"}
+                    </CardDescription>
+                  )}
                 </CardHeader>
-                <CardContent>
-                  <ServiceSelector
-                    selectedService={selectedService}
-                    onServiceSelect={setSelectedService}
-                    disabled={isSaving}
-                  />
-                </CardContent>
+                {servicioExpanded && (
+                  <CardContent className="pt-0">
+                    <ServiceSelector
+                      selectedService={selectedService}
+                      onServiceSelect={setSelectedService}
+                      disabled={isSaving}
+                    />
+                  </CardContent>
+                )}
               </Card>
 
               {/* Modalidad de atención — Res. 2654/2019 */}
