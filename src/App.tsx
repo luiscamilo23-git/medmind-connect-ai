@@ -48,6 +48,7 @@ const PatientAuthorizations = React.lazy(() => import("./pages/patient/PatientAu
 
 // Legal compliance pages (doctor)
 const PQRS = React.lazy(() => import("./pages/PQRS"));
+const DataSecurity = React.lazy(() => import("./pages/DataSecurity"));
 
 // Public utility pages
 const ConfirmAppointment = React.lazy(() => import("./pages/ConfirmAppointment"));
@@ -133,6 +134,7 @@ const App = () => (
             <Route path="/social" element={<ProtectedRoute requiredRole="doctor"><SocialNetwork /></ProtectedRoute>} />
             <Route path="/referrals" element={<ProtectedRoute requiredRole="doctor"><Referrals /></ProtectedRoute>} />
             <Route path="/pqrs" element={<ProtectedRoute requiredRole="doctor"><PQRS /></ProtectedRoute>} />
+            <Route path="/data-security" element={<ProtectedRoute requiredRole="doctor"><DataSecurity /></ProtectedRoute>} />
 
             {/* Patient routes */}
             <Route path="/patient/dashboard" element={<ProtectedRoute requiredRole="patient"><PatientDashboard /></ProtectedRoute>} />

@@ -17,6 +17,7 @@ import {
   Bot,
   CreditCard,
   Shield,
+  ShieldCheck,
   UserCheck
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -45,6 +46,7 @@ const mainItems = [
 
 const complianceItems = [
   { title: "PQRS", url: "/pqrs", icon: Shield },
+  { title: "Seguridad y Privacidad", url: "/data-security", icon: ShieldCheck },
 ];
 
 const configItems = [
