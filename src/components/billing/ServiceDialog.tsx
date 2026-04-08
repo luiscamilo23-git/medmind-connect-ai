@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { searchCups, CupsEntry } from "@/data/cups-catalog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -73,6 +74,9 @@ type ServiceDialogProps = {
 
 export function ServiceDialog({ open, onOpenChange, service }: ServiceDialogProps) {
   const queryClient = useQueryClient();
+  const [cupsSuggestions, setCupsSuggestions] = useState<CupsEntry[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<ServiceFormData>({
     resolver: zodResolver(serviceSchema),
@@ -179,7 +183,58 @@ export function ServiceDialog({ open, onOpenChange, service }: ServiceDialogProp
                 <FormItem>
                   <FormLabel>Nombre del Servicio</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: Consulta General" {...field} />
+                    <div className="relative">
+                      <Input
+                        placeholder="Ej: Consulta General"
+                        {...field}
+                        autoComplete="off"
+                        onChange={(e) => {
+                          field.onChange(e);
+                          const results = searchCups(e.target.value);
+                          setCupsSuggestions(results);
+                          setShowSuggestions(results.length > 0);
+                        }}
+                        onBlur={() => {
+                          setTimeout(() => setShowSuggestions(false), 150);
+                        }}
+                        onFocus={() => {
+                          const results = searchCups(field.value);
+                          if (results.length > 0) {
+                            setCupsSuggestions(results);
+                            setShowSuggestions(true);
+                          }
+                        }}
+                      />
+                      {showSuggestions && cupsSuggestions.length > 0 && (
+                        <div
+                          ref={suggestionsRef}
+                          className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-lg overflow-hidden"
+                        >
+                          {cupsSuggestions.map((entry) => (
+                            <button
+                              key={entry.codigo}
+                              type="button"
+                              className="w-full text-left px-3 py-2 hover:bg-accent hover:text-accent-foreground flex items-center justify-between gap-2 text-sm border-b border-border/50 last:border-0"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                form.setValue("nombre_servicio", entry.nombre);
+                                form.setValue("codigo_cups", entry.codigo);
+                                form.setValue("tipo_servicio", entry.tipo as any);
+                                setShowSuggestions(false);
+                              }}
+                            >
+                              <span className="truncate">{entry.nombre}</span>
+                              <span className="shrink-0 text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                                {entry.codigo}
+                              </span>
+                            </button>
+                          ))}
+                          <div className="px-3 py-1.5 text-xs text-muted-foreground bg-muted/50 border-t border-border/50">
+                            Selecciona para autocompletar código CUPS y tipo
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
