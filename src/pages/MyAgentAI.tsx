@@ -190,6 +190,23 @@ export default function MyAgentAI() {
     setTogglingBot(false);
   };
 
+  const quickToggleBot = async (conv: Conversation, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newVal = !conv.is_bot_active;
+    const { error } = await supabase
+      .from("whatsapp_conversations")
+      .update({ is_bot_active: newVal, updated_at: new Date().toISOString() })
+      .eq("id", conv.id);
+    if (!error) {
+      setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, is_bot_active: newVal } : c));
+      if (selectedConv?.id === conv.id) setSelectedConv({ ...selectedConv, is_bot_active: newVal });
+    }
+  };
+
+  const sendQuickReply = (text: string) => {
+    setReplyText(text);
+  };
+
   const sendReply = async () => {
     if (!selectedConv || !replyText.trim()) return;
     setSendingReply(true);
@@ -773,31 +790,63 @@ export default function MyAgentAI() {
 
                       {/* Reply input — solo visible en modo manual */}
                       {!selectedConv.is_bot_active && (
-                        <div className="border-t px-4 py-3 flex gap-2 bg-background">
-                          <Input
-                            placeholder="Escribe tu respuesta..."
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault();
-                                sendReply();
-                              }
-                            }}
-                            className="flex-1"
-                          />
-                          <Button
-                            onClick={sendReply}
-                            disabled={sendingReply || !replyText.trim()}
-                            size="icon"
-                            className="bg-primary hover:bg-primary/90 text-white shrink-0"
-                          >
-                            {sendingReply ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Send className="h-4 w-4" />
+                        <div className="border-t bg-background">
+                          {/* Quick replies */}
+                          <div className="px-3 pt-2 pb-1 flex gap-1.5 flex-wrap">
+                            {[
+                              { label: "✅ Cita confirmada", text: "¡Hola! Tu cita quedó confirmada. Cualquier cambio avísanos con anticipación. ¡Hasta pronto! 😊" },
+                              { label: "💰 Enviar precio", text: "El valor de la consulta es de $___. Aceptamos efectivo, transferencia Nequi/Daviplata o tarjeta." },
+                              { label: "📅 Agendar cita", text: "Con gusto te agendamos. ¿Qué días y horarios te quedan mejor esta semana?" },
+                              { label: "⏰ Recordatorio", text: "Te recordamos tu cita médica para mañana. Por favor llega 10 minutos antes. ¡Te esperamos!" },
+                              { label: "📞 Te llamo ya", text: "Perfecto, te llamo en unos minutos para coordinar los detalles. ¡Gracias!" },
+                              { label: "🔄 Derivar al bot", text: "" },
+                            ].map((qr) =>
+                              qr.label === "🔄 Derivar al bot" ? (
+                                <button
+                                  key={qr.label}
+                                  onClick={toggleBot}
+                                  className="text-xs px-2.5 py-1 rounded-full border border-border bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
+                                >
+                                  🔄 Devolver al bot
+                                </button>
+                              ) : (
+                                <button
+                                  key={qr.label}
+                                  onClick={() => sendQuickReply(qr.text)}
+                                  className="text-xs px-2.5 py-1 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary transition-colors"
+                                >
+                                  {qr.label}
+                                </button>
+                              )
                             )}
-                          </Button>
+                          </div>
+                          {/* Input row */}
+                          <div className="px-4 py-2 flex gap-2">
+                            <Input
+                              placeholder="Escribe tu respuesta o edita la sugerida arriba..."
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                  e.preventDefault();
+                                  sendReply();
+                                }
+                              }}
+                              className="flex-1"
+                            />
+                            <Button
+                              onClick={sendReply}
+                              disabled={sendingReply || !replyText.trim()}
+                              size="icon"
+                              className="bg-primary hover:bg-primary/90 text-white shrink-0"
+                            >
+                              {sendingReply ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Send className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -833,15 +882,29 @@ export default function MyAgentAI() {
                             </p>
                           </div>
 
-                          <div className="flex flex-col items-end gap-1 shrink-0">
+                          <div className="flex flex-col items-end gap-1.5 shrink-0">
                             <span className="text-[11px] text-muted-foreground">
                               {formatDate(conv.last_message_at)}
                             </span>
-                            {conv.unread_count > 0 && (
-                              <Badge className="bg-primary text-white border-0 h-5 min-w-5 rounded-full text-[10px] flex items-center justify-center px-1">
-                                {conv.unread_count}
-                              </Badge>
-                            )}
+                            <div className="flex items-center gap-1.5">
+                              {conv.unread_count > 0 && (
+                                <Badge className="bg-primary text-white border-0 h-5 min-w-5 rounded-full text-[10px] flex items-center justify-center px-1">
+                                  {conv.unread_count}
+                                </Badge>
+                              )}
+                              {/* Mini toggle directo sin abrir la conversación */}
+                              <button
+                                onClick={(e) => quickToggleBot(conv, e)}
+                                title={conv.is_bot_active ? "Pausar bot" : "Reactivar bot"}
+                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
+                                  conv.is_bot_active
+                                    ? "bg-blue-500/10 text-blue-500 hover:bg-red-500/10 hover:text-red-500"
+                                    : "bg-amber-500/10 text-amber-500 hover:bg-green-500/10 hover:text-green-500"
+                                }`}
+                              >
+                                {conv.is_bot_active ? <Bot className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+                              </button>
+                            </div>
                           </div>
                         </button>
                       ))}
