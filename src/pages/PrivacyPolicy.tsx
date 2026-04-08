@@ -151,7 +151,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Retirar consentimiento:</strong> Revocar su consentimiento en cualquier momento</li>
               </ul>
               <p className="mt-4">
-                Para ejercer estos derechos, contáctenos en: <strong>privacidad@medmind.com</strong>
+                Para ejercer estos derechos, contáctenos en: <strong>soporte@medmindsystem.com</strong>
               </p>
             </section>
 
@@ -194,9 +194,9 @@ const PrivacyPolicy = () => {
                 Si tiene preguntas, inquietudes o solicitudes relacionadas con esta Política de Privacidad o el tratamiento de sus datos personales, puede contactarnos:
               </p>
               <ul className="list-none space-y-2 mt-4">
-                <li><strong>Email:</strong> privacidad@medmind.com</li>
-                <li><strong>Teléfono:</strong> +52 (55) 1234-5678</li>
-                <li><strong>Dirección:</strong> MEDMIND S.A. de C.V., Av. Reforma 123, CDMX, México</li>
+                <li><strong>Email:</strong> soporte@medmindsystem.com</li>
+                <li><strong>Teléfono:</strong> +57 305 3943965</li>
+                <li><strong>Dirección:</strong> MEDMIND SAS, Medellín, Antioquia, Colombia</li>
               </ul>
               <p className="mt-4">
                 También puede presentar una queja ante la autoridad de protección de datos de su jurisdicción si considera que hemos violado sus derechos de privacidad.

@@ -335,9 +335,9 @@ const CookiePolicy = () => {
                 Si tiene preguntas sobre nuestra Política de Cookies, puede contactarnos:
               </p>
               <ul className="list-none space-y-2 mt-4">
-                <li><strong>Email:</strong> privacidad@medmind.com</li>
-                <li><strong>Teléfono:</strong> +52 (55) 1234-5678</li>
-                <li><strong>Dirección:</strong> MEDMIND S.A. de C.V., Av. Reforma 123, CDMX, México</li>
+                <li><strong>Email:</strong> soporte@medmindsystem.com</li>
+                <li><strong>Teléfono:</strong> +57 305 3943965</li>
+                <li><strong>Dirección:</strong> MEDMIND SAS, Medellín, Antioquia, Colombia</li>
               </ul>
             </section>
 

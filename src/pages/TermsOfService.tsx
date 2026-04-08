@@ -40,7 +40,7 @@ const TermsOfService = () => {
                 Bienvenido a MEDMIND. Al acceder o utilizar nuestra plataforma de gestión médica, usted acepta estar legalmente vinculado por estos Términos de Servicio ("Términos"). Si no está de acuerdo con estos Términos, no debe utilizar nuestros servicios.
               </p>
               <p>
-                Estos Términos constituyen un acuerdo legal entre usted (el "Usuario" o "Profesional Médico") y MEDMIND S.A. de C.V. ("MEDMIND", "nosotros", "nuestro").
+                Estos Términos constituyen un acuerdo legal entre usted (el "Usuario" o "Profesional Médico") y MEDMIND SAS ("MEDMIND", "nosotros", "nuestro").
               </p>
             </section>
 
@@ -329,9 +329,9 @@ const TermsOfService = () => {
                 Si tiene preguntas sobre estos Términos, puede contactarnos:
               </p>
               <ul className="list-none space-y-2 mt-4">
-                <li><strong>Email:</strong> legal@medmind.com</li>
-                <li><strong>Teléfono:</strong> +52 (55) 1234-5678</li>
-                <li><strong>Dirección:</strong> MEDMIND S.A. de C.V., Av. Reforma 123, CDMX, México</li>
+                <li><strong>Email:</strong> soporte@medmindsystem.com</li>
+                <li><strong>Teléfono:</strong> +57 305 3943965</li>
+                <li><strong>Dirección:</strong> MEDMIND SAS, Medellín, Antioquia, Colombia</li>
               </ul>
             </section>
           </div>

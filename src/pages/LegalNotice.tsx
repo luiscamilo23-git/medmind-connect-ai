@@ -37,18 +37,17 @@ const LegalNotice = () => {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold">1. Información General</h2>
               <p>
-                En cumplimiento de lo dispuesto en la Ley Federal de Protección al Consumidor y demás normativas aplicables, MEDMIND proporciona la siguiente información:
+                En cumplimiento de lo dispuesto en la Estatuto del Consumidor colombiano (Ley 1480 de 2011) y demás normativas aplicables, MEDMIND proporciona la siguiente información:
               </p>
               
               <div className="bg-muted/30 p-6 rounded-lg space-y-2">
-                <p><strong>Razón Social:</strong> MEDMIND S.A. de C.V.</p>
-                <p><strong>RFC:</strong> MMI230115ABC</p>
-                <p><strong>Domicilio Fiscal:</strong> Av. Reforma 123, Piso 10, Col. Juárez, C.P. 06600, Ciudad de México, CDMX, México</p>
-                <p><strong>Teléfono:</strong> +52 (55) 1234-5678</p>
-                <p><strong>Email de Contacto:</strong> contacto@medmind.com</p>
-                <p><strong>Email Legal:</strong> legal@medmind.com</p>
-                <p><strong>Sitio Web:</strong> https://medmind.com</p>
-                <p><strong>Representante Legal:</strong> Dr. Juan Carlos Hernández Pérez</p>
+                <p><strong>Razón Social:</strong> MEDMIND SAS</p>
+                <p><strong>Domicilio:</strong> Medellín, Antioquia, Colombia</p>
+                <p><strong>Teléfono:</strong> +57 305 3943965</p>
+                <p><strong>Email de Contacto:</strong> soporte@medmindsystem.com</p>
+                <p><strong>Email Legal:</strong> soporte@medmindsystem.com</p>
+                <p><strong>Sitio Web:</strong> https://medmindsystem.com</p>
+                <p><strong>Representante Legal:</strong> Tomas Hoyos Velásquez</p>
               </div>
             </section>
 
@@ -102,12 +101,12 @@ const LegalNotice = () => {
                 <li>Documentación técnica y manuales</li>
               </ul>
               <p className="mt-4">
-                Son propiedad exclusiva de MEDMIND S.A. de C.V. o de sus licenciantes, y están protegidos por las leyes mexicanas e internacionales de propiedad intelectual, derechos de autor y marcas registradas.
+                Son propiedad exclusiva de MEDMIND SAS o de sus licenciantes, y están protegidos por las leyes colombianas e internacionales de propiedad intelectual, derechos de autor y marcas registradas.
               </p>
 
               <h3 className="text-xl font-semibold mt-4">4.2 Marcas Registradas</h3>
               <p>
-                MEDMIND® es una marca registrada de MEDMIND S.A. de C.V. Está prohibido el uso no autorizado de la marca o cualquier elemento distintivo de la plataforma.
+                MEDMIND® es una marca registrada de MEDMIND SAS Está prohibido el uso no autorizado de la marca o cualquier elemento distintivo de la plataforma.
               </p>
 
               <h3 className="text-xl font-semibold mt-4">4.3 Uso Permitido</h3>
@@ -235,9 +234,9 @@ const LegalNotice = () => {
                 Antes de iniciar cualquier acción legal, le solicitamos que intente resolver la disputa contactándonos en:
               </p>
               <ul className="list-none space-y-2 mt-4">
-                <li><strong>Email de soporte:</strong> soporte@medmind.com</li>
-                <li><strong>Email legal:</strong> legal@medmind.com</li>
-                <li><strong>Teléfono:</strong> +52 (55) 1234-5678</li>
+                <li><strong>Email de soporte:</strong> soporte@medmindsystem.com</li>
+                <li><strong>Email legal:</strong> soporte@medmindsystem.com</li>
+                <li><strong>Teléfono:</strong> +57 305 3943965</li>
               </ul>
               <p className="mt-4">
                 Nos comprometemos a responder quejas dentro de 5 días hábiles e intentar resolverlas en un plazo máximo de 30 días.
@@ -334,23 +333,23 @@ const LegalNotice = () => {
                 <div>
                   <p className="font-semibold mb-2">Contacto General:</p>
                   <ul className="list-none space-y-1">
-                    <li>Email: contacto@medmind.com</li>
-                    <li>Teléfono: +52 (55) 1234-5678</li>
-                    <li>WhatsApp: +52 (55) 9876-5432</li>
+                    <li>Email: soporte@medmindsystem.com</li>
+                    <li>Teléfono: +57 305 3943965</li>
+                    <li>WhatsApp: +57 305 3943965</li>
                   </ul>
                 </div>
 
                 <div>
                   <p className="font-semibold mb-2">Asuntos Legales:</p>
                   <ul className="list-none space-y-1">
-                    <li>Email: legal@medmind.com</li>
+                    <li>Email: soporte@medmindsystem.com</li>
                   </ul>
                 </div>
 
                 <div>
                   <p className="font-semibold mb-2">Privacidad y Datos:</p>
                   <ul className="list-none space-y-1">
-                    <li>Email: privacidad@medmind.com</li>
+                    <li>Email: soporte@medmindsystem.com</li>
                     <li>Oficial de Protección de Datos (DPO)</li>
                   </ul>
                 </div>
@@ -358,22 +357,22 @@ const LegalNotice = () => {
                 <div>
                   <p className="font-semibold mb-2">Soporte Técnico:</p>
                   <ul className="list-none space-y-1">
-                    <li>Email: soporte@medmind.com</li>
+                    <li>Email: soporte@medmindsystem.com</li>
                     <li>Chat en vivo: Disponible 24/7 en la plataforma</li>
                   </ul>
                 </div>
 
                 <div>
                   <p className="font-semibold mb-2">Dirección Postal:</p>
-                  <p>MEDMIND S.A. de C.V.</p>
-                  <p>Av. Reforma 123, Piso 10</p>
-                  <p>Col. Juárez, C.P. 06600</p>
-                  <p>Ciudad de México, CDMX, México</p>
+                  <p>MEDMIND SAS</p>
+                  <p>Medellín, Antioquia</p>
+                  <p></p>
+                  <p>Colombia</p>
                 </div>
 
                 <div>
                   <p className="font-semibold mb-2">Horario de Atención:</p>
-                  <p>Lunes a Viernes: 9:00 AM - 7:00 PM (GMT-6)</p>
+                  <p>Lunes a Viernes: 8:00 AM - 6:00 PM (GMT-5)</p>
                   <p>Soporte técnico 24/7 disponible</p>
                 </div>
               </div>
