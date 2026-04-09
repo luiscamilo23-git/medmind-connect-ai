@@ -66,6 +66,8 @@ const BillingDIANMonitoring = React.lazy(() => import("./pages/billing/BillingDI
 // Secretary pages
 const SecretaryDashboard = React.lazy(() => import("./pages/SecretaryDashboard"));
 
+const ClinicalImpact = React.lazy(() => import("./pages/ClinicalImpact"));
+
 // Student / MedMind Edu pages (no requieren auth)
 const StudentPortal = React.lazy(() => import("./pages/student/StudentPortal"));
 const StudentSimulator = React.lazy(() => import("./pages/student/StudentSimulator"));
@@ -145,6 +147,7 @@ const App = () => (
             <Route path="/referrals" element={<ProtectedRoute requiredRole="doctor"><Referrals /></ProtectedRoute>} />
             <Route path="/pqrs" element={<ProtectedRoute requiredRole="doctor"><PQRS /></ProtectedRoute>} />
             <Route path="/data-security" element={<ProtectedRoute requiredRole="doctor"><DataSecurity /></ProtectedRoute>} />
+            <Route path="/clinical-impact" element={<ProtectedRoute requiredRole="doctor"><ClinicalImpact /></ProtectedRoute>} />
 
             {/* Patient routes */}
             <Route path="/patient/dashboard" element={<ProtectedRoute requiredRole="patient"><PatientDashboard /></ProtectedRoute>} />

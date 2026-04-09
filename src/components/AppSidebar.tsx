@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   UserCheck,
   GraduationCap,
+  Activity,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useEffect, useState } from "react";
@@ -48,6 +49,7 @@ const mainItems = [
 const complianceItems = [
   { title: "PQRS", url: "/pqrs", icon: Shield },
   { title: "Seguridad y Privacidad", url: "/data-security", icon: ShieldCheck },
+  { title: "Impacto Clínico", url: "/clinical-impact", icon: Activity },
 ];
 
 const configItems = [
