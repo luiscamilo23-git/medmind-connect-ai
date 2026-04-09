@@ -20,7 +20,11 @@ import {
   Sparkles,
   Download,
   Upload,
-  User as UserIcon
+  User as UserIcon,
+  Copy,
+  Check,
+  Radio,
+  MessageSquare,
 } from "lucide-react";
 import RecordingTimer from "@/components/RecordingTimer";
 import { Badge } from "@/components/ui/badge";
@@ -143,6 +147,14 @@ const VoiceNotes = () => {
   const [linkedPatient, setLinkedPatient] = useState<PatientOption | null>(null);
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
 
+  // Modo Ambiental (escucha pasiva continua durante toda la consulta)
+  const [ambientalMode, setAmbientalMode] = useState(false);
+
+  // Resumen para el paciente (WhatsApp-ready)
+  const [patientSummary, setPatientSummary] = useState<string | null>(null);
+  const [summaryVisible, setSummaryVisible] = useState(false);
+  const [summaryCopied, setSummaryCopied] = useState(false);
+
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -165,6 +177,19 @@ const VoiceNotes = () => {
     };
     loadProfile();
   }, []);
+
+  // Modo Ambiental: auto-iniciar grabación cuando se activa
+  useEffect(() => {
+    if (ambientalMode && !isRecording) {
+      // pequeño delay para que el estado se propague
+      const t = setTimeout(() => startRecording(), 400);
+      return () => clearTimeout(t);
+    }
+    if (!ambientalMode && isRecording) {
+      stopRecording();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ambientalMode]);
 
   // Analyze transcript in real-time for suggestions
   useEffect(() => {
@@ -1162,6 +1187,36 @@ const VoiceNotes = () => {
     setAudioBlob(null);
   };
 
+  // Resumen para el paciente — generado localmente a partir de los campos completados
+  const generatePatientSummary = () => {
+    const name = patientName || "Estimado paciente";
+    const doctorStr = doctorProfile?.full_name ? `Dr. ${doctorProfile.full_name}` : "tu médico";
+    const lines: string[] = [];
+    lines.push(`Hola ${name},`);
+    lines.push(`Aquí tienes el resumen de tu consulta de hoy con ${doctorStr}:`);
+    lines.push("");
+    if (diagnosis) lines.push(`📋 *Diagnóstico:* ${diagnosis}${cie10Code ? ` (${cie10Code})` : ""}`);
+    if (treatment) lines.push(`💊 *Plan de manejo:* ${treatment}`);
+    if (medications?.length) lines.push(`🩺 *Medicamentos:* ${medications.join(", ")}`);
+    if (education) lines.push(`ℹ️ *Recomendaciones:* ${education}`);
+    if (followup) lines.push(`📅 *Próximo control:* ${followup}`);
+    if (!diagnosis && !treatment && !followup) {
+      lines.push("(Completa el diagnóstico y plan de manejo para generar el resumen completo.)");
+    }
+    lines.push("");
+    lines.push("Ante cualquier duda o síntoma nuevo, no dudes en contactarnos. ¡Que te mejores pronto! 🙏");
+    const summary = lines.join("\n");
+    setPatientSummary(summary);
+    setSummaryVisible(true);
+  };
+
+  const copyPatientSummary = async () => {
+    if (!patientSummary) return;
+    await navigator.clipboard.writeText(patientSummary);
+    setSummaryCopied(true);
+    setTimeout(() => setSummaryCopied(false), 2000);
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -1247,6 +1302,36 @@ const VoiceNotes = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 sm:space-y-6 relative p-4 sm:p-6 pt-0 sm:pt-0">
+
+                  {/* Modo Ambiental toggle */}
+                  <div className={`flex items-center justify-between rounded-xl px-4 py-3 border transition-all duration-300 ${
+                    ambientalMode
+                      ? "bg-emerald-950/40 border-emerald-500/40"
+                      : "bg-muted/30 border-border/40"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`relative flex items-center justify-center w-8 h-8 rounded-full ${ambientalMode ? "bg-emerald-500/20" : "bg-muted"}`}>
+                        <Radio className={`w-4 h-4 ${ambientalMode ? "text-emerald-400 animate-pulse" : "text-muted-foreground"}`} />
+                      </div>
+                      <div>
+                        <p className={`text-sm font-semibold ${ambientalMode ? "text-emerald-300" : "text-foreground"}`}>
+                          Escucha Ambiental
+                        </p>
+                        <p className="text-[11px] text-muted-foreground leading-tight">
+                          {ambientalMode
+                            ? "Activa · La historia se está documentando sola"
+                            : "El micrófono escucha toda la consulta automáticamente"}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setAmbientalMode(prev => !prev)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${ambientalMode ? "bg-emerald-500" : "bg-muted-foreground/30"}`}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${ambientalMode ? "translate-x-6" : "translate-x-1"}`} />
+                    </button>
+                  </div>
+
                   {/* Real-time recording buttons */}
                   <div className="space-y-3">
                     <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
@@ -1440,8 +1525,68 @@ const VoiceNotes = () => {
                 </Card>
               )}
 
+              {/* Resumen para el Paciente (WhatsApp-ready) */}
+              {transcript && (
+                <Card className="border border-emerald-500/20 bg-emerald-950/10">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4 text-emerald-400" />
+                          Resumen para el Paciente
+                        </CardTitle>
+                        <CardDescription className="text-xs mt-0.5">
+                          Mensaje listo para enviar por WhatsApp · Generado desde los campos completados
+                        </CardDescription>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-emerald-500/30 text-emerald-300 hover:bg-emerald-950/40 gap-1.5"
+                        onClick={generatePatientSummary}
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        Generar resumen
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  {summaryVisible && patientSummary && (
+                    <CardContent>
+                      <div className="relative bg-[#075e54]/10 border border-[#128c7e]/20 rounded-xl p-4">
+                        {/* WhatsApp style header */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                          <span className="text-xs text-emerald-400 font-medium uppercase tracking-wide">Vista previa WhatsApp</span>
+                        </div>
+                        <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed font-mono">{patientSummary}</p>
+                        <div className="flex justify-end mt-3 gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="gap-1.5 text-xs text-emerald-300 hover:text-emerald-200"
+                            onClick={copyPatientSummary}
+                          >
+                            {summaryCopied
+                              ? <><Check className="w-3.5 h-3.5" /> Copiado</>
+                              : <><Copy className="w-3.5 h-3.5" /> Copiar</>}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="gap-1.5 text-xs text-slate-400"
+                            onClick={() => setSummaryVisible(false)}
+                          >
+                            Ocultar
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              )}
+
               {/* Clinical Alerts - Semi-automatic mode */}
-              {(clinicalAlerts.vitalSignAlerts?.length || clinicalAlerts.drugInteractions?.length || 
+              {(clinicalAlerts.vitalSignAlerts?.length || clinicalAlerts.drugInteractions?.length ||
                 clinicalAlerts.cie10Suggestions?.length || clinicalAlerts.labResults?.length) ? (
                 <ClinicalAlerts 
                   data={clinicalAlerts}

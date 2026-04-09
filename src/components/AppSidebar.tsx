@@ -89,6 +89,7 @@ const socialItems = [
 
 const eduItems = [
   { title: "Portal Estudiantil", url: "/student", icon: GraduationCap },
+  { title: "Doc. Convocatoria", url: "/competition-doc", icon: FileText },
 ];
 
 export function AppSidebar() {

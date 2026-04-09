@@ -84,6 +84,7 @@ const Dashboard = () => {
   const [todayAppointments, setTodayAppointments] = useState<Appointment[]>([]);
   const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
   const [recentPatients, setRecentPatients] = useState<RecentPatient[]>([]);
+  const [todayRecords, setTodayRecords] = useState(0);
   const [stats, setStats] = useState({
     totalPatients: 0,
     totalAppointments: 0,
@@ -176,6 +177,17 @@ const Dashboard = () => {
       if (todayRes.data) setTodayAppointments(todayRes.data as any);
       if (upcomingRes.data) setUpcomingAppointments(upcomingRes.data as any);
       if (patientsRes.data) setRecentPatients(patientsRes.data);
+
+      // Contar historias clínicas creadas hoy para calcular tiempo ahorrado
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const { count } = await supabase
+        .from("medical_records")
+        .select("*", { count: "exact", head: true })
+        .eq("doctor_id", doctorId)
+        .gte("created_at", todayStr)
+        .lt("created_at", tomorrow.toISOString().split("T")[0]);
+      setTodayRecords(count ?? 0);
     } catch {}
   };
 
@@ -512,6 +524,28 @@ const Dashboard = () => {
                   </Card>
                 ))}
               </div>
+
+              {/* Tiempo ahorrado hoy — insight card */}
+              {todayRecords > 0 && (
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-950/60 to-teal-950/40 border border-emerald-500/20 px-6 py-4 flex items-center justify-between gap-4">
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute right-0 top-0 w-48 h-48 bg-emerald-500/5 rounded-full -mr-12 -mt-12 blur-2xl" />
+                  </div>
+                  <div className="relative">
+                    <p className="text-xs text-emerald-400 font-semibold uppercase tracking-widest mb-0.5">IA en acción · hoy</p>
+                    <p className="text-2xl font-bold text-white">
+                      {todayRecords * 12} min de papeleo eliminados
+                    </p>
+                    <p className="text-sm text-slate-400 mt-0.5">
+                      {todayRecords} historia{todayRecords !== 1 ? "s" : ""} clínica{todayRecords !== 1 ? "s" : ""} documentada{todayRecords !== 1 ? "s" : ""} con IA · ~12 min ahorrados por consulta
+                    </p>
+                  </div>
+                  <div className="relative shrink-0 text-right hidden sm:block">
+                    <p className="text-4xl font-black text-emerald-400">{todayRecords * 12}<span className="text-lg font-normal text-emerald-600">m</span></p>
+                    <p className="text-xs text-slate-500 mt-0.5">devueltos a tus pacientes</p>
+                  </div>
+                </div>
+              )}
 
               {/* Main content grid */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
