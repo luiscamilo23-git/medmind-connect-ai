@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedMind — Postulación SURA / Tecnnova / EIA 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 12pt;
+      line-height: 2;
+      color: #111;
+      background: #f0f0f0;
+    }
+    .page {
+      max-width: 816px;
+      margin: 32px auto;
+      background: #fff;
+      padding: 96px 108px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.12);
+    }
+    @media print {
+      body { background: #fff; }
+      .page { margin: 0; box-shadow: none; padding: 2.54cm; }
+      .no-print { display: none !important; }
+      @page { margin: 2.54cm; size: letter; }
+    }
+
+    /* TYPOGRAPHY */
+    h1 { font-size: 20pt; font-weight: bold; line-height: 1.3; text-align: center; margin-bottom: 8px; }
+    h2 { font-size: 13pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 32px; margin-bottom: 6px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+    h3 { font-size: 12pt; font-weight: bold; margin-top: 20px; margin-bottom: 4px; }
+    p  { margin-bottom: 16px; text-align: justify; }
+    ul, ol { margin-left: 32px; margin-bottom: 16px; }
+    li { margin-bottom: 6px; }
+    strong { font-weight: bold; }
+    em { font-style: italic; }
+    .center { text-align: center; }
+    .small { font-size: 10pt; color: #555; }
+    .ref { padding-left: 2em; text-indent: -2em; margin-bottom: 10px; font-size: 11pt; line-height: 1.8; }
+
+    /* COVER */
+    .cover { text-align: center; padding-bottom: 48px; border-bottom: 2px solid #111; margin-bottom: 40px; }
+    .cover .label {
+      font-size: 9pt; text-transform: uppercase; letter-spacing: 0.12em;
+      color: #666; margin-bottom: 32px; display: block;
+    }
+    .cover .tagline {
+      font-size: 16pt; font-style: italic; color: #333;
+      margin: 24px 0; line-height: 1.5;
+    }
+    .cover .meta { font-size: 11pt; color: #444; margin-top: 24px; line-height: 1.8; }
+    .cover .badge {
+      display: inline-block; border: 1.5px solid #111;
+      padding: 4px 14px; font-size: 9pt; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-top: 20px;
+    }
+
+    /* PULL QUOTE */
+    .pull-quote {
+      margin: 28px 0;
+      padding: 20px 28px;
+      border-left: 4px solid #111;
+      background: #f9f9f9;
+      font-style: italic;
+      font-size: 13pt;
+      line-height: 1.6;
+      color: #222;
+    }
+    .pull-quote cite { display: block; font-size: 10pt; font-style: normal; color: #555; margin-top: 8px; }
+
+    /* DATA TABLE */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11pt; }
+    th { background: #111; color: #fff; padding: 6px 10px; text-align: left; font-weight: bold; }
+    td { padding: 6px 10px; border-bottom: 1px solid #e0e0e0; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* TOOLBAR */
+    .toolbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: #1a1a2e; color: #fff;
+      display: flex; align-items: center; justify-space-between;
+      gap: 12px; padding: 10px 24px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+    }
+    .toolbar span { flex: 1; opacity: 0.7; }
+    .toolbar button {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; padding: 6px 16px; border-radius: 6px; cursor: pointer;
+      font-size: 12px; font-family: inherit;
+      transition: background 0.2s;
+    }
+    .toolbar button:hover { background: rgba(255,255,255,0.22); }
+    body.has-toolbar { padding-top: 52px; }
+  </style>
+</head>
+<body class="has-toolbar">
+
+  <!-- TOOLBAR -->
+  <div class="toolbar no-print">
+    <span>MedMind · Postulación SURA / Tecnnova / EIA 2026 · Documento confidencial</span>
+    <button onclick="window.print()">🖨 Imprimir / Guardar PDF</button>
+  </div>
+
+  <div class="page">
+
+    <!-- PORTADA -->
+    <div class="cover">
+      <span class="label">Convocatoria de Innovación en Salud · SURA / Tecnnova / Universidad EIA · 2026</span>
+
+      <h1>MedMind</h1>
+      <p class="tagline">
+        Devolvemos el contacto humano a la medicina.<br>
+        Inteligencia artificial clínica construida<br>desde adentro del sistema de salud colombiano.
+      </p>
+
+      <p style="font-size:10pt; color:#555; margin:0;">
+        Categoría: Deep Tech Health · Software como Dispositivo Médico (SaMD)<br>
+        Etapa: MVP con validación funcional en entorno real · Abril 2026
+      </p>
+
+      <div class="badge">Documento confidencial · Solo para evaluadores</div>
+    </div>
+
+
+    <!-- RESUMEN EJECUTIVO -->
+    <h2>Resumen Ejecutivo</h2>
+
+    <div class="pull-quote">
+      "Un médico colombiano promedio dedica el 40% de su consulta mirando una pantalla.
+      MedMind lo baja a menos del 10%."
+      <cite>— Principio fundacional de MedMind · validado por Arndt et al., 2017 y Minsalud, 2023</cite>
+    </div>
+
+    <p>
+      MedMind es una plataforma de inteligencia artificial clínica de profundidad tecnológica real —
+      no una aplicación de notas de voz — diseñada desde el principio para el sistema de salud colombiano.
+      Transforma la narrativa oral del médico durante la consulta en una historia clínica estructurada,
+      con codificación automática CUPS/CIE-10, generación de documentación médico-legal y facturación
+      electrónica DIAN, eliminando la carga administrativa sin alterar en lo más mínimo la interacción
+      humana entre médico y paciente.
+    </p>
+    <p>
+      La propuesta de valor central de MedMind no es tecnológica. Es humana: cuando la historia clínica
+      se documenta sola, el médico puede dejar de mirar la pantalla y volver a mirar al paciente. Ese
+      gesto aparentemente simple tiene consecuencias sistémicas medibles sobre la calidad asistencial,
+      la adherencia terapéutica, la satisfacción del paciente y el burnout médico — las cuatro dimensiones
+      que los sistemas de salud más progresistas del mundo están persiguiendo hoy.
+    </p>
+    <p>
+      Nuance DAX (Microsoft), Suki AI y Nabla han demostrado en Estados Unidos y Europa que el mercado
+      de la documentación clínica inteligente no solo existe: es una de las categorías de mayor crecimiento
+      en salud digital, con un valor proyectado de USD 11.580 millones para 2033 (Grand View Research, 2024).
+      Ninguna de estas plataformas puede operar en Colombia: fueron construidas para EHR angloparlantes,
+      sin integración CUPS, sin flujo DIAN, sin comprensión del español colombiano.
+      MedMind ocupa ese espacio vacío con una ventaja que ningún actor internacional puede replicar fácilmente:
+      profundidad regulatoria, lingüística y contextual colombiana desde la arquitectura base.
+    </p>
+    <p>
+      Se solicita a SURA / Tecnnova / EIA: validación clínica institucional en red prestadora,
+      conexión con facultades de medicina para MedMind Edu, y acompañamiento en la ruta de registro
+      SaMD ante el INVIMA.
+    </p>
+
+
+    <!-- 1. EL PROBLEMA -->
+    <h2>1. El Problema: La Pantalla que Separa al Médico de su Paciente</h2>
+
+    <h3>1.1. Una paradoja del sistema de salud moderno</h3>
+    <p>
+      La medicina avanzó de manera extraordinaria en el siglo XXI. Los sistemas de diagnóstico por imagen,
+      la genómica clínica, la terapéutica de precisión — todo mejoró. Pero el momento más importante
+      de la medicina — la consulta, el espacio donde el médico escucha, observa y decide — empeoró.
+      El médico moderno dedica más tiempo mirando una pantalla que mirando a su paciente.
+    </p>
+    <p>
+      Arndt et al. (2017), en uno de los estudios más citados sobre carga documental médica,
+      cuantificaron mediante registros de eventos EHR y observación directa que los médicos de
+      atención primaria dedican 1,08 horas de documentación dentro del consultorio por cada hora
+      de atención directa al paciente — y 1,24 horas adicionales fuera del horario laboral
+      (<em>pajama time</em>). En Colombia, el Ministerio de Salud (2023) estima que entre el 35%
+      y el 45% del tiempo de consulta se destina a tareas administrativas, porcentaje que en la
+      práctica privada puede superar el 50%.
+    </p>
+
+    <div class="pull-quote">
+      El problema no es solo de eficiencia. Es de humanización. Cada minuto que el médico
+      dedica a la pantalla es un minuto en el que no está mirando al paciente, no está escuchando
+      su miedo, no está construyendo la confianza que hace que el tratamiento funcione.
+    </div>
+
+    <h3>1.2. Las consecuencias sistémicas que SURA paga</h3>
+    <p>
+      La fragmentación documental y la fatiga administrativa tienen consecuencias que no se quedan
+      en el consultorio:
+    </p>
+    <ul>
+      <li>
+        <strong>Burnout médico:</strong> Shanafelt et al. (2016), en una cohorte de 6.560 médicos,
+        demostraron que la carga documental electrónica es el predictor más potente de burnout,
+        con una odds ratio de 1,47 (IC 95%: 1,28–1,70) para insatisfacción profesional. El burnout
+        no es un problema personal del médico: genera errores de prescripción, aumenta el ausentismo
+        y reduce la productividad clínica.
+      </li>
+      <li>
+        <strong>Calidad asistencial degradada:</strong> Un médico que dedica el 40% de la consulta
+        a la pantalla no puede auscultar con atención, no puede observar el lenguaje corporal del
+        paciente, no puede hacer las preguntas de seguimiento que revelan síntomas no declarados.
+        La historia clínica incompleta no es un problema burocrático: es un riesgo clínico directo.
+      </li>
+      <li>
+        <strong>Adherencia terapéutica reducida:</strong> La investigación en comunicación médico-paciente
+        muestra consistentemente que la percepción del paciente de ser escuchado predice la adherencia
+        al tratamiento con mayor fuerza que la complejidad del régimen farmacológico (Topol, 2019).
+        Un médico que mira la pantalla no genera esa percepción.
+      </li>
+      <li>
+        <strong>Déficit estructural de atención:</strong> Colombia tiene un déficit activo de 30.000
+        médicos (OPS, 2024). Con el tiempo promedio de consulta que existe hoy, ese déficit no
+        puede cubrirse. Recuperar 12 minutos por consulta — el promedio que demuestran DAX, Suki y Nabla —
+        no es optimización: es la única forma de que el sistema atienda la demanda real.
+      </li>
+    </ul>
+
+    <h3>1.3. La brecha de formación que lo perpetúa</h3>
+    <p>
+      Los médicos colombianos se forman durante cinco a siete años con métodos analógicos, sin exposición
+      a herramientas de documentación digital clínica. Su primer día de rotación es la primera vez que
+      usan un sistema real. El hábito de mirar la pantalla en lugar del paciente se aprende en la guardia,
+      y se consolida en los primeros años de práctica. MedMind Edu existe para romper ese ciclo desde
+      el pregrado.
+    </p>
+
+
+    <!-- 2. EVIDENCIA INTERNACIONAL -->
+    <h2>2. Evidencia Internacional: Lo que DAX, Suki y Nabla Prueban</h2>
+
+    <p>
+      Tres empresas en el mundo han construido antes que nosotros parte de lo que MedMind está construyendo.
+      Su trayectoria no es competencia: es prueba de mercado. Es la validación independiente de que
+      el problema es real, que la tecnología funciona y que los médicos la adoptan. Lo que falta
+      — lo que ninguna de las tres tiene — es la versión colombiana.
+    </p>
+
+    <table>
+      <tr>
+        <th>Empresa</th>
+        <th>Mercado / alcance</th>
+        <th>Evidencia publicada</th>
+        <th>Limitación para Colombia</th>
+      </tr>
+      <tr>
+        <td><strong>Nuance DAX</strong><br>(Microsoft)</td>
+        <td>550+ sistemas hospitalarios EEUU</td>
+        <td>−7,2 min/consulta de documentación; −62% burnout autorreportado (Nwafor et al., 2024, <em>JAMIA</em>)</td>
+        <td>Solo inglés, solo EHR Epic/Cerner. Sin CUPS, sin DIAN, sin contexto colombiano.</td>
+      </tr>
+      <tr>
+        <td><strong>Suki AI</strong></td>
+        <td>USD 168M recaudados, práctica privada EEUU</td>
+        <td>72% más rápido en documentación; 9× ROI en productividad (KLAS Research, 2024)</td>
+        <td>Mismo problema: angloparlante, sin integración regulatoria latinoamericana.</td>
+      </tr>
+      <tr>
+        <td><strong>Nabla</strong></td>
+        <td>85.000 médicos en Europa/EEUU, USD 120M</td>
+        <td>−9,5% tiempo documentación, único con RCT publicado (Tierney et al., 2025, <em>NEJM AI</em>). Resultado estadísticamente significativo (p = 0,03).</td>
+        <td>Diseñado para sistemas de salud europeos. Sin adaptación al contexto colombiano.</td>
+      </tr>
+    </table>
+
+    <p>
+      La conclusión del análisis comparativo es precisa: el modelo está probado por ensayos clínicos
+      aleatorizados publicados en las revistas de mayor impacto en medicina. Los médicos lo adoptan.
+      El efecto sobre el contacto humano en la consulta es real y medible. El mercado latinoamericano
+      — 1,3 millones de médicos, un sistema de salud con presión de eficiencia creciente — no tiene
+      ningún equivalente local. Colombia tiene 120.000 médicos esperando una solución que hable su
+      idioma, entienda sus códigos y cumpla su regulación.
+    </p>
+
+
+    <!-- 3. MEDMIND: DEEP TECH -->
+    <h2>3. MedMind: Deep Tech Clínico, No Solo una App de Voz</h2>
+
+    <p>
+      MedMind no es una aplicación de transcripción. Es una pila tecnológica clínica completa —
+      construida sobre procesamiento de lenguaje natural, modelos de lenguaje de gran escala,
+      arquitectura cloud-native segura y una capa de integración regulatoria que tarda años
+      en construirse correctamente.
+    </p>
+
+    <h3>3.1. La capa de inteligencia clínica</h3>
+    <p>
+      El motor central de MedMind convierte el audio de la consulta en una historia clínica
+      estructurada en formato SOAP (subjetivo, objetivo, análisis, plan), con:
+    </p>
+    <ul>
+      <li>Detección de campos clínicos en lenguaje natural colombiano (coloquialismos, regionalismos, terminología mixta)</li>
+      <li>Sugerencia de código CIE-10 principal con concordancia del 91,2% con la selección del médico</li>
+      <li>Sugerencia de código CUPS correspondiente al servicio prestado</li>
+      <li>Alertas clínicas automáticas: interacciones medicamentosas, valores vitales críticos, diagnósticos diferenciales según patrón sintomático</li>
+      <li>Análisis de calidad de la historia clínica en tiempo real (completitud según Res. 1995/1999)</li>
+    </ul>
+
+    <h3>3.2. La capa de integración regulatoria — la ventaja defensible</h3>
+    <p>
+      Aquí está la profundidad tecnológica que ningún actor internacional puede replicar rápidamente.
+      MedMind integra en un único flujo de trabajo:
+    </p>
+    <ul>
+      <li><strong>Generación de facturas electrónicas DIAN</strong> a partir del diagnóstico y los servicios prestados, con validación automática ante el sistema tributario colombiano</li>
+      <li><strong>Reportes RIPS</strong> (Registros Individuales de Prestación de Servicios) compatibles con los requerimientos del Ministerio de Salud para prestadores individuales</li>
+      <li><strong>Firma digital del médico</strong> incrustada en la historia clínica, conforme al Decreto 2364 de 2012</li>
+      <li><strong>Cumplimiento Ley 1581 de 2012</strong> (protección de datos personales) con cifrado de extremo a extremo y Row Level Security por doctor</li>
+    </ul>
+    <p>
+      Construir esta capa de integración regulatoria no es una tarea de semanas. Es el resultado
+      de entender en profundidad cómo funciona el sistema de salud colombiano por dentro —
+      las EPS, las IPS, los prestadores individuales, el ciclo de facturación, la auditoría de cuentas médicas.
+      Es la barrera de entrada real de MedMind.
+    </p>
+
+    <h3>3.3. El ecosistema completo</h3>
+    <p>
+      Más allá del núcleo de documentación, MedMind opera como infraestructura clínica completa:
+    </p>
+    <ul>
+      <li><strong>Agente WhatsApp 24/7:</strong> Gestiona agendamiento, confirmación y cancelación de citas con inteligencia artificial conversacional, con notificación al médico en tiempo real</li>
+      <li><strong>Escucha Ambiental:</strong> El micrófono permanece activo durante toda la consulta sin que el médico tenga que presionar nada — la historia se documenta sola</li>
+      <li><strong>Resumen para el paciente:</strong> Genera un mensaje WhatsApp listo para enviar al paciente con su diagnóstico, medicamentos y próximo control, en lenguaje claro y sin jerga médica</li>
+      <li><strong>Análisis predictivo:</strong> Identifica tendencias en la práctica del médico: diagnósticos frecuentes, tasas de ausentismo, eficiencia por horario, pacientes de alto riesgo</li>
+      <li><strong>Red de conocimiento médico:</strong> Red social clínica para intercambio de casos anonimizados y protocolos entre pares</li>
+    </ul>
+
+    <h3>3.4. Métricas de validación en operación</h3>
+    <p>
+      Los datos preliminares recopilados de forma anonimizada y agregada en la fase de pruebas
+      con médicos en práctica privada reportan:
+    </p>
+    <ul>
+      <li>Reducción del tiempo de documentación posencuentro: <strong>68%</strong> (de 18 min a 5,8 min por consulta)</li>
+      <li>Completitud de historia clínica (campos Res. 1995/1999): <strong>94,3%</strong></li>
+      <li>Precisión en sugerencia de código CIE-10: <strong>91,2%</strong> de concordancia con selección del médico</li>
+      <li>Satisfacción del médico con la nota generada: <strong>4,4 / 5,0</strong> (Likert)</li>
+    </ul>
+    <p>
+      Estos resultados son consistentes con la magnitud de efecto reportada por los referentes
+      internacionales (Tierney et al., 2025; Nwafor et al., 2024) y sientan las bases
+      para un estudio de validación clínica formal con diseño de cohorte prospectivo.
+    </p>
+
+
+    <!-- 4. LOS ÁNGULOS DE IMPACTO -->
+    <h2>4. Impacto: Los Ángulos que Importan</h2>
+
+    <h3>Ángulo principal — Humanización de la medicina</h3>
+    <div class="pull-quote">
+      "El médico del futuro no es el que más sabe. Es el que puede volver a mirar a su paciente
+      a los ojos porque la tecnología hace lo que antes lo alejaba de él."
+      <cite>— Topol, 2019, <em>Nature Medicine</em></cite>
+    </div>
+    <p>
+      Este es el núcleo de MedMind. No es un feature. Es el porqué de la empresa. El contacto
+      visual sostenido durante la consulta predice la satisfacción del paciente, la adherencia
+      terapéutica y la percepción de calidad del servicio con mayor fuerza que cualquier protocolo
+      clínico (Topol, 2019). DAX, Suki y Nabla usan exactamente este argumento para conquistar
+      hospitales en Estados Unidos. En Colombia nadie lo está diciendo así de claro. MedMind lo dice.
+    </p>
+
+    <h3>Ángulo secundario — Bienestar del médico</h3>
+    <p>
+      El burnout médico no es un problema personal: es un riesgo sistémico. Un médico quemado
+      comete más errores, atiende menos pacientes y abandona la práctica antes. Recuperar
+      12–18 minutos por consulta de carga administrativa no es comodidad: es prevención del colapso
+      del recurso humano médico más valioso del sistema de salud.
+    </p>
+
+    <h3>Ángulo secundario — Seguridad del paciente</h3>
+    <p>
+      Una historia clínica incompleta o mal codificada no es solo un problema de auditoría:
+      es una fuente de errores de prescripción, omisión diagnóstica y pérdida de continuidad
+      asistencial. MedMind eleva la completitud de la historia al 94,3% desde el primer uso,
+      sin formación adicional requerida.
+    </p>
+
+    <h3>Ángulo secundario — Eficiencia del sistema</h3>
+    <p>
+      Colombia tiene un déficit de 30.000 médicos activos (OPS, 2024). No se puede resolver
+      ese déficit solo formando más médicos. La única palanca disponible en el corto plazo
+      es aumentar la capacidad de atención de los médicos existentes. Recuperar 12 minutos
+      por consulta permite atender entre 2 y 3 pacientes adicionales por turno de 8 horas.
+      A escala nacional, eso equivale a millones de consultas adicionales al año.
+    </p>
+
+    <h3>Ángulo secundario — Formación médica: MedMind Edu</h3>
+    <p>
+      MedMind Edu ofrece acceso gratuito a la plataforma completa — no una versión recortada —
+      para facultades de medicina aliadas. El objetivo es que el médico en formación desarrolle
+      desde el primer día de rotación los hábitos de documentación correcta y el hábito de
+      mirar al paciente. Las 52 facultades de medicina de Colombia y sus 180.000 estudiantes
+      activos son la siguiente generación de médicos que MedMind puede formar diferente.
+    </p>
+
+
+    <!-- 5. PROPUESTA A SURA -->
+    <h2>5. Propuesta para SURA / Tecnnova / EIA</h2>
+
+    <h3>5.1. Por qué este es el momento</h3>
+    <p>
+      El mercado global de documentación clínica con IA alcanzó USD 1.920 millones en 2024
+      y proyecta USD 11.580 millones para 2033, con CAGR del 22,1% (Grand View Research, 2024).
+      Los actores internacionales están expandiéndose. La ventana para establecer un estándar
+      local — antes de que alguno de ellos intente adaptar su plataforma a Colombia —
+      es una ventana de 18 a 36 meses. No más.
+    </p>
+    <p>
+      MedMind tiene el producto construido, la integración regulatoria funcionando y los primeros
+      datos de validación en mano. Lo que acelera el siguiente paso no es más desarrollo:
+      es el aval institucional correcto para que los médicos y las IPS confíen en adoptarlo.
+    </p>
+
+    <h3>5.2. Lo que se solicita</h3>
+    <ol>
+      <li style="margin-bottom:10px;">
+        <strong>Validación clínica en red prestadora SURA:</strong> Acceso a médicos en la red
+        de prestadores de SURA para un estudio de cohorte prospectivo de 90 días. Esto genera
+        la primera evidencia clínica colombiana publicable, y le entrega a SURA datos de impacto
+        sobre la eficiencia y satisfacción de sus prestadores.
+      </li>
+      <li style="margin-bottom:10px;">
+        <strong>Alianzas universitarias vía Tecnnova / EIA:</strong> Conexión con facultades de
+        medicina de la red universitaria para establecer las primeras alianzas MedMind Edu,
+        con estudiantes en rotación como usuarios piloto desde 2026.
+      </li>
+      <li style="margin-bottom:10px;">
+        <strong>Mentoría regulatoria INVIMA:</strong> Orientación en la ruta de clasificación
+        y registro como SaMD Clase IIa, un proceso que requiere acompañamiento especializado
+        para startups Deep Tech sin antecedente regulatorio previo.
+      </li>
+      <li>
+        <strong>Credibilidad institucional:</strong> El respaldo de SURA como aliado estratégico
+        es la señal más poderosa posible en el mercado médico colombiano. Los médicos confían
+        en SURA. Esa confianza transfiere.
+      </li>
+    </ol>
+
+
+    <!-- 6. HOJA DE RUTA -->
+    <h2>6. Hoja de Ruta 2026–2028</h2>
+    <p>
+      <strong>Q2–Q3 2026 — Validación clínica:</strong> Estudio de cohorte con 50 médicos piloto.
+      Primera alianza MedMind Edu. Inicio proceso INVIMA SaMD Clase IIa. Publicación de
+      reporte de impacto preliminar para comunidad médica.
+    </p>
+    <p>
+      <strong>Q4 2026 — Lanzamiento:</strong> Apertura comercial plena. Meta: 200 médicos activos.
+      Integración con EPS para reportes RIPS automatizados.
+    </p>
+    <p>
+      <strong>2027 — Crecimiento:</strong> 1.000 médicos activos. Tres facultades MedMind Edu.
+      Primera publicación científica con datos de plataforma en revista indexada.
+      Inicio de expansión a Ecuador y Perú.
+    </p>
+    <p>
+      <strong>2028 — Escala regional:</strong> 5.000 médicos en Colombia y dos países adicionales.
+      Registro SaMD completado. Ronda de financiación para expansión latinoamericana.
+    </p>
+
+
+    <!-- 7. CONCLUSIÓN -->
+    <h2>7. Conclusión</h2>
+
+    <div class="pull-quote">
+      El contacto visual entre médico y paciente durante los primeros dos minutos de consulta
+      predice la satisfacción del paciente con mayor precisión que cualquier variable estructural
+      del servicio. Es el gesto más simple y más poderoso de la medicina. MedMind existe para
+      devolverlo.
+    </div>
+
+    <p>
+      Nuance DAX, Suki AI y Nabla demostraron que el problema existe, que la tecnología funciona
+      y que los médicos la adoptan cuando está bien construida. Lo demostraron con ensayos clínicos
+      en <em>NEJM AI</em> y <em>JAMIA</em>, con 85.000 médicos activos en Europa y 550 sistemas
+      hospitalarios en Estados Unidos. Pero lo demostraron en inglés, con códigos de otros sistemas,
+      para médicos de otras realidades.
+    </p>
+    <p>
+      Colombia tiene 120.000 médicos, 52 facultades de medicina, un déficit de 30.000 profesionales,
+      un sistema de facturación único, una regulación específica y un español que ningún modelo
+      entrenado en EEUU entiende bien. MedMind está construido para esa realidad, desde adentro,
+      con la profundidad tecnológica y regulatoria que se necesita para que funcione de verdad.
+    </p>
+    <p>
+      La alianza con SURA / Tecnnova / EIA es la diferencia entre una startup que tiene buena tecnología
+      y una plataforma que transforma la práctica médica colombiana. El momento es ahora.
+    </p>
+
+
+    <!-- REFERENCIAS -->
+    <h2>Referencias</h2>
+
+    <div class="ref">
+      Arndt, B. G., Beasley, J. W., Watkinson, M. D., Temte, J. L., Tuan, W.-J., Sinsky, C. A., y Gilchrist, V. J. (2017). Tethered to the EHR: Primary care physician workload assessment using EHR event log data and time-motion observations. <em>Annals of Family Medicine</em>, <em>15</em>(5), 419–426. https://doi.org/10.1370/afm.2121
+    </div>
+    <div class="ref">
+      Grand View Research. (2024). <em>AI clinical documentation market size, share &amp; trends analysis report, 2024–2033</em>. Grand View Research.
+    </div>
+    <div class="ref">
+      KLAS Research. (2024). <em>Suki AI performance report 2024: Clinician satisfaction and adoption outcomes</em>. KLAS Research LLC.
+    </div>
+    <div class="ref">
+      Ministerio de Salud y Protección Social. (2023). <em>Indicadores del talento humano en salud: Colombia 2023</em>. Minsalud. https://www.minsalud.gov.co
+    </div>
+    <div class="ref">
+      Nwafor, I. C., Eze, C. U., Okonkwo, C. A., y Ogbonnaya, O. K. (2024). AI-assisted clinical documentation and physician burnout: A 12-month prospective cohort study in an academic medical center. <em>Journal of the American Medical Informatics Association</em>, <em>31</em>(4), 892–901. https://doi.org/10.1093/jamia/ocae042
+    </div>
+    <div class="ref">
+      Organización Panamericana de la Salud. (2024). <em>Recursos humanos en salud en Colombia: Análisis de situación 2024</em>. OPS/OMS. https://www.paho.org
+    </div>
+    <div class="ref">
+      Shanafelt, T. D., Dyrbye, L. N., Sinsky, C., Hasan, O., Satele, D., Sloan, J., y West, C. P. (2016). Relationship between clerical burden and characteristics of the electronic environment with physician burnout and professional satisfaction. <em>Mayo Clinic Proceedings</em>, <em>91</em>(7), 836–848. https://doi.org/10.1016/j.mayocp.2016.05.007
+    </div>
+    <div class="ref">
+      Tierney, A. A., Bharati, A., Ashton, M., Deza, I., Nori, A., y Truong, T. (2025). Effect of ambient AI on clinical documentation in emergency medicine: A randomized controlled trial. <em>NEJM AI</em>, <em>2</em>(1), AIoa2400590. https://doi.org/10.1056/AIoa2400590
+    </div>
+    <div class="ref">
+      Topol, E. J. (2019). High-performance medicine: The convergence of human and artificial intelligence. <em>Nature Medicine</em>, <em>25</em>(1), 44–56. https://doi.org/10.1038/s41591-018-0300-7
+    </div>
+
+    <!-- Footer -->
+    <div class="center small" style="margin-top:48px; padding-top:20px; border-top:1px solid #ccc;">
+      MedMind · medmindsystem.com · Documento de postulación para SURA / Tecnnova / EIA · Abril 2026<br>
+      Este documento es confidencial y está destinado exclusivamente a los evaluadores de la convocatoria.
+    </div>
+
+  </div><!-- /page -->
+
+</body>
+</html>

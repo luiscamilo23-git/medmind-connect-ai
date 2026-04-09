@@ -16,9 +16,6 @@ const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
 const CookiePolicy = React.lazy(() => import("./pages/CookiePolicy"));
 const LegalNotice = React.lazy(() => import("./pages/LegalNotice"));
 const Comparison = React.lazy(() => import("./pages/Comparison"));
-const PitchDeck = React.lazy(() => import("./pages/PitchDeck"));
-const ExecutiveBrief = React.lazy(() => import("./pages/ExecutiveBrief"));
-const CompetitionDoc = React.lazy(() => import("./pages/CompetitionDoc"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 
 // Doctor pages
@@ -120,9 +117,6 @@ const App = () => (
             <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/legal-notice" element={<LegalNotice />} />
             <Route path="/comparison" element={<Comparison />} />
-            <Route path="/pitch-deck" element={<PitchDeck />} />
-            <Route path="/executive-brief" element={<ExecutiveBrief />} />
-            <Route path="/competition-doc" element={<CompetitionDoc />} />
             <Route path="/confirm/:token" element={<ConfirmAppointment />} />
 
             {/* MedMind Edu — portal de visión educativa */}
