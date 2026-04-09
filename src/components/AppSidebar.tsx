@@ -18,7 +18,8 @@ import {
   CreditCard,
   Shield,
   ShieldCheck,
-  UserCheck
+  UserCheck,
+  GraduationCap,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useEffect, useState } from "react";
@@ -82,6 +83,10 @@ const billingItems = [
 const socialItems = [
   { title: "Red Social Médica", url: "/social", icon: Share2 },
   { title: "Programa de Referidos", url: "/referrals", icon: UserCircle },
+];
+
+const eduItems = [
+  { title: "Portal Estudiantil", url: "/student", icon: GraduationCap },
 ];
 
 export function AppSidebar() {
@@ -251,6 +256,31 @@ export function AppSidebar() {
                       to={item.url}
                       className="flex items-center gap-3 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
                       activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {!isCollapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        {/* MedMind Edu */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase text-xs tracking-wider flex items-center gap-1.5">
+            <GraduationCap className="w-3 h-3 text-violet-400" />
+            {!isCollapsed && "MedMind Edu"}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {eduItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className="flex items-center gap-3 text-violet-400/70 hover:text-violet-400 hover:bg-violet-500/10 transition-colors"
+                      activeClassName="bg-violet-500/15 text-violet-400 font-medium border-l-2 border-violet-500"
                     >
                       <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
