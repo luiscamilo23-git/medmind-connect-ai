@@ -289,21 +289,65 @@ serve(async (req) => {
     const appointment = { id: appointmentId, appointment_date: correctedDateISO, status: 'scheduled' };
 
 
-    // Step 4: Create notification for the doctor
+    // Step 4: Create notification + send email to doctor
     const appointmentDateFormatted = format(new Date(correctedDateISO), "d 'de' MMMM 'a las' HH:mm", { locale: esLocale });
-    const notificationMessage = `Nueva cita: ${patientName} para el ${appointmentDateFormatted}`;
-    
-    const { error: notificationError } = await supabase
-      .from('notifications')
-      .insert({
-        doctor_id: body.doctor_id,
-        message: notificationMessage,
-        is_read: false,
-      });
+    const notificationMessage = `📅 Nueva cita vía WhatsApp: ${patientName} — ${appointmentDateFormatted}`;
 
-    if (notificationError) {
-      // Don't fail the booking if notification fails
-    } else {
+    await supabase.from('notifications').insert({
+      doctor_id: body.doctor_id,
+      message: notificationMessage,
+      is_read: false,
+    });
+
+    // Send email to doctor
+    try {
+      const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+      if (RESEND_API_KEY) {
+        // Get doctor email and name
+        const { data: authUser } = await supabase.auth.admin.getUserById(body.doctor_id);
+        const doctorEmail = authUser?.user?.email;
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, clinic_name')
+          .eq('id', body.doctor_id)
+          .single();
+
+        if (doctorEmail) {
+          const doctorName = profile?.full_name || 'Doctor';
+          const clinicName = profile?.clinic_name || '';
+          await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              from: 'MEDMIND <notificaciones@medmindsystem.com>',
+              to: [doctorEmail],
+              subject: `📅 Nueva cita: ${patientName} — ${appointmentDateFormatted}`,
+              html: `<!DOCTYPE html><html lang="es"><body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif;">
+<div style="max-width:520px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+  <div style="background:#0f172a;padding:24px 32px;text-align:center">
+    <span style="color:#fff;font-size:20px;font-weight:700;letter-spacing:1px">MEDMIND</span>
+  </div>
+  <div style="padding:28px 32px">
+    <p style="margin:0 0 6px;color:#0f172a;font-size:16px">Hola, <strong>${doctorName}</strong></p>
+    <p style="margin:0 0 20px;color:#64748b;font-size:14px">Se ha agendado una nueva cita a través de tu asistente de WhatsApp:</p>
+    <div style="background:#f0fdf4;border-left:4px solid #22c55e;border-radius:8px;padding:20px 24px;margin-bottom:20px">
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="color:#64748b;font-size:13px;padding:5px 0">👤 Paciente</td><td style="color:#0f172a;font-size:14px;font-weight:600;text-align:right">${patientName}</td></tr>
+        <tr><td style="color:#64748b;font-size:13px;padding:5px 0">📅 Fecha y hora</td><td style="color:#0f172a;font-size:14px;font-weight:600;text-align:right">${appointmentDateFormatted}</td></tr>
+        <tr><td style="color:#64748b;font-size:13px;padding:5px 0">📋 Motivo</td><td style="color:#0f172a;font-size:14px;font-weight:600;text-align:right">${body.reason || 'Consulta General'}</td></tr>
+        ${cleanPhone ? `<tr><td style="color:#64748b;font-size:13px;padding:5px 0">📱 WhatsApp</td><td style="color:#0f172a;font-size:14px;font-weight:600;text-align:right">${cleanPhone}</td></tr>` : ''}
+        ${clinicName ? `<tr><td style="color:#64748b;font-size:13px;padding:5px 0">🏢 Consultorio</td><td style="color:#0f172a;font-size:14px;font-weight:600;text-align:right">${clinicName}</td></tr>` : ''}
+      </table>
+    </div>
+    <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center">Puedes ver y gestionar esta cita en tu agenda de MEDMIND.</p>
+  </div>
+</div></body></html>`,
+            }),
+          });
+        }
+      }
+    } catch (_emailErr) {
+      // Don't fail booking if email fails
     }
 
     // Return success response
