@@ -46,6 +46,9 @@ export default function StudentPortal() {
           <span className="font-bold text-white">MedMind <span className="text-violet-400">Edu</span></span>
         </div>
         <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white" onClick={() => navigate("/dashboard")}>
+            ← Volver a MedMind
+          </Button>
           <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white" onClick={() => navigate("/auth")}>
             Iniciar sesión
           </Button>
@@ -332,10 +335,22 @@ export default function StudentPortal() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-6 border-t border-white/5 text-center">
-        <p className="text-slate-600 text-sm">
-          MedMind Edu — parte de la plataforma MedMind para médicos colombianos.{" "}
-          <button className="text-violet-400 hover:underline" onClick={() => navigate("/")}>Conoce MedMind completo</button>
+      <footer className="py-8 px-6 border-t border-white/5 text-center space-y-3">
+        <div className="flex justify-center gap-4">
+          <button className="text-slate-500 hover:text-white text-sm transition-colors" onClick={() => navigate("/dashboard")}>
+            ← Volver al dashboard
+          </button>
+          <span className="text-slate-700">·</span>
+          <button className="text-slate-500 hover:text-white text-sm transition-colors" onClick={() => navigate("/student/simulador")}>
+            Simulador de casos
+          </button>
+          <span className="text-slate-700">·</span>
+          <button className="text-slate-500 hover:text-white text-sm transition-colors" onClick={() => navigate("/student/rotacion")}>
+            Modo Rotación
+          </button>
+        </div>
+        <p className="text-slate-700 text-xs">
+          MedMind Edu — parte de la plataforma MedMind para médicos colombianos.
         </p>
       </footer>
     </div>

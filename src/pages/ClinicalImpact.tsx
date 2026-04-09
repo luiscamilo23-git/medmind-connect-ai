@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Brain, Clock, CheckCircle, TrendingUp, TrendingDown, Users,
   FileText, Mic, AlertCircle, Download, Loader2, BookOpen,
   Eye, Stethoscope, Activity, BarChart3, RefreshCw, Star,
-  HeartHandshake, Shield, Zap,
+  HeartHandshake, Shield, Zap, ArrowLeft, Home,
 } from "lucide-react";
 
 // ─── ReactMarkdown simple renderer ────────────────────────────────────────
@@ -181,6 +181,7 @@ export default function ClinicalImpact() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "study">("dashboard");
   const paperRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadMetrics();
@@ -317,11 +318,14 @@ export default function ClinicalImpact() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8 mr-1" onClick={() => navigate("/dashboard")}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
             <Activity className="w-6 h-6 text-emerald-400" />
             <h1 className="text-2xl font-bold">Módulo de Impacto Clínico</h1>
             <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">Beta Científica</Badge>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-sm pl-10">
             Estudio observacional prospectivo · {metrics?.periodo || "Cargando..."}
           </p>
         </div>

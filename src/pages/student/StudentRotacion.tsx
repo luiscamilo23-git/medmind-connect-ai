@@ -138,7 +138,10 @@ export default function StudentRotacion() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <Eye className="w-5 h-5 text-blue-400" />
-          <span className="font-bold">Modo Rotación</span>
+          <span className="font-bold flex-1">Modo Rotación</span>
+          <Button variant="ghost" size="sm" className="text-slate-500 hover:text-white text-xs" onClick={() => navigate("/dashboard")}>
+            Ir a MedMind →
+          </Button>
         </div>
 
         <div className="flex-1 flex items-center justify-center px-6">

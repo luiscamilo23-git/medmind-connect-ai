@@ -188,10 +188,13 @@ export default function StudentSimulator() {
           <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white" onClick={() => navigate("/student")}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <Brain className="w-5 h-5 text-violet-400" />
             <span className="font-bold">Simulador de Casos Clínicos</span>
           </div>
+          <Button variant="ghost" size="sm" className="text-slate-500 hover:text-white text-xs" onClick={() => navigate("/dashboard")}>
+            Ir a MedMind →
+          </Button>
         </div>
 
         <div className="flex-1 flex items-center justify-center px-6 py-12">
