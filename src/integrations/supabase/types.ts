@@ -210,6 +210,53 @@ export type Database = {
         }
         Relationships: []
       }
+      data_access_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          doctor_id: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          patient_id: string | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          doctor_id: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          patient_id?: string | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          doctor_id?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          patient_id?: string | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_access_logs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       device_verifications: {
         Row: {
           created_at: string
@@ -1331,6 +1378,8 @@ export type Database = {
           nit: string | null
           notifications_sound_enabled: boolean | null
           phone: string | null
+          rethus_reminder_sent_at: string | null
+          rethus_verified: boolean | null
           services_list: string | null
           signature_url: string | null
           specialty: string | null
@@ -1361,6 +1410,8 @@ export type Database = {
           nit?: string | null
           notifications_sound_enabled?: boolean | null
           phone?: string | null
+          rethus_reminder_sent_at?: string | null
+          rethus_verified?: boolean | null
           services_list?: string | null
           signature_url?: string | null
           specialty?: string | null
@@ -1391,6 +1442,8 @@ export type Database = {
           nit?: string | null
           notifications_sound_enabled?: boolean | null
           phone?: string | null
+          rethus_reminder_sent_at?: string | null
+          rethus_verified?: boolean | null
           services_list?: string | null
           signature_url?: string | null
           specialty?: string | null
@@ -1664,6 +1717,126 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      student_cases: {
+        Row: {
+          case_data: Json
+          completed: boolean | null
+          completed_at: string | null
+          conversation: Json
+          created_at: string | null
+          difficulty: string
+          id: string
+          score: number | null
+          specialty: string
+          student_email: string | null
+          student_id: string | null
+        }
+        Insert: {
+          case_data?: Json
+          completed?: boolean | null
+          completed_at?: string | null
+          conversation?: Json
+          created_at?: string | null
+          difficulty?: string
+          id?: string
+          score?: number | null
+          specialty: string
+          student_email?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          case_data?: Json
+          completed?: boolean | null
+          completed_at?: string | null
+          conversation?: Json
+          created_at?: string | null
+          difficulty?: string
+          id?: string
+          score?: number | null
+          specialty?: string
+          student_email?: string | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_cases_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_rotation_notes: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          rotation_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          rotation_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          rotation_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_rotation_notes_rotation_id_fkey"
+            columns: ["rotation_id"]
+            isOneToOne: false
+            referencedRelation: "student_rotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_rotations: {
+        Row: {
+          code: string
+          created_at: string | null
+          doctor_id: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          student_email: string | null
+          student_name: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          doctor_id: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          student_email?: string | null
+          student_name?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          doctor_id?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          student_email?: string | null
+          student_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_rotations_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       suggestion_history: {
         Row: {
