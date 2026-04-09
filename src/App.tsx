@@ -68,10 +68,8 @@ const SecretaryDashboard = React.lazy(() => import("./pages/SecretaryDashboard")
 
 const ClinicalImpact = React.lazy(() => import("./pages/ClinicalImpact"));
 
-// Student / MedMind Edu pages (no requieren auth)
+// MedMind Edu — solo el portal (vision, sin simulador ni rotación)
 const StudentPortal = React.lazy(() => import("./pages/student/StudentPortal"));
-const StudentSimulator = React.lazy(() => import("./pages/student/StudentSimulator"));
-const StudentRotacion = React.lazy(() => import("./pages/student/StudentRotacion"));
 
 // Moderator pages
 const ModeratorDashboard = React.lazy(() => import("./pages/moderator/ModeratorDashboard"));
@@ -125,10 +123,8 @@ const App = () => (
             <Route path="/executive-brief" element={<ExecutiveBrief />} />
             <Route path="/confirm/:token" element={<ConfirmAppointment />} />
 
-            {/* MedMind Edu — acceso libre, sin auth requerida */}
+            {/* MedMind Edu — portal de visión educativa */}
             <Route path="/student" element={<StudentPortal />} />
-            <Route path="/student/simulador" element={<StudentSimulator />} />
-            <Route path="/student/rotacion" element={<StudentRotacion />} />
 
             {/* Doctor routes */}
             <Route path="/dashboard" element={<ProtectedRoute requiredRole="doctor"><Dashboard /></ProtectedRoute>} />
