@@ -179,8 +179,6 @@ const Dashboard = () => {
       if (patientsRes.data) setRecentPatients(patientsRes.data);
 
       // Contar historias clínicas creadas hoy para calcular tiempo ahorrado
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
       const { count } = await supabase
         .from("medical_records")
         .select("*", { count: "exact", head: true })
