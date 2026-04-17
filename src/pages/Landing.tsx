@@ -197,7 +197,7 @@ const Landing = () => {
       description: "Facturación electrónica y RIPS integrados para Colombia",
       color: "bg-primary",
       howItWorks: "Genera facturas electrónicas válidas ante la DIAN, exporta RIPS en JSON y recibe notificaciones en tiempo real.",
-      savings: "Cumple normativa colombiana 100% automático",
+      savings: "Cumple normativa local 100% automático",
       isNew: true
     },
     {
@@ -245,7 +245,7 @@ const Landing = () => {
     {
       icon: Shield,
       title: "Cumplimiento Legal Total",
-      description: "100% conforme a normativa colombiana",
+      description: "100% conforme a normativa local vigente",
       items: [
         "Facturación electrónica DIAN integrada",
         "RIPS automático según Resolución 2275/2023",
@@ -269,8 +269,8 @@ const Landing = () => {
   const whyUs = [
     {
       icon: Brain,
-      title: "IA entrenada para medicina colombiana",
-      desc: "No es un chatbot genérico. Entiende terminología médica en español, genera historias clínicas SOAP, prescripciones y RIPS en segundos.",
+      title: "IA entrenada para el lenguaje médico",
+      desc: "No es un chatbot genérico. Entiende terminología médica en español, genera historias clínicas SOAP, prescripciones y reportes clínicos en segundos.",
     },
     {
       icon: Shield,
@@ -569,10 +569,10 @@ const Landing = () => {
           <div className={`text-center mb-16 space-y-4 transition-all duration-1000 ${isVisible["why-section"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
             <p className="text-sm font-semibold text-primary uppercase tracking-widest">Por qué elegirnos</p>
             <h2 className="text-4xl lg:text-5xl font-black text-foreground">
-              Construido para el médico colombiano
+              Construido por médicos, para médicos
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              No adaptamos software extranjero. Construimos MEDMIND desde cero para la realidad del sistema de salud colombiano.
+              No adaptamos software genérico. Construimos MEDMIND desde cero para la realidad del ejercicio médico.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -775,7 +775,7 @@ const Landing = () => {
               Más de 200 médicos ya confían en MEDMIND
             </h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              Resultados reales de consultorios colombianos.
+              Resultados reales de consultorios médicos.
             </p>
           </motion.div>
           <div className="flex justify-center gap-5 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] max-h-[780px] overflow-hidden">
